@@ -5,6 +5,9 @@
 one digest over those sources beside each image's name, so any change to a source needs a fresh render. CI runs the
 plain check; after `python3 tools/mockups.py` run `--record` to rewrite the digests.
 
+`tools/visual_audit.py` then checks the render itself: the `layout.json` manifest against the frame, and the pixels
+against the manifest.
+
     python3 tools/check_screenshots.py           # CI: fail on a stale image
     python3 tools/check_screenshots.py --record  # after a render
 """

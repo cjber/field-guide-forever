@@ -11,18 +11,25 @@ luacheck .
 stylua --check .
 for spec in tests/*_spec.lua; do lua5.1 "$spec" || exit 1; done
 python3 tools/check_screenshots.py
+python3 tools/visual_audit.py
 uvx ruff@0.16.8 check tools && uvx ruff@0.16.8 format --check tools
 python3 tools/changelog.py --check
+python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check
 ```
 
 Run these from the repository root before every change is handed over. The specs are plain Lua 5.1 scripts, not
 busted: they load `tests/wow_mock.lua`, build a sandbox with `Mock.Harness()`, and assert with `assert(...)`. A spec
 prints one `name: ok` line and exits non-zero on failure.
 
-`tools/` holds the development tooling, which `.pkgmeta` keeps out of the package: `mockups.py` renders
-`docs/screenshots/` with wowmock against the pinned client build, `check_screenshots.py` fails when an image is older
-than the sources it is drawn from (`--record` after a render), `changelog.py` prints or checks a release's entry,
-`check_package.py` checks what the packager built, and `release_check.py` gates the release on a green full CI run.
+`tools/` holds the development tooling, which `.pkgmeta` keeps out of the package: `tools/mockups.py` renders
+`docs/screenshots/` with wowmock against the pinned client build, `tools/check_screenshots.py` fails when an image is
+older than the sources it is drawn from (`--record` after a render), `tools/changelog.py` prints or checks a
+release's entry, `tools/check_package.py` checks what the packager built, and `tools/release_check.py` gates the
+release on a green full CI run.
+`tools/visual_audit.py` reads the `docs/screenshots/layout.json` manifest `tools/mockups.py` writes and fails when a widget leaves the window
+frame, when two controls overlap or sit closer than 8 units apart, or when the rendered button art is not where the
+manifest says it is. A layout bug is fixed in the renderer's shared constants (and in `UI/Window.lua` if the addon
+agrees), then re-rendered; never by editing a PNG.
 
 ## Layout
 
@@ -39,9 +46,9 @@ than the sources it is drawn from (`--record` after a render), `changelog.py` pr
 - `Core/API.lua` — the public addon-to-addon contract. It is versioned and answers nil until the saved state is known,
   so callers can ask again after login instead of reading an empty catalogue.
 - `Core/Settings.lua` — the options panel registration.
-- `UI/` — `Art.lua` owns the palette and frame helpers; `Window.lua` owns the shell and selection state; `List.lua` and
-  `Detail.lua` draw the two panes; `Tooltip.lua` owns hover text.
-- `tests/` — `wow_mock.lua` plus the model, data and API specs. Nothing in `tests/` ships.
+- `UI/` — `UI/Art.lua` owns the palette and frame helpers; `UI/Window.lua` owns the shell and selection state;
+  `UI/List.lua` and `UI/Detail.lua` draw the two panes; `UI/Tooltip.lua` owns hover text.
+- `tests/` — `tests/wow_mock.lua` plus the model, data and API specs. Nothing in `tests/` ships.
 - `docs/screenshots/` — screenshots referenced from the README; development only.
 
 ## Rules
@@ -63,6 +70,10 @@ than the sources it is drawn from (`--record` after a render), `changelog.py` pr
 - Use the palette in `UI/Art.lua` and the client's own `GameFontNormal`, `GameFontHighlight` and
   `GameFontDisableSmall`; do not ship custom fonts or stretch icons.
 - Do not edit `.luacheckrc` to hide a real warning. Add a `read_globals` entry only for a genuine WoW API global.
+- Quality: load `.agents/skills/sift-project/SKILL.md` before cleanup, dead-code or refactoring work, and run
+  `python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check` with the other gates.
+- Never merge a change to `UI/` that leaves `python3 tools/visual_audit.py` red: read the rendered images, not just
+  the diff.
 
 ## Release flow
 

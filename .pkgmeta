@@ -1,6 +1,8 @@
 package-as: FieldGuideForever
 
 ignore:
+  - .agents
+  - .sift
   - .editorconfig
   - .github
   - .gitattributes
