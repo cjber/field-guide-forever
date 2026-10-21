@@ -48,13 +48,30 @@ The addon targets the WoW: Forever client, Interface 16001. It has no dependenci
 
 ## Screenshots
 
-![The bestiary window](docs/screenshots/bestiary.png)
+![A short walk through the journal](docs/screenshots/demo.gif)
+
+The three pages of the journal:
+
+![The Bestiary page](docs/screenshots/bestiary.png)
 
 ![Rare species](docs/screenshots/rares.png)
 
 ![A shiny sighting](docs/screenshots/shiny.png)
 
-![A short walk through the journal](docs/screenshots/demo.gif)
+Ten creatures from ten zones, one per page, in the order the catalogue opens them:
+
+| | | |
+| --- | --- | --- |
+| ![Savannah Prowler, The Barrens](docs/screenshots/creature-01.png) | ![Durotar](docs/screenshots/creature-02.png) | ![Mulgore](docs/screenshots/creature-03.png) |
+| ![Teldrassil](docs/screenshots/creature-04.png) | ![Elwynn Forest](docs/screenshots/creature-05.png) | ![Westfall](docs/screenshots/creature-06.png) |
+| ![Redridge Mountains](docs/screenshots/creature-07.png) | ![Loch Modan](docs/screenshots/creature-08.png) | ![Tirisfal Glades](docs/screenshots/creature-09.png) |
+| ![Silverpine Forest](docs/screenshots/creature-10.png) | | |
+
+All of them are rendered from this addon's own catalogue and palette by `tools/preview.py` (`python3
+tools/preview.py`), which reads `Data/Creatures.lua` and draws the window, list and detail panel the way
+`UI/Window.lua`, `UI/List.lua` and `UI/Detail.lua` lay them out. The creature plates stand in for the client's
+portraits, which live in the game archives, and the per-species progress is derived from the species id so the
+render is reproducible.
 
 ## Credits
 
