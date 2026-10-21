@@ -62,17 +62,6 @@ def sparkle(canvas, cx, cy, size, colour):
     canvas.fill(cx - 1, cy - 1, 3, 3, colour)
 
 
-def iridescent(x, y, w, h):
-    """SHINY's rim: a cyan to violet sweep, because one flat colour would read as 'another gold'."""
-    top = wowmock.rgb("8fe3ff")
-    bottom = wowmock.rgb("c8a8ff")
-    for row in range(h):
-        blend = row / max(1, h - 1)
-        colour = tuple(round(top[i] + (bottom[i] - top[i]) * blend) for i in range(3))
-        canvas_row = colour
-        yield (x, y + row, w, canvas_row)
-
-
 def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False, nameplate=False):
     """One target frame: the client's targeting frame art, a health fill, the creature icon in the portrait, and
     the tier's trim. Copper draws no trim at all, which is the design's whole claim."""
@@ -107,8 +96,6 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False, namepla
     tx, ty = x + left - pad, y + top - pad
     tw, th = (right - left) + pad * 2, (bottom - top) + pad * 2
     if label == "SHINY":
-        for row, (rx, ry, rw, rc) in enumerate(iridescent(tx, ty, tw, th)):
-            pass
         # A soft two-tone edge: cyan along the top, violet along the bottom, plus a faint halo.
         canvas.fill(tx, ty, tw, 2, wowmock.rgb("8fe3ff"))
         canvas.fill(tx, ty + th - 2, tw, 2, wowmock.rgb("c8a8ff"))
