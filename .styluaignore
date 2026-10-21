@@ -1,0 +1,6 @@
+.claude/
+.release/
+.release-notes.md
+reference/
+tools/.cache/
+.types/

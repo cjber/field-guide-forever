@@ -1,0 +1,18 @@
+package-as: BestiaryForever
+
+ignore:
+  - .editorconfig
+  - .github
+  - .gitattributes
+  - .gitignore
+  - .luacheckrc
+  - .luarc.json
+  - .styluaignore
+  - AGENTS.md
+  - CHANGELOG.md
+  - docs
+  - reference
+  - ruff.toml
+  - stylua.toml
+  - tests
+  - tools

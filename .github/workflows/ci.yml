@@ -1,0 +1,134 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # refresh-data.yml dispatches CI on the data PR it opens (WFA-19).
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: sudo apt-get update && sudo apt-get install -y luajit lua-check
+      - run: luacheck .
+      - run: for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
+      # A screenshot older than the code it is drawn from (docs/screenshots/scenes.sha256).
+      - run: python3 tools/check_screenshots.py
+      - uses: JohnnyMorganz/stylua-action@76fd70c03e6340ceaf673366712db9b20560b402 # v5.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: 2.5.2
+          args: --check .
+
+  generated:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tools/.cache
+          key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py') }}
+          restore-keys: regeneration-${{ runner.os }}-
+      - run: python3 tools/check_generated.py
+      - run: python3 -m tools.phrases --check
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # tools/check_locales.py parses each translation with LuaJIT.
+      - run: sudo apt-get update && sudo apt-get install -y luajit
+      - name: Install LuaLS 3.19.1
+        run: |
+          mkdir -p "$RUNNER_TEMP/luals"
+          curl -sSfL -o "$RUNNER_TEMP/luals.tar.gz" https://github.com/LuaLS/lua-language-server/releases/download/3.19.1/lua-language-server-3.19.1-linux-x64.tar.gz
+          echo "e9235d2d72ef55bc41cf8c99cda2ed64777682024b4bb81f5dea425060c5cbb8  $RUNNER_TEMP/luals.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/luals.tar.gz" -C "$RUNNER_TEMP/luals"
+          echo "$RUNNER_TEMP/luals/bin" >> "$GITHUB_PATH"
+      - run: tools/typecheck.sh
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - run: uvx ruff@0.16.8 check tools
+      - run: uvx ruff@0.16.8 format --check tools
+      - run: uvx ty@0.0.83 check tools --extra-search-path . --extra-search-path tools
+
+  sift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # A release publishes its changelog entry, so every tagged version needs one.
+      - run: python3 tools/changelog.py --check
+      - env:
+          BASE: ${{ github.base_ref || github.event.repository.default_branch }}
+        run: python3 .sift/gate.py --base "origin/$BASE"
+      - run: python3 .sift/agents.py check
+
+  workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - run: uvx --from actionlint-py==1.7.12.25 actionlint
+      - run: uvx zizmor@1.30.1 --offline .github
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install gitleaks 8.30.1
+        run: |
+          curl -sSfL -o gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
+      - run: ./gitleaks git --redact --no-banner .
+
+  # What a tag would ship, checked before it ships: the release workflow's packager without uploading or zipping,
+  # then tools/check_package.py on .release/ (every loaded file present, no development folders, specs pass on it).
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: sudo apt-get update && sudo apt-get install -y luajit
+      # .pkgmeta's manual changelog, which the release fills with the version's entry.
+      - run: printf 'Package check\n' > .release-notes.md
+      # The packager skips a push build when HEAD carries a tag ("Found future tag, not packaging"), so a tag that
+      # lands while this run is in flight would fail this job and leave main without the green run a release starts
+      # from. This job checks what a tag would ship, so hide HEAD's tags and let the dry run build what an ordinary
+      # push to main builds.
+      - name: Package this commit as an untagged build
+        run: git tag --points-at HEAD | xargs -r git tag --delete
+      - uses: BigWigsMods/packager@e50a250f8705041e40f2fa1ddcb280a686d65aa0 # v2.6.1
+        with:
+          args: -d -z
+      - run: python3 tools/check_package.py

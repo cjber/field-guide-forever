@@ -1,0 +1,23 @@
+## Interface: 16001
+## Title: Bestiary Forever
+## Notes: A cosmetic creature catalogue for Azeroth: track kills, rare variants and shinies zone by zone.
+## Author: cjber
+## Version: @project-version@
+## Category: Interface Enhancements
+## IconTexture: Interface\AddOns\BestiaryForever\media\Icon
+## X-License: GPL-3.0-or-later
+## X-Website: https://github.com/cjber/bestiary-forever
+## SavedVariables: BestiaryForeverDB
+
+Locales\enUS.lua
+Data\Creatures.lua
+Core\SafeCall.lua
+Core\Model.lua
+Core\Core.lua
+Core\API.lua
+Core\Settings.lua
+UI\Art.lua
+UI\Tooltip.lua
+UI\List.lua
+UI\Detail.lua
+UI\Window.lua
