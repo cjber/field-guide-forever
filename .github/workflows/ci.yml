@@ -21,6 +21,8 @@ jobs:
       - run: for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
       # A screenshot older than the code it is drawn from (docs/screenshots/scenes.sha256).
       - run: python3 tools/check_screenshots.py
+      # The rendered layout: every widget inside the frame, no overlap, no bleed past the edge.
+      - run: pip install pillow==12.2.0 && python3 tools/visual_audit.py
       - uses: JohnnyMorganz/stylua-action@76fd70c03e6340ceaf673366712db9b20560b402 # v5.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -38,6 +40,19 @@ jobs:
       - run: uvx ruff@0.16.8 format --check tools
       # Pillow is local-only for the renderer, so tools/ carries `ty: ignore[unresolved-import]` on those imports.
       - run: uvx ty@0.0.83 check tools --extra-search-path . --extra-search-path tools
+
+  # The repository's own rules and the shared quality lenses (Agent Labs sift), on every push and pull request.
+  sift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - env:
+          BASE: ${{ github.base_ref || github.event.repository.default_branch }}
+        run: python3 .sift/gate.py --base "origin/$BASE"
+      - run: python3 .sift/agents.py check
 
   changelog:
     runs-on: ubuntu-latest

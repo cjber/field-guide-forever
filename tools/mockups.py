@@ -11,6 +11,7 @@ window's logical size, on wowmock's plain backdrop.
 Deterministic: the specimen counts come from the species id, so a second run is byte-identical.
 """
 
+import json
 import re
 import sys
 import textwrap
@@ -46,6 +47,15 @@ TROUGH = wowmock.rgb("303236")
 PANEL = wowmock.rgb("212429")
 
 W, H = 960, 720
+# UI/Window.lua's shell geometry, and the only place these numbers live in this file: the bottom bar is 924 wide at
+# BOTTOMLEFT (18, 12), and each button is anchored to the bar's TOPRIGHT by its right inset, exactly as the addon
+# anchors them. Drawing from the same arithmetic the Lua does is what keeps a render from drifting off the frame.
+BAR_X, BAR_Y, BAR_W, BAR_H = 18, H - 12 - 58, 924, 58
+BUTTON_H, BUTTON_TOP = 26, 16
+OPEN_W, OPEN_RIGHT = 112, 158
+TRACK_W, TRACK_RIGHT = 132, 12
+OPEN_X = BAR_X + BAR_W - OPEN_RIGHT - OPEN_W
+TRACK_X = BAR_X + BAR_W - TRACK_RIGHT - TRACK_W
 MASTERED_AT, RARE_TARGET, SHINY_TARGET = 10, 3, 1
 RANK_NAMES = ("Undiscovered", "Discovered", "Observed", "Studied", "Mastered")
 PIPS = ("Discovered", "Observed", "Studied", "Mastered")
@@ -417,11 +427,22 @@ def marker(canvas, cx, cy, size, colour):
     canvas.draw(canvas.ui.atlas("common-icon-checkmark"), cx - size / 2, cy - size / 2, size, size, colour)
 
 
+LAYOUT: dict[str, object] = {}
+
+
+def note(name, role, x, y, w, h):
+    """Record a widget rect (canvas units) for tools/visual_audit.py: bounds, overlaps and margins."""
+    widgets = LAYOUT.setdefault("widgets", [])
+    widgets.append({"name": name, "role": role, "x": round(x, 1), "y": round(y, 1), "w": round(w, 1), "h": round(h, 1)})
+
+
 def window(ui, zone, species, tab, icons, sigil):
     """The journal as UI/Window.lua builds it: a real PortraitFrameTemplate (metal NineSlice, circular portrait,
     centred title, close button) around the addon's own list and detail panes at their own anchors."""
     m = 26
     canvas = ui.canvas(W + m * 2, H + m * 2)
+    # Every scene draws the same shell, so the last one's widget list is the layout.
+    LAYOUT.pop("widgets", None)
 
     def px(x):
         return m + x
@@ -444,11 +465,16 @@ def window(ui, zone, species, tab, icons, sigil):
     )
 
     index = ("CREATURES", "RARES", "SHINY").index(tab)
-    panel_tabs(canvas, px(20), py(54), ["Creatures", "Rares", "Shiny"], selected=index)
+    tab_rects = panel_tabs(canvas, px(20), py(54), ["Creatures", "Rares", "Shiny"], selected=index)
+    strip_left = min(r[0] for r in tab_rects)
+    strip_right = max(r[0] + r[2] for r in tab_rects)
+    note("tabs", "tabs", strip_left, py(54), strip_right - strip_left, 32)
 
     text(canvas, px(24), py(90), f"{zone['continent']}  >  {zone['name']}", "GameFontNormal", TEXT)
     search_box(canvas, px(24), py(112), 250, 24, "Search creatures")
-    filter_dropdown(canvas, px(942), py(112), "All")
+    note("search", "input", px(24), py(112), 250, 24)
+    fx, fy, fw, fh = filter_dropdown(canvas, px(942), py(112), "All")
+    note("filter", "input", fx, fy, fw, fh)
     canvas.draw(ui.atlas("_UI-Frame-InnerTopTile"), px(18), py(142), W - 36, 3)
 
     # Left pane: the creature list.
@@ -648,20 +674,43 @@ def window(ui, zone, species, tab, icons, sigil):
         DIM,
     )
 
-    # Bottom bar: zone completion and the two buttons.
-    by = py(650)
-    card(canvas, px(18), by, 924, 58)
+    # Bottom bar: zone completion and the two buttons, at the bar's own coordinates (the addon anchors them to the
+    # bar, so a button starts BAR_W - inset - width from the bar's left, not from the window's).
+    by = py(BAR_Y)
+    card(canvas, px(BAR_X), by, BAR_W, BAR_H)
+    note("bottom bar", "bar", px(BAR_X), by, BAR_W, BAR_H)
+    button_y = by + BUTTON_TOP
     text(canvas, px(32), by + 8, "ZONE COMPLETION", "GameFontDisableSmall", MUTED)
     fraction = catalogued / len(zone["species"])
     text(canvas, px(32), by + 23, f"{round(fraction * 100)}%", "GameFontNormal", GOLD)
     bar(canvas, px(138), by + 27, 320, 6, fraction, GREEN)
     text(canvas, px(138), by + 38, f"{catalogued} of {len(zone['species'])} species", "GameFontDisableSmall", MUTED)
     three_slice_button(
-        canvas, px(766), by + 16, 112, 26, "Open Journal", FONTS["GameFontNormalSmall"], atlas="128-RedButton"
+        canvas,
+        px(OPEN_X),
+        button_y,
+        OPEN_W,
+        BUTTON_H,
+        "Open Journal",
+        FONTS["GameFontNormalSmall"],
+        atlas="128-RedButton",
     )
+    note("Open Journal", "button", px(OPEN_X), button_y, OPEN_W, BUTTON_H)
     three_slice_button(
-        canvas, px(882), by + 16, 132, 26, "Track Species", FONTS["GameFontNormalSmall"], atlas="128-RedButton"
+        canvas,
+        px(TRACK_X),
+        button_y,
+        TRACK_W,
+        BUTTON_H,
+        "Track Species",
+        FONTS["GameFontNormalSmall"],
+        atlas="128-RedButton",
     )
+    note("Track Species", "button", px(TRACK_X), button_y, TRACK_W, BUTTON_H)
+    if not LAYOUT.get("canvas"):
+        LAYOUT["canvas"] = {"width": canvas.width, "height": canvas.height, "scale": ui.scale}
+        LAYOUT["frame"] = {"x": px(0), "y": py(0), "w": W, "h": H}
+        LAYOUT["scenes"] = []
     return canvas
 
 
@@ -694,9 +743,13 @@ def main():
     def render(zone, species, tab="CREATURES"):
         return wowmock.scene(ui, [(window(ui, zone, species, tab, icons, sigil), 0, 0)])
 
-    render(barrens, prowler, "CREATURES").save(OUT / "field-guide.png")
-    render(rare_zone, rare, "RARES").save(OUT / "rares.png")
-    render(shiny_zone, shiny, "SHINY").save(OUT / "shiny.png")
+    def save(scene, name):
+        scene.save(OUT / name)
+        LAYOUT.setdefault("scenes", []).append(name)
+
+    save(render(barrens, prowler, "CREATURES"), "field-guide.png")
+    save(render(rare_zone, rare, "RARES"), "rares.png")
+    save(render(shiny_zone, shiny, "SHINY"), "shiny.png")
 
     examples = [
         ("The Barrens", lambda s: "Prowler" in s["name"]),
@@ -712,7 +765,7 @@ def main():
     ]
     for index, (zone_name, matcher) in enumerate(examples, start=1):
         zone, species = pick(zone_name, matcher)
-        render(zone, species, "CREATURES").save(OUT / (f"creature-{index:02d}.png"))
+        save(render(zone, species, "CREATURES"), f"creature-{index:02d}.png")
 
     demo = [
         render(barrens, prowler, "CREATURES"),
@@ -730,6 +783,7 @@ def main():
     palette_frames[0].save(
         OUT / "demo.gif", save_all=True, append_images=palette_frames[1:], duration=900, loop=0, optimize=True
     )
+    (OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"wrote {len(list(OUT.glob('*')))} files to {OUT}")
 
 

@@ -1,0 +1,78 @@
+{
+  "canvas": {
+    "height": 772,
+    "scale": 2,
+    "width": 1012
+  },
+  "frame": {
+    "h": 720,
+    "w": 960,
+    "x": 26,
+    "y": 26
+  },
+  "scenes": [
+    "field-guide.png",
+    "rares.png",
+    "shiny.png",
+    "creature-01.png",
+    "creature-02.png",
+    "creature-03.png",
+    "creature-04.png",
+    "creature-05.png",
+    "creature-06.png",
+    "creature-07.png",
+    "creature-08.png",
+    "creature-09.png",
+    "creature-10.png"
+  ],
+  "widgets": [
+    {
+      "h": 32,
+      "name": "tabs",
+      "role": "tabs",
+      "w": 222.0,
+      "x": 46,
+      "y": 80
+    },
+    {
+      "h": 24,
+      "name": "search",
+      "role": "input",
+      "w": 250,
+      "x": 50,
+      "y": 138
+    },
+    {
+      "h": 18,
+      "name": "filter",
+      "role": "input",
+      "w": 75.0,
+      "x": 893.0,
+      "y": 138
+    },
+    {
+      "h": 58,
+      "name": "bottom bar",
+      "role": "bar",
+      "w": 924,
+      "x": 44,
+      "y": 676
+    },
+    {
+      "h": 26,
+      "name": "Open Journal",
+      "role": "button",
+      "w": 112,
+      "x": 698,
+      "y": 692
+    },
+    {
+      "h": 26,
+      "name": "Track Species",
+      "role": "button",
+      "w": 132,
+      "x": 824,
+      "y": 692
+    }
+  ]
+}
