@@ -67,11 +67,12 @@ Ten creatures from ten zones, one per page, in the order the catalogue opens the
 | ![Redridge Mountains](docs/screenshots/creature-07.png) | ![Loch Modan](docs/screenshots/creature-08.png) | ![Tirisfal Glades](docs/screenshots/creature-09.png) |
 | ![Silverpine Forest](docs/screenshots/creature-10.png) | | |
 
-All of them are rendered from this addon's own catalogue and palette by `tools/preview.py` (`python3
-tools/preview.py`), which reads `Data/Creatures.lua` and draws the window, list and detail panel the way
-`UI/Window.lua`, `UI/List.lua` and `UI/Detail.lua` lay them out. The creature plates stand in for the client's
-portraits, which live in the game archives, and the per-species progress is derived from the species id so the
-render is reproducible.
+All of them are mock screenshots drawn with the client's own art by `tools/mockups.py` (`python3
+tools/mockups.py`). The script reads `Data/Creatures.lua` for the catalogue and lays the window out the way
+`UI/Window.lua`, `UI/List.lua` and `UI/Detail.lua` do, drawing the dialog border, panel tabs, buttons, atlas marks and
+FRIZQT text from the WoW: Forever client build (`wowmock`, cached under `tools/.cache/wowmock/`), plus a real client
+spell icon per species in place of the creature portraits that live in the game archives. The per-species progress is
+derived from the species id, so two runs produce identical files.
 
 ## Credits
 
