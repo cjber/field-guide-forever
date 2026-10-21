@@ -19,7 +19,7 @@ from PIL import Image  # ty: ignore[unresolved-import]  # Pillow is local only
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import wowmock.wowmock as wowmock  # noqa: E402
-from wowmock.wowmock import FONTS, tint  # noqa: E402
+from wowmock.wowmock import FONTS, Font, tint  # noqa: E402
 
 OUT = ROOT / "docs" / "screenshots"
 
@@ -39,6 +39,14 @@ BRASS = wowmock.rgb("b8a16b")
 BG = wowmock.rgb("0d0f12")
 
 FRAME_W, FRAME_H = 256, 128
+HEALTH_WINDOW = (32, 26, 143, 49)
+POWER_WINDOW = (33, 55, 143, 61)
+PORTRAIT_CENTER = (183, 44)
+PORTRAIT_RADIUS = 28
+LEVEL_CENTER = (201, 66)
+
+# NumberFontNormalSmall is the client font object used by target-frame level text.
+FONTS["NumberFontNormalSmall"] = Font(wowmock.ARIALN, 10, wowmock.WHITE, None, True)
 
 
 def text(canvas, x, y, value, font, colour=TEXT, **kwargs):
@@ -54,30 +62,59 @@ def recolour(piece, colour):
     return tint(grey, colour)
 
 
-def art(canvas, atlas, x, y, w, h, colour=None):
-    """Draw an atlas the way the client would and recolour it before it lands on the canvas."""
-    wpx, hpx = canvas.px(x + w) - canvas.px(x), canvas.px(y + h) - canvas.px(y)
-    piece = canvas.sliced(atlas, wpx, hpx) if atlas.slice else atlas.image.resize((wpx, hpx), Image.LANCZOS)
+def art(canvas, texture, x, y, colour=None):
+    """Draw the complete client texture at native logical size and apply the runtime vertex colour."""
+    piece = texture.resize((canvas.px(FRAME_W), canvas.px(FRAME_H)), Image.LANCZOS)
     canvas.composite(recolour(piece, colour), canvas.px(x), canvas.px(y))
 
 
-def health(canvas, x, y, w, h, fraction, fill):
-    """The bar the client fills: a dark trough with the reaction colour in it."""
-    canvas.fill(x, y, w, h, wowmock.rgb("1a1c20"))
-    canvas.fill(x, y, round(w * fraction), h, fill)
-    canvas.fill(x, y, round(w * fraction), max(2, h // 4), tuple(min(1, c * 1.35) for c in fill))
+def status_bar(canvas, texture, bounds, fraction, colour):
+    """Crop the client's StatusBar texture to the visible fill fraction."""
+    left, top, right, bottom = bounds
+    fraction = max(0, min(1, fraction))
+    width = canvas.px(right - left)
+    height = canvas.px(bottom - top)
+    source_width = max(1, round(texture.width * fraction))
+    fill = texture.crop((0, 0, source_width, texture.height)).resize(
+        (max(1, round(width * fraction)), height), Image.LANCZOS
+    )
+    canvas.composite(tint(fill, colour), canvas.px(left), canvas.px(top))
 
 
 def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False):
-    """One target frame: the client's brass chrome, recoloured to the tier, with its bars over the art's own trough."""
+    """Compose the measured client target frame, including its texture-backed troughs and circular portrait."""
     _, _, colour, _ = tier
-    atlas = ui.atlas("hud-TargetingFrame-elite" if elite else "hud-TargetingFrame")
-    art(canvas, atlas, x, y, FRAME_W, FRAME_H, colour)
-    health(canvas, x + 40, y + 34, 120, 22, 0.86, wowmock.rgb("3f7a34"))
-    health(canvas, x + 40, y + 58, 120, 8, 0.62, wowmock.rgb("2f5a9e"))
-    canvas.draw(icon, x + 168, y + 20, 56, 56)
-    text(canvas, x + 42, y + 8, name, "GameFontNormalSmall", TEXT, width=116)
-    text(canvas, x + 168, y + 78, str(level), "GameFontNormalSmall", wowmock.rgb("d8c58a"), width=56)
+    stem = "targetframeelite" if elite else "targetframe"
+    frame = ui.texture(f"interface/targetingframe/{stem}.blp")
+    bar_texture = ui.texture("interface/targetingframe/ui-targetingframe-barfill.blp")
+    mask = ui.texture("interface/characterframe/tempportraitalphamask.blp")
+
+    # The measured client windows are transparent in the frame BLP, so the canvas supplies the empty trough.
+    # Draw the StatusBars and portrait before the chrome; drawing the BLP twice thickens its semi-transparent edges.
+    health_bounds = tuple(v + (x if i % 2 == 0 else y) for i, v in enumerate(HEALTH_WINDOW))
+    power_bounds = tuple(v + (x if i % 2 == 0 else y) for i, v in enumerate(POWER_WINDOW))
+    status_bar(canvas, bar_texture, health_bounds, 0.86, wowmock.rgb("3f7a34"))
+    status_bar(canvas, bar_texture, power_bounds, 0.62, wowmock.rgb("2f5a9e"))
+
+    portrait_layer = ui.canvas(canvas.width, canvas.height)
+    diameter = PORTRAIT_RADIUS * 2
+    portrait_left, portrait_top = x + PORTRAIT_CENTER[0] - PORTRAIT_RADIUS, y + PORTRAIT_CENTER[1] - PORTRAIT_RADIUS
+    portrait_layer.draw(icon, portrait_left, portrait_top, diameter, diameter)
+    portrait_layer.mask(mask, portrait_left, portrait_top, diameter, diameter)
+    canvas.paste(portrait_layer, 0, 0)
+    # One native-size frame pass keeps the portrait rim, bar borders, and elite crest on the source coordinates.
+    art(canvas, frame, x, y, colour)
+    text(canvas, x + 32, y + 8, name, "GameFontNormalSmall", TEXT, justify="CENTER", width=111)
+    text(
+        canvas,
+        x + LEVEL_CENTER[0] - 15,
+        y + LEVEL_CENTER[1] - 5,
+        str(level),
+        "NumberFontNormalSmall",
+        wowmock.WHITE,
+        justify="CENTER",
+        width=30,
+    )
 
 
 def nameplate(ui, canvas, x, y, tier, name, elite=False):
@@ -85,11 +122,26 @@ def nameplate(ui, canvas, x, y, tier, name, elite=False):
     the client draws it. Copper leaves the trough at the bronze the client ships."""
     _, _, colour, _ = tier
     w, h = 116, 12
-    art(canvas, ui.atlas("UI-HUD-CoolDownManager-Bar-BG"), x - 4, y - 4, w + 8, h + 8, colour)
-    health(canvas, x, y, w, h, 0.9, wowmock.rgb("a3342c"))
-    text(canvas, x, y - 15, name, "GameFontNormalSmall", TEXT, width=w)
+    fill_texture = ui.texture("interface/targetingframe/nameplatefill.blp")
+    plate_colour = colour or BRASS
+    trough_colour = tuple(component * 0.18 for component in plate_colour)
+    canvas.draw(fill_texture, x, y, w, h, trough_colour)
+    status_bar(canvas, fill_texture, (x, y, x + w, y + h), 0.9, wowmock.rgb("a3342c"))
+    font = FONTS["GameFontNormalSmall"]
+    label_width = canvas.text_width(name, font)
+    icon_size = 14 if elite else 0
+    gap = 3 if elite else 0
+    group_width = label_width + gap + icon_size
+    group_left = x + (w - group_width) / 2
+    text(canvas, group_left, y - 15, name, "GameFontNormalSmall", TEXT)
     if elite:
-        canvas.draw(ui.atlas("nameplates-icon-elite-gold"), x + w - 15, y - 23, 14, 14)
+        canvas.draw(
+            ui.atlas("nameplates-icon-elite-gold"),
+            group_left + label_width + gap,
+            y - 17,
+            icon_size,
+            icon_size,
+        )
 
 
 def sheet(ui, icons, name, elite=False, plates=False):

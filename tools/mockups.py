@@ -20,6 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import wowmock.wowmock as wowmock  # noqa: E402
 from wowmock.wowmock import (  # noqa: E402
     FONTS,
+    INSET_FRAME_LAYOUT,
+    draw_nine_slice,
     filter_dropdown,
     minimal_scrollbar,
     panel_tabs,
@@ -395,13 +397,10 @@ def bar(canvas, x, y, w, h, fraction, colour):
         canvas.fill(x, y, filled, h, colour)
 
 
-def card(canvas, x, y, w, h, border=BRASS):
-    """A small inset: the addon's own panel colour with a one-unit brass edge, as Art.Card draws it."""
+def card(canvas, x, y, w, h, border=None):
+    """A restrained inset using the client's InsetFrameTemplate NineSlice chrome."""
     canvas.fill(x, y, w, h, wowmock.rgb("171a1e"))
-    canvas.fill(x, y, w, 1, border)
-    canvas.fill(x, y + h - 1, w, 1, border)
-    canvas.fill(x, y, 1, h, border)
-    canvas.fill(x + w - 1, y, 1, h, border)
+    draw_nine_slice(canvas, INSET_FRAME_LAYOUT, x, y, w, h)
 
 
 def text(canvas, x, y, value, font, colour=TEXT, **kwargs):
@@ -413,18 +412,9 @@ def right(canvas, right_edge, y, value, font, colour=TEXT, width=120):
     canvas.text(right_edge - width, y, value, FONTS[font], colour, justify="RIGHT", width=width)
 
 
-def diamond(canvas, cx, cy, size, colour):
-    """FRIZQT has no diamond or star, and the client draws status marks with art, so these are built from fills."""
-    half = size / 2
-    for row in range(size):
-        inset = abs(row - half + 0.5)
-        canvas.fill(cx - (half - inset), cy - half + row, max(1, (half - inset) * 2), 1, colour)
-
-
-def triangle(canvas, x, y, width, colour):
-    """A dropdown arrow, drawn as stepped rows because the font has no solid triangle."""
-    for row in range(max(2, width // 2)):
-        canvas.fill(x + row, y + row, max(1, width - 2 * row), 1, colour)
+def marker(canvas, cx, cy, size, colour):
+    """Use the client's checkmark atlas for completion and event markers."""
+    canvas.draw(canvas.ui.atlas("common-icon-checkmark"), cx - size / 2, cy - size / 2, size, size, colour)
 
 
 def window(ui, zone, species, tab, icons, sigil):
@@ -459,7 +449,7 @@ def window(ui, zone, species, tab, icons, sigil):
     text(canvas, px(24), py(90), f"{zone['continent']}  >  {zone['name']}", "GameFontNormal", TEXT)
     search_box(canvas, px(24), py(112), 250, 24, "Search creatures")
     filter_dropdown(canvas, px(942), py(112), "All")
-    canvas.fill(px(18), py(142), W - 36, 1, wowmock.rgb("403a2e"))
+    canvas.draw(ui.atlas("_UI-Frame-InnerTopTile"), px(18), py(142), W - 36, 3)
 
     # Left pane: the creature list.
     catalogued = sum(1 for s in zone["species"] if progress(s)["count"])
@@ -501,7 +491,7 @@ def window(ui, zone, species, tab, icons, sigil):
         right(canvas, px(372), y + 7, f"{state['count']} / 10", "GameFontNormal", TEXT, width=44)
         complete = state["count"] >= 1 and bool(state["shiny"]) and (not row["rare"] or state["rare"] >= RARE_TARGET)
         if state["count"] >= MASTERED_AT:
-            diamond(canvas, px(352), y + 32, 7, GOLD)
+            marker(canvas, px(352), y + 32, 11, GOLD)
         elif complete:
             canvas.draw(ui.atlas("common-icon-checkmark"), px(346), y + 26, 11, 11, GREEN)
         canvas.fill(px(70), y + 47, 252, 5, wowmock.rgb("303236"))
@@ -563,9 +553,16 @@ def window(ui, zone, species, tab, icons, sigil):
     for pip_index, name in enumerate(PIPS):
         x = rx + 14 + 28 + pip_index * 108
         on = rank >= pip_index + 1
-        diamond(canvas, x + 5, ry + 102 + 33, 9, GOLD if on else wowmock.rgb("4a4842"))
+        marker(canvas, x + 5, ry + 102 + 33, 11, GOLD if on else wowmock.rgb("4a4842"))
         if pip_index < len(PIPS) - 1:
-            canvas.fill(x + 13, ry + 102 + 32, 90, 1, GOLD if rank >= pip_index + 2 else wowmock.rgb("3a382f"))
+            canvas.draw(
+                ui.atlas("_UI-Frame-InnerTopTile"),
+                x + 13,
+                ry + 102 + 31,
+                90,
+                3,
+                GOLD if rank >= pip_index + 2 else wowmock.rgb("3a382f"),
+            )
         text(
             canvas,
             x - 38,
@@ -625,7 +622,7 @@ def window(ui, zone, species, tab, icons, sigil):
     for reward_index, (label, status, open_) in enumerate(rewards):
         column, row_index = reward_index % 2, reward_index // 2
         lx, ly = rx + 34 + column * 230, ry + 345 + row_index * 20
-        diamond(canvas, lx - 10, ly + 5, 5, GOLD if open_ else wowmock.rgb("4a4842"))
+        marker(canvas, lx - 10, ly + 5, 9, GOLD if open_ else wowmock.rgb("4a4842"))
         text(canvas, lx, ly, label, "GameFontDisableSmall", TEXT if open_ else MUTED)
         right(canvas, lx + 182, ly, status, "GameFontDisableSmall", GREEN if open_ else MUTED, width=104)
 
@@ -640,7 +637,7 @@ def window(ui, zone, species, tab, icons, sigil):
     ]
     for line_index, (line, colour) in enumerate(sightings):
         ly = ry + 420 + line_index * 14
-        diamond(canvas, rx + 3, ly + 5, 5, colour)
+        marker(canvas, rx + 3, ly + 5, 9, colour)
         text(canvas, rx + 14, ly, line, "GameFontDisableSmall", colour)
     text(
         canvas,
