@@ -1,9 +1,9 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local _, ns = ...
 local L = ns.L
 local Art = ns.Art
 
----@class BFList
+---@class FGList
 local List = {}
 ns.List = List
 
@@ -11,20 +11,23 @@ local ROW_HEIGHT = 58
 local BAR_WIDTH = 252
 
 ---@param row Frame
----@param entry BFListEntry
+---@param entry FGListEntry
 ---@param selectedId integer?
 local function UpdateRow(row, entry, selectedId)
 	local species = entry.species
 	local state = entry.state
 	local count = state and state.count or 0
-	Art.Icon(row.Icon, Art.FamilyIcon(species.family), 32)
+	Art.Icon(row.Icon, Art.SpeciesIcon(species.name, species.family), 32)
 	row.Name:SetText(species.name)
+	local variants = ns.Model.Variants(state, species.id)
+	local nameColor = variants.rare.known and "rare" or "text"
+	local nr, ng, nb = Art.RGBA(nameColor, 1)
+	row.Name:SetTextColor(nr, ng, nb, 1)
 	row.Sub:SetText(string.format(L["%s · Lv %d-%d"], L[species.family], species.minLevel, species.maxLevel))
 	row.Counter:SetText(string.format(L["%d / %d"], count, ns.Model.MASTERED_AT))
 	row.Fill:SetWidth(BAR_WIDTH * count / ns.Model.MASTERED_AT)
 	row.Selected:SetShown(selectedId == species.id)
 
-	local variants = ns.Model.Variants(state, species.id)
 	local complete = ns.Model.IsComplete(state, species.id, species)
 	if count >= ns.Model.MASTERED_AT then
 		row.Glyph:SetText(L["✦"])
@@ -62,6 +65,7 @@ local function CreateRow(index)
 	row.Icon = row:CreateTexture(nil, "ARTWORK")
 	row.Icon:SetPoint("TOPLEFT", 10, -10)
 	row.Icon:SetSize(32, 32)
+	Art.Bezel(row.Icon)
 
 	row.Name = Art.Text(row, "GameFontNormal", "text")
 	row.Name:SetPoint("TOPLEFT", 52, -7)
@@ -121,7 +125,7 @@ function List.Create(parent, controller)
 	List.empty:Hide()
 end
 
----@param entries BFListEntry[]
+---@param entries FGListEntry[]
 ---@param selectedId integer?
 function List.Refresh(entries, selectedId)
 	if not List.child then

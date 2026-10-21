@@ -1,4 +1,4 @@
-package-as: BestiaryForever
+package-as: FieldGuideForever
 
 ignore:
   - .editorconfig

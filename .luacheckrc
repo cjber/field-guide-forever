@@ -10,10 +10,10 @@ exclude_files = {
 }
 ignore = { "212/_.*" } -- unused arguments prefixed with _
 globals = {
-	"BestiaryForever",
-	"BestiaryForeverDB",
-	"SLASH_BESTIARYFOREVER1",
-	"SLASH_BESTIARYFOREVER2",
+	"FieldGuideForever",
+	"FieldGuideForeverDB",
+	"SLASH_FIELDGUIDEFOREVER1",
+	"SLASH_FIELDGUIDEFOREVER2",
 	"SlashCmdList",
 }
 read_globals = {
@@ -37,6 +37,9 @@ read_globals = {
 	"GetZoneText",
 	"InCombatLockdown",
 	"InterfaceOptions_AddCategory",
+	"PanelTemplates_DeselectTab",
+	"PanelTemplates_SelectTab",
+	"PanelTemplates_TabResize",
 	"Settings",
 	"UIParent",
 	"UISpecialFrames",

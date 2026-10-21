@@ -1,13 +1,14 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local _, ns = ...
 
 -- English phrases are the keys. A translation lists the same keys with its own text, and the fallback keeps an
 -- untranslated phrase readable instead of blank.
 ---@type table<string, string>
 local L = {
-	["Bestiary Forever"] = "Bestiary Forever",
-	["Bestiary Forever options"] = "Bestiary Forever options",
-	["BESTIARY"] = "BESTIARY",
+	["Field Guide Forever"] = "Field Guide Forever",
+	["Field Guide Forever options"] = "Field Guide Forever options",
+	["FIELD GUIDE"] = "FIELD GUIDE",
+	["CREATURES"] = "CREATURES",
 	["RARES"] = "RARES",
 	["SHINY"] = "SHINY",
 	["Azeroth field journal"] = "Azeroth field journal",
@@ -47,7 +48,7 @@ local L = {
 	["Ink study"] = "Ink study",
 	["Brass plate"] = "Brass plate",
 	["Gilded entry"] = "Gilded entry",
-	["Cosmetic only — the bestiary never grants player power."] = "Cosmetic only — the bestiary never grants player power.",
+	["Cosmetic only — the field guide never grants player power."] = "Cosmetic only — the field guide never grants player power.",
 	["Sighting log"] = "Sighting log",
 	["Kill"] = "Kill",
 	["Rare"] = "Rare",
@@ -64,7 +65,7 @@ local L = {
 	["Undiscovered"] = "Undiscovered",
 	["Show undiscovered species"] = "Show undiscovered species",
 	["Show the sighting log"] = "Show the sighting log",
-	["Open your bestiary with /bestiary or /bst."] = "Open your bestiary with /bestiary or /bst.",
+	["Open your field guide with /fieldguide or /fg."] = "Open your field guide with /fieldguide or /fg.",
 	["✦"] = "✦",
 	["✓"] = "✓",
 	["★"] = "★",

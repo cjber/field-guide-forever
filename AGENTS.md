@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Bestiary Forever is a World of Warcraft: Forever addon (Interface 16001) that keeps a cosmetic field journal of the
+Field Guide Forever is a World of Warcraft: Forever addon (Interface 16001) that keeps a cosmetic field journal of the
 creatures a character has met. It records specimens, rare variants and shiny colour variants per zone. It never grants
 player power, changes combat or calls a protected function.
 
@@ -26,7 +26,7 @@ than the sources it is drawn from (`--record` after a render), `changelog.py` pr
 
 ## Layout
 
-- `BestiaryForever.toc` — the only file list the client reads. Locales load first, then Data, Core and UI; a new file
+- `FieldGuideForever.toc` — the only file list the client reads. Locales load first, then Data, Core and UI; a new file
   that is not in the TOC never runs.
 - `Locales/enUS.lua` — every phrase the UI shows, keyed by the English text. `L["..."]` is the only source of
   player-visible text in UI files.
@@ -47,7 +47,7 @@ than the sources it is drawn from (`--record` after a render), `changelog.py` pr
 ## Rules
 
 - Lua 5.1 in the game's sandbox: no `require`, no package path and no new global except the saved variable
-  `BestiaryForeverDB`, the public `BestiaryForever` table and the slash globals the client expects.
+  `FieldGuideForeverDB`, the public `FieldGuideForever` table and the slash globals the client expects.
 - Keep `Core/Model.lua` pure. If it needs `GetZoneText`, `UnitName`, a frame or a saved variable, the code belongs in
   `Core/Core.lua` or the UI. The specs must be able to call Model with a table and a random function only.
 - The combat-log handler writes tables and schedules work. It never touches a frame: the UI refresh is deferred to the

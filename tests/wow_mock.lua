@@ -25,7 +25,7 @@ end
 ---@return string
 function Mock.Root()
 	for _, prefix in ipairs({ "", "../", "../../" }) do
-		if exists(prefix .. "BestiaryForever.toc") then
+		if exists(prefix .. "FieldGuideForever.toc") then
 			return prefix
 		end
 	end
@@ -35,7 +35,7 @@ end
 ---@return string[]
 function Mock.TocFiles()
 	local files = {}
-	local file = io.open(Mock.Root() .. "BestiaryForever.toc", "r")
+	local file = io.open(Mock.Root() .. "FieldGuideForever.toc", "r")
 	if not file then
 		return files
 	end
@@ -525,7 +525,7 @@ function Mock.Harness(opts)
 	local function Load(file)
 		local chunk = assert(loadfile(root .. file))
 		setfenv(chunk, env)
-		return chunk("BestiaryForever", ns)
+		return chunk("FieldGuideForever", ns)
 	end
 
 	for _, file in ipairs(files) do

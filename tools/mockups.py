@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mock screenshots of the Bestiary journal drawn with the client's own art (wowmock).
+"""Mock screenshots of the Field Guide journal drawn with the client's own art (wowmock).
 
 Every pixel that is not the addon's own layout comes from the WoW: Forever client build (nine-slice dialog border,
 panel tabs, buttons, atlas gems, FRIZQT fonts, spell icons), fetched once from wago.tools and cached under
@@ -11,6 +11,7 @@ window's logical size, on wowmock's plain backdrop.
 Deterministic: the specimen counts come from the species id, so a second run is byte-identical.
 """
 
+import re
 import sys
 import textwrap
 from pathlib import Path
@@ -19,11 +20,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import wowmock.wowmock as wowmock  # noqa: E402
 from wowmock.wowmock import (  # noqa: E402
     FONTS,
-    close_button,
-    dialog_border,
+    filter_dropdown,
+    minimal_scrollbar,
     panel_tabs,
-    tooltip_backdrop,
-    ui_panel_button,
+    portrait_frame_art,
+    search_box,
+    three_slice_button,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -36,15 +38,13 @@ TEXT = wowmock.rgb("e3d9c2")
 MUTED = wowmock.rgb("9e998c")
 BLUE = wowmock.rgb("85b8f2")
 GREEN = wowmock.rgb("7d9961")
-DIM = wowmock.rgb("605e58")
+DIM = wowmock.rgb("9e998c")
 DARK = wowmock.rgb("1b1e22")
 TROUGH = wowmock.rgb("303236")
 PANEL = wowmock.rgb("212429")
 
-W, H = 700, 480
+W, H = 960, 720
 MASTERED_AT, RARE_TARGET, SHINY_TARGET = 10, 3, 1
-# The catalogue's size, which the title bar prints; main() fills them in from Data/Creatures.lua.
-TOTAL_SPECIES, TOTAL_ZONES = 0, 0
 RANK_NAMES = ("Undiscovered", "Discovered", "Observed", "Studied", "Mastered")
 PIPS = ("Discovered", "Observed", "Studied", "Mastered")
 
@@ -57,9 +57,265 @@ def rank_of(count):
     return rank
 
 
-# One client icon per family; resolved against the pinned build and cached. The catalogue has no portraits of its
-# own, and NPC portraits are not textures, so a family sigil is what the addon uses in the list and the detail head.
-ICONS = {
+# A species shows its own kind, mirroring Art.SpeciesIcon in UI/Art.lua: the first keyword a creature's name contains
+# wins, and anything unmatched falls back to its family. Every path here resolves in this client build.
+SPECIES_ICONS = (
+    (
+        "interface/icons/ability_hunter_pet_cat.blp",
+        "beast",
+        (
+            "prowler",
+            "highmane",
+            "nightsaber",
+            "cougar",
+            "tiger",
+            "rake",
+            "saber",
+            "dishu",
+        ),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_wolf.blp",
+        "beast",
+        (
+            "wolf",
+            "coyote",
+            "darkhound",
+            "hound",
+            "arugal",
+            "worgen",
+            "stalker",
+            "fenros",
+            "nefaru",
+            "deeb",
+        ),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_boar.blp",
+        "beast",
+        (
+            "boar",
+            "goretusk",
+            "bristleback",
+            "quilboar",
+            "bellygrub",
+        ),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_tallstrider.blp",
+        "beast",
+        (
+            "plainstrider",
+            "strider",
+            "giraffe",
+            "mazzranache",
+        ),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_raptor.blp",
+        "beast",
+        (
+            "raptor",
+            "scytheclaw",
+            "taillasher",
+            "scythemaw",
+        ),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_scorpid.blp",
+        "beast",
+        (
+            "scorpid",
+            "sting",
+            "flayer",
+        ),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_spider.blp",
+        "beast",
+        (
+            "spider",
+            "tarantula",
+            "venomfang",
+            "lurker",
+            "fang",
+        ),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_crocolisk.blp",
+        "beast",
+        (
+            "crocolisk",
+            "snapjaw",
+            "gesharahan",
+        ),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_hyena.blp",
+        "beast",
+        (
+            "hyena",
+            "stormsnout",
+        ),
+    ),
+    (
+        "interface/icons/ability_mount_ridinghorse.blp",
+        "beast",
+        ("zhevra",),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_turtle.blp",
+        "beast",
+        ("turtle",),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_silithid.blp",
+        "beast",
+        (
+            "silithid",
+            "swarmer",
+        ),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_bear.blp",
+        "beast",
+        (
+            "bear",
+            "grizzlegut",
+        ),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_bat.blp",
+        "any",
+        (
+            "harpy",
+            "windfury",
+            "duskbat",
+            "bat",
+            "owl",
+            "strigid",
+            "screecher",
+            "swoop",
+            "buzzard",
+            "condor",
+            "thunderhawk",
+            "hippogryph",
+            "razorbeak",
+            "fleshripper",
+        ),
+    ),
+    (
+        "interface/icons/ability_hunter_pet_worm.blp",
+        "beast",
+        (
+            "worm",
+            "grub",
+        ),
+    ),
+    (
+        "interface/icons/inv_misc_head_tauren_01.blp",
+        "people",
+        (
+            "ogre",
+            "mo'grosh",
+            "kolkar",
+            "galak",
+        ),
+    ),
+    (
+        "interface/icons/inv_misc_head_gnoll_01.blp",
+        "people",
+        (
+            "gnoll",
+            "mongrel",
+            "brute",
+            "mystic",
+            "basher",
+            "trapper",
+        ),
+    ),
+    (
+        "interface/icons/inv_misc_head_kobold_01.blp",
+        "people",
+        (
+            "kobold",
+            "trogg",
+            "stonesplinter",
+            "digger",
+        ),
+    ),
+    (
+        "interface/icons/inv_misc_head_murloc_01.blp",
+        "people",
+        (
+            "murloc",
+            "puddlejumper",
+            "oracle",
+            "coastrunner",
+        ),
+    ),
+    (
+        "interface/icons/inv_misc_head_undead_01.blp",
+        "people",
+        (
+            "ghoul",
+            "dead",
+            "rot",
+            "plague",
+            "gorelix",
+        ),
+    ),
+    (
+        "interface/icons/inv_misc_head_human_01.blp",
+        "people",
+        (
+            "defias",
+            "scarlet",
+            "dalaran",
+            "kul tiras",
+            "human",
+            "thug",
+            "pillager",
+            "looter",
+            "highwayman",
+            "smuggler",
+            "blackguard",
+            "mage",
+            "guard",
+            "theurgist",
+            "sailor",
+            "marine",
+            "convert",
+            "initiate",
+            "warrior",
+            "missionary",
+            "scout",
+            "palemane",
+            "dustwind",
+            "gnarlpine",
+            "melanas",
+            "ursal",
+            "yowler",
+            "zzarc",
+            "slark",
+            "goldtooth",
+            "fedfennel",
+            "gibblewilt",
+            "galgosh",
+        ),
+    ),
+    (
+        "interface/icons/inv_misc_head_dragon_01.blp",
+        "people",
+        (
+            "dragon",
+            "whelp",
+            "drake",
+        ),
+    ),
+)
+# One client icon per family, Art.FAMILY_ICONS in UI/Art.lua.
+FAMILY_ICONS = {
     "Beast": "interface/icons/ability_hunter_beasttaming.blp",
     "Humanoid": "interface/icons/inv_misc_head_human_01.blp",
     "Undead": "interface/icons/spell_shadow_raisedead.blp",
@@ -72,26 +328,22 @@ ICONS = {
     "Aberration": "interface/icons/ability_creature_poison_01.blp",
 }
 FALLBACK_ICON = "interface/icons/inv_misc_bone_01.blp"
-# A second pool, so two species of the same family are not the same picture in the list: real client spell icons,
-# picked by species id rather than by hand so the choice is stable between runs.
-POOL = (
-    "interface/icons/ability_hunter_beasttaming.blp",
-    "interface/icons/ability_creature_poison_01.blp",
-    "interface/icons/spell_nature_lightning.blp",
-    "interface/icons/inv_misc_head_human_01.blp",
-    "interface/icons/spell_shadow_raisedead.blp",
-    "interface/icons/inv_misc_head_dragon_01.blp",
-    "interface/icons/ability_warrior_savageblow.blp",
-    "interface/icons/inv_misc_gear_01.blp",
-    "interface/icons/inv_misc_food_23.blp",
-    "interface/icons/spell_shadow_metamorphosis.blp",
-    "interface/icons/spell_nature_thorns.blp",
-    "interface/icons/inv_misc_pelt_wolf_01.blp",
-    "interface/icons/ability_rogue_sinisterstrike.blp",
-    "interface/icons/spell_fire_firebolt.blp",
-    "interface/icons/spell_frost_frostbolt02.blp",
-    "interface/icons/inv_misc_bone_01.blp",
-)
+
+
+def species_icon(species):
+    """The icon Art.SpeciesIcon picks: a Beast takes the hunter-pet glyphs and everything else the people glyphs, so a
+    shared keyword ("shaman", "arugal") cannot hand a humanoid a beast's icon."""
+    name = species["name"].lower()
+    beast = species["family"] == "Beast"
+    for path, side, keywords in SPECIES_ICONS:
+        if side not in ("any", "beast" if beast else "people"):
+            continue
+        # Whole words only: a bare substring match put "owl" inside "Yowler" and gave a gnoll a bat's glyph.
+        if any(re.search(rf"\b{re.escape(word)}\b", name) for word in keywords):
+            return path
+    return FAMILY_ICONS.get(species["family"], FALLBACK_ICON)
+
+
 SIGIL_ICON = "interface/icons/inv_misc_book_06.blp"
 
 
@@ -144,18 +396,12 @@ def bar(canvas, x, y, w, h, fraction, colour):
 
 
 def card(canvas, x, y, w, h, border=BRASS):
-    """A small inset: the addon's own panel colour with a one-unit brass edge. Kept off tooltip_backdrop, whose
-    12-unit corners need more room than a badge or a search field has."""
+    """A small inset: the addon's own panel colour with a one-unit brass edge, as Art.Card draws it."""
     canvas.fill(x, y, w, h, wowmock.rgb("171a1e"))
     canvas.fill(x, y, w, 1, border)
     canvas.fill(x, y + h - 1, w, 1, border)
     canvas.fill(x, y, 1, h, border)
     canvas.fill(x + w - 1, y, 1, h, border)
-
-
-def panel(canvas, x, y, w, h):
-    """The detail panel: BackdropTemplate's tooltip backdrop, the client's own inset frame art."""
-    tooltip_backdrop(canvas, x, y, w, h, background=(0.08, 0.09, 0.10, 0.95), border=(0.45, 0.40, 0.30, 1))
 
 
 def text(canvas, x, y, value, font, colour=TEXT, **kwargs):
@@ -182,49 +428,41 @@ def triangle(canvas, x, y, width, colour):
 
 
 def window(ui, zone, species, tab, icons, sigil):
-    canvas = ui.canvas(W, H)
-    dialog_border(canvas, 0, 0, W, H, background=(0.043, 0.047, 0.055, 0.94))
-    close_button(canvas, W - 6, 6)
+    """The journal as UI/Window.lua builds it: a real PortraitFrameTemplate (metal NineSlice, circular portrait,
+    centred title, close button) around the addon's own list and detail panes at their own anchors."""
+    m = 26
+    canvas = ui.canvas(W + m * 2, H + m * 2)
 
-    # Title bar: the journal's sigil, its name, and the character whose journal this is.
-    canvas.draw(sigil, 26, 12, 18, 18)
-    text(canvas, 50, 12, "BESTIARY", "GameFontNormalLarge", GOLD)
-    text(canvas, 50, 30, "Field journal of Tester, TestRealm", "GameFontDisableSmall", MUTED)
-    right(
+    def px(x):
+        return m + x
+
+    def py(y):
+        return m + y
+
+    # Bg first: the template is chrome only, and the addon paints its own opaque interior.
+    canvas.fill(px(6), py(22), W - 12, H - 28, wowmock.rgb("0b0c0e"))
+    portrait_frame_art(canvas, m, m, W, H, sigil, "FIELD GUIDE")
+    text(
         canvas,
-        W - 44,
-        30,
-        f"{TOTAL_SPECIES} species \u00b7 {TOTAL_ZONES} zones",
+        px(58),
+        py(30),
+        "Azeroth field journal",
         "GameFontDisableSmall",
         MUTED,
-        width=180,
+        justify="CENTER",
+        width=W - 58 - 24,
     )
 
-    index = ("BESTIARY", "RARES", "SHINY").index(tab)
-    panel_tabs(canvas, 26, 46, ["Bestiary", "Rares", "Shiny"], selected=index)
+    index = ("CREATURES", "RARES", "SHINY").index(tab)
+    panel_tabs(canvas, px(20), py(54), ["Creatures", "Rares", "Shiny"], selected=index)
 
-    # Breadcrumb and the search/filter row.
-    text(canvas, 26, 78, zone["continent"].upper(), "GameFontDisableSmall", MUTED)
-    text(canvas, 26, 88, zone["name"], "GameFontNormal", TEXT)
-    triangle(canvas, 30 + canvas.text_width(zone["name"], FONTS["GameFontNormal"]), 94, 7, MUTED)
+    text(canvas, px(24), py(90), f"{zone['continent']}  >  {zone['name']}", "GameFontNormal", TEXT)
+    search_box(canvas, px(24), py(112), 250, 24, "Search creatures")
+    filter_dropdown(canvas, px(942), py(112), "All")
+    canvas.fill(px(18), py(142), W - 36, 1, wowmock.rgb("403a2e"))
 
-    card(canvas, 236, 78, 198, 20)
-    text(canvas, 244, 82, "Search creatures", "GameFontDisableSmall", DIM)
-    card(canvas, 442, 78, 66, 20)
-    text(canvas, 450, 82, "All", "GameFontNormalSmall", TEXT)
-    triangle(canvas, 488, 87, 7, MUTED)
-
+    # Left pane: the creature list.
     catalogued = sum(1 for s in zone["species"] if progress(s)["count"])
-    right(
-        canvas,
-        W - 40,
-        82,
-        f"{catalogued} / {len(zone['species'])} catalogued",
-        "GameFontDisableSmall",
-        MUTED,
-        width=150,
-    )
-
     rows = zone["species"]
     if tab == "RARES":
         rows = [s for s in rows if s["rare"] or progress(s)["rare"] >= RARE_TARGET]
@@ -232,156 +470,201 @@ def window(ui, zone, species, tab, icons, sigil):
         rows = [s for s in rows if progress(s)["shiny"]]
     rows = rows or zone["species"]
 
-    # Left list: eight rows, then the session log under them.
-    y = 110
-    for row in rows[:7]:
+    if len(rows) > 8:
+        minimal_scrollbar(canvas, px(388), py(150), 440, visible=8 / len(rows))
+    for row_index, row in enumerate(rows[:8]):
         state = progress(row)
         chosen = row["id"] == species["id"]
+        y = py(146 + row_index * 58)
         if chosen:
-            canvas.fill(22, y - 2, 308, 34, wowmock.rgb("2e2c26"))
-            canvas.fill(22, y - 2, 2, 34, GOLD)
-        canvas.draw(icons[row["id"]], 30, y + 2, 24, 24)
+            canvas.fill(px(18), y, 368, 58, wowmock.rgb("2b2a24"))
+        else:
+            canvas.fill(
+                px(18),
+                y,
+                368,
+                58,
+                wowmock.rgb("212429"),
+            )
+        canvas.draw(icons[row["id"]], px(28), y + 10, 32, 32)
+        canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), px(28), y + 10, 32, 32, BRASS)
         known = row["rare"] and state["rare"] >= RARE_TARGET
-        text(canvas, 60, y, row["name"][:24], "GameFontNormalSmall", BLUE if known else TEXT)
+        text(canvas, px(70), y + 7, row["name"][:26], "GameFontNormal", BLUE if known else TEXT)
         text(
             canvas,
-            60,
-            y + 13,
+            px(70),
+            y + 26,
             f"{row['family']} \u00b7 Lv {row['min']}\u2013{row['max']}",
             "GameFontDisableSmall",
             MUTED,
         )
-        right(canvas, 330, y + 1, f"{state['count']}/10", "GameFontDisableSmall", MUTED, width=34)
-        bar(canvas, 60, y + 26, 108, 3, state["count"] / MASTERED_AT, GREEN if state["count"] >= 6 else BLUE)
+        right(canvas, px(372), y + 7, f"{state['count']} / 10", "GameFontNormal", TEXT, width=44)
+        complete = state["count"] >= 1 and bool(state["shiny"]) and (not row["rare"] or state["rare"] >= RARE_TARGET)
         if state["count"] >= MASTERED_AT:
-            diamond(canvas, 282, y + 12, 7, GOLD)
-        elif state["count"] >= 6:
-            canvas.draw(ui.atlas("common-icon-checkmark"), 276, y + 6, 11, 11, GREEN)
-        y += 34
+            diamond(canvas, px(352), y + 32, 7, GOLD)
+        elif complete:
+            canvas.draw(ui.atlas("common-icon-checkmark"), px(346), y + 26, 11, 11, GREEN)
+        canvas.fill(px(70), y + 47, 252, 5, wowmock.rgb("303236"))
+        bar(canvas, px(70), y + 48, 252, 3, state["count"] / MASTERED_AT, GOLD)
 
-    text(canvas, 26, 352, "Sighting log", "GameFontNormalSmall", TEXT)
-    text(canvas, 120, 353, "this session", "GameFontDisableSmall", DIM)
-    sightings = [
-        ("{} \u2014 killed".format(species["name"]), TEXT),
-        ("Dishu \u2014 rare sighting", BLUE),
-        ("Plainstrider \u2014 shiny", GOLD),
-    ]
-    for line_index, (line, colour) in enumerate(sightings):
-        diamond(canvas, 30, 368 + line_index * 12, 3, colour)
-        text(canvas, 38, 364 + line_index * 12, line, "GameFontDisableSmall", colour)
-
-    # Right detail panel.
+    # Right pane: the selected creature's entry.
     state = progress(species)
     count = state["count"]
     rank = rank_of(count)
-    panel(canvas, 340, 104, W - 364, 326)
+    rx, ry = px(426), py(146)
 
-    canvas.draw(icons[species["id"]], 350, 112, 48, 48)
-    text(canvas, 406, 110, species["name"], "GameFontNormalLarge", GOLD)
+    # The portrait is circular: draw it on its own layer, mask that, then paste. canvas.mask multiplies the whole
+    # surface's alpha, so applying it to the main canvas would erase everything outside the portrait's rect.
+    portrait = ui.canvas(canvas.width, canvas.height)
+    portrait.draw(icons[species["id"]], rx + 14, ry + 14, 58, 58)
+    portrait.mask(ui.texture("interface/characterframe/tempportraitalphamask.blp"), rx + 14, ry + 14, 58, 58)
+    canvas.paste(portrait, 0, 0)
+    canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), rx + 14, ry + 14, 58, 58, BRASS)
+    text(canvas, rx + 84, ry + 18, species["name"], "GameFontNormalLarge", GOLD)
     text(
         canvas,
-        406,
-        128,
+        rx + 84,
+        ry + 40,
         f"{species['family']} \u00b7 {zone['name']} \u00b7 Level {species['min']}\u2013{species['max']}",
         "GameFontDisableSmall",
         MUTED,
     )
 
-    badges = ["Common"]
-    if species["rare"]:
-        badges.append("Rare variant known" if state["rare"] >= RARE_TARGET else "Rare")
-    if state["shiny"]:
-        badges.append("Shiny seen")
-    bx = 406
-    for badge in badges:
-        width = canvas.text_width(badge, FONTS["GameFontDisableSmall"]) + 12
-        card(canvas, bx, 144, width, 14, BRASS if badge == "Common" else (BLUE if "Rare" in badge else GOLD))
-        text(
-            canvas,
-            bx + 6,
-            145,
-            badge,
-            "GameFontDisableSmall",
-            MUTED if badge == "Common" else (BLUE if "Rare" in badge else GOLD),
+    badges = [("Common", MUTED, True)]
+    badges.append(
+        (
+            "Rare variant known" if state["rare"] >= RARE_TARGET else "Rare",
+            BLUE,
+            state["rare"] >= RARE_TARGET or species["rare"],
         )
-        bx += width + 4
+    )
+    badges.append(("Shiny seen", GOLD, bool(state["shiny"])))
+    bx = rx + 14
+    for label, colour, show in badges:
+        if not show:
+            continue
+        width = max(50, canvas.text_width(label, FONTS["GameFontDisableSmall"]) + 14)
+        card(canvas, bx, ry + 76, width, 18, colour)
+        text(canvas, bx, ry + 76, label, "GameFontDisableSmall", colour, justify="CENTER", width=width, box_height=18)
+        bx += width + 6
 
-    # Research card: four pips joined by connectors, then the specimens bar.
-    text(canvas, 350, 170, "Research", "GameFontNormalSmall", TEXT)
+    # Research card.
+    card(canvas, rx + 14, ry + 102, 468, 84)
+    text(canvas, rx + 24, ry + 109, "Research", "GameFontNormal", GOLD)
     right(
         canvas,
-        W - 40,
-        172,
+        rx + 472,
+        ry + 111,
         ("Rank {} \u2014 {}".format("I", RANK_NAMES[rank])) if rank else "Not yet discovered",
         "GameFontDisableSmall",
         GOLD,
-        width=170,
+        width=150,
     )
-    px = 358
     for pip_index, name in enumerate(PIPS):
+        x = rx + 14 + 28 + pip_index * 108
         on = rank >= pip_index + 1
-        diamond(canvas, px, 190, 8, GOLD if on else TROUGH)
+        diamond(canvas, x + 5, ry + 102 + 33, 9, GOLD if on else wowmock.rgb("4a4842"))
         if pip_index < len(PIPS) - 1:
-            canvas.fill(px + 6, 189, 50, 1, GOLD if rank >= pip_index + 2 else TROUGH)
-        text(canvas, px - 8, 198, name, "GameFontDisableSmall", TEXT if on else DIM)
-        px += 62
-
-    text(canvas, 350, 216, "Specimens", "GameFontDisableSmall", MUTED)
-    bar(canvas, 412, 219, 150, 4, count / MASTERED_AT, GOLD)
-    right(canvas, W - 40, 213, f"{count} / 10", "GameFontNormalSmall", TEXT, width=60)
-
-    # Lore, then the three variant cards.
-    for line_index, line in enumerate(textwrap.wrap(species["lore"], 58)[:3]):
+            canvas.fill(x + 13, ry + 102 + 32, 90, 1, GOLD if rank >= pip_index + 2 else wowmock.rgb("3a382f"))
         text(
             canvas,
-            350,
-            232 + line_index * 12,
-            ('"' if line_index == 0 else "") + line,
-            "GameFontNormalSmall",
-            wowmock.rgb("c4baa4"),
+            x - 38,
+            ry + 102 + 42,
+            name,
+            "GameFontDisableSmall",
+            TEXT if on else MUTED,
+            justify="CENTER",
+            width=86,
         )
-    text(canvas, 350, 266, "Variants", "GameFontNormalSmall", TEXT)
-    recorded = 1 + (state["rare"] >= RARE_TARGET) + bool(state["shiny"])
-    right(canvas, W - 40, 268, f"{recorded} of 3 recorded", "GameFontDisableSmall", MUTED, width=120)
+    text(canvas, rx + 24, ry + 162, "Specimens", "GameFontDisableSmall", MUTED)
+    right(canvas, rx + 472, ry + 162, f"{count} / 10", "GameFontDisableSmall", TEXT, width=60)
+    bar(canvas, rx + 24, ry + 178, 448, 4, count / MASTERED_AT, GOLD)
+
+    # Lore card.
+    card(canvas, rx + 14, ry + 192, 468, 50)
+    text(canvas, rx + 24, ry + 198, "Lore", "GameFontNormal", GOLD)
+    for line_index, line in enumerate(textwrap.wrap(species["lore"], 74)[:2]):
+        text(canvas, rx + 24, ry + 212 + line_index * 12, line, "GameFontDisableSmall", wowmock.rgb("c4baa4"))
+
+    # Variants.
+    text(canvas, rx + 14, ry + 246, "Variants", "GameFontNormal", GOLD)
+    right(
+        canvas,
+        rx + 472,
+        ry + 248,
+        f"{1 + (state['rare'] >= RARE_TARGET) + bool(state['shiny'])} of 3 recorded",
+        "GameFontDisableSmall",
+        MUTED,
+        width=120,
+    )
     variants = [
         ("Common", "Catalogued", True, TEXT),
-        ("Rare sighting", f"{state['rare']} of {RARE_TARGET}", state["rare"] >= RARE_TARGET, BLUE),
-        ("Shiny", f"{state['shiny']} of {SHINY_TARGET}", state["shiny"] >= SHINY_TARGET, GOLD),
+        ("Rare variant", f"{state['rare']} / {RARE_TARGET}", state["rare"] >= RARE_TARGET, BLUE),
+        ("Shiny variant", f"{state['shiny']} / {SHINY_TARGET}", bool(state["shiny"]), GOLD),
     ]
     for variant_index, (title, sub, known, colour) in enumerate(variants):
-        vx = 350 + variant_index * 106
-        card(canvas, vx, 282, 100, 42, colour if known else wowmock.rgb("3a382f"))
-        canvas.draw(icons[species["id"]], vx + 6, 288, 18, 18, colour if known else (0.5, 0.5, 0.5, 1))
-        text(canvas, vx + 30, 286, title, "GameFontNormalSmall", colour if known else DIM)
-        text(canvas, vx + 30, 298, sub, "GameFontDisableSmall", MUTED)
-        text(canvas, vx + 30, 310, "Recorded" if known else "Not seen", "GameFontDisableSmall", GREEN if known else DIM)
+        vx = rx + 14 + variant_index * 156
+        vy = ry + 262
+        card(canvas, vx, vy, 148, 52, colour if known else wowmock.rgb("3a382f"))
+        text(canvas, vx + 8, vy + 6, title, "GameFontNormal", TEXT)
+        if known:
+            canvas.draw(ui.atlas("common-icon-checkmark"), vx + 124, vy + 7, 12, 12, colour)
+        else:
+            right(canvas, vx + 140, vy + 6, "\u2014", "GameFontNormal", MUTED, width=16)
+        text(canvas, vx + 8, vy + 28, sub, "GameFontDisableSmall", MUTED)
 
-    # Rewards, then the corner note.
-    text(canvas, 350, 332, "Cosmetic rewards", "GameFontNormalSmall", TEXT)
-    right(canvas, W - 40, 334, "journal unlocks", "GameFontDisableSmall", DIM, width=120)
-    rewards = [
-        ("Portrait frame", "UNLOCKED" if rank >= 3 else "RANK III", rank >= 3),
-        ("Title: {} watcher".format(zone["name"].split()[-1]), "UNLOCKED" if rank >= 4 else "RANK IV", rank >= 4),
-        ("Journal skin", "UNLOCKED" if count >= 8 else f"{count} / 8", count >= 8),
+    # Cosmetic rewards, two columns of two.
+    card(canvas, rx + 14, ry + 320, 468, 66)
+    text(canvas, rx + 24, ry + 326, "Cosmetic rewards", "GameFontNormal", GOLD)
+    rewards = (
+        ("Field sketch", "UNLOCKED" if rank >= 1 else "Locked \u00b7 Discovered", rank >= 1),
+        ("Ink study", "UNLOCKED" if rank >= 2 else "Locked \u00b7 Observed", rank >= 2),
+        ("Brass plate", "UNLOCKED" if rank >= 3 else "Locked \u00b7 Studied", rank >= 3),
+        ("Gilded entry", "UNLOCKED" if rank >= 4 else "Locked \u00b7 Mastered", rank >= 4),
+    )
+    for reward_index, (label, status, open_) in enumerate(rewards):
+        column, row_index = reward_index % 2, reward_index // 2
+        lx, ly = rx + 34 + column * 230, ry + 345 + row_index * 20
+        diamond(canvas, lx - 10, ly + 5, 5, GOLD if open_ else wowmock.rgb("4a4842"))
+        text(canvas, lx, ly, label, "GameFontDisableSmall", TEXT if open_ else MUTED)
+        right(canvas, lx + 182, ly, status, "GameFontDisableSmall", GREEN if open_ else MUTED, width=104)
+
+    # Sighting log.
+    card(canvas, rx + 14, ry + 394, 468, 76)
+    text(canvas, rx + 24, ry + 400, "Sighting log", "GameFontNormal", GOLD)
+    right(canvas, rx + 472, ry + 402, "this session", "GameFontDisableSmall", DIM, width=90)
+    sightings = [
+        (f"{species['name']} \u2014 killed", TEXT),
+        ("Dishu \u2014 rare sighting", BLUE),
+        ("Plainstrider \u2014 shiny", GOLD),
     ]
-    for reward_index, (title, status, open_) in enumerate(rewards):
-        ry = 346 + reward_index * 14
-        canvas.fill(350, ry, W - 388, 12, wowmock.rgb("1c1f23"))
-        diamond(canvas, 356, ry + 6, 5, GOLD if open_ else TROUGH)
-        text(canvas, 364, ry, title, "GameFontDisableSmall", TEXT if open_ else MUTED)
-        right(canvas, W - 44, ry, status, "GameFontDisableSmall", GREEN if open_ else DIM, width=80)
-
-    text(canvas, 350, 396, "Cosmetic only \u2014 the bestiary never grants player power.", "GameFontDisableSmall", DIM)
+    for line_index, (line, colour) in enumerate(sightings):
+        ly = ry + 420 + line_index * 14
+        diamond(canvas, rx + 3, ly + 5, 5, colour)
+        text(canvas, rx + 14, ly, line, "GameFontDisableSmall", colour)
+    text(
+        canvas,
+        rx + 22,
+        ry + 484,
+        "Cosmetic only \u2014 the field guide never grants player power.",
+        "GameFontDisableSmall",
+        DIM,
+    )
 
     # Bottom bar: zone completion and the two buttons.
-    canvas.fill(20, 430, W - 44, 1, wowmock.rgb("403a2e"))
-    text(canvas, 26, 434, "ZONE COMPLETION", "GameFontDisableSmall", MUTED)
+    by = py(650)
+    card(canvas, px(18), by, 924, 58)
+    text(canvas, px(32), by + 8, "ZONE COMPLETION", "GameFontDisableSmall", MUTED)
     fraction = catalogued / len(zone["species"])
-    text(canvas, 26, 445, f"{round(fraction * 100)}%", "GameFontNormalSmall", GOLD)
-    bar(canvas, 70, 449, 150, 5, fraction, GOLD)
-    text(canvas, 232, 445, f"{catalogued} of {len(zone['species'])} species", "GameFontDisableSmall", MUTED)
-    ui_panel_button(canvas, W - 244, 442, 98, 20, "Open Journal", FONTS["GameFontNormalSmall"])
-    ui_panel_button(canvas, W - 138, 442, 102, 20, "Track Species", FONTS["GameFontNormalSmall"])
+    text(canvas, px(32), by + 23, f"{round(fraction * 100)}%", "GameFontNormal", GOLD)
+    bar(canvas, px(138), by + 27, 320, 6, fraction, GREEN)
+    text(canvas, px(138), by + 38, f"{catalogued} of {len(zone['species'])} species", "GameFontDisableSmall", MUTED)
+    three_slice_button(
+        canvas, px(766), by + 16, 112, 26, "Open Journal", FONTS["GameFontNormalSmall"], atlas="128-RedButton"
+    )
+    three_slice_button(
+        canvas, px(882), by + 16, 132, 26, "Track Species", FONTS["GameFontNormalSmall"], atlas="128-RedButton"
+    )
     return canvas
 
 
@@ -390,24 +673,11 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     zones = load_catalogue()
     by_name = {zone["name"]: zone for zone in zones}
-    global TOTAL_SPECIES, TOTAL_ZONES
-    TOTAL_SPECIES = sum(len(zone["species"]) for zone in zones)
-    TOTAL_ZONES = len(zones)
-
-    # One client icon per species, from the pool, so two beasts in a row are not the same picture.
+    # One client icon per species, chosen by the same keyword rules as Art.SpeciesIcon.
     icons = {}
-    textures = {}
-    for path in POOL:
-        try:
-            textures[path] = ui.texture(path)
-        except KeyError:
-            continue
-    if not textures:
-        textures[FALLBACK_ICON] = ui.texture(FALLBACK_ICON)
-    pool = sorted(textures)
     for zone in zones:
         for species in zone["species"]:
-            icons[species["id"]] = textures[pool[(species["id"] * 7 + len(species["family"])) % len(pool)]]
+            icons[species["id"]] = ui.texture(species_icon(species))
     sigil = ui.texture(SIGIL_ICON)
 
     def pick(zone_name, matcher):
@@ -424,10 +694,10 @@ def main():
         "The Barrens", lambda s: progress(s)["shiny"] or (progress(s)["count"] >= 6 and not s["rare"])
     )
 
-    def render(zone, species, tab="BESTIARY"):
+    def render(zone, species, tab="CREATURES"):
         return wowmock.scene(ui, [(window(ui, zone, species, tab, icons, sigil), 0, 0)])
 
-    render(barrens, prowler, "BESTIARY").save(OUT / "bestiary.png")
+    render(barrens, prowler, "CREATURES").save(OUT / "field-guide.png")
     render(rare_zone, rare, "RARES").save(OUT / "rares.png")
     render(shiny_zone, shiny, "SHINY").save(OUT / "shiny.png")
 
@@ -445,17 +715,17 @@ def main():
     ]
     for index, (zone_name, matcher) in enumerate(examples, start=1):
         zone, species = pick(zone_name, matcher)
-        render(zone, species, "BESTIARY").save(OUT / (f"creature-{index:02d}.png"))
+        render(zone, species, "CREATURES").save(OUT / (f"creature-{index:02d}.png"))
 
     demo = [
-        render(barrens, prowler, "BESTIARY"),
+        render(barrens, prowler, "CREATURES"),
         render(barrens, prowler, "RARES"),
         render(rare_zone, rare, "RARES"),
         render(rare_zone, rare, "SHINY"),
         render(shiny_zone, shiny, "SHINY"),
         render(*pick("Teldrassil", lambda s: not s["rare"])),
         render(*pick("Westfall", lambda s: s["rare"])),
-        render(barrens, prowler, "BESTIARY"),
+        render(barrens, prowler, "CREATURES"),
     ]
     palette_frames = [
         getattr(frame, "image", frame).convert("P", palette=Image.Palette.ADAPTIVE, colors=128) for frame in demo

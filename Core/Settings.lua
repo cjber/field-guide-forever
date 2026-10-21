@@ -1,4 +1,4 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local _, ns = ...
 local L = ns.L
 
@@ -28,11 +28,11 @@ end
 ---@return Frame
 local function BuildPanel()
 	local panel = CreateFrame("Frame")
-	panel.name = L["Bestiary Forever"]
+	panel.name = L["Field Guide Forever"]
 
 	local title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	title:SetPoint("TOPLEFT", 16, -16)
-	title:SetText(L["Bestiary Forever options"])
+	title:SetText(L["Field Guide Forever options"])
 
 	CheckButton(panel, L["Show undiscovered species"], -48, function()
 		return ns.db and ns.db.options.showUndiscovered ~= false
@@ -60,7 +60,7 @@ function SettingsPanel.Register()
 	local panel = BuildPanel()
 	SettingsPanel.panel = panel
 	if Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory then
-		local category = Settings.RegisterCanvasLayoutCategory(panel, L["Bestiary Forever"])
+		local category = Settings.RegisterCanvasLayoutCategory(panel, L["Field Guide Forever"])
 		Settings.RegisterAddOnCategory(category)
 	elseif InterfaceOptions_AddCategory then
 		InterfaceOptions_AddCategory(panel)

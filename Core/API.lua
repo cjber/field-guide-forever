@@ -1,10 +1,10 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local _, ns = ...
 
 -- Public addon-to-addon interface. nil means the answer is not known yet: before the saved variables load there is
 -- no catalogue state to read, and a caller such as a map addon should ask again after PLAYER_LOGIN rather than
--- treating the silence as an empty bestiary. Version 1 is the first contract.
----@class BFPublicAPI
+-- treating the silence as an empty field guide. Version 1 is the first contract.
+---@class FGPublicAPI
 local API = { version = 1 }
 
 ---@return boolean
@@ -19,8 +19,8 @@ end
 
 API.IsReady = API.Ready
 
----@param species BFSpecies
----@return BFSpecies
+---@param species FGSpecies
+---@return FGSpecies
 local function CopySpecies(species)
 	return {
 		id = species.id,
@@ -47,7 +47,7 @@ function API.Zones()
 end
 
 ---@param zoneName? string
----@return BFSpecies[]?
+---@return FGSpecies[]?
 function API.Species(zoneName)
 	if not Ready() then
 		return nil
@@ -71,7 +71,7 @@ end
 API.GetSpecies = API.Species
 
 ---@param speciesId integer
----@return BFSpecies?
+---@return FGSpecies?
 function API.SpeciesById(speciesId)
 	if not Ready() then
 		return nil
@@ -140,7 +140,7 @@ end
 API.GetSpecimen = API.Specimen
 API.SpeciesState = API.Specimen
 
----@return BFSighting[]?
+---@return FGSighting[]?
 function API.Sightings()
 	if not Ready() then
 		return nil
@@ -186,6 +186,6 @@ end
 
 API.GetSpecimens = API.Specimens
 
-BestiaryForever = BestiaryForever or {}
-BestiaryForever.API = API
+FieldGuideForever = FieldGuideForever or {}
+FieldGuideForever.API = API
 ns.API = API

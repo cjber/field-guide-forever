@@ -1,9 +1,9 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local _, ns = ...
 local L = ns.L
 local Art = ns.Art
 
----@class BFDetail
+---@class FGDetail
 local Detail = {}
 ns.Detail = Detail
 
@@ -160,6 +160,7 @@ function Detail.Create(parent)
 	Detail.parent = parent
 	Detail.portrait = Art.Portrait(parent, 58)
 	Detail.portrait:SetPoint("TOPLEFT", 14, -14)
+	Art.Bezel(Detail.portrait)
 
 	Detail.name = Art.Text(parent, "GameFontNormal", "text")
 	Detail.name:SetPoint("TOPLEFT", 84, -18)
@@ -178,7 +179,7 @@ function Detail.Create(parent)
 
 	Detail.note = Art.Text(parent, "GameFontDisableSmall", "muted")
 	Detail.note:SetPoint("BOTTOMRIGHT", -14, 4)
-	Detail.note:SetText(L["Cosmetic only — the bestiary never grants player power."])
+	Detail.note:SetText(L["Cosmetic only — the field guide never grants player power."])
 end
 
 ---@param text FontString
@@ -190,9 +191,9 @@ local function SetLabelColor(text, key, color)
 	text:SetTextColor(r, g, b, 1)
 end
 
----@param species BFSpecies
----@param state BFSpeciesState?
----@param zone BFZone
+---@param species FGSpecies
+---@param state FGSpeciesState?
+---@param zone FGZone
 local function UpdateBadges(species, state)
 	local variants = ns.Model.Variants(state, species.id)
 	local labels = {
@@ -220,8 +221,8 @@ local function UpdateBadges(species, state)
 	end
 end
 
----@param state BFSpeciesState?
----@param species BFSpecies
+---@param state FGSpeciesState?
+---@param species FGSpecies
 local function UpdateResearch(state)
 	local count = state and state.count or 0
 	local rank = ns.Model.Rank(count)
@@ -243,7 +244,7 @@ local function UpdateResearch(state)
 end
 
 ---@param card table
----@param variant BFVariant
+---@param variant FGVariant
 ---@param color string
 ---@param knownText string
 local function UpdateVariant(card, variant, color, knownText)
@@ -258,8 +259,8 @@ local function UpdateVariant(card, variant, color, knownText)
 	end
 end
 
----@param state BFSpeciesState?
----@param species BFSpecies
+---@param state FGSpeciesState?
+---@param species FGSpecies
 local function UpdateVariants(state, species)
 	local variants = ns.Model.Variants(state, species.id)
 	UpdateVariant(Detail.variants[1], variants.common, "complete", L["Known"])
@@ -267,7 +268,7 @@ local function UpdateVariants(state, species)
 	UpdateVariant(Detail.variants[3], variants.shiny, "gold", L["Known"])
 end
 
----@param state BFSpeciesState?
+---@param state FGSpeciesState?
 local function UpdateRewards(state)
 	local rank = ns.Model.Rank(state and state.count or 0)
 	for index = 1, 4 do
@@ -284,8 +285,8 @@ local function UpdateRewards(state)
 	end
 end
 
----@param species BFSpecies
----@param zone BFZone
+---@param species FGSpecies
+---@param zone FGZone
 local function UpdateSightings(species, zone)
 	local options = ns.db and ns.db.options or {}
 	local showLog = options.showSightingLog ~= false
@@ -316,9 +317,9 @@ local function UpdateSightings(species, zone)
 	end
 end
 
----@param species BFSpecies?
----@param state BFSpeciesState?
----@param zone BFZone?
+---@param species FGSpecies?
+---@param state FGSpeciesState?
+---@param zone FGZone?
 function Detail.Show(species, state, zone)
 	if not species or not zone then
 		Detail.name:SetText(L["Select a creature to read its entry."])
@@ -331,7 +332,7 @@ function Detail.Show(species, state, zone)
 		Detail.sightingText:SetText("")
 		return
 	end
-	Art.Icon(Detail.portrait, Art.FamilyIcon(species.family), 58)
+	Art.Icon(Detail.portrait, Art.SpeciesIcon(species.name, species.family), 58)
 	Detail.name:SetText(species.name)
 	Detail.sub:SetText(
 		string.format(L["%s · %s · Level %d-%d"], L[species.family], L[zone.name], species.minLevel, species.maxLevel)

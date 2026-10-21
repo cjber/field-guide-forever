@@ -1,9 +1,9 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local _, ns = ...
 local L = ns.L
 local Art = ns.Art
 
----@class BFWindow
+---@class FGWindow
 local Window = {}
 ns.Window = Window
 
@@ -15,13 +15,13 @@ local PANEL_HEIGHT = 494
 local frame
 ---@type integer?
 local selectedId
-local tab = "bestiary"
+local tab = "creatures"
 local filter = "all"
 local query = ""
 local zoneIndex = 1
 
 local tabs = {
-	{ key = "bestiary", text = "BESTIARY" },
+	{ key = "creatures", text = "CREATURES" },
 	{ key = "rares", text = "RARES" },
 	{ key = "shiny", text = "SHINY" },
 }
@@ -35,7 +35,7 @@ local filters = {
 	{ key = "shiny", text = "Shiny seen" },
 }
 
----@return BFZone
+---@return FGZone
 local function CurrentZone()
 	return ns.Creatures.zones[zoneIndex] or ns.Creatures.zones[1]
 end
@@ -46,19 +46,15 @@ end
 ---@param solid? boolean
 ---@return Frame
 local function MakeButton(parent, text, width, solid)
-	local button = CreateFrame("Button", nil, parent, "BackdropTemplate")
+	-- The client's own button, so hover, press and disabled states are the ones players already know.
+	local button = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
 	button:SetSize(width, 26)
-	Art.Card(button, solid and "gold" or "panel", 1)
-	local label = Art.Text(button, "GameFontNormal", solid and "background" or "text")
-	label:SetPoint("CENTER")
-	label:SetText(text)
-	button.Label = label
-	button:SetScript("OnEnter", function()
-		label:SetAlpha(0.75)
-	end)
-	button:SetScript("OnLeave", function()
-		label:SetAlpha(1)
-	end)
+	button:SetText(text)
+	button.Label = button:GetFontString()
+	if solid then
+		local r, g, b = Art.RGBA("gold", 1)
+		button.Label:SetTextColor(r, g, b, 1)
+	end
 	return button
 end
 
@@ -68,16 +64,12 @@ end
 ---@param x number
 ---@return Frame
 local function MakeTab(parent, key, text, x)
-	local button = CreateFrame("Button", nil, parent)
-	button:SetSize(108, 26)
-	button:SetPoint("TOPLEFT", x, -56)
-	button.dot = Art.Texture(button, "ARTWORK", "gold", 1)
-	button.dot:SetSize(6, 6)
-	button.dot:SetPoint("LEFT", 4, 0)
-	button.dot:Hide()
-	button.label = Art.Text(button, "GameFontNormal", "muted")
-	button.label:SetPoint("LEFT", 16, 0)
-	button.label:SetText(L[text])
+	-- PanelTabButtonTemplate: the paper tabs the client uses on its own panels, with the selected art and the
+	-- white/gold text shift handled by PanelTemplates.
+	local button = CreateFrame("Button", nil, parent, "PanelTabButtonTemplate")
+	button:SetPoint("TOPLEFT", x, -54)
+	button:SetText(L[text])
+	PanelTemplates_TabResize(button, 0)
 	button.key = key
 	button:SetScript("OnClick", function()
 		Window.SetTab(key)
@@ -87,24 +79,22 @@ end
 
 ---@param parent Frame
 local function BuildHeader(parent)
-	local medallion = Art.Portrait(parent, 44)
-	medallion:SetPoint("TOPLEFT", 18, -12)
-	medallion:SetTexture("Interface\\Icons\\INV_Misc_Book_09")
-
-	local title = Art.Text(parent, "GameFontNormal", "gold")
-	title:SetPoint("TOPLEFT", 74, -14)
-	title:SetText(L["BESTIARY"])
-	title:SetScale(1.2)
+	-- The template's own portrait and title; the addon only names them.
+	if parent.PortraitContainer and parent.PortraitContainer.Portrait then
+		parent.PortraitContainer.Portrait:SetTexture(Art.BOOK_ICON)
+	end
+	if parent.TitleContainer and parent.TitleContainer.TitleText then
+		parent.TitleContainer.TitleText:SetText(L["FIELD GUIDE"])
+	end
+	if parent.CloseButton then
+		parent.CloseButton:SetScript("OnClick", function()
+			Window.Hide()
+		end)
+	end
 
 	local subtitle = Art.Text(parent, "GameFontDisableSmall", "muted")
-	subtitle:SetPoint("TOPLEFT", 74, -32)
+	subtitle:SetPoint("TOP", 0, -30)
 	subtitle:SetText(L["Azeroth field journal"])
-
-	local close = CreateFrame("Button", nil, parent, "UIPanelCloseButton")
-	close:SetPoint("TOPRIGHT", -2, -2)
-	close:SetScript("OnClick", function()
-		Window.Hide()
-	end)
 
 	local headerLine = Art.Line(parent, "border", 0.5)
 	headerLine:SetPoint("TOPLEFT", 18, -52)
@@ -112,7 +102,7 @@ local function BuildHeader(parent)
 
 	Window.tabButtons = {}
 	for index, info in ipairs(tabs) do
-		Window.tabButtons[index] = MakeTab(parent, info.key, info.text, 20 + (index - 1) * 116)
+		Window.tabButtons[index] = MakeTab(parent, info.key, info.text, 20 + (index - 1) * 100)
 	end
 end
 
@@ -237,7 +227,7 @@ local function BuildBottom(parent)
 	Window.openButton:SetPoint("TOPRIGHT", -158, -16)
 	Window.openButton:SetScript("OnClick", function()
 		Window.Show()
-		Window.SetTab("bestiary")
+		Window.SetTab("creatures")
 	end)
 
 	Window.trackButton = MakeButton(bar, L["Track Species"], 132, true)
@@ -254,14 +244,10 @@ end
 
 local function UpdateTabs()
 	for _, button in ipairs(Window.tabButtons or {}) do
-		local active = button.key == tab
-		button.dot:SetShown(active)
-		if active then
-			local r, g, b = Art.RGBA("gold", 1)
-			button.label:SetTextColor(r, g, b, 1)
+		if button.key == tab then
+			PanelTemplates_SelectTab(button)
 		else
-			local r, g, b = Art.RGBA("muted", 1)
-			button.label:SetTextColor(r, g, b, 1)
+			PanelTemplates_DeselectTab(button)
 		end
 	end
 end
@@ -277,14 +263,14 @@ local function UpdateFilterButton()
 	Window.filterButton.Label:SetText(label)
 end
 
----@param species BFSpecies
+---@param species FGSpecies
 ---@return boolean
 local function MatchesFilter(species)
 	local state = ns.GetCharacterState(false)
 	local entry = state and state.species[species.id]
 	local count = entry and entry.count or 0
 	local options = ns.db and ns.db.options or {}
-	if options.showUndiscovered == false and count == 0 and tab == "bestiary" then
+	if options.showUndiscovered == false and count == 0 and tab == "creatures" then
 		return false
 	end
 	if filter == "discovered" and count == 0 then
@@ -307,7 +293,7 @@ local function MatchesFilter(species)
 	return true
 end
 
----@return BFListEntry[]
+---@return FGListEntry[]
 local function BuildEntries()
 	local state = ns.GetCharacterState(false)
 	local entries = {}
@@ -487,7 +473,9 @@ local function Create()
 	if frame then
 		return frame
 	end
-	frame = CreateFrame("Frame", "BestiaryForeverFrame", UIParent, "BackdropTemplate")
+	-- PortraitFrameTemplate supplies the metal NineSlice, the circular portrait bezel, the title and the close
+	-- button, so the journal sits in the client's own window rather than an addon-drawn rectangle.
+	frame = CreateFrame("Frame", "FieldGuideForeverFrame", UIParent, "PortraitFrameTemplate,BackdropTemplate")
 	frame:SetSize(WIDTH, HEIGHT)
 	frame:SetFrameStrata("DIALOG")
 	frame:SetToplevel(true)
@@ -496,7 +484,11 @@ local function Create()
 	frame:EnableMouse(true)
 	frame:RegisterForDrag("LeftButton")
 	frame:Hide()
-	Art.Panel(frame)
+	-- PortraitFrameTemplate is only the chrome; the journal supplies its own opaque Bg so the world never shows
+	-- through the list.
+	frame.Bg = frame:CreateTexture(nil, "BACKGROUND")
+	frame.Bg:SetAllPoints(frame)
+	frame.Bg:SetColorTexture(Art.RGBA("background", 0.98))
 
 	local position = ns.db and ns.db.window
 	if position and position.point then
@@ -531,13 +523,13 @@ local function Create()
 	if type(UISpecialFrames) == "table" then
 		local found = false
 		for _, name in ipairs(UISpecialFrames) do
-			if name == "BestiaryForeverFrame" then
+			if name == "FieldGuideForeverFrame" then
 				found = true
 				break
 			end
 		end
 		if not found then
-			table.insert(UISpecialFrames, "BestiaryForeverFrame")
+			table.insert(UISpecialFrames, "FieldGuideForeverFrame")
 		end
 	end
 

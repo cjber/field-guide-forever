@@ -1,4 +1,4 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local _, ns = ...
 local L = ns.L
 local Art = ns.Art
@@ -7,7 +7,7 @@ local Tooltip = {}
 ns.Tooltip = Tooltip
 
 ---@param owner Frame
----@param entry BFListEntry
+---@param entry FGListEntry
 function Tooltip.Show(owner, entry)
 	if not GameTooltip or not owner then
 		return

@@ -1,9 +1,9 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local _, ns = ...
 
 -- Pure catalogue state. Nothing here reads a frame, a saved variable or the client: Core owns the world, the UI
 -- owns the pixels, and this file owns the arithmetic the specs can pin down.
----@class BFModel
+---@class FGModel
 local Model = {}
 ns.Model = Model
 
@@ -33,7 +33,7 @@ function Model.SetRandom(random)
 end
 
 -- A fresh per-character state, flat enough that SavedVariables can serialise it without metatables.
----@return BFState
+---@return FGState
 function Model.NewState(random)
 	if random then
 		Model.SetRandom(random)
@@ -63,9 +63,9 @@ function Model.RankName(count)
 	return Model.RANK_NAMES[Model.Rank(count)] or Model.RANK_NAMES[0]
 end
 
----@param state BFState?
+---@param state FGState?
 ---@param speciesId integer
----@return BFSpeciesState
+---@return FGSpeciesState
 local function Entry(state, speciesId)
 	state.species = state.species or {}
 	local entry = state.species[speciesId]
@@ -93,9 +93,9 @@ end
 
 -- Record one specimen. `opts.rare` marks a rare sighting (or inherit it from `opts.species.rare`), and the roll is
 -- per kill, not per species, because a shiny is a property of the individual encountered.
----@param state BFState
+---@param state FGState
 ---@param speciesId integer
----@param opts? { rare?: boolean, species?: BFSpecies, random?: fun(...: any): number }
+---@param opts? { rare?: boolean, species?: FGSpecies, random?: fun(...: any): number }
 ---@return { count: integer, rank: integer, shiny: boolean, rare: boolean, newlyDiscovered: boolean,
 --- rareKnown: boolean, shinyKnown: boolean }
 function Model.Record(state, speciesId, opts)
@@ -131,9 +131,9 @@ function Model.Record(state, speciesId, opts)
 	}
 end
 
----@param state BFState?
+---@param state FGState?
 ---@param speciesId integer
----@return BFSpeciesState
+---@return FGSpeciesState
 function Model.Specimen(state, speciesId)
 	local entry = state and state.species and state.species[speciesId]
 	if not entry then
@@ -147,9 +147,9 @@ end
 
 -- What a species has shown so far: common is known from the first specimen, rare needs RARE_TARGET sightings,
 -- and shiny needs one lucky roll.
----@param state BFState?
+---@param state FGState?
 ---@param speciesId integer
----@return { common: BFVariant, rare: BFVariant, shiny: BFVariant }
+---@return { common: FGVariant, rare: FGVariant, shiny: FGVariant }
 function Model.Variants(state, speciesId)
 	local entry = Model.Specimen(state, speciesId)
 	return {
@@ -159,9 +159,9 @@ function Model.Variants(state, speciesId)
 	}
 end
 
----@param state BFState?
+---@param state FGState?
 ---@param speciesId integer
----@param species? BFSpecies
+---@param species? FGSpecies
 ---@return boolean
 function Model.IsComplete(state, speciesId, species)
 	local variants = Model.Variants(state, speciesId)
@@ -173,8 +173,8 @@ end
 
 -- A zone is catalogued when a species has at least one specimen, not when it is mastered. `fraction` is between
 -- 0 and 1 and 0 for an empty catalogue, so a caller can draw a bar without dividing by zero.
----@param state BFState?
----@param speciesList BFSpecies[]
+---@param state FGState?
+---@param speciesList FGSpecies[]
 ---@return { catalogued: integer, total: integer, fraction: number }
 function Model.ZoneProgress(state, speciesList)
 	local total = speciesList and #speciesList or 0
@@ -194,12 +194,12 @@ end
 
 -- Session-only sightings, newest first. They are deliberately outside the saved state: a field journal keeps the
 -- catalogue forever, but remembers today's walk only until the client closes.
----@type BFSighting[]
+---@type FGSighting[]
 local sightings = {}
 Model.Sightings = sightings
 
----@param entry BFSighting
----@return BFSighting
+---@param entry FGSighting
+---@return FGSighting
 function Model.AddSighting(entry)
 	local sighting = {
 		time = entry.time or 0,
@@ -220,7 +220,7 @@ function Model.ClearSightings()
 	end
 end
 
----@return BFSighting[]
+---@return FGSighting[]
 function Model.GetSightings()
 	return sightings
 end

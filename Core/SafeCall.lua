@@ -1,10 +1,10 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local _, ns = ...
 
 -- Event handlers must not take the rest of the addon down with one bad row. Keep the last few failures so a user can
 -- report what happened without a frame or a protected call being involved.
 local MAX_ERRORS = 20
----@type BFError[]
+---@type FGError[]
 local errors = {}
 
 ---@param context string
@@ -34,7 +34,7 @@ function ns.SafeCall(context, fn, ...)
 	return ok, result
 end
 
----@return BFError[]
+---@return FGError[]
 function ns.GetErrors()
 	return errors
 end

@@ -1,13 +1,14 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local _, ns = ...
 
 -- The suite's palette in one place. Values are the approved mockup's, written as RGB triples so a texture colour
 -- and a font colour can never drift apart.
----@class BFArt
+---@class FGArt
 local Art = {}
 ns.Art = Art
 
 Art.WHITE = "Interface\\Buttons\\WHITE8X8"
+Art.BOOK_ICON = "Interface\\Icons\\INV_Misc_Book_09"
 Art.PORTRAIT_MASK = "Interface\\CharacterFrame\\TempPortraitAlphaMask"
 
 Art.COLORS = {
@@ -24,15 +25,278 @@ Art.COLORS = {
 
 Art.FAMILY_ICONS = {
 	Beast = "Interface\\Icons\\Ability_Hunter_BeastTaming",
-	Humanoid = "Interface\\Icons\\Ability_Warrior_BattleShout",
+	Humanoid = "Interface\\Icons\\INV_Misc_Head_Human_01",
 	Undead = "Interface\\Icons\\Spell_Shadow_RaiseDead",
 	Dragonkin = "Interface\\Icons\\INV_Misc_Head_Dragon_01",
-	Elemental = "Interface\\Icons\\Spell_Fire_Fire",
-	Giant = "Interface\\Icons\\Ability_Warrior_Cleave",
-	Mechanical = "Interface\\Icons\\Trade_Engineering",
-	Critter = "Interface\\Icons\\INV_Misc_PocketWatch_01",
-	Demon = "Interface\\Icons\\Spell_Shadow_SummonVoidWalker",
-	Aberration = "Interface\\Icons\\Spell_Shadow_AbominationExplosion",
+	Elemental = "Interface\\Icons\\Spell_Nature_Lightning",
+	Giant = "Interface\\Icons\\Ability_Warrior_SavageBlow",
+	Mechanical = "Interface\\Icons\\INV_Misc_Gear_01",
+	Critter = "Interface\\Icons\\INV_Misc_Food_23",
+	Demon = "Interface\\Icons\\Spell_Shadow_Metamorphosis",
+	Aberration = "Interface\\Icons\\Ability_Creature_Poison_01",
+}
+
+-- A species shows its own kind, not a family glyph: a Prowler is a cat and a Zhevra is not a dragon. Each rule is
+-- matched against the creature's name, in order, and the first hit wins; anything unmatched falls back to its
+-- family icon. Every path here is art this client actually ships (checked against the pinned build's listfile).
+Art.SPECIES_ICONS = {
+	{
+		"Interface\\Icons\\ability_hunter_pet_cat",
+		"beast",
+		{
+			"prowler",
+			"highmane",
+			"nightsaber",
+			"cougar",
+			"tiger",
+			"rake",
+			"saber",
+			"dishu",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_wolf",
+		"beast",
+		{
+			"wolf",
+			"coyote",
+			"darkhound",
+			"hound",
+			"arugal",
+			"worgen",
+			"stalker",
+			"fenros",
+			"nefaru",
+			"deeb",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_boar",
+		"beast",
+		{
+			"boar",
+			"goretusk",
+			"bristleback",
+			"quilboar",
+			"bellygrub",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_tallstrider",
+		"beast",
+		{
+			"plainstrider",
+			"strider",
+			"giraffe",
+			"mazzranache",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_raptor",
+		"beast",
+		{
+			"raptor",
+			"scytheclaw",
+			"taillasher",
+			"scythemaw",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_scorpid",
+		"beast",
+		{
+			"scorpid",
+			"sting",
+			"flayer",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_spider",
+		"beast",
+		{
+			"spider",
+			"tarantula",
+			"venomfang",
+			"lurker",
+			"fang",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_crocolisk",
+		"beast",
+		{
+			"crocolisk",
+			"snapjaw",
+			"gesharahan",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_hyena",
+		"beast",
+		{
+			"hyena",
+			"stormsnout",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_mount_ridinghorse",
+		"beast",
+		{
+			"zhevra",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_turtle",
+		"beast",
+		{
+			"turtle",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_silithid",
+		"beast",
+		{
+			"silithid",
+			"swarmer",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_bear",
+		"beast",
+		{
+			"bear",
+			"grizzlegut",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_bat",
+		"any",
+		{
+			"harpy",
+			"windfury",
+			"duskbat",
+			"bat",
+			"owl",
+			"strigid",
+			"screecher",
+			"swoop",
+			"buzzard",
+			"condor",
+			"thunderhawk",
+			"hippogryph",
+			"razorbeak",
+			"fleshripper",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_worm",
+		"beast",
+		{
+			"worm",
+			"grub",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_tauren_01",
+		"people",
+		{
+			"ogre",
+			"mo'grosh",
+			"kolkar",
+			"galak",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_gnoll_01",
+		"people",
+		{
+			"gnoll",
+			"mongrel",
+			"brute",
+			"mystic",
+			"basher",
+			"trapper",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_kobold_01",
+		"people",
+		{
+			"kobold",
+			"trogg",
+			"stonesplinter",
+			"digger",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_murloc_01",
+		"people",
+		{
+			"murloc",
+			"puddlejumper",
+			"oracle",
+			"coastrunner",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_undead_01",
+		"people",
+		{
+			"ghoul",
+			"dead",
+			"rot",
+			"plague",
+			"gorelix",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_human_01",
+		"people",
+		{
+			"defias",
+			"scarlet",
+			"dalaran",
+			"kul tiras",
+			"human",
+			"thug",
+			"pillager",
+			"looter",
+			"highwayman",
+			"smuggler",
+			"blackguard",
+			"mage",
+			"guard",
+			"theurgist",
+			"sailor",
+			"marine",
+			"convert",
+			"initiate",
+			"warrior",
+			"missionary",
+			"scout",
+			"palemane",
+			"dustwind",
+			"gnarlpine",
+			"melanas",
+			"ursal",
+			"yowler",
+			"zzarc",
+			"slark",
+			"goldtooth",
+			"fedfennel",
+			"gibblewilt",
+			"galgosh",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_dragon_01",
+		"people",
+		{
+			"dragon",
+			"whelp",
+			"drake",
+		},
+	},
 }
 
 ---@param key string
@@ -139,10 +403,9 @@ end
 ---@return Frame bar
 ---@return Texture fill
 function Art.Bar(parent, width, height, key)
-	local bar = CreateFrame("Frame", nil, parent)
+	local bar = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 	bar:SetSize(width, height)
-	local background = Art.Texture(bar, "BACKGROUND", "background", 1)
-	background:SetAllPoints(bar)
+	Art.Card(bar, "background", 1)
 	local fill = Art.Texture(bar, "ARTWORK", key or "gold", 1)
 	fill:SetPoint("TOPLEFT", bar, "TOPLEFT", 1, -1)
 	fill:SetHeight(height - 2)
@@ -171,10 +434,42 @@ function Art.Icon(texture, file, size)
 	texture:SetSize(size, size)
 end
 
+---The thin client bezel that frames an icon everywhere in the interface, drawn over an icon texture.
+---@param texture Texture
+function Art.Bezel(texture)
+	local border = texture:GetParent():CreateTexture(nil, "OVERLAY")
+	border:SetTexture("Interface\\Common\\WhiteIconFrame")
+	local r, g, b = Art.RGBA("border", 0.85)
+	border:SetVertexColor(r, g, b, 0.85)
+	border:SetAllPoints(texture)
+	texture.Bezel = border
+	return border
+end
+
 ---@param family string?
 ---@return string
 function Art.FamilyIcon(family)
 	return Art.FAMILY_ICONS[family] or "Interface\\Icons\\INV_Misc_QuestionMark"
+end
+
+---The icon a species shows: its own kind when the catalogue names one, else its family. Matching is on the lower-cased
+---name so "Savannah Highmane" and "Savannah Prowler" share the cat art without a per-species table.
+---@param name string
+---@param family string?
+---@return string
+function Art.SpeciesIcon(name, family)
+	local needle = name:lower()
+	local side = family == "Beast" and "beast" or "people"
+	for _, rule in ipairs(Art.SPECIES_ICONS) do
+		if rule[2] == "any" or rule[2] == side then
+			for _, keyword in ipairs(rule[3]) do
+				if needle:find(keyword, 1, true) then
+					return rule[1]
+				end
+			end
+		end
+	end
+	return Art.FamilyIcon(family)
 end
 
 ---@param texture Texture

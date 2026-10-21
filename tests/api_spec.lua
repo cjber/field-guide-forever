@@ -2,7 +2,7 @@ local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
 local harness = Mock.Harness()
 local ns = harness.ns
-local API = harness.env.BestiaryForever and harness.env.BestiaryForever.API
+local API = harness.env.FieldGuideForever and harness.env.FieldGuideForever.API
 
 assert(API, "the public API is installed")
 assert(API.version >= 1, "the contract is versioned")
@@ -12,9 +12,9 @@ assert(API.Progress("The Barrens") == nil, "progress is unknown before initialis
 assert(API.Specimen(1001) == nil, "a specimen is unknown before initialisation")
 assert(not API.Ready(), "not ready before the saved variables load")
 
-harness:Fire("ADDON_LOADED", "BestiaryForever")
+harness:Fire("ADDON_LOADED", "FieldGuideForever")
 assert(ns.ready, "the addon initialises on its own ADDON_LOADED")
-assert(harness.env.BestiaryForeverDB.version == 1, "the database is versioned")
+assert(harness.env.FieldGuideForeverDB.version == 1, "the database is versioned")
 assert(API.Ready(), "the API answers after initialisation")
 
 local species = API.Species("The Barrens")

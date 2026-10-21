@@ -1,16 +1,16 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local _, ns = ...
 
 -- Real Classic creatures, grouped by the zone a field journal would open on. Ids are stable: a saved entry keeps
 -- its species when names or level ranges are corrected around it.
 ---@param id integer
 ---@param name string
----@param family BFFamily
+---@param family FGFamily
 ---@param minLevel integer
 ---@param maxLevel integer
 ---@param lore string
 ---@param rare? boolean
----@return BFSpecies
+---@return FGSpecies
 local function mob(id, name, family, minLevel, maxLevel, lore, rare)
 	return {
 		id = id,
@@ -25,8 +25,8 @@ end
 
 ---@param name string
 ---@param continent string
----@param species BFSpecies[]
----@return BFZone
+---@param species FGSpecies[]
+---@return FGZone
 local function zone(name, continent, species)
 	for _, entry in ipairs(species) do
 		entry.zone = name

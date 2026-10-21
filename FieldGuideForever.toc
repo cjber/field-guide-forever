@@ -1,13 +1,13 @@
 ## Interface: 16001
-## Title: Bestiary Forever
+## Title: Field Guide Forever
 ## Notes: A cosmetic creature catalogue for Azeroth: track kills, rare variants and shinies zone by zone.
 ## Author: cjber
 ## Version: @project-version@
 ## Category: Interface Enhancements
-## IconTexture: Interface\AddOns\BestiaryForever\media\Icon
+## IconTexture: Interface\AddOns\FieldGuideForever\media\Icon
 ## X-License: GPL-3.0-or-later
-## X-Website: https://github.com/cjber/bestiary-forever
-## SavedVariables: BestiaryForeverDB
+## X-Website: https://github.com/cjber/field-guide-forever
+## SavedVariables: FieldGuideForeverDB
 
 Locales\enUS.lua
 Data\Creatures.lua

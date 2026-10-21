@@ -1,4 +1,4 @@
----@type string, BFNamespace
+---@type string, FGNamespace
 local addonName, ns = ...
 local L = ns.L
 
@@ -24,7 +24,7 @@ end
 ns.BuildCatalogue()
 
 ---@param name string?
----@return BFZone?
+---@return FGZone?
 function ns.FindZone(name)
 	if type(name) ~= "string" then
 		return nil
@@ -32,7 +32,7 @@ function ns.FindZone(name)
 	return ns.ZoneByName[name:lower()]
 end
 
----@return BFZone?
+---@return FGZone?
 function ns.CurrentZone()
 	local name = GetZoneText and GetZoneText() or nil
 	if not name and GetRealZoneText then
@@ -44,8 +44,8 @@ end
 -- Exact names are what the combat log gives for a creature; case comes from the client's locale, so compare
 -- lowered strings rather than relying on it.
 ---@param name string?
----@param zone BFZone?
----@return BFSpecies?
+---@param zone FGZone?
+---@return FGSpecies?
 function ns.FindSpecies(name, zone)
 	if type(name) ~= "string" or not zone then
 		return nil
@@ -66,7 +66,7 @@ function ns.CharacterKey()
 end
 
 ---@param create? boolean
----@return BFState?
+---@return FGState?
 function ns.GetCharacterState(create)
 	if not ns.db then
 		return nil
@@ -87,10 +87,10 @@ function ns.Initialize()
 	if ns.ready then
 		return
 	end
-	if type(BestiaryForeverDB) ~= "table" then
-		BestiaryForeverDB = {}
+	if type(FieldGuideForeverDB) ~= "table" then
+		FieldGuideForeverDB = {}
 	end
-	local db = BestiaryForeverDB
+	local db = FieldGuideForeverDB
 	db.version = db.version or 1
 	db.chars = db.chars or {}
 	db.window = db.window or {}
@@ -206,12 +206,12 @@ end)
 ns.On("PLAYER_LOGIN", ns.Initialize)
 ns.On("COMBAT_LOG_EVENT_UNFILTERED", OnCombatLog)
 
-SLASH_BESTIARYFOREVER1 = "/bestiary"
-SLASH_BESTIARYFOREVER2 = "/bst"
-SlashCmdList["BESTIARYFOREVER"] = function(message)
+SLASH_FIELDGUIDEFOREVER1 = "/fieldguide"
+SLASH_FIELDGUIDEFOREVER2 = "/fg"
+SlashCmdList["FIELDGUIDEFOREVER"] = function(message)
 	local command = type(message) == "string" and message:lower():match("^%s*(.-)%s*$") or ""
 	if command == "help" then
-		print(L["Open your bestiary with /bestiary or /bst."])
+		print(L["Open your field guide with /fieldguide or /fg."])
 		return
 	end
 	if ns.Window and ns.Window.Toggle then

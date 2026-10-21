@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 RELEASE = ROOT / ".release"
-ADDON = "BestiaryForever"
+ADDON = "FieldGuideForever"
 DEVELOPMENT = ("tests", "tools", "docs", "reference", "scratch", ".github")
 REQUIRED = ("LICENSE", "README.md")
 
