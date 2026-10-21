@@ -7,6 +7,18 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 Nothing yet.
 
+## [0.1.1] - 2026-10-21
+
+### Fixed
+
+- The Open Journal and Track Species buttons overlapped and ran off the right edge of the window in every
+  screenshot: the renderer now draws them from the bar's own anchors, exactly where the addon puts them.
+
+### Added
+
+- `tools/visual_audit.py`: the rendered scenes are checked against the layout manifest, so a control that leaves
+  the frame, overlaps another control or sits closer than 8 units to one never reaches a screenshot or a release.
+
 ## [0.1.0] - 2026-10-21
 
 ### Added

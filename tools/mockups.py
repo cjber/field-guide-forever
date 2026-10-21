@@ -16,6 +16,7 @@ import re
 import sys
 import textwrap
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import wowmock.wowmock as wowmock  # noqa: E402
@@ -427,12 +428,12 @@ def marker(canvas, cx, cy, size, colour):
     canvas.draw(canvas.ui.atlas("common-icon-checkmark"), cx - size / 2, cy - size / 2, size, size, colour)
 
 
-LAYOUT: dict[str, object] = {}
+LAYOUT: dict[str, Any] = {}
 
 
 def note(name, role, x, y, w, h):
     """Record a widget rect (canvas units) for tools/visual_audit.py: bounds, overlaps and margins."""
-    widgets = LAYOUT.setdefault("widgets", [])
+    widgets: list[dict[str, Any]] = LAYOUT.setdefault("widgets", [])
     widgets.append({"name": name, "role": role, "x": round(x, 1), "y": round(y, 1), "w": round(w, 1), "h": round(h, 1)})
 
 
@@ -745,7 +746,8 @@ def main():
 
     def save(scene, name):
         scene.save(OUT / name)
-        LAYOUT.setdefault("scenes", []).append(name)
+        scenes: list[str] = LAYOUT.setdefault("scenes", [])
+        scenes.append(name)
 
     save(render(barrens, prowler, "CREATURES"), "field-guide.png")
     save(render(rare_zone, rare, "RARES"), "rares.png")
