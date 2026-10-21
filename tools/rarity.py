@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rarity recolour mockups: the target frame and the nameplate at every collection tier.
 
 The tier mark is not an addon-drawn border. Each tier drops the chroma out of the client's own brass hardware and
