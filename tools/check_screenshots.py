@@ -24,6 +24,7 @@ SOURCES = (
     "UI/List.lua",
     "UI/Window.lua",
     "tools/mockups.py",
+    "tools/rarity.py",
     "tools/wowmock/wowmock.py",
 )
 
