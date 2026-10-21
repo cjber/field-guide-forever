@@ -80,6 +80,8 @@ local function NewRegion(kind, name, parent, template)
 		_width = 100,
 		_height = 20,
 		_alpha = 1,
+		_vertexColor = { 1, 1, 1, 1 },
+		_desaturated = false,
 		_scale = 1,
 		_points = {},
 		_id = 0,
@@ -329,7 +331,13 @@ function methods.SetSpacing() end
 
 function methods.SetTextColor() end
 
-function methods.SetVertexColor() end
+function methods:SetVertexColor(r, g, b, a)
+	self._vertexColor = { r, g, b, a }
+end
+
+function methods:GetVertexColor()
+	return unpack(self._vertexColor)
+end
 
 function methods:SetTexture(texture)
 	self._texture = texture
@@ -337,7 +345,13 @@ end
 
 function methods.SetTexCoord() end
 
-function methods.SetDesaturated() end
+function methods:SetDesaturated(value)
+	self._desaturated = value and true or false
+end
+
+function methods:IsDesaturated()
+	return self._desaturated
+end
 
 function methods.SetDrawLayer() end
 

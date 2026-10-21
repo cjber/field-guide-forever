@@ -13,6 +13,20 @@ Model.SHINY_TARGET = 1
 Model.SHINY_CHANCE = 500
 Model.SIGHTING_LIMIT = 50
 
+---@param speciesId integer
+---@return string
+function Model.Tier(speciesId)
+	local band = speciesId % 1000
+	if band == 0 then
+		return "shiny"
+	elseif band % 100 == 0 then
+		return "gold"
+	elseif band % 25 == 0 then
+		return "silver"
+	end
+	return "copper"
+end
+
 ---@type table<integer, string>
 Model.RANK_NAMES = {
 	[0] = "Undiscovered",

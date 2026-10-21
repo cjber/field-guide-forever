@@ -21,3 +21,4 @@ UI\Tooltip.lua
 UI\List.lua
 UI\Detail.lua
 UI\Window.lua
+UI\Rarity.lua
