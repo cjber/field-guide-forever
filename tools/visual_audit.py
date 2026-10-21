@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Fail when a rendered scene's widgets leave the window frame or overlap each other.
 
 `tools/mockups.py` writes `docs/screenshots/layout.json` beside the images: the window frame and every widget it drew,
