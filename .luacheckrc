@@ -17,6 +17,7 @@ globals = {
 	"SlashCmdList",
 }
 read_globals = {
+	"C_NamePlate",
 	"C_Timer",
 	"COMBATLOG_OBJECT_REACTION_HOSTILE",
 	"COMBATLOG_OBJECT_TYPE_NPC",
