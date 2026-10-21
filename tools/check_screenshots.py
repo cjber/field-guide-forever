@@ -9,6 +9,7 @@ plain check; after `python3 tools/mockups.py` run `--record` to rewrite the dige
     python3 tools/check_screenshots.py --record  # after a render
 """
 
+import ast
 import hashlib
 import sys
 from pathlib import Path
@@ -27,6 +28,13 @@ SOURCES = (
     "tools/rarity.py",
     "tools/wowmock/wowmock.py",
 )
+RARITY_GEOMETRY = {
+    "HEALTH_WINDOW": (32, 26, 143, 49),
+    "POWER_WINDOW": (33, 55, 143, 61),
+    "PORTRAIT_CENTER": (183, 44),
+    "PORTRAIT_RADIUS": 28,
+    "LEVEL_CENTER": (201, 66),
+}
 
 
 def digest() -> str:
@@ -39,6 +47,19 @@ def digest() -> str:
         sha.update(path.read_bytes() if path.is_file() else b"<missing>")
         sha.update(b"\0")
     return sha.hexdigest()
+
+
+def check_rarity_geometry() -> None:
+    """Keep the rarity renderer anchored to the measured client target-frame windows."""
+    source = ast.parse((ROOT / "tools/rarity.py").read_text(encoding="utf-8"))
+    values = {}
+    for node in ast.walk(source):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id in RARITY_GEOMETRY:
+                    values[target.id] = ast.literal_eval(node.value)
+    if values != RARITY_GEOMETRY:
+        raise ValueError(f"rarity target-frame geometry drifted: {values!r}")
 
 
 def recorded(path: Path) -> dict[str, str]:
@@ -54,6 +75,7 @@ def recorded(path: Path) -> dict[str, str]:
 
 
 def main(argv: list[str]) -> int:
+    check_rarity_geometry()
     images = sorted(OUT.glob("*.png")) + sorted(OUT.glob("*.gif"))
     if not images:
         print(f"no screenshots in {OUT.relative_to(ROOT)}", file=sys.stderr)
