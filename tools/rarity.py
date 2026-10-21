@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rarity trim mockups: the target frame, the nameplate and an elite frame at each collection tier.
 
 Drawn with the pinned WoW: Forever build's own art (targeting frame nine-slice, status bar border and fill,
