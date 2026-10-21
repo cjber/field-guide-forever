@@ -78,11 +78,11 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False, namepla
     the tier's trim. Copper draws no trim at all, which is the design's whole claim."""
     label, odds, colour, _, _ = tier
 
-    if elite:
-        art = "hud-TargetingFrame-elite"
-    else:
-        art = "hud-TargetingFrame"
-    canvas.draw(ui.atlas(art), x, y, FRAME_W, FRAME_H)
+    art = "hud-TargetingFrame-elite" if elite else "hud-TargetingFrame"
+    atlas = ui.atlas(art)
+    canvas.draw(atlas, x, y, FRAME_W, FRAME_H)
+    # The atlas carries transparent margins, so the trim follows the art's own bounds rather than the draw box.
+    left, top, right, bottom = atlas.image.convert("RGBA").getbbox()
 
     # Health: the trough the client carves at the left of the frame, filled the way a live target reads.
     hx, hy, hw, hh = x + 40, y + 34, 120, 22
@@ -103,8 +103,9 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False, namepla
 
     # Trim sits outside the art, never on top of it: an elite keeps its dragon and only gains an outer edge, so
     # the two decorations never fight for the same pixels.
-    pad = 4
-    tx, ty, tw, th = x - pad, y - pad, FRAME_W + pad * 2, FRAME_H + pad * 2
+    pad = 3
+    tx, ty = x + left - pad, y + top - pad
+    tw, th = (right - left) + pad * 2, (bottom - top) + pad * 2
     if label == "SHINY":
         for row, (rx, ry, rw, rc) in enumerate(iridescent(tx, ty, tw, th)):
             pass
@@ -169,7 +170,7 @@ def main():
 
     def sheet(name, elite=False, plates=False):
         cols, rows = 2, 2
-        cell_w, cell_h = 330, 236
+        cell_w, cell_h = 330, 196
         m = 34
         canvas = ui.canvas(cell_w * cols + m * 2, cell_h * rows + m * 2 + 64)
         canvas.fill(0, 0, canvas.width, canvas.height, BG)
@@ -196,7 +197,7 @@ def main():
 
             target_frame(ui, canvas, cx + 14, cy + 46, tier, icons[glyph[index]], folk[index], 12 + index, elite=elite)
             if plates:
-                nameplate(ui, canvas, cx + 56, cy + 206, tier, folk[index], elite=elite)
+                nameplate(ui, canvas, cx + 70, cy + 170, tier, folk[index], elite=elite)
         return canvas
 
     sheet("target frames").save(OUT / "rarity-target.png")
