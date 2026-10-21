@@ -42,7 +42,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont  # ty: ignore[unresolved-import]  # Pillow is local only
 
 BUILD = "1.60.1.70124"
 USER_AGENT = "wowmock/1.0"

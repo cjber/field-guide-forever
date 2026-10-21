@@ -10,11 +10,19 @@ player power, changes combat or calls a protected function.
 luacheck .
 stylua --check .
 for spec in tests/*_spec.lua; do lua5.1 "$spec" || exit 1; done
+python3 tools/check_screenshots.py
+uvx ruff@0.16.8 check tools && uvx ruff@0.16.8 format --check tools
+python3 tools/changelog.py --check
 ```
 
-Run all three from the repository root before every change is handed over. The specs are plain Lua 5.1 scripts, not
+Run these from the repository root before every change is handed over. The specs are plain Lua 5.1 scripts, not
 busted: they load `tests/wow_mock.lua`, build a sandbox with `Mock.Harness()`, and assert with `assert(...)`. A spec
 prints one `name: ok` line and exits non-zero on failure.
+
+`tools/` holds the development tooling, which `.pkgmeta` keeps out of the package: `mockups.py` renders
+`docs/screenshots/` with wowmock against the pinned client build, `check_screenshots.py` fails when an image is older
+than the sources it is drawn from (`--record` after a render), `changelog.py` prints or checks a release's entry,
+`check_package.py` checks what the packager built, and `release_check.py` gates the release on a green full CI run.
 
 ## Layout
 

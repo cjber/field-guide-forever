@@ -15,9 +15,16 @@ import sys
 import textwrap
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent / "wowmock"))
-import wowmock  # noqa: E402
-from wowmock import FONTS, close_button, dialog_border, panel_tabs, tooltip_backdrop, ui_panel_button  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import wowmock.wowmock as wowmock  # noqa: E402
+from wowmock.wowmock import (  # noqa: E402
+    FONTS,
+    close_button,
+    dialog_border,
+    panel_tabs,
+    tooltip_backdrop,
+    ui_panel_button,
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "screenshots"
@@ -36,6 +43,8 @@ PANEL = wowmock.rgb("212429")
 
 W, H = 700, 480
 MASTERED_AT, RARE_TARGET, SHINY_TARGET = 10, 3, 1
+# The catalogue's size, which the title bar prints; main() fills them in from Data/Creatures.lua.
+TOTAL_SPECIES, TOTAL_ZONES = 0, 0
 RANK_NAMES = ("Undiscovered", "Discovered", "Observed", "Studied", "Mastered")
 PIPS = ("Discovered", "Observed", "Studied", "Mastered")
 
@@ -444,8 +453,8 @@ def main():
         render(rare_zone, rare, "RARES"),
         render(rare_zone, rare, "SHINY"),
         render(shiny_zone, shiny, "SHINY"),
-        render(*pick("Teldrassil", lambda s: not s["rare"]), "BESTIARY"),
-        render(*pick("Westfall", lambda s: s["rare"]), "BESTIARY"),
+        render(*pick("Teldrassil", lambda s: not s["rare"])),
+        render(*pick("Westfall", lambda s: s["rare"])),
         render(barrens, prowler, "BESTIARY"),
     ]
     palette_frames = [
@@ -458,6 +467,6 @@ def main():
 
 
 if __name__ == "__main__":
-    from PIL import Image
+    from PIL import Image  # ty: ignore[unresolved-import]  # Pillow is local only, like wowmock
 
     sys.exit(main())
