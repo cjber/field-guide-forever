@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Generate client geography, instance types, families and portrait IDs from pinned Forever DB2 exports."""
 
 import argparse
