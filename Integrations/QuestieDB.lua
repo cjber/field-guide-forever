@@ -7,6 +7,10 @@ local status = "missing"
 local WAIT = 60
 local REQUIRED = { "name", "minLevel", "maxLevel", "rank", "subName", "zoneID", "spawns" }
 
+local function IsJournalInstance(map)
+	return map and (map.instanceType == 1 or map.instanceType == 2)
+end
+
 local function State(nextState)
 	status = nextState
 	ns.catalogueStatus = nextState
@@ -120,7 +124,7 @@ local function Build()
 					placed = true
 				end
 				local map = ns.ClientData.maps[z]
-				if map and map.instanceType and map.instanceType > 0 then
+				if IsJournalInstance(map) then
 					local group = instanceSpecies[z]
 						or { id = z, name = map.name, instanceType = map.instanceType, species = {} }
 					instanceSpecies[z] = group

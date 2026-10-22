@@ -384,15 +384,28 @@ SIGIL_ICON = "interface/icons/inv_misc_book_06.blp"
 
 def load_catalogue():
     """Read mock-only NPC rows extracted from the pinned, ignored QuestieDB release."""
+    global MOCK_INSTANCES
+    MOCK_INSTANCES = {}
     subprocess.run([sys.executable, "tools/gen_mock_catalogue.py"], cwd=ROOT, check=True)
     source = (ROOT / "Data" / "Client.lua").read_text(encoding="utf-8")
     pattern = re.compile(r'ns\.ClientData\.zones\[(\d+)\] = \{ name = "([^"]+)", continent = (\d+) \}')
     continents = {
         int(index): name for index, name in re.findall(r'ns\.ClientData\.continents\[(\d+)\] = "([^"]+)"', source)
     }
+    maps = {
+        int(index): (name, int(instance_type))
+        for index, name, instance_type in re.findall(
+            r'ns\.ClientData\.maps\[(\d+)\] = \{ name = "([^"]+)", instanceType = (\d+) \}', source
+        )
+    }
+    areas: dict[int, tuple[str, int]] = {}
     zones: dict[int, MockZone] = {}
     for match in pattern.finditer(source):
         zone_id, name, continent = int(match.group(1)), match.group(2), int(match.group(3))
+        areas[zone_id] = (name, continent)
+        parent_map = maps.get(continent)
+        if parent_map and parent_map[1] > 0:
+            continue
         zones[zone_id] = {
             "id": zone_id,
             "name": name,
@@ -468,6 +481,7 @@ def marker(canvas, cx, cy, size, colour):
 
 
 LAYOUT: dict[str, Any] = {}
+MOCK_INSTANCES: dict[int, dict[str, Any]] = {}
 
 
 def note(name, role, x, y, w, h):
@@ -761,6 +775,17 @@ def window(ui, zone, species, tab, icons, sigil):
     return canvas
 
 
+ZONE_PAGE_COUNT = 12
+
+
+def zone_pages(zones):
+    """A spread of zones across the whole catalogue, not the first N: the README shows the range."""
+    if len(zones) <= ZONE_PAGE_COUNT:
+        return zones
+    step = len(zones) / ZONE_PAGE_COUNT
+    return [zones[int(index * step)] for index in range(ZONE_PAGE_COUNT)]
+
+
 def main():
     ui = wowmock.Ui(scale=2)
     OUT.mkdir(parents=True, exist_ok=True)
@@ -807,7 +832,7 @@ def main():
     save(render(rare_zone, rare, "RARES"), "rares.png")
     save(render(shiny_zone, shiny, "SHINY"), "shiny.png")
 
-    for zone in zones:
+    for zone in zone_pages(zones):
         save(render(zone, zone["species"][0], "CREATURES"), f"zone-{zone['id']:04d}.png")
 
     search_zone = barrens
@@ -895,7 +920,7 @@ def main():
         gallery.extend(f"![{label}](docs/screenshots/{filename})\n" for filename, label in features)
         gallery += ["## Zone pages", "", "| | | |", "| --- | --- | --- |"]
         row = []
-        for zone in zones:
+        for zone in zone_pages(zones):
             filename = f"zone-{zone['id']:04d}.png"
             row.append(f"![{zone['name']}](docs/screenshots/{filename})")
             if len(row) == 3:
