@@ -71,6 +71,16 @@ function Model.Rank(count)
 	return 0
 end
 
+---@param minLevel integer
+---@param maxLevel integer
+---@return string
+function Model.LevelRange(minLevel, maxLevel)
+	if minLevel == maxLevel then
+		return tostring(minLevel)
+	end
+	return string.format("%d–%d", minLevel, maxLevel)
+end
+
 ---@param count number?
 ---@return string
 function Model.RankName(count)

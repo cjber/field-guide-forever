@@ -94,6 +94,7 @@ These mocked screenshots use the WoW: Forever client art and a disposable fixtur
 ## Credits
 
 - cjber, for the addon and the rest of the Forever addon suite.
+- @cillian, for the Field Guide visual polish idea.
 - Blizzard Entertainment, for Azeroth, its creatures and the client art the journal is built from.
 - The WoW: Forever project, for the client this addon is written for.
 - Everyone who reports a creature that is missing from the catalogue.

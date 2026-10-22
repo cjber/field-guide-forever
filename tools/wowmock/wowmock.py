@@ -1603,7 +1603,7 @@ def close_button(canvas, right, top):
     canvas.draw(canvas.ui.atlas("RedButton-Exit"), right - 24, top, 24, 24)
 
 
-def panel_tabs(canvas, x, y, names, selected=0):
+def panel_tabs(canvas, x, y, names, selected=0, gap=3):
     """PanelTabButtonTemplate tabs from the first tab's TOPLEFT, each 3 units after the last: width is the
     text (GameFontNormalSmall) plus 20, at least the side caps' width. The selected tab takes the taller
     activetab art and white text 3 below centre; the others gold text 2 above. Returns the tab rects."""
@@ -1624,7 +1624,7 @@ def panel_tabs(canvas, x, y, names, selected=0):
         # ButtonText is 10 high at CENTER (0, 2), which PanelTemplates_(De)SelectTab moves to (0, -3)/(0, 2).
         canvas.text(x, y + 16 - 5 + (3 if active else -2), name, font, justify="CENTER", width=w, box_height=10)
         rects.append((x, y, w, 32))
-        x += w + 3
+        x += w + gap
     return rects
 
 

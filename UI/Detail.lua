@@ -7,7 +7,7 @@ local Art = ns.Art
 local Detail = {}
 ns.Detail = Detail
 
-local CARD_WIDTH = 468
+local CARD_WIDTH = 488
 local PIPS = { "Discovered", "Observed", "Studied", "Mastered" }
 local REWARDS = { "Field sketch", "Ink study", "Brass plate", "Gilded entry" }
 
@@ -53,18 +53,21 @@ local function BuildResearch(parent)
 
 	Detail.pips = {}
 	for index = 1, 4 do
-		local x = 28 + (index - 1) * 108
+		local x = 28 + (index - 1) * 112
 		local dot = Art.Texture(card, "ARTWORK", "muted", 0.4)
 		dot:SetSize(10, 10)
 		dot:SetPoint("TOPLEFT", x, -28)
 		local label = Art.Text(card, "GameFontDisableSmall", "muted")
-		label:SetPoint("TOPLEFT", x - 38, -42)
-		label:SetWidth(86)
+		label:SetPoint("TOPLEFT", x - 39, -42)
+		label:SetWidth(88)
 		label:SetJustifyH("CENTER")
 		label:SetText(L[PIPS[index]])
-		local connector = Art.Line(card, "panel", 1)
-		connector:SetPoint("TOPLEFT", x + 13, -32)
-		connector:SetWidth(106 - 16)
+		local connector
+		if index < 4 then
+			connector = Art.Line(card, "panel", 1)
+			connector:SetPoint("TOPLEFT", x + 13, -32)
+			connector:SetWidth(112 - 26)
+		end
 		Detail.pips[index] = { dot = dot, label = label, connector = connector }
 	end
 
@@ -80,36 +83,46 @@ end
 
 ---@param parent Frame
 local function BuildLore(parent)
-	local card = Card(parent, 14, -192, CARD_WIDTH, 50)
+	local card = Card(parent, 14, -196, CARD_WIDTH, 58)
 	Detail.loreCard = card
 	local title = Art.Text(card, "GameFontNormal", "gold")
-	title:SetPoint("TOPLEFT", 10, -6)
+	title:SetPoint("TOPLEFT", 10, -7)
 	title:SetText(L["Lore"])
 	local lore = Art.Text(card, "GameFontDisableSmall", "text")
-	lore:SetPoint("TOPLEFT", 10, -20)
+	lore:SetPoint("TOPLEFT", 10, -21)
 	lore:SetWidth(CARD_WIDTH - 20)
 	lore:SetJustifyH("LEFT")
 	lore:SetWordWrap(true)
 	lore:SetSpacing(1)
+	if lore.SetMaxLines then
+		lore:SetMaxLines(2)
+	end
 	Detail.lore = lore
 end
 
 ---@param parent Frame
 local function BuildVariants(parent)
 	local title = Art.Text(parent, "GameFontNormal", "gold")
-	title:SetPoint("TOPLEFT", 14, -246)
+	title:SetPoint("TOPLEFT", 14, -264)
 	title:SetText(L["Variants"])
 
 	Detail.variants = {}
 	for index = 1, 3 do
-		local card = Card(parent, 14 + (index - 1) * 156, -262, 148, 52)
+		local x = 14 + (index - 1) * 165
+		local width = index == 3 and 158 or 157
+		local card = Card(parent, x, -280, width, 52)
 		local name = Art.Text(card, "GameFontNormal", "text")
-		name:SetPoint("TOPLEFT", 8, -6)
-		local tick = Art.Text(card, "GameFontNormal", "muted")
-		tick:SetPoint("TOPRIGHT", -8, -6)
+		name:SetPoint("TOPLEFT", 10, -7)
+		local tick = card:CreateTexture(nil, "OVERLAY")
+		tick:SetSize(12, 12)
+		tick:SetPoint("TOPRIGHT", -10, -7)
+		local dash = Art.Text(card, "GameFontNormal", "muted")
+		dash:SetPoint("TOPRIGHT", -10, -7)
+		dash:SetWidth(12)
+		dash:SetJustifyH("CENTER")
 		local status = Art.Text(card, "GameFontDisableSmall", "muted")
-		status:SetPoint("TOPLEFT", 8, -28)
-		Detail.variants[index] = { frame = card, name = name, tick = tick, status = status }
+		status:SetPoint("TOPLEFT", 10, -29)
+		Detail.variants[index] = { frame = card, name = name, tick = tick, dash = dash, status = status }
 	end
 	Detail.variants[1].name:SetText(L["Common"])
 	Detail.variants[2].name:SetText(L["Rare variant"])
@@ -118,37 +131,47 @@ end
 
 ---@param parent Frame
 local function BuildRewards(parent)
-	local card = Card(parent, 14, -320, CARD_WIDTH, 66)
+	local card = Card(parent, 14, -342, CARD_WIDTH, 66)
 	Detail.rewardsCard = card
 	local title = Art.Text(card, "GameFontNormal", "gold")
-	title:SetPoint("TOPLEFT", 10, -6)
+	title:SetPoint("TOPLEFT", 10, -7)
 	title:SetText(L["Cosmetic rewards"])
 	Detail.rewards = {}
 	for index = 1, 4 do
 		local column = (index - 1) % 2
 		local row = math.floor((index - 1) / 2)
 		local label = Art.Text(card, "GameFontDisableSmall", "text")
-		label:SetPoint("TOPLEFT", 10 + column * 230, -25 - row * 20)
-		label:SetWidth(112)
+		local columnX = column == 0 and 10 or 258
+		local columnRight = columnX + 224
+		label:SetPoint("TOPLEFT", columnX, -28 - row * 20)
+		label:SetWidth(120)
 		label:SetText(L[REWARDS[index]])
 		local status = Art.Text(card, "GameFontDisableSmall", "muted")
-		status:SetPoint("TOPLEFT", 126 + column * 230, -25 - row * 20)
-		status:SetWidth(96)
-		Detail.rewards[index] = { label = label, status = status }
+		status:SetPoint("TOPLEFT", columnRight - 86, -28 - row * 20)
+		status:SetWidth(86)
+		status:SetJustifyH("RIGHT")
+		local marker = card:CreateTexture(nil, "OVERLAY")
+		marker:SetSize(12, 12)
+		marker:SetPoint("TOPLEFT", columnX + 126, -27 - row * 20)
+		local dash = Art.Text(card, "GameFontNormal", "muted")
+		dash:SetPoint("TOPLEFT", columnX + 126, -28 - row * 20)
+		dash:SetWidth(12)
+		dash:SetJustifyH("CENTER")
+		Detail.rewards[index] = { label = label, status = status, marker = marker, dash = dash }
 	end
 end
 
 ---@param parent Frame
 local function BuildSightings(parent)
-	local card = Card(parent, 14, -370, CARD_WIDTH, 112)
+	local card = Card(parent, 14, -418, CARD_WIDTH, 60)
 	Detail.sightingCard = card
 	local title = Art.Text(card, "GameFontNormal", "gold")
-	title:SetPoint("TOPLEFT", 10, -6)
+	title:SetPoint("TOPLEFT", 10, -7)
 	title:SetText(L["Your records"])
 	local text = Art.Text(card, "GameFontDisableSmall", "muted")
 	text:SetPoint("TOPLEFT", 10, -21)
 	text:SetWidth(CARD_WIDTH - 20)
-	text:SetHeight(84)
+	text:SetHeight(34)
 	text:SetJustifyH("LEFT")
 	text:SetJustifyV("TOP")
 	text:SetWordWrap(true)
@@ -178,7 +201,7 @@ function Detail.Create(parent)
 	BuildSightings(parent)
 
 	Detail.note = Art.Text(parent, "GameFontDisableSmall", "muted")
-	Detail.note:SetPoint("BOTTOMRIGHT", -14, 4)
+	Detail.note:SetPoint("BOTTOMLEFT", 14, 2)
 	Detail.note:SetText(L["Cosmetic only — the field guide never grants player power."])
 end
 
@@ -198,8 +221,8 @@ local function UpdateBadges(species, state)
 	local variants = ns.Model.Variants(state, species.id)
 	local labels = {
 		{ key = "Common", color = "text", show = true },
-		{ key = "★ Rare variant known", color = "rare", show = variants.rare.known },
-		{ key = "✦ Shiny seen", color = "shiny", show = variants.shiny.known },
+		{ key = "Rare variant known", color = "rare", show = variants.rare.known },
+		{ key = "Shiny seen", color = "shiny", show = variants.shiny.known },
 		{ key = "Tracked", color = "complete", show = state and state.tracked == species.id },
 	}
 	local x = 0
@@ -252,12 +275,13 @@ end
 ---@param knownText string
 local function UpdateVariant(card, variant, color, knownText)
 	if variant.known then
-		card.tick:SetText(L["✓"])
-		SetLabelColor(card.tick, "✓", color)
+		card.tick:SetAtlas("common-icon-checkmark")
+		card.tick:SetVertexColor(Art.RGBA(color, 1))
+		card.dash:SetText("")
 		card.status:SetText(knownText)
 	else
-		card.tick:SetText(L["—"])
-		SetLabelColor(card.tick, "—", "muted")
+		card.tick:SetTexture(nil)
+		SetLabelColor(card.dash, "—", "muted")
 		card.status:SetText(string.format(L["%d / %d"], variant.count, variant.target))
 	end
 end
@@ -278,10 +302,17 @@ local function UpdateRewards(state)
 		local row = Detail.rewards[index]
 		if rank >= index then
 			row.status:SetText(L["UNLOCKED"])
+			row.marker:SetAtlas("common-icon-checkmark")
+			row.marker:SetVertexColor(Art.RGBA("complete", 1))
+			row.dash:SetText("")
 			local r, g, b = Art.RGBA("complete", 1)
 			row.status:SetTextColor(r, g, b, 1)
 		else
 			row.status:SetText(string.format(L["Locked · %s"], L[PIPS[index]]))
+			row.marker:SetTexture(nil)
+			row.dash:SetText(L["—"])
+			local mr, mg, mb = Art.RGBA("muted", 1)
+			row.dash:SetTextColor(mr, mg, mb, 1)
 			local r, g, b = Art.RGBA("muted", 1)
 			row.status:SetTextColor(r, g, b, 1)
 		end
@@ -299,6 +330,11 @@ local function UpdateSightings(species, zone)
 	end
 	local lines = {}
 	local record = ns.Model.Specimen(ns.GetCharacterState(false), species.id)
+	local function AddLine(line)
+		if #lines < 3 then
+			lines[#lines + 1] = line
+		end
+	end
 	local function FormatFirst(timestamp, place)
 		if not timestamp then
 			return nil
@@ -309,21 +345,24 @@ local function UpdateSightings(species, zone)
 	end
 	local firstSighting = FormatFirst(record.firstSighting, record.firstSightingZone)
 	if firstSighting then
-		lines[#lines + 1] = string.format(L["Personal first sighting: %s"], firstSighting)
+		AddLine(string.format(L["Personal first sighting: %s"], firstSighting))
 	end
 	local firstKill = FormatFirst(record.firstKill, record.firstKillZone)
 	if firstKill then
-		lines[#lines + 1] = string.format(L["First death observed: %s"], firstKill)
+		AddLine(string.format(L["First death observed: %s"], firstKill))
 	end
 	local firstRare = FormatFirst(record.firstRare, record.firstRareZone)
 	if firstRare then
-		lines[#lines + 1] = string.format(L["First rare recorded: %s"], firstRare)
+		AddLine(string.format(L["First rare recorded: %s"], firstRare))
 	end
 	local firstShiny = FormatFirst(record.firstShiny, record.firstShinyZone)
 	if firstShiny then
-		lines[#lines + 1] = string.format(L["First shiny recorded: %s"], firstShiny)
+		AddLine(string.format(L["First shiny recorded: %s"], firstShiny))
 	end
 	for _, entry in ipairs(ns.Model.GetSightings()) do
+		if #lines >= 3 then
+			break
+		end
 		if entry.species == species.name and entry.zone == zone.name then
 			local stamp = date and date("%H:%M", entry.time) or tostring(entry.time)
 			local kind = L["Kill"]
@@ -334,10 +373,7 @@ local function UpdateSightings(species, zone)
 			elseif entry.kind == "sighting" then
 				kind = L["First sighting"]
 			end
-			lines[#lines + 1] = string.format(L["%s · %s · %s"], stamp, L[entry.zone] or entry.zone, kind)
-			if #lines >= 6 then
-				break
-			end
+			AddLine(string.format(L["%s · %s · %s"], stamp, L[entry.zone] or entry.zone, kind))
 		end
 	end
 	if #lines == 0 then
@@ -365,7 +401,12 @@ function Detail.Show(species, state, zone)
 	Art.Icon(Detail.portrait, Art.SpeciesIcon(species.name, species.id), 58)
 	Detail.name:SetText(species.name)
 	Detail.sub:SetText(
-		string.format(L["%s · %s · Level %d-%d"], L[species.family], L[zone.name], species.minLevel, species.maxLevel)
+		string.format(
+			L["%s · %s · Level %s"],
+			L[species.family],
+			L[zone.name],
+			ns.Model.LevelRange(species.minLevel, species.maxLevel)
+		)
 	)
 	Detail.lore:SetText(string.format(L['"%s"'], species.lore))
 	UpdateBadges(species, state)

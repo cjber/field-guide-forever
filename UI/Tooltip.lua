@@ -22,7 +22,7 @@ function Tooltip.Show(owner, entry)
 	local tr, tg, tb = Art.RGBA("text", 1)
 	GameTooltip:AddLine(string.format(L["%s · %s"], L[species.family], L[species.zone]), tr, tg, tb, true)
 	GameTooltip:AddLine(
-		string.format(L["%s · Lv %d-%d"], L[species.family], species.minLevel, species.maxLevel),
+		string.format(L["%s · Lv %s"], L[species.family], ns.Model.LevelRange(species.minLevel, species.maxLevel)),
 		tr,
 		tg,
 		tb,
