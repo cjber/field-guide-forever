@@ -438,7 +438,9 @@ def load_catalogue():
                     zone["species"].append(zone_species)
                 else:
                     area = areas.get(area_id)
-                    parent = maps.get(area[1]) if area else None
+                    if area is None:
+                        continue
+                    parent = maps.get(area[1])
                     if parent and parent[1] in (1, 2):
                         map_id = area[1]
                         group = MOCK_INSTANCES.setdefault(

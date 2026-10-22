@@ -16,7 +16,7 @@ python3 tools/changelog.py --check
 python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check
 ```
 
-Specs are Lua 5.1 scripts run with LuaJIT through `tests/wow_mock.lua`. `tools/mockups.py` renders the README scenes from WoW client assets and a disposable fixture extracted from the pinned QuestieDB Forever release. The fixture lives only under ignored `tools/.cache/`.
+Specs are Lua 5.1 scripts run with LuaJIT through `tests/wow_mock.lua`. `tools/mockups.py` renders the README scenes from WoW client assets and a disposable fixture extracted from the pinned QuestieDB Forever release. The fixture lives only in an ignored cache directory under `tools/`.
 
 `tools/` holds the development tooling, which `.pkgmeta` keeps out of the package: `tools/mockups.py` renders
 `docs/screenshots/` with wowmock against the pinned client build, `tools/check_screenshots.py` fails when an image is
