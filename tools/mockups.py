@@ -11,12 +11,14 @@ window's logical size, on wowmock's plain backdrop.
 Deterministic: the specimen counts come from the species id, so a second run is byte-identical.
 """
 
+import csv
 import json
 import re
+import subprocess
 import sys
 import textwrap
 from pathlib import Path
-from typing import Any
+from typing import Any, NotRequired, TypedDict
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import wowmock.wowmock as wowmock  # noqa: E402
@@ -31,6 +33,26 @@ from wowmock.wowmock import (  # noqa: E402
     search_box,
     three_slice_button,
 )
+
+
+class MockSpecies(TypedDict):
+    id: int
+    name: str
+    family: str
+    min: int
+    max: int
+    lore: str
+    rare: bool
+    boss: bool
+    zone: NotRequired[str]
+
+
+class MockZone(TypedDict):
+    id: int
+    name: str
+    continent: str
+    species: list[MockSpecies]
+
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "screenshots"
@@ -361,34 +383,78 @@ SIGIL_ICON = "interface/icons/inv_misc_book_06.blp"
 
 
 def load_catalogue():
-    """The zones and species Data/Creatures.lua defines, read by parsing the file (no Lua interpreter needed)."""
-    import re
-
-    source = (ROOT / "Data" / "Creatures.lua").read_text()
-    zone_re = re.compile(r'zone\(\s*"([^"]+)",\s*"([^"]+)",\s*\{')
-    mob_re = re.compile(
-        r'mob\(\s*(\d+),\s*"([^"]+)",\s*"([^"]+)",\s*(\d+),\s*(\d+),\s*"([^"]+)"(,\s*true)?\s*\)',
-        re.S,
-    )
-    spans = [(m.start(), m.group(1), m.group(2)) for m in zone_re.finditer(source)]
-    zones = []
-    for index, (start, name, continent) in enumerate(spans):
-        end = spans[index + 1][0] if index + 1 < len(spans) else len(source)
-        species = []
-        for mob in mob_re.finditer(source[start:end]):
-            species.append(
-                {
-                    "id": int(mob.group(1)),
-                    "name": mob.group(2),
-                    "family": mob.group(3),
-                    "min": int(mob.group(4)),
-                    "max": int(mob.group(5)),
-                    "lore": mob.group(6),
-                    "rare": mob.group(7) is not None,
-                }
-            )
-        zones.append({"name": name, "continent": continent, "species": species})
-    return zones
+    """Read mock-only NPC rows extracted from the pinned, ignored QuestieDB release."""
+    global MOCK_INSTANCES
+    MOCK_INSTANCES = {}
+    subprocess.run([sys.executable, "tools/gen_mock_catalogue.py"], cwd=ROOT, check=True)
+    source = (ROOT / "Data" / "Client.lua").read_text(encoding="utf-8")
+    pattern = re.compile(r'ns\.ClientData\.zones\[(\d+)\] = \{ name = "([^"]+)", continent = (\d+) \}')
+    continents = {
+        int(index): name for index, name in re.findall(r'ns\.ClientData\.continents\[(\d+)\] = "([^"]+)"', source)
+    }
+    maps = {
+        int(index): (name, int(instance_type))
+        for index, name, instance_type in re.findall(
+            r'ns\.ClientData\.maps\[(\d+)\] = \{ name = "([^"]+)", instanceType = (\d+) \}', source
+        )
+    }
+    areas: dict[int, tuple[str, int]] = {}
+    zones: dict[int, MockZone] = {}
+    for match in pattern.finditer(source):
+        zone_id, name, continent = int(match.group(1)), match.group(2), int(match.group(3))
+        areas[zone_id] = (name, continent)
+        parent_map = maps.get(continent)
+        if parent_map and parent_map[1] > 0:
+            continue
+        zones[zone_id] = {
+            "id": zone_id,
+            "name": name,
+            "continent": continents.get(continent, str(continent)),
+            "species": [],
+        }
+    fixture = ROOT / "tools" / ".cache" / "questiedb-mock-catalogue-v1.0.6.tsv"
+    with fixture.open(encoding="utf-8", newline="") as stream:
+        for row in csv.reader(stream, delimiter="\t"):
+            if len(row) != 7:
+                continue
+            npc_id, name, minimum, maximum, rank, family, spawn_list = row
+            species: MockSpecies = {
+                "id": int(npc_id),
+                "name": name,
+                "family": family or "Unknown",
+                "min": int(minimum or 1),
+                "max": int(maximum or minimum or 1),
+                "lore": "QuestieDB Forever mock fixture; no lore is supplied by the client database.",
+                "rare": int(rank or 0) == 2,
+                "boss": int(rank or 0) == 3,
+            }
+            for spawn in spawn_list.split(","):
+                if not spawn:
+                    continue
+                area_id = int(spawn)
+                zone = zones.get(area_id)
+                if zone:
+                    zone_species: MockSpecies = {**species, "zone": zone["name"]}
+                    zone["species"].append(zone_species)
+                else:
+                    area = areas.get(area_id)
+                    parent = maps.get(area[1]) if area else None
+                    if parent and parent[1] in (1, 2):
+                        map_id = area[1]
+                        group = MOCK_INSTANCES.setdefault(
+                            map_id,
+                            {"id": map_id, "name": parent[0], "instanceType": parent[1], "species": {}},
+                        )
+                        group["species"][species["id"]] = species
+    result: list[MockZone] = []
+    for zone_id in sorted(zones):
+        zone = zones[zone_id]
+        zone["species"].sort(key=lambda item: item["id"])
+        if zone["species"]:
+            result.append(zone)
+    for group in MOCK_INSTANCES.values():
+        group["species"] = [group["species"][npc_id] for npc_id in sorted(group["species"])]
+    return result
 
 
 def progress(species):
@@ -396,6 +462,7 @@ def progress(species):
     seed = (species["id"] * 2654435761) % 4294967296
     return {
         "count": (seed >> 7) % 11,
+        "kills": (seed >> 7) % 11 + (seed >> 17) % 23,
         "rare": min(RARE_TARGET, (seed >> 11) % (RARE_TARGET + 1)),
         "shiny": 1 if (seed >> 13) % 23 == 0 else 0,
     }
@@ -429,6 +496,7 @@ def marker(canvas, cx, cy, size, colour):
 
 
 LAYOUT: dict[str, Any] = {}
+MOCK_INSTANCES: dict[int, dict[str, Any]] = {}
 
 
 def note(name, role, x, y, w, h):
@@ -515,7 +583,7 @@ def window(ui, zone, species, tab, icons, sigil):
             "GameFontDisableSmall",
             MUTED,
         )
-        right(canvas, px(372), y + 7, f"{state['count']} / 10", "GameFontNormal", TEXT, width=44)
+        right(canvas, px(372), y + 7, f"{state['kills']} kills", "GameFontNormal", TEXT, width=64)
         complete = state["count"] >= 1 and bool(state["shiny"]) and (not row["rare"] or state["rare"] >= RARE_TARGET)
         if state["count"] >= MASTERED_AT:
             marker(canvas, px(352), y + 32, 11, GOLD)
@@ -600,8 +668,16 @@ def window(ui, zone, species, tab, icons, sigil):
             justify="CENTER",
             width=86,
         )
-    text(canvas, rx + 24, ry + 162, "Specimens", "GameFontDisableSmall", MUTED)
-    right(canvas, rx + 472, ry + 162, f"{count} / 10", "GameFontDisableSmall", TEXT, width=60)
+    text(canvas, rx + 24, ry + 162, "Mastery · recorded deaths", "GameFontDisableSmall", MUTED)
+    right(
+        canvas,
+        rx + 472,
+        ry + 162,
+        f"{count} / 10 · {state['kills']} kills",
+        "GameFontDisableSmall",
+        TEXT,
+        width=140,
+    )
     bar(canvas, rx + 24, ry + 178, 448, 4, count / MASTERED_AT, GOLD)
 
     # Lore card.
@@ -655,12 +731,11 @@ def window(ui, zone, species, tab, icons, sigil):
 
     # Sighting log.
     card(canvas, rx + 14, ry + 394, 468, 76)
-    text(canvas, rx + 24, ry + 400, "Sighting log", "GameFontNormal", GOLD)
-    right(canvas, rx + 472, ry + 402, "this session", "GameFontDisableSmall", DIM, width=90)
+    text(canvas, rx + 24, ry + 400, "Local records", "GameFontNormal", GOLD)
     sightings = [
-        (f"{species['name']} \u2014 killed", TEXT),
-        ("Dishu \u2014 rare sighting", BLUE),
-        ("Plainstrider \u2014 shiny", GOLD),
+        (f"Personal first sighting \u00b7 {zone['name']}", TEXT),
+        (f"First death observed \u00b7 {state['kills']} kills recorded", BLUE),
+        ("First rare or shiny record \u00b7 local to this character", GOLD),
     ]
     for line_index, (line, colour) in enumerate(sightings):
         ly = ry + 420 + line_index * 14
@@ -715,10 +790,42 @@ def window(ui, zone, species, tab, icons, sigil):
     return canvas
 
 
+ZONE_PAGE_COUNT = 12
+
+
+def zone_pages(zones):
+    """A spread of zones across the whole catalogue, not the first N: the README shows the range."""
+    if len(zones) <= ZONE_PAGE_COUNT:
+        return zones
+    step = len(zones) / ZONE_PAGE_COUNT
+    return [zones[int(index * step)] for index in range(ZONE_PAGE_COUNT)]
+
+
 def main():
     ui = wowmock.Ui(scale=2)
     OUT.mkdir(parents=True, exist_ok=True)
+    for obsolete in OUT.glob("creature-??.png"):
+        obsolete.unlink()
     zones = load_catalogue()
+    catalogued_ids = {species["id"] for zone in zones for species in zone["species"]}
+    instance_ids = {
+        species["id"] for group in MOCK_INSTANCES.values() for species in group["species"]
+    }
+    boss_ids = {
+        species["id"]
+        for group in MOCK_INSTANCES.values()
+        for species in group["species"]
+        if species["boss"]
+    }
+    print(
+        f"QuestieDB Forever fixture coverage: {len(zones)} outdoor areas, "
+        f"{len(catalogued_ids | instance_ids)} placed NPCs, {len(MOCK_INSTANCES)} dungeons and raids, "
+        f"{len(boss_ids)} rank-3 boss records."
+    )
+    current_ids = {zone["id"] for zone in zones}
+    for previous in OUT.glob("zone-*.png"):
+        if int(previous.stem.split("-")[1]) not in current_ids:
+            previous.unlink()
     by_name = {zone["name"]: zone for zone in zones}
     # One client icon per species, chosen by the same keyword rules as Art.SpeciesIcon.
     icons = {}
@@ -735,10 +842,12 @@ def main():
         return zone, zone["species"][0]
 
     barrens = by_name["The Barrens"]
-    prowler = next(s for s in barrens["species"] if "Prowler" in s["name"])
-    rare_zone, rare = pick("The Barrens", lambda s: s["rare"])
-    shiny_zone, shiny = pick(
-        "The Barrens", lambda s: progress(s)["shiny"] or (progress(s)["count"] >= 6 and not s["rare"])
+    prowler = barrens["species"][0]
+    all_species = [(zone, species) for zone in zones for species in zone["species"]]
+    rare_zone, rare = next(((zone, species) for zone, species in all_species if species["rare"]), (barrens, prowler))
+    shiny_zone, shiny = next(
+        ((zone, species) for zone, species in all_species if progress(species)["shiny"]),
+        (barrens, prowler),
     )
 
     def render(zone, species, tab="CREATURES"):
@@ -753,21 +862,113 @@ def main():
     save(render(rare_zone, rare, "RARES"), "rares.png")
     save(render(shiny_zone, shiny, "SHINY"), "shiny.png")
 
-    examples = [
-        ("The Barrens", lambda s: "Prowler" in s["name"]),
-        ("Durotar", lambda s: not s["rare"]),
-        ("Mulgore", lambda s: s["rare"]),
-        ("Teldrassil", lambda s: not s["rare"]),
-        ("Elwynn Forest", lambda s: not s["rare"]),
-        ("Westfall", lambda s: s["rare"]),
-        ("Redridge Mountains", lambda s: not s["rare"]),
-        ("Loch Modan", lambda s: not s["rare"]),
-        ("Tirisfal Glades", lambda s: s["rare"]),
-        ("Silverpine Forest", lambda s: not s["rare"]),
-    ]
-    for index, (zone_name, matcher) in enumerate(examples, start=1):
-        zone, species = pick(zone_name, matcher)
-        save(render(zone, species, "CREATURES"), f"creature-{index:02d}.png")
+    for zone in zone_pages(zones):
+        save(render(zone, zone["species"][0], "CREATURES"), f"zone-{zone['id']:04d}.png")
+
+    search_zone = barrens
+    search_species = barrens["species"][min(3, len(barrens["species"]) - 1)]
+    save(render(search_zone, search_species, "CREATURES"), "search-filter.png")
+    save(render(search_zone, prowler, "CREATURES"), "tracking.png")
+    save(render(rare_zone, rare, "RARES"), "rare-record.png")
+    save(render(shiny_zone, shiny, "SHINY"), "shiny-record.png")
+
+    def feature_overlay(base, title, subtitle, lines):
+        canvas = wowmock.Canvas(ui, base.width, base.height)
+        canvas.image = base.image.copy()
+        veil = Image.new("RGBA", (canvas.image.size[0], 26 + BAR_Y), (0, 0, 0, 150))
+        canvas.composite(veil, 0, 0)
+        card(canvas, 205, 185, 602, 400)
+        text(canvas, 240, 220, title, "GameFontNormalLarge", GOLD)
+        text(canvas, 240, 257, subtitle, "GameFontDisableSmall", MUTED)
+        for index, line in enumerate(lines):
+            y = 305 + index * 42
+            canvas.draw(ui.atlas("common-icon-checkmark"), 242, y, 20, 20, GREEN)
+            text(canvas, 276, y + 1, line, "GameFontNormal", TEXT)
+        return canvas
+
+    feature_overlay(
+        render(search_zone, search_species),
+        "Search and status filters",
+        f'Query: "{search_species["name"][:20]}" · Filter: Rare',
+        [search_species["name"], "Matching species only", "Clear search to restore the list"],
+    ).save(OUT / "search-filter.png")
+    feature_overlay(
+        render(search_zone, prowler),
+        "Tracked species",
+        "Tracking · current character",
+        [prowler["name"], "Shown in the journal bottom bar", "Progress remains character-local"],
+    ).save(OUT / "tracking.png")
+    feature_overlay(
+        render(barrens, prowler),
+        "Field Guide Forever options",
+        "Personal progress and sharing preferences",
+        ["Show undiscovered species", "Show the sighting log", "Share with guild and group"],
+    ).save(OUT / "settings.png")
+    feature_overlay(
+        render(barrens, prowler),
+        "Sightings this session",
+        "Your records · local to this character",
+        [
+            f"First sighting · {prowler['name']}",
+            f"First death · {prowler['name']}",
+            "Rare and shiny rolls stay personal",
+        ],
+    ).save(OUT / "sighting-log.png")
+    instance_species = next(
+        (species for group in MOCK_INSTANCES.values() for species in group["species"] if species["boss"]), None
+    )
+    boss_name = instance_species["name"] if instance_species else "No boss entry in this fixture"
+    feature_overlay(
+        render(barrens, prowler),
+        "Instances · boss records",
+        "Dungeon and raid entries from QuestieDB Forever",
+        [boss_name, "0 recorded boss kills · your records", "Difficulty and first-clear history"],
+    ).save(OUT / "instances-boss.png")
+    feature_overlay(
+        render(barrens, prowler),
+        "Creature catalogue unavailable",
+        "QuestieDB Forever is required for creature data",
+        ["Install Questie or standalone QuestieDB", "Restart the client or type /reload"],
+    ).save(OUT / "missing-questiedb.png")
+
+    def write_readme_gallery():
+        features = [
+            ("field-guide.png", "Creatures journal"),
+            ("rares.png", "Rares page"),
+            ("rare-record.png", "Personal rare record"),
+            ("shiny.png", "Shiny page"),
+            ("shiny-record.png", "Personal shiny record"),
+            ("search-filter.png", "Search and status filter"),
+            ("tracking.png", "Tracked species"),
+            ("settings.png", "Options panel"),
+            ("sighting-log.png", "Session sighting log"),
+            ("rarity-target.png", "Target frame rarity"),
+            ("rarity-nameplates.png", "Nameplate rarity"),
+            ("rarity-elite.png", "Elite rarity chrome"),
+            ("instances-boss.png", "Instance boss record"),
+            ("missing-questiedb.png", "QuestieDB install prompt"),
+        ]
+        gallery = ["![A short walk through the journal](docs/screenshots/demo.gif)", "", "## Feature previews", ""]
+        gallery.extend(f"![{label}](docs/screenshots/{filename})\n" for filename, label in features)
+        gallery += ["## Zone pages", "", "| | | |", "| --- | --- | --- |"]
+        row = []
+        for zone in zone_pages(zones):
+            filename = f"zone-{zone['id']:04d}.png"
+            row.append(f"![{zone['name']}](docs/screenshots/{filename})")
+            if len(row) == 3:
+                gallery.append("| " + " | ".join(row) + " |")
+                row = []
+        if row:
+            row.extend([""] * (3 - len(row)))
+            gallery.append("| " + " | ".join(row) + " |")
+        readme_path = ROOT / "README.md"
+        readme = readme_path.read_text(encoding="utf-8")
+        begin, finish = "<!-- SCREENSHOT_GALLERY:START -->", "<!-- SCREENSHOT_GALLERY:END -->"
+        if begin not in readme or finish not in readme:
+            raise ValueError("README screenshot gallery markers are missing")
+        before, rest = readme.split(begin, 1)
+        _, after = rest.split(finish, 1)
+        readme_path.write_text(before + begin + "\n" + "\n".join(gallery) + "\n" + finish + after, encoding="utf-8")
 
     demo = [
         render(barrens, prowler, "CREATURES"),
@@ -785,8 +986,9 @@ def main():
     palette_frames[0].save(
         OUT / "demo.gif", save_all=True, append_images=palette_frames[1:], duration=900, loop=0, optimize=True
     )
+    write_readme_gallery()
     (OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(f"wrote {len(list(OUT.glob('*')))} files to {OUT}")
+    print(f"wrote {len(list(OUT.glob('*.png')))} PNG scenes and updated README gallery")
 
 
 if __name__ == "__main__":

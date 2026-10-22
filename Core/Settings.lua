@@ -50,6 +50,17 @@ local function BuildPanel()
 		end
 	end)
 
+	CheckButton(panel, L["Share progress with guild and group addon users"], -112, function()
+		return ns.db and ns.db.options.statsShare ~= false
+	end, function(checked)
+		if ns.db then
+			ns.db.options.statsShare = checked
+		end
+		if ns.Stats then
+			ns.Stats.SetEnabled(checked)
+		end
+	end)
+
 	return panel
 end
 

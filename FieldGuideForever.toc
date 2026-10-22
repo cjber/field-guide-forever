@@ -8,17 +8,22 @@
 ## X-License: GPL-3.0-or-later
 ## X-Website: https://github.com/cjber/field-guide-forever
 ## SavedVariables: FieldGuideForeverDB
+## OptionalDeps: QuestieDB, Questie
 
 Locales\enUS.lua
-Data\Creatures.lua
+Data\Client.lua
+Integrations\QuestieDB.lua
 Core\SafeCall.lua
 Core\Model.lua
+Core\LegacyIds.lua
 Core\Core.lua
+Core\Stats.lua
 Core\API.lua
 Core\Settings.lua
 UI\Art.lua
 UI\Tooltip.lua
 UI\List.lua
 UI\Detail.lua
+UI\Instances.lua
 UI\Window.lua
 UI\Rarity.lua

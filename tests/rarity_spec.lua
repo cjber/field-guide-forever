@@ -10,18 +10,23 @@ assert(ns.Model.Tier(1001) == "copper", "other ids remain copper")
 local original = { 0.8, 0.7, 0.6, 0.9 }
 local chrome = Mock.NewRegion("Texture")
 chrome:SetVertexColor(unpack(original))
-harness.env.TargetFrame = { TargetFrameContainer = { FrameTexture = chrome } }
+local target = Mock.CreateFrame("Frame")
+target.TargetFrameContainer = { FrameTexture = chrome }
+target.name = target:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+target.healthbar = Mock.CreateFrame("Frame")
+harness.env.TargetFrame = target
 local species = { id = 1025, name = "Silver Test Creature" }
 local matchingTier = ns.Model.Tier(species.id)
 harness.env.UnitName = function(unit)
 	return unit == "target" and species.name or "Tester"
 end
 ns.CurrentZone = function()
-	return ns.Creatures.zones[1]
+	return { name = "Fixture Zone", species = {} }
 end
 ns.FindSpecies = function(name)
 	return name == species.name and species or nil
 end
+harness:Fire("ADDON_LOADED", "FieldGuideForever")
 
 Mock.Fire("PLAYER_TARGET_CHANGED")
 if matchingTier == "copper" then
@@ -33,6 +38,12 @@ else
 	local r, g, b, a = chrome:GetVertexColor()
 	assert(chrome:IsDesaturated(), "a rare tier desaturates the client chrome")
 	assert(r == color[1] and g == color[2] and b == color[3] and a == 1, "the tier colour is applied to the chrome")
+	assert(target.FGFRarityMarker:GetText() == "◆", "a tier gem appears beside a known creature name")
+	assert(target.FGFRarityMarker:GetAlpha() == 1, "a new local sighting briefly highlights its gem")
+	harness:RunTimers()
+	assert(target.FGFRarityMarker:GetAlpha() == 0.72, "the discovery highlight settles to a quiet accent")
+	local accentR, accentG, accentB = target.FGFRarityAccent:GetVertexColor()
+	assert(accentR == color[1] and accentG == color[2] and accentB == color[3], "the health bar receives a tier accent")
 end
 
 harness.env.UnitName = function()
@@ -48,7 +59,11 @@ assert(
 
 local trough = Mock.NewRegion("Texture")
 trough:SetVertexColor(unpack(original))
-local plate = { UnitFrame = { healthBar = { background = trough } } }
+local unitFrame = Mock.CreateFrame("Frame")
+unitFrame.name = unitFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+unitFrame.healthBar = Mock.CreateFrame("Frame")
+unitFrame.healthBar.background = trough
+local plate = { UnitFrame = unitFrame }
 local plateAttached = true
 harness.env.C_NamePlate = {
 	GetNamePlateForUnit = function()

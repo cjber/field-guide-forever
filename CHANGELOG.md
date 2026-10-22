@@ -5,7 +5,21 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
-Nothing yet.
+## [0.2.0] - 2026-10-21
+
+### Added
+
+- Character-local first sightings from visible hostile nameplates/targets, first observed deaths, and uncapped recorded-death totals separate from ten-kill mastery.
+- First rare and shiny records, plus tier gems, health-bar accents and a brief first-discovery highlight on known unit frames.
+- An Instances journal populated by encounter-start and successful encounter-end events, with boss attempts, clear counts, personal firsts and difficulty labels.
+- A default-on, opt-out `WFAStats` exchange for cumulative creature/instance counters and earliest firsts, plus a public shared leaderboard API.
+- A QuestieDB runtime catalogue and generated client constants refreshed from pinned wago.tools DB2 exports.
+- Schema 2 migration from the prior synthetic catalogue IDs by exact NPC name; `Core/LegacyIds.lua` is migration-only and will be removed in the next release.
+- Updated the mock journal pages and zone previews for the QuestieDB backed interface.
+
+### Changed
+
+- Removed the hand-authored creature catalogue. Install Questie or QuestieDB to browse creatures.
 
 ## [0.1.1] - 2026-10-21
 

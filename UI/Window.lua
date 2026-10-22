@@ -24,6 +24,7 @@ local tabs = {
 	{ key = "creatures", text = "CREATURES" },
 	{ key = "rares", text = "RARES" },
 	{ key = "shiny", text = "SHINY" },
+	{ key = "instances", text = "INSTANCES" },
 }
 
 local filters = {
@@ -37,7 +38,7 @@ local filters = {
 
 ---@return FGZone
 local function CurrentZone()
-	return ns.Creatures.zones[zoneIndex] or ns.Creatures.zones[1]
+	return (ns.Zones or {})[zoneIndex] or (ns.Zones or {})[1]
 end
 
 ---@param parent Frame
@@ -161,12 +162,12 @@ local zoneMenu
 ---@param parent Frame
 local function BuildZoneMenu(parent)
 	zoneMenu = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-	zoneMenu:SetSize(260, #ns.Creatures.zones * 22 + 8)
+	zoneMenu:SetSize(260, #(ns.Zones or {}) * 22 + 8)
 	zoneMenu:SetPoint("TOPLEFT", 24, -111)
 	Art.Card(zoneMenu, "background", 0.98)
 	zoneMenu:Hide()
 	local scroll = 4
-	for index, zone in ipairs(ns.Creatures.zones) do
+	for index, zone in ipairs(ns.Zones or {}) do
 		local button = CreateFrame("Button", nil, zoneMenu)
 		button:SetPoint("TOPLEFT", 4, -scroll)
 		button:SetSize(252, 20)
@@ -177,6 +178,15 @@ local function BuildZoneMenu(parent)
 			Window.SelectZone(index)
 		end)
 		scroll = scroll + 22
+	end
+end
+
+function Window.RebuildZoneMenu()
+	if zoneMenu then
+		zoneMenu:Hide()
+	end
+	if Window.frame then
+		BuildZoneMenu(Window.frame)
 	end
 end
 
@@ -239,7 +249,7 @@ end
 
 local function UpdateBreadcrumb()
 	local zone = CurrentZone()
-	Window.breadcrumb.text:SetText(string.format(L["%s > %s  ▾"], L[zone.continent], L[zone.name]))
+	Window.breadcrumb.text:SetText(zone and string.format(L["%s > %s  ▾"], L[zone.continent], L[zone.name]) or "")
 end
 
 local function UpdateTabs()
@@ -307,7 +317,7 @@ local function BuildEntries()
 		end
 	end
 	if tab == "rares" then
-		for _, zone in ipairs(ns.Creatures.zones) do
+		for _, zone in ipairs(ns.Zones or {}) do
 			for _, species in ipairs(zone.species) do
 				if species.rare then
 					Add(species)
@@ -315,7 +325,7 @@ local function BuildEntries()
 			end
 		end
 	elseif tab == "shiny" then
-		for _, zone in ipairs(ns.Creatures.zones) do
+		for _, zone in ipairs(ns.Zones or {}) do
 			for _, species in ipairs(zone.species) do
 				local row = state and state.species[species.id]
 				if row and row.shiny >= ns.Model.SHINY_TARGET then
@@ -333,6 +343,9 @@ end
 
 local function UpdateProgress()
 	local zone = CurrentZone()
+	if not zone then
+		return
+	end
 	local state = ns.GetCharacterState(false)
 	local progress = ns.Model.ZoneProgress(state, zone.species)
 	local percent = math.floor(progress.fraction * 100 + 0.5)
@@ -361,6 +374,40 @@ function Window.Refresh()
 	if not frame then
 		return
 	end
+	if ns.catalogueStatus ~= "ok" then
+		for _, panel in ipairs(Window.creaturePanels or {}) do
+			panel:Hide()
+		end
+		Window.instances:Hide()
+		Window.catalogueNotice:Show()
+		Window.catalogueNotice:SetText(
+			ns.catalogueStatus == "loading" and L["Loading QuestieDB catalogue…"]
+				or L["Install QuestieDB or Questie to load the creature catalogue.\nhttps://www.curseforge.com/wow/addons/questie"]
+		)
+		return
+	end
+	Window.catalogueNotice:Hide()
+	if tab == "instances" then
+		for _, panel in ipairs(Window.creaturePanels or {}) do
+			panel:Hide()
+		end
+		Window.instances:Show()
+		Window.breadcrumb:Hide()
+		Window.search:Hide()
+		Window.filterButton:Hide()
+		Window.bottomBar:Hide()
+		ns.InstancesView.Refresh(ns.Instances, ns.API.Encounters())
+		UpdateTabs()
+		return
+	end
+	for _, panel in ipairs(Window.creaturePanels or {}) do
+		panel:Show()
+	end
+	Window.instances:Hide()
+	Window.breadcrumb:Show()
+	Window.search:Show()
+	Window.filterButton:Show()
+	Window.bottomBar:Show()
 	local entries = BuildEntries()
 	local stillListed = false
 	for _, entry in ipairs(entries) do
@@ -450,7 +497,7 @@ function Window.FollowPlayerZone()
 	if not zone then
 		return
 	end
-	for index, entry in ipairs(ns.Creatures.zones) do
+	for index, entry in ipairs(ns.Zones or {}) do
 		if entry == zone then
 			zoneIndex = index
 			Window.Refresh()
@@ -476,6 +523,7 @@ local function Create()
 	-- PortraitFrameTemplate supplies the metal NineSlice, the circular portrait bezel, the title and the close
 	-- button, so the journal sits in the client's own window rather than an addon-drawn rectangle.
 	frame = CreateFrame("Frame", "FieldGuideForeverFrame", UIParent, "PortraitFrameTemplate,BackdropTemplate")
+	Window.frame = frame
 	frame:SetSize(WIDTH, HEIGHT)
 	frame:SetFrameStrata("DIALOG")
 	frame:SetToplevel(true)
@@ -509,6 +557,10 @@ local function Create()
 	BuildBreadcrumb(frame)
 	BuildSearch(frame)
 	BuildBottom(frame)
+	Window.catalogueNotice = Art.Text(frame, "GameFontNormalLarge", "text")
+	Window.catalogueNotice:SetPoint("CENTER", frame, "CENTER", 0, -12)
+	Window.catalogueNotice:SetWidth(680)
+	Window.catalogueNotice:SetJustifyH("CENTER")
 
 	local left = CreateFrame("Frame", nil, frame)
 	left:SetPoint("TOPLEFT", 18, -146)
@@ -519,6 +571,8 @@ local function Create()
 
 	ns.List.Create(left, { Select = Window.SelectSpecies })
 	ns.Detail.Create(right)
+	Window.creaturePanels = { left, right }
+	Window.instances = ns.InstancesView.Create(frame)
 
 	if type(UISpecialFrames) == "table" then
 		local found = false

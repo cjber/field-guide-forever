@@ -70,7 +70,7 @@ local function BuildResearch(parent)
 
 	local specimenLabel = Art.Text(card, "GameFontDisableSmall", "muted")
 	specimenLabel:SetPoint("TOPLEFT", 10, -60)
-	specimenLabel:SetText(L["Specimens"])
+	specimenLabel:SetText(L["Mastery"])
 	Detail.specimenCount = Art.Text(card, "GameFontDisableSmall", "text")
 	Detail.specimenCount:SetPoint("TOPRIGHT", -10, -60)
 	local bar = Art.Bar(card, CARD_WIDTH - 20, 4, "gold")
@@ -140,15 +140,15 @@ end
 
 ---@param parent Frame
 local function BuildSightings(parent)
-	local card = Card(parent, 14, -394, CARD_WIDTH, 76)
+	local card = Card(parent, 14, -370, CARD_WIDTH, 112)
 	Detail.sightingCard = card
 	local title = Art.Text(card, "GameFontNormal", "gold")
 	title:SetPoint("TOPLEFT", 10, -6)
-	title:SetText(L["Sighting log"])
+	title:SetText(L["Your records"])
 	local text = Art.Text(card, "GameFontDisableSmall", "muted")
 	text:SetPoint("TOPLEFT", 10, -21)
 	text:SetWidth(CARD_WIDTH - 20)
-	text:SetHeight(48)
+	text:SetHeight(84)
 	text:SetJustifyH("LEFT")
 	text:SetJustifyV("TOP")
 	text:SetWordWrap(true)
@@ -238,7 +238,10 @@ local function UpdateResearch(state)
 			pip.connector:SetVertexColor(cr, cg, cb, 1)
 		end
 	end
-	Detail.specimenCount:SetText(string.format(L["%d / %d"], count, ns.Model.MASTERED_AT))
+	local killCount = state and (state.kills or state.count) or 0
+	local format = state and state.killsEstimated and "%d / %d · at least %d recorded deaths"
+		or "%d / %d · %d recorded deaths"
+	Detail.specimenCount:SetText(string.format(L[format], count, ns.Model.MASTERED_AT, killCount))
 	Detail.specimenBar:SetWidth((CARD_WIDTH - 20) * count / ns.Model.MASTERED_AT)
 	Detail.specimenBar:Show()
 end
@@ -295,6 +298,31 @@ local function UpdateSightings(species, zone)
 		return
 	end
 	local lines = {}
+	local record = ns.Model.Specimen(ns.GetCharacterState(false), species.id)
+	local function FormatFirst(timestamp, place)
+		if not timestamp then
+			return nil
+		end
+		local stamp = date and date("%Y-%m-%d %H:%M", timestamp) or tostring(timestamp)
+		local location = place and place ~= "" and (L[place] or place) or L["Unknown instance"]
+		return string.format(L["%s · %s"], location, stamp)
+	end
+	local firstSighting = FormatFirst(record.firstSighting, record.firstSightingZone)
+	if firstSighting then
+		lines[#lines + 1] = string.format(L["Personal first sighting: %s"], firstSighting)
+	end
+	local firstKill = FormatFirst(record.firstKill, record.firstKillZone)
+	if firstKill then
+		lines[#lines + 1] = string.format(L["First death observed: %s"], firstKill)
+	end
+	local firstRare = FormatFirst(record.firstRare, record.firstRareZone)
+	if firstRare then
+		lines[#lines + 1] = string.format(L["First rare recorded: %s"], firstRare)
+	end
+	local firstShiny = FormatFirst(record.firstShiny, record.firstShinyZone)
+	if firstShiny then
+		lines[#lines + 1] = string.format(L["First shiny recorded: %s"], firstShiny)
+	end
 	for _, entry in ipairs(ns.Model.GetSightings()) do
 		if entry.species == species.name and entry.zone == zone.name then
 			local stamp = date and date("%H:%M", entry.time) or tostring(entry.time)
@@ -303,9 +331,11 @@ local function UpdateSightings(species, zone)
 				kind = L["Rare"]
 			elseif entry.kind == "shiny" then
 				kind = L["Shiny"]
+			elseif entry.kind == "sighting" then
+				kind = L["First sighting"]
 			end
 			lines[#lines + 1] = string.format(L["%s · %s · %s"], stamp, L[entry.zone] or entry.zone, kind)
-			if #lines >= 4 then
+			if #lines >= 6 then
 				break
 			end
 		end
