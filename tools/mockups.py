@@ -576,7 +576,10 @@ def window(ui, zone, species, tab, icons, sigil):
         canvas.draw(icons[row["id"]], px(28), y + 10, 32, 32)
         canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), px(28), y + 10, 32, 32, BRASS)
         known = row["rare"] and state["rare"] >= RARE_TARGET
-        text(canvas, px(70), y + 7, row["name"][:26], "GameFontNormal", BLUE if known else TEXT)
+        # The kills figure is right-aligned from about px(308); a longer name is cut with an ellipsis so it never runs
+        # under that figure and never stops mid-word without a mark.
+        name = row["name"] if len(row["name"]) <= 26 else row["name"][:25].rstrip() + "\u2026"
+        text(canvas, px(70), y + 7, name, "GameFontNormal", BLUE if known else TEXT)
         text(
             canvas,
             px(70),
@@ -741,8 +744,9 @@ def window(ui, zone, species, tab, icons, sigil):
     ]
     for line_index, (line, colour) in enumerate(sightings):
         ly = ry + 420 + line_index * 14
-        marker(canvas, rx + 3, ly + 5, 9, colour)
-        text(canvas, rx + 14, ly, line, "GameFontDisableSmall", colour)
+        # The card begins at rx + 14: the marker sits inside it, inset like the header above, never on the border.
+        marker(canvas, rx + 24, ly + 5, 9, colour)
+        text(canvas, rx + 38, ly, line, "GameFontDisableSmall", colour)
     text(
         canvas,
         rx + 22,
@@ -975,11 +979,23 @@ def main():
         render(*pick("Westfall", lambda s: s["rare"])),
         render(barrens, prowler, "CREATURES"),
     ]
-    palette_frames = [
-        getattr(frame, "image", frame).convert("P", palette=Image.Palette.ADAPTIVE, colors=128) for frame in demo
-    ]
+    # One palette shared by every frame, sampled from all of them: per-frame adaptive palettes shift the colour of the
+    # shared chrome and backdrop from frame to frame, and optimisation then leaks the previous frame through the
+    # disposal, which reads as a torn background. Quantise once and clear each frame before the next is drawn.
+    rgb_frames = [getattr(frame, "image", frame).convert("RGB") for frame in demo]
+    palette_source = Image.new("RGB", (512, 8 * 395))
+    for index, frame in enumerate(rgb_frames):
+        palette_source.paste(frame.resize((512, 395)), (0, index * 395))
+    palette = palette_source.quantize(colors=256, method=Image.Quantize.MEDIANCUT)
+    palette_frames = [frame.quantize(palette=palette, dither=Image.Dither.FLOYDSTEINBERG) for frame in rgb_frames]
     palette_frames[0].save(
-        OUT / "demo.gif", save_all=True, append_images=palette_frames[1:], duration=900, loop=0, optimize=True
+        OUT / "demo.gif",
+        save_all=True,
+        append_images=palette_frames[1:],
+        duration=900,
+        loop=0,
+        optimize=False,
+        disposal=2,
     )
     write_readme_gallery()
     (OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2, sort_keys=True) + "\n", encoding="utf-8")
