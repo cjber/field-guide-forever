@@ -39,6 +39,13 @@ M = 26  # canvas margin around the window, as tools/mockups.py frames it
 
 GOLD, BRASS, TEXT, MUTED, BLUE, GREEN = mk.GOLD, mk.BRASS, mk.TEXT, mk.MUTED, mk.BLUE, mk.GREEN
 DIM = mk.DIM
+MUTED = wowmock.rgb("c4baa4")
+DIM = MUTED
+mk.MUTED = MUTED
+mk.DIM = DIM
+FONTS["FieldGuideTabLabel"] = wowmock.Font(
+    FONTS["GameFontDisableSmall"].path, 8, FONTS["GameFontDisableSmall"].color, (1, -1)
+)
 
 TABS = ("Creatures", "Rares", "Shiny", "Instances")
 TAB_INDEX = {"CREATURES": 0, "RARES": 1, "SHINY": 2, "INSTANCES": 3}
@@ -88,7 +95,7 @@ def square_tab(canvas, x, y, size, icon, label, active, seam=None):
         x,
         y + size - 14,
         label,
-        "GameFontDisableSmall",
+        "FieldGuideTabLabel",
         GOLD if active else TEXT,
         justify="CENTER",
         width=size,
@@ -458,7 +465,8 @@ def standalone(ui, zone, species, tab, icons, tab_icons, sigil, side="left", siz
     """Option 1: the guide as its own window, square external tabs down one edge."""
     index = TAB_INDEX[tab]
     pad = 84
-    canvas = ui.canvas(W + M * 2 + pad, H + M * 2)
+    right_tab_overhang = size - 8
+    canvas = ui.canvas(W + M * 2 + pad + (right_tab_overhang if side == "right" else 0), H + M * 2)
 
     def px(value):
         return M + pad + value
@@ -477,7 +485,14 @@ def standalone(ui, zone, species, tab, icons, tab_icons, sigil, side="left", siz
 
     portrait_frame_art(canvas, px(0), py(0), W, H, sigil, "FIELD GUIDE")
     mk.text(
-        canvas, px(58), py(20), "Azeroth field journal", "GameFontDisableSmall", MUTED, justify="CENTER", width=W - 82
+        canvas,
+        px(58),
+        py(20),
+        "Azeroth field journal",
+        "GameFontDisableSmall",
+        MUTED,
+        justify="CENTER",
+        width=W - 82,
     )
 
     # Breadcrumb and search take back the band the paper tabs used to occupy.

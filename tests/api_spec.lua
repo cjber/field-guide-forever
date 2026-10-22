@@ -6,6 +6,7 @@ local API = harness.env.FieldGuideForever and harness.env.FieldGuideForever.API
 
 assert(API, "the public API is installed")
 assert(API.version >= 1, "the contract is versioned")
+assert(API.version == 1 and API.minor == 1, "the spawn additions are API minor 1")
 
 local npcFixture = {
 	[1001] = {
