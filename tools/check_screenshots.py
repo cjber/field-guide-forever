@@ -21,10 +21,19 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "screenshots"
 STAMP = OUT / "scenes.sha256"
 SOURCES = (
-    "Data/Creatures.lua",
+    "Data/Client.lua",
+    "tools/gen_mock_catalogue.py",
+    "tools/extract_mock_catalogue.lua",
+    "tools/questiedb_load.lua",
+    "Integrations/QuestieDB.lua",
+    "Core/Model.lua",
+    "Core/Core.lua",
+    "Core/Stats.lua",
+    "UI/Rarity.lua",
     "Locales/enUS.lua",
     "UI/Art.lua",
     "UI/Detail.lua",
+    "UI/Instances.lua",
     "UI/List.lua",
     "UI/Window.lua",
     "tools/mockups.py",

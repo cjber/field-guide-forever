@@ -52,7 +52,7 @@ function Model.NewState(random)
 	if random then
 		Model.SetRandom(random)
 	end
-	return { species = {} }
+	return { species = {}, encounters = {} }
 end
 
 ---@param count number?
@@ -84,12 +84,26 @@ local function Entry(state, speciesId)
 	state.species = state.species or {}
 	local entry = state.species[speciesId]
 	if not entry then
-		entry = { count = 0, rare = 0, shiny = 0 }
+		entry = {
+			count = 0,
+			kills = 0,
+			killsEstimated = false,
+			rare = 0,
+			rareKills = 0,
+			shiny = 0,
+			shinyFinds = 0,
+		}
 		state.species[speciesId] = entry
 	end
 	entry.count = entry.count or 0
+	if entry.kills == nil and entry.count > 0 and entry.killsEstimated == nil then
+		entry.killsEstimated = true
+	end
+	entry.kills = entry.kills or entry.count or 0
 	entry.rare = entry.rare or 0
+	entry.rareKills = entry.rareKills or 0
 	entry.shiny = entry.shiny or 0
+	entry.shinyFinds = entry.shinyFinds or 0
 	return entry
 end
 
@@ -120,6 +134,18 @@ function Model.Record(state, speciesId, opts)
 	local entry = Entry(state, speciesId)
 	local newlyDiscovered = entry.count == 0
 	entry.count = math.min(entry.count + 1, Model.MASTERED_AT)
+	entry.kills = entry.kills + 1
+	local recordedAt = tonumber(opts.time) or 0
+	entry.lastKill = recordedAt
+	local zone = type(opts.zone) == "string" and opts.zone or ""
+	if entry.firstKill == nil then
+		entry.firstKill = recordedAt
+		entry.firstKillZone = zone
+	end
+	if entry.firstSighting == nil then
+		entry.firstSighting = recordedAt
+		entry.firstSightingZone = zone
+	end
 
 	local isRare = opts.rare
 	if isRare == nil and type(opts.species) == "table" then
@@ -127,19 +153,31 @@ function Model.Record(state, speciesId, opts)
 	end
 	if isRare then
 		entry.rare = math.min(entry.rare + 1, Model.RARE_TARGET)
+		entry.rareKills = entry.rareKills + 1
+		if entry.firstRare == nil then
+			entry.firstRare = recordedAt
+			entry.firstRareZone = zone
+		end
 	end
 
 	local shiny = RollShiny(opts.random or Model.random)
 	if shiny then
 		entry.shiny = math.min(entry.shiny + 1, Model.SHINY_TARGET)
+		entry.shinyFinds = entry.shinyFinds + 1
+		if entry.firstShiny == nil then
+			entry.firstShiny = recordedAt
+			entry.firstShinyZone = zone
+		end
 	end
 
 	return {
 		count = entry.count,
+		kills = entry.kills,
 		rank = Model.Rank(entry.count),
 		shiny = shiny,
 		rare = isRare == true,
 		newlyDiscovered = newlyDiscovered,
+		firstKill = entry.kills == 1,
 		rareKnown = entry.rare >= Model.RARE_TARGET,
 		shinyKnown = entry.shiny >= Model.SHINY_TARGET,
 	}
@@ -151,12 +189,114 @@ end
 function Model.Specimen(state, speciesId)
 	local entry = state and state.species and state.species[speciesId]
 	if not entry then
-		return { count = 0, rare = 0, shiny = 0 }
+		return { count = 0, kills = 0, rare = 0, rareKills = 0, shiny = 0, shinyFinds = 0 }
 	end
 	entry.count = entry.count or 0
+	if entry.kills == nil and entry.count > 0 and entry.killsEstimated == nil then
+		entry.killsEstimated = true
+	end
+	entry.kills = entry.kills or entry.count or 0
 	entry.rare = entry.rare or 0
+	entry.rareKills = entry.rareKills or 0
 	entry.shiny = entry.shiny or 0
+	entry.shinyFinds = entry.shinyFinds or 0
 	return entry
+end
+
+-- A nameplate observation is a local first sighting, not a claim that nobody else has seen the creature.
+---@param state FGState
+---@param speciesId integer
+---@param timestamp number
+---@param zone string
+---@return boolean first
+function Model.RecordSighting(state, speciesId, timestamp, zone)
+	local entry = Entry(state, speciesId)
+	if entry.firstSighting ~= nil then
+		return false
+	end
+	entry.firstSighting = tonumber(timestamp) or 0
+	entry.firstSightingZone = type(zone) == "string" and zone or ""
+	return true
+end
+
+---@param state FGState
+---@param encounterId integer
+---@param name string
+---@param difficultyId integer
+---@param timestamp number
+---@param instance string?
+---@param difficultyName string?
+---@return { firstSighting: boolean, record: FGEncounterState }
+function Model.ObserveEncounter(state, encounterId, name, difficultyId, timestamp, instance, difficultyName)
+	state.encounters = state.encounters or {}
+	local key = tostring(encounterId)
+	local encounter = state.encounters[key]
+	if not encounter then
+		encounter = {
+			id = encounterId,
+			name = name,
+			instance = instance or "",
+			kills = 0,
+			sightings = 0,
+			difficulties = {},
+			difficultyNames = {},
+		}
+		state.encounters[key] = encounter
+	end
+	encounter.name = name or encounter.name or ""
+	encounter.instance = instance or encounter.instance or ""
+	encounter.sightings = (tonumber(encounter.sightings) or 0) + 1
+	encounter.difficultyNames = encounter.difficultyNames or {}
+	if difficultyName then
+		encounter.difficultyNames[tostring(difficultyId or 0)] = difficultyName
+	end
+	local firstSighting = encounter.firstSighting == nil
+	if firstSighting then
+		encounter.firstSighting = tonumber(timestamp) or 0
+		encounter.firstSightingDifficulty = tonumber(difficultyId) or 0
+	end
+	return { firstSighting = firstSighting, record = encounter }
+end
+
+---@param state FGState
+---@param encounterId integer
+---@param name string
+---@param difficultyId integer
+---@param timestamp number
+---@param instance string?
+---@param difficultyName string?
+---@return { kills: integer, firstKill: boolean, record: FGEncounterState }
+function Model.RecordEncounter(state, encounterId, name, difficultyId, timestamp, instance, difficultyName)
+	state.encounters = state.encounters or {}
+	local key = tostring(encounterId)
+	local encounter = state.encounters[key]
+	if not encounter then
+		encounter = {
+			id = encounterId,
+			name = name,
+			instance = instance or "",
+			sightings = 0,
+			difficulties = {},
+			difficultyNames = {},
+		}
+		state.encounters[key] = encounter
+	end
+	encounter.name = name or encounter.name or ""
+	encounter.instance = instance or encounter.instance or ""
+	encounter.kills = (tonumber(encounter.kills) or 0) + 1
+	encounter.difficulties = encounter.difficulties or {}
+	local difficulty = tostring(difficultyId or 0)
+	encounter.difficulties[difficulty] = (tonumber(encounter.difficulties[difficulty]) or 0) + 1
+	encounter.difficultyNames = encounter.difficultyNames or {}
+	if difficultyName then
+		encounter.difficultyNames[difficulty] = difficultyName
+	end
+	local firstKill = encounter.firstKill == nil
+	if firstKill then
+		encounter.firstKill = tonumber(timestamp) or 0
+		encounter.firstDifficulty = tonumber(difficultyId) or 0
+	end
+	return { kills = encounter.kills, firstKill = firstKill, record = encounter }
 end
 
 -- What a species has shown so far: common is known from the first specimen, rare needs RARE_TARGET sightings,

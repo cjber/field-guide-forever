@@ -10,6 +10,13 @@ Mock.eventFrames = {}
 Mock.named = {}
 Mock.timers = {}
 Mock.combatLog = nil
+Mock.units = {}
+Mock.inGuild = false
+Mock.inGroup = false
+Mock.inRaid = false
+Mock.sentAddonMessages = {}
+Mock.registeredPrefix = nil
+Mock.instanceGroup = false
 
 ---@param path string
 ---@return boolean
@@ -57,6 +64,13 @@ function Mock.Reset()
 	Mock.named = {}
 	Mock.timers = {}
 	Mock.combatLog = nil
+	Mock.units = {}
+	Mock.inGuild = false
+	Mock.inGroup = false
+	Mock.inRaid = false
+	Mock.sentAddonMessages = {}
+	Mock.registeredPrefix = nil
+	Mock.instanceGroup = false
 end
 
 local methods = {}
@@ -458,9 +472,48 @@ function Mock.Harness(opts)
 		GetRealZoneText = function()
 			return Mock.zone
 		end,
-		UnitName = function()
-			return "Tester", "TestRealm"
+		UnitName = function(unit)
+			return Mock.units[unit] or "Tester", "TestRealm"
 		end,
+		UnitIsEnemy = function()
+			return true
+		end,
+		UnitIsPlayer = function()
+			return false
+		end,
+		GetInstanceInfo = function()
+			return "Test Instance"
+		end,
+		GetDifficultyInfo = function()
+			return "Normal"
+		end,
+		IsInGuild = function()
+			return Mock.inGuild
+		end,
+		IsInGroup = function(category)
+			if category then
+				return Mock.instanceGroup
+			end
+			return Mock.inGroup or Mock.inRaid
+		end,
+		IsInRaid = function()
+			return Mock.inRaid
+		end,
+		LE_PARTY_CATEGORY_INSTANCE = 1,
+		Enum = { SendAddonMessageResult = { Success = 0, AddonMessageThrottle = 3, ChannelThrottle = 8 } },
+		C_ChatInfo = {
+			RegisterAddonMessagePrefix = function(prefix)
+				Mock.registeredPrefix = prefix
+			end,
+			SendAddonMessage = function(prefix, message, channel)
+				Mock.sentAddonMessages[#Mock.sentAddonMessages + 1] = {
+					prefix = prefix,
+					message = message,
+					channel = channel,
+				}
+				return true
+			end,
+		},
 		GetRealmName = function()
 			return "TestRealm"
 		end,

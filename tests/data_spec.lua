@@ -1,64 +1,109 @@
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
-local harness = Mock.Harness({
-	files = { "Locales/enUS.lua", "Data/Creatures.lua" },
-})
-local zones = harness.ns.Creatures.zones
-local FAMILIES = {
-	Beast = true,
-	Humanoid = true,
-	Undead = true,
-	Dragonkin = true,
-	Elemental = true,
-	Giant = true,
-	Mechanical = true,
-	Critter = true,
-	Demon = true,
-	Aberration = true,
-}
-local REQUIRED = {
-	"The Barrens",
-	"Durotar",
-	"Mulgore",
-	"Teldrassil",
-	"Elwynn Forest",
-	"Westfall",
-	"Redridge Mountains",
-	"Loch Modan",
-	"Tirisfal Glades",
-	"Silverpine Forest",
-}
-
-assert(#zones >= #REQUIRED, "at least the ten required zones")
-local foundZones = {}
-local ids = {}
-local rareZones = 0
-for _, zone in ipairs(zones) do
-	foundZones[zone.name] = true
-	assert(type(zone.continent) == "string" and zone.continent ~= "", zone.name .. " has a continent")
-	assert(#zone.species >= 10, zone.name .. " has at least ten species")
-	local rares = 0
-	for _, species in ipairs(zone.species) do
-		assert(type(species.id) == "number" and species.id % 1 == 0, species.name .. " has an integer id")
-		assert(not ids[species.id], "duplicate species id " .. species.id)
-		ids[species.id] = true
-		assert(species.zone == zone.name, species.name .. " carries its zone")
-		assert(species.minLevel >= 1 and species.maxLevel <= 60, species.name .. " is within levels 1 to 60")
-		assert(species.minLevel <= species.maxLevel, species.name .. " has a sane level range")
-		assert(type(species.lore) == "string" and #species.lore > 0, species.name .. " has lore")
-		assert(FAMILIES[species.family], species.name .. " has a known family")
-		if species.rare then
-			rares = rares + 1
+local harness = Mock.Harness({ files = { "Locales/enUS.lua", "Data/Client.lua", "Core/LegacyIds.lua" } })
+local ns = harness.ns
+harness.Load("Integrations/QuestieDB.lua")
+ns.BuildCatalogue = function()
+	ns.SpeciesById, ns.SpeciesZone, ns.ZoneByName = {}, {}, {}
+	for _, zone in ipairs(ns.Zones) do
+		ns.ZoneByName[zone.name:lower()] = zone
+		for _, species in ipairs(zone.species) do
+			ns.SpeciesById[species.id] = species
+			ns.SpeciesZone[species.id] = zone
 		end
 	end
-	if rares > 0 then
-		rareZones = rareZones + 1
+	for _, map in ipairs(ns.Instances) do
+		for _, species in ipairs(map.species) do
+			ns.SpeciesById[species.id] = species
+		end
 	end
 end
-
-for _, name in ipairs(REQUIRED) do
-	assert(foundZones[name], "missing zone " .. name)
+ns.QuestieDB.Start(function()
+	error("missing QuestieDB cannot become ready")
+end)
+assert(ns.QuestieDB.State() == "missing", "missing shared data is an explicit state")
+local barrens, shadowfang, hinterlands
+for id, zone in pairs(ns.ClientData.zones) do
+	if zone.name == "The Barrens" then
+		barrens = id
+	elseif zone.name == "Shadowfang Keep" and zone.continent == 33 then
+		shadowfang = id
+	elseif zone.name == "The Hinterlands" and zone.continent == 0 then
+		hinterlands = id
+	end
 end
-assert(rareZones >= 8, "at least eight zones have a rare species")
-
+assert(barrens, "pinned client constants contain the Barrens")
+assert(shadowfang and ns.ClientData.zones[shadowfang].continent == 33, "instance area data points to its client map")
+assert(
+	hinterlands and ns.ClientData.zones[hinterlands].continent ~= 47,
+	"outdoor area IDs do not equal instance map IDs"
+)
+ns.LegacyIds[90001] = "Fixture Beast"
+ns.db = { chars = { ["Player-Realm"] = { species = { [90001] = { count = 4 } } } } }
+local fixture = {
+	[50001] = {
+		name = "Fixture Beast",
+		minLevel = 4,
+		maxLevel = 5,
+		rank = 0,
+		subName = "Beast",
+		zoneID = barrens,
+		spawns = { [barrens] = {} },
+	},
+	[50002] = {
+		name = "Fixture Boss",
+		minLevel = 60,
+		maxLevel = 60,
+		rank = 3,
+		subName = "Boss",
+		zoneID = 0,
+		spawns = { [shadowfang] = {} },
+	},
+	[50003] = {
+		name = "Hinterlands Boss",
+		minLevel = 60,
+		maxLevel = 60,
+		rank = 3,
+		subName = "Dragon",
+		zoneID = hinterlands,
+		spawns = { [hinterlands] = {} },
+	},
+}
+harness.env.LibQuestieDB = {
+	Npc = {
+		GetAllIds = function()
+			return { 50003, 50002, 50001 }
+		end,
+		GetAll = function(id, fields)
+			local row, values = fixture[id], {}
+			for _, field in ipairs(fields) do
+				values[#values + 1] = row[field]
+			end
+			return values
+		end,
+	},
+}
+local ready = 0
+ns.QuestieDB.Start(function()
+	ready = ready + 1
+end)
+harness:RunTimers()
+assert(ready == 1 and ns.QuestieDB.State() == "ok", "populated shared data becomes ready")
+assert(ns.SpeciesById[50001].id == 50001, "the game NPC id is the stable species identity")
+assert(ns.SpeciesById[50001].zone == "The Barrens", "outdoor NPCs group under their client zone")
+assert(ns.db.chars["Player-Realm"].species[50001].count == 4, "schema migration rekeys legacy IDs to NPC IDs")
+assert(ns.db.chars["Player-Realm"].species[90001] == nil, "legacy IDs are dropped after remapping")
+local bossMap
+for _, map in ipairs(ns.Instances) do
+	if map.id == 33 then
+		bossMap = map
+	end
+end
+assert(bossMap and bossMap.species[1].id == 50002 and bossMap.species[1].boss, "instance bosses group under their map")
+assert(bossMap.name == "Shadowfang Keep", "instance grouping resolves area IDs through their parent map")
+for _, map in ipairs(ns.Instances) do
+	assert(map.id ~= 47, "an outdoor area ID is not mistaken for the Razorfen Kraul map")
+end
+assert(ns.SpeciesById[50003] and ns.SpeciesById[50003].zone == "The Hinterlands", "outdoor NPCs stay in their zone")
+assert(ns.ClientData.build == "1.60.1.70450", "generated constants retain the pinned Forever build")
 print("data: ok")
