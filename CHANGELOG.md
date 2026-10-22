@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-22
+
 ### Added
 
 - An additive minor-1 API with `Spawns` and `ZoneSpawns` for character-local creature progress and QuestieDB spawn coordinates.
