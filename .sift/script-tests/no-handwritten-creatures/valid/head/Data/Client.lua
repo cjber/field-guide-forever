@@ -1,1 +1,0 @@
--- Generated client constants only; no creature rows.

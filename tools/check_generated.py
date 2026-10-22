@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Fail when the committed client constants differ from a fresh pinned regeneration."""
 
 import subprocess
