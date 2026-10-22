@@ -17,6 +17,8 @@ assert(Model.Rank(9) == 3, "still studied")
 assert(Model.Rank(10) == 4, "ten is mastered")
 assert(Model.Rank(999) == 4, "rank never exceeds mastered")
 assert(Model.RANK_NAMES[0] == "Undiscovered" and Model.RANK_NAMES[4] == "Mastered")
+assert(Model.LevelRange(40, 40) == "40", "a single-level creature does not print a range")
+assert(Model.LevelRange(39, 41) == "39–41", "level ranges use an en dash")
 local catalogueNpcId = 124
 local emptyProgress = Model.NewState()
 local maximalProgress = Model.NewState()

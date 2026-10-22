@@ -36,9 +36,9 @@
       "h": 32,
       "name": "tabs",
       "role": "tabs",
-      "w": 222.0,
-      "x": 46,
-      "y": 80
+      "w": 300.0,
+      "x": 50,
+      "y": 84
     },
     {
       "h": 24,
@@ -49,12 +49,92 @@
       "y": 138
     },
     {
-      "h": 18,
+      "h": 24,
       "name": "filter",
       "role": "input",
-      "w": 75.0,
-      "x": 893.0,
+      "w": 128,
+      "x": 314,
       "y": 138
+    },
+    {
+      "h": 18,
+      "name": "Detail badges",
+      "role": "badge",
+      "w": 173.0,
+      "x": 466,
+      "y": 248
+    },
+    {
+      "h": 84,
+      "name": "Research card",
+      "role": "card",
+      "w": 488,
+      "x": 466,
+      "y": 274
+    },
+    {
+      "h": 4,
+      "name": "Research bar",
+      "role": "progress",
+      "w": 468,
+      "x": 476,
+      "y": 348
+    },
+    {
+      "h": 58,
+      "name": "Lore card",
+      "role": "card",
+      "w": 488,
+      "x": 466,
+      "y": 368
+    },
+    {
+      "h": 52,
+      "name": "Variant card 1",
+      "role": "card",
+      "w": 157,
+      "x": 466,
+      "y": 452
+    },
+    {
+      "h": 52,
+      "name": "Variant card 2",
+      "role": "card",
+      "w": 157,
+      "x": 631,
+      "y": 452
+    },
+    {
+      "h": 52,
+      "name": "Variant card 3",
+      "role": "card",
+      "w": 158,
+      "x": 796,
+      "y": 452
+    },
+    {
+      "h": 66,
+      "name": "Rewards card",
+      "role": "card",
+      "w": 488,
+      "x": 466,
+      "y": 514
+    },
+    {
+      "h": 60,
+      "name": "Your records card",
+      "role": "card",
+      "w": 488,
+      "x": 466,
+      "y": 590
+    },
+    {
+      "h": 494,
+      "name": "Detail pane",
+      "role": "pane",
+      "w": 516,
+      "x": 452,
+      "y": 172
     },
     {
       "h": 58,
@@ -65,19 +145,27 @@
       "y": 676
     },
     {
+      "h": 10,
+      "name": "Bottom progress",
+      "role": "progress",
+      "w": 320,
+      "x": 58,
+      "y": 704
+    },
+    {
       "h": 26,
       "name": "Open Journal",
       "role": "button",
-      "w": 112,
-      "x": 698,
+      "w": 120,
+      "x": 708,
       "y": 692
     },
     {
       "h": 26,
       "name": "Track Species",
       "role": "button",
-      "w": 132,
-      "x": 824,
+      "w": 120,
+      "x": 836,
       "y": 692
     }
   ]

@@ -8,7 +8,8 @@ local List = {}
 ns.List = List
 
 local ROW_HEIGHT = 58
-local BAR_WIDTH = 252
+local ROW_WIDTH = 356
+local BAR_WIDTH = 332
 
 ---@param row Frame
 ---@param entry FGListEntry
@@ -23,7 +24,9 @@ local function UpdateRow(row, entry, selectedId)
 	local nameColor = variants.rare.known and "rare" or "text"
 	local nr, ng, nb = Art.RGBA(nameColor, 1)
 	row.Name:SetTextColor(nr, ng, nb, 1)
-	row.Sub:SetText(string.format(L["%s · Lv %d-%d"], L[species.family], species.minLevel, species.maxLevel))
+	row.Sub:SetText(
+		string.format(L["%s · Lv %s"], L[species.family], ns.Model.LevelRange(species.minLevel, species.maxLevel))
+	)
 	row.Counter:SetText(string.format(L["%d kills"], state and (state.kills or state.count) or 0))
 	row.Fill:SetWidth(BAR_WIDTH * count / ns.Model.MASTERED_AT)
 	row.Selected:SetShown(selectedId == species.id)
@@ -53,35 +56,40 @@ end
 ---@return Frame
 local function CreateRow(index)
 	local row = CreateFrame("Button", nil, List.child)
-	row:SetSize(368, ROW_HEIGHT)
+	row:SetSize(ROW_WIDTH, ROW_HEIGHT)
 	row:SetPoint("TOPLEFT", 0, -(index - 1) * ROW_HEIGHT)
 
 	row.Background = Art.Texture(row, "BACKGROUND", "panel", 0.55)
 	row.Background:SetAllPoints(row)
 	row.Selected = Art.Texture(row, "BACKGROUND", "gold", 0.10)
-	row.Selected:SetAllPoints(row)
+	row.Selected:SetPoint("TOPLEFT", 4, 0)
+	row.Selected:SetPoint("BOTTOMRIGHT", -8, 0)
 	row.Selected:Hide()
+	row.Hover = Art.Texture(row, "BACKGROUND", "gold", 0.06)
+	row.Hover:SetPoint("TOPLEFT", 4, 0)
+	row.Hover:SetPoint("BOTTOMRIGHT", -8, 0)
+	row.Hover:Hide()
 
 	row.Icon = row:CreateTexture(nil, "ARTWORK")
-	row.Icon:SetPoint("TOPLEFT", 10, -10)
+	row.Icon:SetPoint("TOPLEFT", 10, -13)
 	row.Icon:SetSize(32, 32)
 	Art.Bezel(row.Icon)
 
 	row.Name = Art.Text(row, "GameFontNormal", "text")
-	row.Name:SetPoint("TOPLEFT", 52, -7)
+	row.Name:SetPoint("TOPLEFT", 52, -8)
 	row.Name:SetWidth(250)
 
 	row.Sub = Art.Text(row, "GameFontDisableSmall", "muted")
-	row.Sub:SetPoint("TOPLEFT", 52, -26)
+	row.Sub:SetPoint("TOPLEFT", 52, -27)
 
 	row.Counter = Art.Text(row, "GameFontNormal", "text")
-	row.Counter:SetPoint("TOPRIGHT", -14, -7)
+	row.Counter:SetPoint("TOPRIGHT", -14, -8)
 
 	row.Glyph = Art.Text(row, "GameFontNormal", "gold")
-	row.Glyph:SetPoint("TOPRIGHT", -14, -29)
+	row.Glyph:SetPoint("TOPRIGHT", -14, -28)
 
 	local bar = Art.Bar(row, BAR_WIDTH, 3, "gold")
-	bar:SetPoint("TOPLEFT", 52, -48)
+	bar:SetPoint("TOPLEFT", 10, -49)
 	row.Bar, row.Fill = bar, bar.Fill
 
 	row:SetScript("OnClick", function()
@@ -90,11 +98,13 @@ local function CreateRow(index)
 		end
 	end)
 	row:SetScript("OnEnter", function()
+		row.Hover:Show()
 		if row.entry then
 			ns.Tooltip.Show(row, row.entry)
 		end
 	end)
 	row:SetScript("OnLeave", function()
+		row.Hover:Hide()
 		ns.Tooltip.Hide()
 	end)
 	return row
@@ -113,7 +123,7 @@ function List.Create(parent, controller)
 	List.scroll = scroll
 
 	local child = CreateFrame("Frame", nil, scroll)
-	child:SetSize(368, 1)
+	child:SetSize(ROW_WIDTH, 1)
 	scroll:SetScrollChild(child)
 	List.child = child
 

@@ -32,7 +32,7 @@ INTERACTIVE = {"button", "tabs", "input"}
 UI_LUMA = 62.0
 # Tolerance in device pixels for art that is drawn a pixel or two proud of its logical rect (button caps, glow).
 ART_SLOP = 6
-BUTTON_WIDTH = {"Open Journal": 112, "Track Species": 132}
+BUTTON_WIDTH = {"Open Journal": 120, "Track Species": 120}
 
 
 def luma(pixel: tuple[int, int, int]) -> float:
@@ -126,12 +126,57 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
                 findings.append(
                     f"{widget['name']}: {inset:g} units from the {bar['name']} edge (minimum {MIN_INSET:g})"
                 )
+    panes = [w for w in widgets if w["role"] == "pane"]
+    cards = [w for w in widgets if w["role"] == "card"]
+    for pane in panes:
+        pane_right = pane["x"] + pane["w"]
+        pane_bottom = pane["y"] + pane["h"]
+        for widget in [*cards, *(w for w in widgets if w["role"] in {"badge", "progress"})]:
+            if widget["role"] == "progress" and widget["name"] != "Research bar":
+                continue
+            if (
+                widget["x"] < pane["x"]
+                or widget["y"] < pane["y"]
+                or widget["x"] + widget["w"] > pane_right
+                or widget["y"] + widget["h"] > pane_bottom
+            ):
+                findings.append(f"{widget['name']}: leaves {pane['name']}")
+            elif widget["role"] == "card":
+                inset = min(
+                    widget["x"] - pane["x"],
+                    pane_right - (widget["x"] + widget["w"]),
+                    widget["y"] - pane["y"],
+                    pane_bottom - (widget["y"] + widget["h"]),
+                )
+                if inset < MIN_INSET:
+                    findings.append(
+                        f"{widget['name']}: {inset:g} units from {pane['name']} edge (minimum {MIN_INSET:g})"
+                    )
+        for index, first in enumerate(cards):
+            for second in cards[index + 1 :]:
+                overlap_x = min(first["x"] + first["w"], second["x"] + second["w"]) - max(first["x"], second["x"])
+                overlap_y = min(first["y"] + first["h"], second["y"] + second["h"]) - max(first["y"], second["y"])
+                if overlap_x > 0 and overlap_y > 0:
+                    findings.append(f"{first['name']} and {second['name']} overlap")
     interactive = [w for w in widgets if w["role"] in INTERACTIVE]
+    for button in (w for w in widgets if w["role"] == "button"):
+        expected_width = BUTTON_WIDTH.get(button["name"])
+        if expected_width and button["w"] != expected_width:
+            findings.append(f"{button['name']}: width {button['w']:g}, expected {expected_width}")
+        containing_bar = next(
+            (bar for bar in containers if bar["x"] <= button["x"] and bar["x"] + bar["w"] >= button["x"] + button["w"]),
+            None,
+        )
+        if containing_bar:
+            inset = containing_bar["x"] + containing_bar["w"] - button["x"] - button["w"]
+            expected_inset = 140 if button["name"] == "Open Journal" else 12
+            if inset != expected_inset:
+                findings.append(f"{button['name']}: right inset {inset:g}, expected {expected_inset}")
     for index, first in enumerate(interactive):
         for second in interactive[index + 1 :]:
             dx = max(first["x"], second["x"]) - min(first["x"] + first["w"], second["x"] + second["w"])
             dy = max(first["y"], second["y"]) - min(first["y"] + first["h"], second["y"] + second["h"])
-            if dx > MIN_GAP or dy > MIN_GAP:
+            if dx >= MIN_GAP or dy >= MIN_GAP:
                 continue
             if dx > 0 and dy > 0:
                 findings.append(

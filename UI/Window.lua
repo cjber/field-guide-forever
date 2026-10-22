@@ -62,13 +62,17 @@ end
 ---@param parent Frame
 ---@param key string
 ---@param text string
----@param x number
+---@param previous Frame?
 ---@return Frame
-local function MakeTab(parent, key, text, x)
+local function MakeTab(parent, key, text, previous)
 	-- PanelTabButtonTemplate: the paper tabs the client uses on its own panels, with the selected art and the
 	-- white/gold text shift handled by PanelTemplates.
 	local button = CreateFrame("Button", nil, parent, "PanelTabButtonTemplate")
-	button:SetPoint("TOPLEFT", x, -54)
+	if previous then
+		button:SetPoint("TOPLEFT", previous, "TOPRIGHT", 4, 0)
+	else
+		button:SetPoint("TOPLEFT", 24, -58)
+	end
 	button:SetText(L[text])
 	PanelTemplates_TabResize(button, 0)
 	button.key = key
@@ -94,7 +98,7 @@ local function BuildHeader(parent)
 	end
 
 	local subtitle = Art.Text(parent, "GameFontDisableSmall", "muted")
-	subtitle:SetPoint("TOP", 0, -30)
+	subtitle:SetPoint("TOP", 0, -28)
 	subtitle:SetText(L["Azeroth field journal"])
 
 	local headerLine = Art.Line(parent, "border", 0.5)
@@ -103,7 +107,7 @@ local function BuildHeader(parent)
 
 	Window.tabButtons = {}
 	for index, info in ipairs(tabs) do
-		Window.tabButtons[index] = MakeTab(parent, info.key, info.text, 20 + (index - 1) * 100)
+		Window.tabButtons[index] = MakeTab(parent, info.key, info.text, Window.tabButtons[index - 1])
 	end
 end
 
@@ -135,6 +139,7 @@ local function BuildSearch(parent)
 	local filterButton = MakeButton(parent, L["All"], 128, false)
 	filterButton:SetPoint("TOPLEFT", 288, -112)
 	filterButton:SetHeight(24)
+	filterButton:SetTextInsets(8, 8, 0, 0)
 	Window.filterButton = filterButton
 	filterButton:SetScript("OnClick", function()
 		Window.ToggleFilterMenu()
@@ -155,6 +160,11 @@ local function BuildBreadcrumb(parent)
 	end)
 	breadcrumb.text = Art.Text(breadcrumb, "GameFontNormal", "text")
 	breadcrumb.text:SetPoint("LEFT")
+	breadcrumb.text:SetWidth(360)
+	breadcrumb.arrow = breadcrumb:CreateTexture(nil, "ARTWORK")
+	breadcrumb.arrow:SetAtlas("common-dropdown-c-button-hover-arrow")
+	breadcrumb.arrow:SetSize(12, 5)
+	breadcrumb.arrow:SetPoint("LEFT", breadcrumb.text, "RIGHT", 4, 0)
 	Window.breadcrumb = breadcrumb
 end
 
@@ -220,27 +230,29 @@ local function BuildBottom(parent)
 	Window.bottomBar = bar
 
 	local label = Art.Text(bar, "GameFontDisableSmall", "muted")
-	label:SetPoint("TOPLEFT", 14, -8)
+	label:SetPoint("TOPLEFT", 14, -10)
 	label:SetText(L["ZONE COMPLETION"])
 
 	Window.progressText = Art.Text(bar, "GameFontNormal", "gold")
-	Window.progressText:SetPoint("TOPLEFT", 14, -23)
-
-	local progress = Art.Bar(bar, 320, 6, "complete")
-	progress:SetPoint("TOPLEFT", 120, -27)
-	Window.progressFill = progress.Fill
+	Window.progressText:SetPoint("TOPLEFT", label, "TOPRIGHT", 8, 0)
 
 	Window.progressCount = Art.Text(bar, "GameFontDisableSmall", "muted")
-	Window.progressCount:SetPoint("TOPLEFT", 120, -38)
+	Window.progressCount:SetPoint("TOPLEFT", 220, -10)
+	Window.progressCount:SetWidth(140)
+	Window.progressCount:SetJustifyH("RIGHT")
 
-	Window.openButton = MakeButton(bar, L["Open Journal"], 112, false)
-	Window.openButton:SetPoint("TOPRIGHT", -158, -16)
+	local progress = Art.Bar(bar, 320, 10, "complete")
+	progress:SetPoint("TOPLEFT", 14, -28)
+	Window.progressFill = progress.Fill
+
+	Window.openButton = MakeButton(bar, L["Open Journal"], 120, false)
+	Window.openButton:SetPoint("TOPRIGHT", -140, -16)
 	Window.openButton:SetScript("OnClick", function()
 		Window.Show()
 		Window.SetTab("creatures")
 	end)
 
-	Window.trackButton = MakeButton(bar, L["Track Species"], 132, true)
+	Window.trackButton = MakeButton(bar, L["Track Species"], 120, true)
 	Window.trackButton:SetPoint("TOPRIGHT", -12, -16)
 	Window.trackButton:SetScript("OnClick", function()
 		Window.ToggleTrack()
@@ -249,7 +261,7 @@ end
 
 local function UpdateBreadcrumb()
 	local zone = CurrentZone()
-	Window.breadcrumb.text:SetText(zone and string.format(L["%s > %s  ▾"], L[zone.continent], L[zone.name]) or "")
+	Window.breadcrumb.text:SetText(zone and string.format(L["%s > %s"], L[zone.continent], L[zone.name]) or "")
 end
 
 local function UpdateTabs()
@@ -351,7 +363,7 @@ local function UpdateProgress()
 	local percent = math.floor(progress.fraction * 100 + 0.5)
 	Window.progressText:SetText(string.format(L["%d%%"], percent))
 	Window.progressCount:SetText(string.format(L["%d of %d species"], progress.catalogued, progress.total))
-	Window.progressFill:SetWidth(318 * progress.fraction)
+	Window.progressFill:SetWidth(320 * progress.fraction)
 end
 
 local function UpdateTrackButton()

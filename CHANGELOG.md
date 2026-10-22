@@ -7,6 +7,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ### Changed
 
+- Field Guide spacing, tabs, list rows, and detail cards now line up across the addon and its screenshots; thanks to @cillian for the idea.
 - Creature icons now use each NPC's real client model where a verified matching icon exists, with name, family and type fallbacks shared by the addon and mockups.
 
 ## [0.2.1] - 2026-10-22
