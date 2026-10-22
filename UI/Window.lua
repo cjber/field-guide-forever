@@ -24,6 +24,7 @@ local tabs = {
 	{ key = "creatures", text = "CREATURES" },
 	{ key = "rares", text = "RARES" },
 	{ key = "shiny", text = "SHINY" },
+	{ key = "instances", text = "INSTANCES" },
 }
 
 local filters = {
@@ -361,6 +362,27 @@ function Window.Refresh()
 	if not frame then
 		return
 	end
+	if tab == "instances" then
+		for _, panel in ipairs(Window.creaturePanels or {}) do
+			panel:Hide()
+		end
+		Window.instances:Show()
+		Window.breadcrumb:Hide()
+		Window.search:Hide()
+		Window.filterButton:Hide()
+		Window.bottomBar:Hide()
+		ns.InstancesView.Refresh(ns.API.Encounters())
+		UpdateTabs()
+		return
+	end
+	for _, panel in ipairs(Window.creaturePanels or {}) do
+		panel:Show()
+	end
+	Window.instances:Hide()
+	Window.breadcrumb:Show()
+	Window.search:Show()
+	Window.filterButton:Show()
+	Window.bottomBar:Show()
 	local entries = BuildEntries()
 	local stillListed = false
 	for _, entry in ipairs(entries) do
@@ -519,6 +541,8 @@ local function Create()
 
 	ns.List.Create(left, { Select = Window.SelectSpecies })
 	ns.Detail.Create(right)
+	Window.creaturePanels = { left, right }
+	Window.instances = ns.InstancesView.Create(frame)
 
 	if type(UISpecialFrames) == "table" then
 		local found = false

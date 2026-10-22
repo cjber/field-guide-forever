@@ -22,6 +22,7 @@ SOURCES = (
     "Locales/enUS.lua",
     "UI/Art.lua",
     "UI/Detail.lua",
+    "UI/Instances.lua",
     "UI/List.lua",
     "UI/Window.lua",
     "tools/mockups.py",

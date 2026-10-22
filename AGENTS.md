@@ -23,6 +23,10 @@ prints one `name: ok` line and exits non-zero on failure.
 `docs/screenshots/` with wowmock against the pinned client build, `check_screenshots.py` fails when an image is older
 than the sources it is drawn from (`--record` after a render), `changelog.py` prints or checks a release's entry,
 `check_package.py` checks what the packager built, and `release_check.py` gates the release on a green full CI run.
+Before handing off any README or mockup change, open every screenshot referenced by the README and inspect the rendered
+images directly at full resolution. Check for overlapping text or controls, clipping at frame/card edges, content
+outside its intended panel, and mismatches between aligned elements. Screenshot freshness and generated-file checks
+do not establish that the layout looks correct; fix the source layout and regenerate the images when a defect appears.
 
 ## Layout
 

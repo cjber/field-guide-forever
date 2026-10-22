@@ -24,7 +24,7 @@ local function UpdateRow(row, entry, selectedId)
 	local nr, ng, nb = Art.RGBA(nameColor, 1)
 	row.Name:SetTextColor(nr, ng, nb, 1)
 	row.Sub:SetText(string.format(L["%s · Lv %d-%d"], L[species.family], species.minLevel, species.maxLevel))
-	row.Counter:SetText(string.format(L["%d / %d"], count, ns.Model.MASTERED_AT))
+	row.Counter:SetText(string.format(L["%d kills"], state and (state.kills or state.count) or 0))
 	row.Fill:SetWidth(BAR_WIDTH * count / ns.Model.MASTERED_AT)
 	row.Selected:SetShown(selectedId == species.id)
 

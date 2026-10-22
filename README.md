@@ -1,8 +1,9 @@
 # Field Guide Forever
 
-A field journal for the creatures of Azeroth. Every hostile creature a character kills is recorded in its zone's
-catalogue, from the plainstriders of Mulgore to the worgen of Silverpine. Rare creatures keep their own variant
-records, and one kill in five hundred turns up a shiny colour variant.
+A field journal for the creatures of Azeroth. Hostile NPC deaths observed in a catalogued zone are recorded in its
+creature journal, from the plainstriders of Mulgore to the worgen of Silverpine. The addon records observed deaths,
+not killing blows. Rare creatures keep their own variant records, and one observed death in five hundred rolls a
+shiny colour variant.
 
 Field Guide Forever is cosmetic only. It never grants player power, changes combat or calls a protected function.
 
@@ -10,11 +11,16 @@ Field Guide Forever is cosmetic only. It never grants player power, changes comb
 
 - A zone-by-zone catalogue of 183 Classic creatures across ten starting zones, each with a real family, level range
   and a line of field notes.
-- Specimen counts with four research ranks: Discovered, Observed, Studied and Mastered.
+- Uncapped recorded-death totals, with a separate ten-step mastery track: Discovered, Observed, Studied and Mastered.
+- Character-local first sightings and first observed deaths, plus first rare and shiny records.
+- By default, shared cumulative records and earliest firsts are exchanged with guild and group addon users; disable this
+  in the options to stop sending/receiving. Local tracking continues when sharing is off.
+- An Instances page for bosses reported by encounter events, with local first clears, attempts, kill totals and
+  difficulty records. Entries appear after the client reports an encounter; this is not a verified world-first board.
 - Common, rare and shiny variants. A rare species needs three sightings to confirm its rare variant; a shiny is a
   1-in-500 roll on every kill.
 - A session sighting log, so the day's walk stays with the journal until the client closes.
-- Search, status filters and CREATURES, RARES and SHINY tabs.
+- Search, status filters and CREATURES, RARES, SHINY and INSTANCES tabs.
 - Tracking for the species you are currently working on.
 - A movable, closable window that remembers where you left it. `/fieldguide` or `/fg` toggles it.
 

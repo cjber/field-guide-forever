@@ -11,6 +11,10 @@ Rarity.COLORS = {
 	shiny = { 0.58, 0.83, 1 },
 }
 
+local ACCENT = "◆"
+local PLATE_ACCENT_ALPHA = 0.72
+local discoveredThisSession = {}
+
 ---@type table<table, { desaturated: boolean, r: number, g: number, b: number, a: number }>
 local originals = {}
 ---@type table<string, table>
@@ -56,6 +60,67 @@ local function SpeciesTier(species)
 	return species and ns.Model.Tier(species.id) or "copper"
 end
 
+---@param owner table
+---@param name table?
+---@param healthBar table?
+---@param tier string
+---@param discovery boolean?
+local function UpdateAccent(owner, name, healthBar, tier, discovery)
+	local color = Rarity.COLORS[tier]
+	if not owner then
+		return
+	end
+	local marker = owner.FGFRarityMarker
+	if type(marker) == "function" then
+		marker = nil
+	end
+	if not marker and name and owner.CreateFontString then
+		owner.FGFRarityMarker = owner:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+		owner.FGFRarityMarker:SetPoint("LEFT", name, "RIGHT", 2, 0)
+		owner.FGFRarityMarker:SetText(ACCENT)
+	end
+	marker = owner.FGFRarityMarker
+	if type(marker) == "function" then
+		marker = nil
+	end
+	if marker then
+		if color then
+			marker:SetTextColor(color[1], color[2], color[3], 1)
+			marker:Show()
+			marker:SetAlpha(discovery and 1 or PLATE_ACCENT_ALPHA)
+			if discovery and C_Timer and C_Timer.After then
+				C_Timer.After(0.7, function()
+					if marker then
+						marker:SetAlpha(PLATE_ACCENT_ALPHA)
+					end
+				end)
+			end
+		else
+			marker:Hide()
+		end
+	end
+	if healthBar and healthBar.CreateTexture then
+		local accent = owner.FGFRarityAccent
+		if type(accent) == "function" then
+			accent = nil
+		end
+		if not accent then
+			accent = healthBar:CreateTexture(nil, "OVERLAY")
+			accent:SetTexture("Interface\\Buttons\\WHITE8X8")
+			accent:SetPoint("BOTTOMLEFT", healthBar, "BOTTOMLEFT", 0, 0)
+			accent:SetPoint("BOTTOMRIGHT", healthBar, "BOTTOMRIGHT", 0, 0)
+			accent:SetHeight(2)
+			owner.FGFRarityAccent = accent
+		end
+		if color then
+			accent:SetVertexColor(color[1], color[2], color[3], 0.9)
+			accent:Show()
+		else
+			accent:Hide()
+		end
+	end
+end
+
 local function TargetChrome()
 	local target = _G.TargetFrame
 	local container = target and target.TargetFrameContainer
@@ -67,6 +132,23 @@ local function UpdateTarget()
 	local name = UnitName and UnitName("target") or nil
 	local species = ns.FindSpecies(name, zone)
 	Paint(TargetChrome(), SpeciesTier(species))
+	local target = _G.TargetFrame
+	local entry = species and ns.Model.Specimen(ns.GetCharacterState(false), species.id)
+	local tier = SpeciesTier(species)
+	local discovery = entry
+		and entry.firstSighting
+		and not discoveredThisSession[species.id]
+		and entry.firstSighting == (time and time() or 0)
+	if species and discovery then
+		discoveredThisSession[species.id] = true
+	end
+	UpdateAccent(
+		target,
+		target and (target.name or target.Name),
+		target and (target.healthbar or target.HealthBar),
+		tier,
+		discovery
+	)
 end
 
 ---@param plate table
@@ -76,7 +158,18 @@ local function UpdatePlate(plate, unit)
 	local healthBar = frame and frame.healthBar
 	local trough = healthBar and (healthBar.background or healthBar.Background)
 	local name = UnitName and UnitName(unit) or nil
-	Paint(trough, SpeciesTier(ns.FindSpecies(name, ns.CurrentZone())))
+	local species = ns.FindSpecies(name, ns.CurrentZone())
+	local tier = SpeciesTier(species)
+	Paint(trough, tier)
+	local entry = species and ns.Model.Specimen(ns.GetCharacterState(false), species.id)
+	local discovery = entry
+		and entry.firstSighting
+		and not discoveredThisSession[species.id]
+		and entry.firstSighting == (time and time() or 0)
+	if species and discovery then
+		discoveredThisSession[species.id] = true
+	end
+	UpdateAccent(frame, frame and (frame.name or frame.Name), healthBar, tier, discovery)
 end
 
 local events = CreateFrame("Frame")

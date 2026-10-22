@@ -385,6 +385,7 @@ def progress(species):
     seed = (species["id"] * 2654435761) % 4294967296
     return {
         "count": (seed >> 7) % 11,
+        "kills": (seed >> 7) % 11 + (seed >> 17) % 23,
         "rare": min(RARE_TARGET, (seed >> 11) % (RARE_TARGET + 1)),
         "shiny": 1 if (seed >> 13) % 23 == 0 else 0,
     }
@@ -488,7 +489,7 @@ def window(ui, zone, species, tab, icons, sigil):
             "GameFontDisableSmall",
             MUTED,
         )
-        right(canvas, px(372), y + 7, f"{state['count']} / 10", "GameFontNormal", TEXT, width=44)
+        right(canvas, px(372), y + 7, f"{state['kills']} kills", "GameFontNormal", TEXT, width=64)
         complete = state["count"] >= 1 and bool(state["shiny"]) and (not row["rare"] or state["rare"] >= RARE_TARGET)
         if state["count"] >= MASTERED_AT:
             marker(canvas, px(352), y + 32, 11, GOLD)
@@ -573,8 +574,16 @@ def window(ui, zone, species, tab, icons, sigil):
             justify="CENTER",
             width=86,
         )
-    text(canvas, rx + 24, ry + 162, "Specimens", "GameFontDisableSmall", MUTED)
-    right(canvas, rx + 472, ry + 162, f"{count} / 10", "GameFontDisableSmall", TEXT, width=60)
+    text(canvas, rx + 24, ry + 162, "Mastery · recorded deaths", "GameFontDisableSmall", MUTED)
+    right(
+        canvas,
+        rx + 472,
+        ry + 162,
+        f"{count} / 10 · {state['kills']} kills",
+        "GameFontDisableSmall",
+        TEXT,
+        width=140,
+    )
     bar(canvas, rx + 24, ry + 178, 448, 4, count / MASTERED_AT, GOLD)
 
     # Lore card.
@@ -628,17 +637,16 @@ def window(ui, zone, species, tab, icons, sigil):
 
     # Sighting log.
     card(canvas, rx + 14, ry + 394, 468, 76)
-    text(canvas, rx + 24, ry + 400, "Sighting log", "GameFontNormal", GOLD)
-    right(canvas, rx + 472, ry + 402, "this session", "GameFontDisableSmall", DIM, width=90)
+    text(canvas, rx + 24, ry + 400, "Local records", "GameFontNormal", GOLD)
     sightings = [
-        (f"{species['name']} \u2014 killed", TEXT),
-        ("Dishu \u2014 rare sighting", BLUE),
-        ("Plainstrider \u2014 shiny", GOLD),
+        (f"Personal first sighting \u00b7 {zone['name']}", TEXT),
+        (f"First death observed \u00b7 {state['kills']} kills recorded", BLUE),
+        ("First rare or shiny record \u00b7 local to this character", GOLD),
     ]
     for line_index, (line, colour) in enumerate(sightings):
         ly = ry + 420 + line_index * 14
-        marker(canvas, rx + 3, ly + 5, 9, colour)
-        text(canvas, rx + 14, ly, line, "GameFontDisableSmall", colour)
+        marker(canvas, rx + 24, ly + 5, 9, colour)
+        text(canvas, rx + 38, ly, line, "GameFontDisableSmall", colour)
     text(
         canvas,
         rx + 22,
@@ -657,10 +665,10 @@ def window(ui, zone, species, tab, icons, sigil):
     bar(canvas, px(138), by + 27, 320, 6, fraction, GREEN)
     text(canvas, px(138), by + 38, f"{catalogued} of {len(zone['species'])} species", "GameFontDisableSmall", MUTED)
     three_slice_button(
-        canvas, px(766), by + 16, 112, 26, "Open Journal", FONTS["GameFontNormalSmall"], atlas="128-RedButton"
+        canvas, px(654), by + 16, 112, 26, "Open Journal", FONTS["GameFontNormalSmall"], atlas="128-RedButton"
     )
     three_slice_button(
-        canvas, px(882), by + 16, 132, 26, "Track Species", FONTS["GameFontNormalSmall"], atlas="128-RedButton"
+        canvas, px(780), by + 16, 132, 26, "Track Species", FONTS["GameFontNormalSmall"], atlas="128-RedButton"
     )
     return canvas
 
@@ -724,11 +732,20 @@ def main():
         render(*pick("Westfall", lambda s: s["rare"])),
         render(barrens, prowler, "CREATURES"),
     ]
-    palette_frames = [
-        getattr(frame, "image", frame).convert("P", palette=Image.Palette.ADAPTIVE, colors=128) for frame in demo
-    ]
+    rgb_frames = [getattr(frame, "image", frame).convert("RGB") for frame in demo]
+    palette_source = Image.new("RGB", (512, 8 * 395))
+    for index, frame in enumerate(rgb_frames):
+        palette_source.paste(frame.resize((512, 395)), (0, index * 395))
+    palette = palette_source.quantize(colors=256, method=Image.Quantize.MEDIANCUT)
+    palette_frames = [frame.quantize(palette=palette, dither=Image.Dither.FLOYDSTEINBERG) for frame in rgb_frames]
     palette_frames[0].save(
-        OUT / "demo.gif", save_all=True, append_images=palette_frames[1:], duration=900, loop=0, optimize=True
+        OUT / "demo.gif",
+        save_all=True,
+        append_images=palette_frames[1:],
+        duration=900,
+        loop=0,
+        optimize=False,
+        disposal=2,
     )
     print(f"wrote {len(list(OUT.glob('*')))} files to {OUT}")
 

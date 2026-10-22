@@ -32,7 +32,9 @@ for _ = 1, 15 do
 	Model.Record(state, 1001)
 end
 assert(state.species[1001].count == Model.MASTERED_AT, "specimens stop at ten")
+assert(state.species[1001].kills == 17, "recorded kills remain uncapped after mastery")
 assert(Model.Rank(Model.Specimen(state, 1001).count) == 4, "the cap is mastered")
+assert(state.species[1001].firstKill == 0 and state.species[1001].firstSighting == 0, "first records persist")
 
 Model.SetRandom(function()
 	return 1
@@ -60,6 +62,22 @@ assert(Model.Variants(state, 1019).rare.known, "the rare variant is known at the
 Model.Record(state, 1019, { rare = true })
 assert(state.species[1019].rare == Model.RARE_TARGET, "rare sightings stop at the target")
 assert(Model.Variants(state, 1019).common.known, "the common variant follows discovery")
+
+state = Model.NewState()
+assert(Model.RecordSighting(state, 1001, 123, "The Barrens"), "first visible nameplate is recorded")
+assert(not Model.RecordSighting(state, 1001, 124, "The Barrens"), "later nameplates do not replace the first")
+assert(state.species[1001].firstSighting == 123 and state.species[1001].firstSightingZone == "The Barrens")
+local seenEncounter = Model.ObserveEncounter(state, 77, "Example Boss", 2, 150, "Example Dungeon")
+assert(seenEncounter.firstSighting, "first boss encounter start records a personal sighting")
+local encounter = Model.RecordEncounter(state, 77, "Example Boss", 2, 200, "Example Dungeon")
+assert(encounter.firstKill and encounter.kills == 1, "first successful boss encounter is recorded")
+encounter = Model.RecordEncounter(state, 77, "Example Boss", 3, 300, "Example Dungeon")
+assert(not encounter.firstKill and encounter.kills == 2, "boss encounter count remains uncapped")
+assert(encounter.record.difficulties["2"] == 1 and encounter.record.difficulties["3"] == 1)
+assert(
+	encounter.record.sightings == 1 and encounter.record.firstSighting == 150,
+	"successful clears do not inflate attempt counts"
+)
 
 local zones = ns.Creatures.zones
 local zone = zones[1]
