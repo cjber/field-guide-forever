@@ -56,10 +56,6 @@ class MockZone(TypedDict):
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "screenshots"
-# Real in-game captures of the client's 3D creature viewport, one per NPC id. The journal shows a PlayerModel frame,
-# and Pillow cannot render the client's models, so a capture is the only honest pixel source for that area.
-CAPTURES = ROOT / "docs" / "captures"
-MODEL_FALLBACKS: list[dict[str, Any]] = []
 
 # UI/Art.lua's palette, as wowmock colour tuples.
 GOLD = wowmock.rgb("e0b540")
@@ -533,29 +529,6 @@ def bar(canvas, x, y, w, h, fraction, colour):
         canvas.fill(x, y, filled, h, colour)
 
 
-def creature_view(canvas, x, y, size, species, icon):
-    """The detail pane's creature viewport (Art.Model/Art.SetModel), a real 3D model frame in game.
-
-    Pillow cannot render the client's creatures, so a real capture at docs/captures/<npc>.png is pasted whole and
-    wins. Without one the scene falls back to the species' client icon and the substitution is recorded in
-    docs/screenshots/model-captures.json, so a release knows exactly which shots still owe a capture.
-    """
-    capture = CAPTURES / f"{species['id']}.png"
-    if capture.exists():
-        from PIL import Image  # ty: ignore[unresolved-import]  # Pillow is local only, like wowmock
-
-        canvas.draw(Image.open(capture).convert("RGBA"), x, y, size, size)
-    else:
-        MODEL_FALLBACKS.append({"id": species["id"], "name": species["name"]})
-        # Circular icon on its own layer: canvas.mask multiplies the whole surface's alpha, so masking the main
-        # canvas would erase everything outside the portrait's rect.
-        portrait = canvas.ui.canvas(canvas.width, canvas.height)
-        portrait.draw(icon, x, y, size, size)
-        portrait.mask(canvas.ui.texture("interface/characterframe/tempportraitalphamask.blp"), x, y, size, size)
-        canvas.paste(portrait, 0, 0)
-    canvas.draw(canvas.ui.texture("interface/common/whiteiconframe.blp"), x, y, size, size, BRASS)
-
-
 def card(canvas, x, y, w, h, border=None):
     """A restrained inset using the client's InsetFrameTemplate NineSlice chrome."""
     canvas.fill(x, y, w, h, wowmock.rgb("171a1e"))
@@ -682,7 +655,13 @@ def window(ui, zone, species, tab, icons, sigil):
     rank = rank_of(count)
     rx, ry = px(426), py(146)
 
-    creature_view(canvas, rx + 14, ry + 14, 58, species, icons[species["id"]])
+    # The portrait is circular: draw it on its own layer, mask that, then paste. canvas.mask multiplies the whole
+    # surface's alpha, so applying it to the main canvas would erase everything outside the portrait's rect.
+    portrait = ui.canvas(canvas.width, canvas.height)
+    portrait.draw(icons[species["id"]], rx + 14, ry + 14, 58, 58)
+    portrait.mask(ui.texture("interface/characterframe/tempportraitalphamask.blp"), rx + 14, ry + 14, 58, 58)
+    canvas.paste(portrait, 0, 0)
+    canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), rx + 14, ry + 14, 58, 58, BRASS)
     text(canvas, rx + 84, ry + 18, species["name"], "GameFontNormalLarge", GOLD)
     text(
         canvas,
@@ -931,7 +910,7 @@ def main():
         if int(previous.stem.split("-")[1]) not in current_ids:
             previous.unlink()
     by_name = {zone["name"]: zone for zone in zones}
-    # One client icon per species, resolved from the generated NPC model icon before shared fallback rules.
+    # One client icon per species, resolved from generated NPC model icons before the shared fallbacks.
     icons = {}
     for zone in zones:
         for species in zone["species"]:
@@ -1105,18 +1084,6 @@ def main():
     )
     write_readme_gallery()
     (OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    # Which creature viewports are still an icon standing in for the client's 3D model. A committed capture at
-    # docs/captures/<npc>.png removes its entry; what is left is what a release still owes a real screenshot.
-    missing = {entry["id"]: entry for entry in MODEL_FALLBACKS}
-    (OUT / "model-captures.json").write_text(
-        json.dumps({"missing": [missing[key] for key in sorted(missing)]}, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-    if missing:
-        print(
-            f"{len(missing)} creature viewport(s) drawn from an icon: the in-game journal renders a 3D model there, "
-            "so commit a capture under docs/captures/<npc>.png to make those shots faithful"
-        )
     print(f"wrote {len(list(OUT.glob('*.png')))} PNG scenes and updated README gallery")
 
 

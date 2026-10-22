@@ -158,9 +158,7 @@ end
 ---@param parent Frame
 function Detail.Create(parent)
 	Detail.parent = parent
-	-- A real 3D creature model, not an icon standing in for one: the client renders the NPC itself, so the entry
-	-- shows the creature the player actually met.
-	Detail.portrait = Art.Model(parent, 58)
+	Detail.portrait = Art.Portrait(parent, 58)
 	Detail.portrait:SetPoint("TOPLEFT", 14, -14)
 	Art.Bezel(Detail.portrait)
 
@@ -356,7 +354,7 @@ function Detail.Show(species, state, zone)
 	if not species or not zone then
 		Detail.name:SetText(L["Select a creature to read its entry."])
 		Detail.sub:SetText("")
-		Art.SetModel(Detail.portrait, nil, "Interface\\Icons\\INV_Misc_QuestionMark")
+		Art.Icon(Detail.portrait, "Interface\\Icons\\INV_Misc_QuestionMark", 58)
 		for _, badge in ipairs(Detail.badges) do
 			badge.frame:Hide()
 		end
@@ -364,7 +362,7 @@ function Detail.Show(species, state, zone)
 		Detail.sightingText:SetText("")
 		return
 	end
-	Art.SetModel(Detail.portrait, species.id, Art.SpeciesIcon(species.name, species.id))
+	Art.Icon(Detail.portrait, Art.SpeciesIcon(species.name, species.id), 58)
 	Detail.name:SetText(species.name)
 	Detail.sub:SetText(
 		string.format(L["%s · %s · Level %d-%d"], L[species.family], L[zone.name], species.minLevel, species.maxLevel)
