@@ -17,7 +17,7 @@ local function UpdateRow(row, entry, selectedId)
 	local species = entry.species
 	local state = entry.state
 	local count = state and state.count or 0
-	Art.Icon(row.Icon, Art.SpeciesIcon(species.name, species.family), 32)
+	Art.Icon(row.Icon, Art.SpeciesIcon(species.name, species.id), 32)
 	row.Name:SetText(species.name)
 	local variants = ns.Model.Variants(state, species.id)
 	local nameColor = variants.rare.known and "rare" or "text"

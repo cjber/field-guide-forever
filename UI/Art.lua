@@ -31,10 +31,29 @@ Art.FAMILY_ICONS = {
 	Elemental = "Interface\\Icons\\Spell_Nature_Lightning",
 	Giant = "Interface\\Icons\\Ability_Warrior_SavageBlow",
 	Mechanical = "Interface\\Icons\\INV_Misc_Gear_01",
-	Critter = "Interface\\Icons\\INV_Misc_Food_23",
+	Critter = "Interface\\Icons\\Ability_Hunter_BeastTaming",
 	Demon = "Interface\\Icons\\Spell_Shadow_Metamorphosis",
 	Aberration = "Interface\\Icons\\Ability_Creature_Poison_01",
 }
+
+Art.CREATURE_FAMILY_ICONS = {
+	Wolf = "Interface\\Icons\\ability_hunter_pet_wolf",
+	Cat = "Interface\\Icons\\ability_hunter_pet_cat",
+	Spider = "Interface\\Icons\\ability_hunter_pet_spider",
+	Bear = "Interface\\Icons\\ability_hunter_pet_bear",
+	Boar = "Interface\\Icons\\ability_hunter_pet_boar",
+	Crocolisk = "Interface\\Icons\\ability_hunter_pet_crocolisk",
+	["Carrion Bird"] = "Interface\\Icons\\ability_hunter_pet_bat",
+	Raptor = "Interface\\Icons\\ability_hunter_pet_raptor",
+	Tallstrider = "Interface\\Icons\\ability_hunter_pet_tallstrider",
+	Scorpid = "Interface\\Icons\\ability_hunter_pet_scorpid",
+	Turtle = "Interface\\Icons\\ability_hunter_pet_turtle",
+	Bat = "Interface\\Icons\\ability_hunter_pet_bat",
+	Hyena = "Interface\\Icons\\ability_hunter_pet_hyena",
+	["Bird of Prey"] = "Interface\\Icons\\ability_hunter_pet_owl",
+}
+
+Art.GENERIC_CREATURE_ICON = "Interface\\Icons\\Ability_Hunter_BeastTaming"
 
 -- A species shows its own kind, not a family glyph: a Prowler is a cat and a Zhevra is not a dragon. Each rule is
 -- matched against the creature's name, in order, and the first hit wins; anything unmatched falls back to its
@@ -449,17 +468,22 @@ end
 ---@param family string?
 ---@return string
 function Art.FamilyIcon(family)
-	return Art.FAMILY_ICONS[family] or "Interface\\Icons\\INV_Misc_QuestionMark"
+	return Art.FAMILY_ICONS[family] or Art.GENERIC_CREATURE_ICON
 end
 
----The icon a species shows: its own kind when the catalogue names one, else its family. Matching is on the lower-cased
----name so "Savannah Highmane" and "Savannah Prowler" share the cat art without a per-species table.
+---The icon a species shows: name refinement, then its client family art, then its creature-type bucket.
 ---@param name string
----@param family string?
+---@param npcID integer
 ---@return string
-function Art.SpeciesIcon(name, family)
+function Art.SpeciesIcon(name, npcID)
 	local needle = name:lower()
-	local side = family == "Beast" and "beast" or "people"
+	local typeID, familyID = ns.CreatureInfo.Get(npcID)
+	local family = familyID and ns.ClientData.families[familyID]
+	local creatureType = typeID and ns.CreatureInfo.types[typeID]
+	local side = "people"
+	if creatureType == "Beast" or (familyID and familyID > 0) then
+		side = "beast"
+	end
 	for _, rule in ipairs(Art.SPECIES_ICONS) do
 		if rule[2] == "any" or rule[2] == side then
 			for _, keyword in ipairs(rule[3]) do
@@ -469,7 +493,10 @@ function Art.SpeciesIcon(name, family)
 			end
 		end
 	end
-	return Art.FamilyIcon(family)
+	if family then
+		return Art.CREATURE_FAMILY_ICONS[family] or Art.FAMILY_ICONS[creatureType] or Art.GENERIC_CREATURE_ICON
+	end
+	return Art.FAMILY_ICONS[creatureType] or Art.GENERIC_CREATURE_ICON
 end
 
 ---@param texture Texture

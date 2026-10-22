@@ -1,6 +1,8 @@
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
-local harness = Mock.Harness({ files = { "Locales/enUS.lua", "Data/Client.lua", "Core/LegacyIds.lua" } })
+local harness = Mock.Harness({
+	files = { "Locales/enUS.lua", "Data/Client.lua", "Data/CreatureIcons.lua", "Core/LegacyIds.lua" },
+})
 local ns = harness.ns
 harness.Load("Integrations/QuestieDB.lua")
 ns.BuildCatalogue = function()
@@ -90,6 +92,7 @@ end)
 harness:RunTimers()
 assert(ready == 1 and ns.QuestieDB.State() == "ok", "populated shared data becomes ready")
 assert(ns.SpeciesById[50001].id == 50001, "the game NPC id is the stable species identity")
+assert(ns.SpeciesById[50001].family == "Unknown", "an NPC title is not treated as its creature type")
 assert(ns.SpeciesById[50001].zone == "The Barrens", "outdoor NPCs group under their client zone")
 assert(ns.db.chars["Player-Realm"].species[50001].count == 4, "schema migration rekeys legacy IDs to NPC IDs")
 assert(ns.db.chars["Player-Realm"].species[90001] == nil, "legacy IDs are dropped after remapping")

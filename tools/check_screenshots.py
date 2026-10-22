@@ -22,6 +22,7 @@ OUT = ROOT / "docs" / "screenshots"
 STAMP = OUT / "scenes.sha256"
 SOURCES = (
     "Data/Client.lua",
+    "Data/CreatureIcons.lua",
     "tools/gen_mock_catalogue.py",
     "tools/extract_mock_catalogue.lua",
     "tools/questiedb_load.lua",
