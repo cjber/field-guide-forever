@@ -808,15 +808,8 @@ def main():
         obsolete.unlink()
     zones = load_catalogue()
     catalogued_ids = {species["id"] for zone in zones for species in zone["species"]}
-    instance_ids = {
-        species["id"] for group in MOCK_INSTANCES.values() for species in group["species"]
-    }
-    boss_ids = {
-        species["id"]
-        for group in MOCK_INSTANCES.values()
-        for species in group["species"]
-        if species["boss"]
-    }
+    instance_ids = {species["id"] for group in MOCK_INSTANCES.values() for species in group["species"]}
+    boss_ids = {species["id"] for group in MOCK_INSTANCES.values() for species in group["species"] if species["boss"]}
     print(
         f"QuestieDB Forever fixture coverage: {len(zones)} outdoor areas, "
         f"{len(catalogued_ids | instance_ids)} placed NPCs, {len(MOCK_INSTANCES)} dungeons and raids, "

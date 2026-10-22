@@ -10,7 +10,7 @@ root = Path(os.environ["SIFT_ROOT"])
 paths = Path(os.environ["SIFT_FILES"]).read_text(encoding="utf-8").splitlines()
 hits = []
 for name in paths:
-    if name == "Data/Creatures.lua":
+    if name == "Data/Creatures.lua" and (root / name).is_file():
         hits.append(f"{name}:1: no-handwritten-creatures Creature rows must come from QuestieDB.")
 for hit in hits:
     print(hit)
