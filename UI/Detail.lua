@@ -362,7 +362,7 @@ function Detail.Show(species, state, zone)
 		Detail.sightingText:SetText("")
 		return
 	end
-	Art.Icon(Detail.portrait, Art.SpeciesIcon(species.name, species.family), 58)
+	Art.Icon(Detail.portrait, Art.SpeciesIcon(species.name, species.id), 58)
 	Detail.name:SetText(species.name)
 	Detail.sub:SetText(
 		string.format(L["%s · %s · Level %d-%d"], L[species.family], L[zone.name], species.minLevel, species.maxLevel)

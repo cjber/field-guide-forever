@@ -358,25 +358,53 @@ FAMILY_ICONS = {
     "Elemental": "interface/icons/spell_nature_lightning.blp",
     "Giant": "interface/icons/ability_warrior_savageblow.blp",
     "Mechanical": "interface/icons/inv_misc_gear_01.blp",
-    "Critter": "interface/icons/inv_misc_food_23.blp",
+    "Critter": "interface/icons/ability_hunter_beasttaming.blp",
     "Demon": "interface/icons/spell_shadow_metamorphosis.blp",
     "Aberration": "interface/icons/ability_creature_poison_01.blp",
 }
-FALLBACK_ICON = "interface/icons/inv_misc_bone_01.blp"
+FALLBACK_ICON = "interface/icons/ability_hunter_beasttaming.blp"
+CREATURE_TYPE_NAMES = {}
+CREATURE_INFO = {}
+CREATURE_FAMILIES = {}
 
 
 def species_icon(species):
-    """The icon Art.SpeciesIcon picks: a Beast takes the hunter-pet glyphs and everything else the people glyphs, so a
-    shared keyword ("shaman", "arugal") cannot hand a humanoid a beast's icon."""
+    """Mirror Art.SpeciesIcon using the same generated NPC type/family data."""
     name = species["name"].lower()
-    beast = species["family"] == "Beast"
+    packed = CREATURE_INFO.get(species["id"])
+    type_id, family_id = (packed >> 16, packed & 0xFFFF) if packed else (0, 0)
+    creature_type = CREATURE_TYPE_NAMES.get(type_id, "Unknown")
+    beast = creature_type == "Beast" or family_id > 0
     for path, side, keywords in SPECIES_ICONS:
         if side not in ("any", "beast" if beast else "people"):
             continue
         # Whole words only: a bare substring match put "owl" inside "Yowler" and gave a gnoll a bat's glyph.
         if any(re.search(rf"\b{re.escape(word)}\b", name) for word in keywords):
             return path
-    return FAMILY_ICONS.get(species["family"], FALLBACK_ICON)
+    if family_id:
+        family_name = CREATURE_FAMILIES.get(family_id)
+        if family_name in PET_FAMILY_ICONS:
+            return PET_FAMILY_ICONS[family_name]
+        return FAMILY_ICONS.get(creature_type, FALLBACK_ICON)
+    return FAMILY_ICONS.get(creature_type, FALLBACK_ICON)
+
+
+PET_FAMILY_ICONS = {
+    "Wolf": "interface/icons/ability_hunter_pet_wolf.blp",
+    "Cat": "interface/icons/ability_hunter_pet_cat.blp",
+    "Spider": "interface/icons/ability_hunter_pet_spider.blp",
+    "Bear": "interface/icons/ability_hunter_pet_bear.blp",
+    "Boar": "interface/icons/ability_hunter_pet_boar.blp",
+    "Crocolisk": "interface/icons/ability_hunter_pet_crocolisk.blp",
+    "Carrion Bird": "interface/icons/ability_hunter_pet_bat.blp",
+    "Raptor": "interface/icons/ability_hunter_pet_raptor.blp",
+    "Tallstrider": "interface/icons/ability_hunter_pet_tallstrider.blp",
+    "Scorpid": "interface/icons/ability_hunter_pet_scorpid.blp",
+    "Turtle": "interface/icons/ability_hunter_pet_turtle.blp",
+    "Bat": "interface/icons/ability_hunter_pet_bat.blp",
+    "Hyena": "interface/icons/ability_hunter_pet_hyena.blp",
+    "Bird of Prey": "interface/icons/ability_hunter_pet_owl.blp",
+}
 
 
 SIGIL_ICON = "interface/icons/inv_misc_book_06.blp"
@@ -384,10 +412,21 @@ SIGIL_ICON = "interface/icons/inv_misc_book_06.blp"
 
 def load_catalogue():
     """Read mock-only NPC rows extracted from the pinned, ignored QuestieDB release."""
-    global MOCK_INSTANCES
+    global MOCK_INSTANCES, CREATURE_TYPE_NAMES, CREATURE_INFO, CREATURE_FAMILIES
     MOCK_INSTANCES = {}
     subprocess.run([sys.executable, "tools/gen_mock_catalogue.py"], cwd=ROOT, check=True)
     source = (ROOT / "Data" / "Client.lua").read_text(encoding="utf-8")
+    creature_source = (ROOT / "Data" / "CreatureIcons.lua").read_text(encoding="utf-8")
+    CREATURE_TYPE_NAMES = {
+        int(type_id): name for type_id, name in re.findall(r'^\s*\[(\d+)\] = "([^"]+)"', creature_source, re.MULTILINE)
+    }
+    CREATURE_INFO = {
+        int(npc_id): int(packed)
+        for npc_id, packed in re.findall(r"^\s*\[(\d+)\] = (\d+),$", creature_source, re.MULTILINE)
+    }
+    CREATURE_FAMILIES = {
+        int(family_id): name for family_id, name in re.findall(r'ns\.ClientData\.families\[(\d+)\] = "([^"]+)"', source)
+    }
     pattern = re.compile(r'ns\.ClientData\.zones\[(\d+)\] = \{ name = "([^"]+)", continent = (\d+) \}')
     continents = {
         int(index): name for index, name in re.findall(r'ns\.ClientData\.continents\[(\d+)\] = "([^"]+)"', source)
@@ -418,10 +457,12 @@ def load_catalogue():
             if len(row) != 7:
                 continue
             npc_id, name, minimum, maximum, rank, family, spawn_list = row
+            packed = CREATURE_INFO.get(int(npc_id))
+            creature_type = CREATURE_TYPE_NAMES.get(packed >> 16, "Unknown") if packed else "Unknown"
             species: MockSpecies = {
                 "id": int(npc_id),
                 "name": name,
-                "family": family or "Unknown",
+                "family": creature_type,
                 "min": int(minimum or 1),
                 "max": int(maximum or minimum or 1),
                 "lore": "QuestieDB Forever mock fixture; no lore is supplied by the client database.",
@@ -842,6 +883,7 @@ def main():
 
     barrens = by_name["The Barrens"]
     prowler = barrens["species"][0]
+    badlands, siege_golem = pick("Badlands", lambda species: species["name"] == "Siege Golem")
     all_species = [(zone, species) for zone in zones for species in zone["species"]]
     rare_zone, rare = next(((zone, species) for zone, species in all_species if species["rare"]), (barrens, prowler))
     shiny_zone, shiny = next(
@@ -857,7 +899,7 @@ def main():
         scenes: list[str] = LAYOUT.setdefault("scenes", [])
         scenes.append(name)
 
-    save(render(barrens, prowler, "CREATURES"), "field-guide.png")
+    save(render(badlands, siege_golem, "CREATURES"), "field-guide.png")
     save(render(rare_zone, rare, "RARES"), "rares.png")
     save(render(shiny_zone, shiny, "SHINY"), "shiny.png")
 

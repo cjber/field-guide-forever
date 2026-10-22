@@ -110,12 +110,16 @@ local function Build()
 				end
 			end
 			spawnZones = unique
+			local creatureTypeID, familyID = ns.CreatureInfo.Get(tonumber(id))
+			local creatureType = creatureTypeID and ns.CreatureInfo.types[creatureTypeID]
 			local species = {
 				id = tonumber(id),
 				name = row.name,
 				minLevel = tonumber(row.minLevel) or 1,
 				maxLevel = tonumber(row.maxLevel) or tonumber(row.minLevel) or 1,
-				family = type(row.subName) == "string" and row.subName ~= "" and row.subName or "Unknown",
+				family = creatureType and creatureType ~= "Unknown" and creatureType or "Unknown",
+				familyID = familyID,
+				creatureTypeID = creatureTypeID,
 				rank = tonumber(row.rank) or 0,
 				rare = tonumber(row.rank) == 2,
 				boss = tonumber(row.rank) == 3,

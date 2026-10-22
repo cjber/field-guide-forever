@@ -12,6 +12,7 @@
 
 Locales\enUS.lua
 Data\Client.lua
+Data\CreatureIcons.lua
 Integrations\QuestieDB.lua
 Core\SafeCall.lua
 Core\Model.lua
