@@ -149,6 +149,28 @@ function methods.AddMaskTexture() end
 
 function methods.SetMaskTexture() end
 
+-- Model frames (PlayerModel/DressUpModel). The mock records the creature each one was pointed at, so a spec can
+-- assert the journal asks the client for the real NPC model instead of settling for a stand-in texture.
+function methods:SetCreature(creatureID)
+	self._creature = creatureID
+end
+
+function methods:GetCreature()
+	return self._creature
+end
+
+function methods:SetDisplayInfo(displayID)
+	self._displayInfo = displayID
+end
+
+function methods:GetDisplayInfo()
+	return self._displayInfo
+end
+
+function methods:SetFacing(facing)
+	self._facing = facing
+end
+
 function methods:GetName()
 	return self._name
 end

@@ -471,13 +471,16 @@ function Art.FamilyIcon(family)
 	return Art.FAMILY_ICONS[family] or Art.GENERIC_CREATURE_ICON
 end
 
----The icon a species shows: name refinement, then its client family art, then its creature-type bucket.
+---The icon a species shows: its generated model icon, name refinement, then family and creature-type art.
 ---@param name string
 ---@param npcID integer
 ---@return string
 function Art.SpeciesIcon(name, npcID)
 	local needle = name:lower()
-	local typeID, familyID = ns.CreatureInfo.Get(npcID)
+	local typeID, familyID, modelIcon = ns.CreatureInfo.Get(npcID)
+	if modelIcon then
+		return "Interface\\Icons\\" .. modelIcon:gsub("^interface/icons/", "")
+	end
 	local family = familyID and ns.ClientData.families[familyID]
 	local creatureType = typeID and ns.CreatureInfo.types[typeID]
 	local side = "people"
@@ -518,4 +521,61 @@ function Art.Portrait(parent, size)
 	texture:SetSize(size, size)
 	Art.MakePortrait(texture)
 	return texture
+end
+
+---The creature viewport: the client's own 3D model frame, so the journal shows the NPC the player actually met.
+---A real model is the fidelity that matters, so the frame is never replaced by a 2D stand-in while the client can
+---render one. The icon texture is only a fallback for a client without model frames, or for an NPC id the client
+---cannot resolve.
+---@param parent Frame
+---@param size number
+---@return Frame
+function Art.Model(parent, size)
+	local holder = CreateFrame("Frame", nil, parent)
+	holder:SetSize(size, size)
+
+	local backdrop = holder:CreateTexture(nil, "BACKGROUND")
+	backdrop:SetAllPoints(holder)
+	backdrop:SetTexture(Art.WHITE)
+	local br, bg, bb = Art.RGBA("panel", 1)
+	backdrop:SetVertexColor(br, bg, bb, 1)
+	holder.backdrop = backdrop
+
+	-- A model frame only exists on a client that ships it; pcall keeps an older client on the icon path instead of
+	-- erroring out of the detail pane.
+	local ok, model = pcall(CreateFrame, "PlayerModel", nil, holder)
+	if ok and type(model) == "table" and model.SetCreature then
+		model:SetPoint("TOPLEFT", holder, "TOPLEFT", 2, -2)
+		model:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", -2, 2)
+		holder.model = model
+	end
+
+	local fallback = holder:CreateTexture(nil, "ARTWORK")
+	fallback:SetAllPoints(holder)
+	Art.MakePortrait(fallback)
+	holder.fallback = fallback
+	return holder
+end
+
+---Point the viewport at an NPC, or fall back to its icon when the client cannot render that model.
+---@param holder Frame
+---@param npcID integer?
+---@param file string
+---@return boolean rendered
+function Art.SetModel(holder, npcID, file)
+	local model = holder.model
+	local id = tonumber(npcID)
+	if model and id and id > 0 then
+		holder.fallback:Hide()
+		model:Show()
+		model:SetCreature(id)
+		model:SetFacing(0.55)
+		return true
+	end
+	if model then
+		model:Hide()
+	end
+	holder.fallback:Show()
+	Art.Icon(holder.fallback, file, holder:GetWidth())
+	return false
 end
