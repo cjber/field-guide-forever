@@ -471,13 +471,16 @@ function Art.FamilyIcon(family)
 	return Art.FAMILY_ICONS[family] or Art.GENERIC_CREATURE_ICON
 end
 
----The icon a species shows: name refinement, then its client family art, then its creature-type bucket.
+---The icon a species shows: its generated model icon, name refinement, then family and creature-type art.
 ---@param name string
 ---@param npcID integer
 ---@return string
 function Art.SpeciesIcon(name, npcID)
 	local needle = name:lower()
-	local typeID, familyID = ns.CreatureInfo.Get(npcID)
+	local typeID, familyID, modelIcon = ns.CreatureInfo.Get(npcID)
+	if modelIcon then
+		return "Interface\\Icons\\" .. modelIcon:gsub("^interface/icons/", "")
+	end
 	local family = familyID and ns.ClientData.families[familyID]
 	local creatureType = typeID and ns.CreatureInfo.types[typeID]
 	local side = "people"

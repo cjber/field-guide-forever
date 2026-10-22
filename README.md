@@ -85,7 +85,7 @@ The addon targets the WoW: Forever client, Interface 16001.
 | | | |
 | --- | --- | --- |
 | ![Dun Morogh](docs/screenshots/zone-0001.png) | ![Duskwood](docs/screenshots/zone-0010.png) | ![Azshara](docs/screenshots/zone-0016.png) |
-| ![Loch Modan](docs/screenshots/zone-0038.png) | ![Burning Steppes](docs/screenshots/zone-0046.png) | ![Silverpine Forest](docs/screenshots/zone-0130.png) |
+| ![Loch Modan](docs/screenshots/zone-0038.png) | ![Burning Steppes](docs/screenshots/zone-0046.png) | ![Ashenvale](docs/screenshots/zone-0331.png) |
 | ![Hillsbrad Foothills](docs/screenshots/zone-0267.png) | ![Desolace](docs/screenshots/zone-0405.png) | ![Mount Hyjal](docs/screenshots/zone-0616.png) |
 | ![Undercity](docs/screenshots/zone-1497.png) | ![Orgrimmar](docs/screenshots/zone-1637.png) | ![Hall of Legends](docs/screenshots/zone-2917.png) |
 <!-- SCREENSHOT_GALLERY:END -->

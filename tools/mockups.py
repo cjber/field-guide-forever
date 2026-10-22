@@ -92,8 +92,7 @@ def rank_of(count):
     return rank
 
 
-# A species shows its own kind, mirroring Art.SpeciesIcon in UI/Art.lua: the first keyword a creature's name contains
-# wins, and anything unmatched falls back to its family. Every path here resolves in this client build.
+# Fallback name rules mirror Art.SpeciesIcon in UI/Art.lua after the generated per-NPC model icon.
 SPECIES_ICONS = (
     (
         "interface/icons/ability_hunter_pet_cat.blp",
@@ -366,13 +365,19 @@ FALLBACK_ICON = "interface/icons/ability_hunter_beasttaming.blp"
 CREATURE_TYPE_NAMES = {}
 CREATURE_INFO = {}
 CREATURE_FAMILIES = {}
+MODEL_ICONS = {}
+MODEL_ICON_IDS = {}
 
 
 def species_icon(species):
-    """Mirror Art.SpeciesIcon using the same generated NPC type/family data."""
+    """Mirror Art.SpeciesIcon using the same generated model icon and type/family data."""
     name = species["name"].lower()
     packed = CREATURE_INFO.get(species["id"])
-    type_id, family_id = (packed >> 16, packed & 0xFFFF) if packed else (0, 0)
+    icon_index = packed >> 20 if packed else 0
+    metadata = packed & 0xFFFFF if packed else 0
+    type_id, family_id = (metadata >> 16, metadata & 0xFFFF) if packed else (0, 0)
+    if icon_index:
+        return MODEL_ICONS[icon_index]
     creature_type = CREATURE_TYPE_NAMES.get(type_id, "Unknown")
     beast = creature_type == "Beast" or family_id > 0
     for path, side, keywords in SPECIES_ICONS:
@@ -412,7 +417,7 @@ SIGIL_ICON = "interface/icons/inv_misc_book_06.blp"
 
 def load_catalogue():
     """Read mock-only NPC rows extracted from the pinned, ignored QuestieDB release."""
-    global MOCK_INSTANCES, CREATURE_TYPE_NAMES, CREATURE_INFO, CREATURE_FAMILIES
+    global MOCK_INSTANCES, CREATURE_TYPE_NAMES, CREATURE_INFO, CREATURE_FAMILIES, MODEL_ICONS, MODEL_ICON_IDS
     MOCK_INSTANCES = {}
     subprocess.run([sys.executable, "tools/gen_mock_catalogue.py"], cwd=ROOT, check=True)
     source = (ROOT / "Data" / "Client.lua").read_text(encoding="utf-8")
@@ -424,6 +429,12 @@ def load_catalogue():
         int(npc_id): int(packed)
         for npc_id, packed in re.findall(r"^\s*\[(\d+)\] = (\d+),$", creature_source, re.MULTILINE)
     }
+    MODEL_ICONS = {
+        int(index): path
+        for index, path in re.findall(r'^\s*\[(\d+)\] = "(interface/icons/[^\"]+)"', creature_source, re.MULTILINE)
+    }
+    model_source = json.loads((ROOT / "tools" / ".cache" / "creature-model-paths-202610202236.json").read_text())
+    MODEL_ICON_IDS = {path: int(file_id) for path, file_id in model_source["icons"].items()}
     CREATURE_FAMILIES = {
         int(family_id): name for family_id, name in re.findall(r'ns\.ClientData\.families\[(\d+)\] = "([^"]+)"', source)
     }
@@ -838,6 +849,16 @@ def window(ui, zone, species, tab, icons, sigil):
 
 
 ZONE_PAGE_COUNT = 12
+README_RACE_ICONS = {
+    "inv_misc_head_human_01.blp",
+    "inv_misc_head_dwarf_01.blp",
+    "inv_misc_head_orc_01.blp",
+    "inv_misc_head_troll_01.blp",
+    "inv_misc_head_tauren_01.blp",
+    "inv_misc_head_elf_01.blp",
+    "inv_misc_head_gnome_01.blp",
+    "inv_misc_head_undead_01.blp",
+}
 
 
 def zone_pages(zones):
@@ -845,7 +866,27 @@ def zone_pages(zones):
     if len(zones) <= ZONE_PAGE_COUNT:
         return zones
     step = len(zones) / ZONE_PAGE_COUNT
-    return [zones[int(index * step)] for index in range(ZONE_PAGE_COUNT)]
+    pages = [zones[int(index * step)] for index in range(ZONE_PAGE_COUNT)]
+
+    def race_icons(zone):
+        return {species_icon(species).rsplit("/", 1)[-1] for species in zone["species"][:8]} & README_RACE_ICONS
+
+    selected = {zone["id"] for zone in pages}
+    covered = set().union(*(race_icons(zone) for zone in pages))
+    while covered != README_RACE_ICONS:
+        candidate = max(
+            (zone for zone in zones if zone["id"] not in selected),
+            key=lambda zone: len(race_icons(zone) - covered),
+            default=None,
+        )
+        if candidate is None or not race_icons(candidate) - covered:
+            raise ValueError(f"No mock NPCs cover the required race icons: {sorted(README_RACE_ICONS - covered)}")
+        replace = min(range(len(pages)), key=lambda index: len(race_icons(pages[index]) & covered))
+        selected.remove(pages[replace]["id"])
+        pages[replace] = candidate
+        selected.add(candidate["id"])
+        covered.update(race_icons(candidate))
+    return pages
 
 
 def main():
@@ -854,6 +895,8 @@ def main():
     for obsolete in OUT.glob("creature-??.png"):
         obsolete.unlink()
     zones = load_catalogue()
+    ui.wago.paths.update(MODEL_ICON_IDS)
+    ui.wago.paths_file.write_text(json.dumps(ui.wago.paths, indent=1, sort_keys=True))
     catalogued_ids = {species["id"] for zone in zones for species in zone["species"]}
     instance_ids = {species["id"] for group in MOCK_INSTANCES.values() for species in group["species"]}
     boss_ids = {species["id"] for group in MOCK_INSTANCES.values() for species in group["species"] if species["boss"]}
@@ -867,7 +910,7 @@ def main():
         if int(previous.stem.split("-")[1]) not in current_ids:
             previous.unlink()
     by_name = {zone["name"]: zone for zone in zones}
-    # One client icon per species, chosen by the same keyword rules as Art.SpeciesIcon.
+    # One client icon per species, resolved from generated NPC model icons before the shared fallbacks.
     icons = {}
     for zone in zones:
         for species in zone["species"]:
