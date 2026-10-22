@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Design mockups for the Field Guide window's tab treatment and attachment.
 
 The shapes Cillian asked to compare, rendered from the same catalogue, icons and card content the README
