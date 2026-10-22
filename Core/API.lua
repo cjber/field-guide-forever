@@ -3,9 +3,21 @@ local _, ns = ...
 
 -- Public addon-to-addon interface. nil means the answer is not known yet: before the saved variables load there is
 -- no catalogue state to read, and a caller such as a map addon should ask again after PLAYER_LOGIN rather than
--- treating the silence as an empty field guide. Version 1 is the first contract.
+-- treating the silence as an empty field guide. Version 1 is the first contract. SPF's type docs require every
+-- additive API change to raise `minor`; Spawns and ZoneSpawns are the minor-1 additions.
 ---@class FGPublicAPI
-local API = { version = 1 }
+local API = { version = 1, minor = 1 }
+---@class FGSpawn
+---@field speciesID integer
+---@field name string
+---@field rare boolean
+---@field catalogued boolean
+---@field minLevel integer
+---@field maxLevel integer
+---@field map integer
+---@field x number
+---@field y number
+local spawnCache
 local FIRST_METRICS = {
 	first_sighting = true,
 	first_kill = true,
@@ -18,6 +30,153 @@ local FIRST_METRICS = {
 ---@return boolean
 local function Ready()
 	return ns.ready == true
+end
+
+---@param source any
+---@return table?
+local function ReadSupportTable(source)
+	local chunk = type(source) == "string" and loadstring(source)
+	if not chunk then
+		return nil
+	end
+	setfenv(chunk, {})
+	local ok, value = pcall(chunk)
+	return ok and type(value) == "table" and value or nil
+end
+
+-- QuestieDB stores AreaTable IDs and 0–100 coordinates. Resolve them only through its own ZoneDB tables; an
+-- unknown mapping is omitted instead of drawing the creature on a guessed map.
+---@return table<integer, FGSpawn[]>?
+local function BuildSpawnCache()
+	local lib = rawget(_G, "LibQuestieDB")
+	if
+		type(lib) ~= "table"
+		or type(lib.RequireContract) ~= "function"
+		or type(lib.Support) ~= "table"
+		or type(lib.Support.Get) ~= "function"
+	then
+		return nil
+	end
+	local ok, contract = pcall(lib.RequireContract, 2)
+	if not ok or not contract then
+		return nil
+	end
+	local got, zoneDb = pcall(lib.Support.Get, "ZoneDB")
+	local private = got and type(zoneDb) == "table" and zoneDb.private
+	local area = private and ReadSupportTable(private.areaIdToUiMapId)
+	local override = private and ReadSupportTable(private.areaIdToUiMapIdOverride)
+	if not area or not override then
+		return nil
+	end
+	local bySpecies, byZone = {}, {}
+	for speciesId, species in pairs(ns.SpeciesById or {}) do
+		local rows = {}
+		local progress = ns.Model.Specimen(ns.GetCharacterState(false), speciesId)
+		for areaId, points in pairs(species.spawns or {}) do
+			local numericAreaId = tonumber(areaId)
+			local map = override[numericAreaId] or area[numericAreaId]
+			if type(map) == "number" and type(points) == "table" then
+				for _, point in pairs(points) do
+					local x = type(point) == "table" and point[1]
+					local y = type(point) == "table" and point[2]
+					if type(x) == "number" and type(y) == "number" then
+						x, y = x / 100, y / 100
+						if x >= 0 and x <= 1 and y >= 0 and y <= 1 then
+							local row = {
+								speciesID = speciesId,
+								name = species.name,
+								rare = species.rare == true,
+								catalogued = progress.count > 0,
+								minLevel = species.minLevel,
+								maxLevel = species.maxLevel,
+								map = map,
+								x = x,
+								y = y,
+							}
+							rows[#rows + 1] = row
+							if numericAreaId then
+								byZone[numericAreaId] = byZone[numericAreaId] or {}
+								byZone[numericAreaId][#byZone[numericAreaId] + 1] = row
+							end
+						end
+					end
+				end
+			end
+		end
+		bySpecies[speciesId] = rows
+	end
+	return { species = bySpecies, zones = byZone }
+end
+
+---@param rows FGSpawn[]
+---@return FGSpawn[]
+local function CopySpawns(rows)
+	local copy = {}
+	local progressBySpecies = {}
+	for i, row in ipairs(rows) do
+		local progress = progressBySpecies[row.speciesID]
+		if not progress then
+			progress = ns.Model.Specimen(ns.GetCharacterState(false), row.speciesID)
+			progressBySpecies[row.speciesID] = progress
+		end
+		copy[i] = {
+			speciesID = row.speciesID,
+			name = row.name,
+			rare = row.rare,
+			catalogued = progress.count > 0,
+			minLevel = row.minLevel,
+			maxLevel = row.maxLevel,
+			map = row.map,
+			x = row.x,
+			y = row.y,
+		}
+	end
+	return copy
+end
+
+local function SpawnsReady()
+	if not Ready() or ns.catalogueStatus ~= "ok" then
+		return false
+	end
+	if not spawnCache then
+		spawnCache = BuildSpawnCache()
+	end
+	return spawnCache ~= nil
+end
+
+---@param speciesId integer
+---@return FGSpawn[]?
+function API.Spawns(speciesId)
+	if not SpawnsReady() or type(speciesId) ~= "number" or speciesId % 1 ~= 0 then
+		return nil
+	end
+	local species = ns.SpeciesById[speciesId]
+	if not species then
+		return nil
+	end
+	return CopySpawns(spawnCache.species[speciesId] or {})
+end
+
+---@param zoneName? string
+---@return FGSpawn[]?
+function API.ZoneSpawns(zoneName)
+	if not SpawnsReady() then
+		return nil
+	end
+	local zone
+	if zoneName ~= nil then
+		zone = ns.FindZone(zoneName)
+	else
+		zone = ns.CurrentZone()
+	end
+	if not zone then
+		return nil
+	end
+	local rows = {}
+	for _, row in ipairs(spawnCache.zones[zone.id] or {}) do
+		rows[#rows + 1] = row
+	end
+	return CopySpawns(rows)
 end
 
 ---@return boolean
