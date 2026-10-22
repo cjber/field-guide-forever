@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Extract a disposable screenshot fixture from a hash-pinned QuestieDB Forever release."""
 
 from __future__ import annotations
