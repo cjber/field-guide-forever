@@ -28,6 +28,12 @@ frame, when two controls overlap or sit closer than 8 units apart, or when the r
 manifest says it is. A layout bug is fixed in the renderer's shared constants (and in `UI/Window.lua` if the addon
 agrees), then re-rendered; never by editing a PNG.
 
+Before handing off any README or mockup change, open every screenshot the README references and inspect the rendered
+images directly at full resolution, and step through the frames of `docs/screenshots/demo.gif`. Check for overlapping text or controls,
+widgets or markers clipped at a frame or card edge, content drawn outside its panel, misaligned rows, and truncated
+labels. A green `tools/check_screenshots.py` and `tools/visual_audit.py` prove freshness and geometry only; they do not prove the
+picture looks right, so a visual defect found by eye is fixed in the renderer and re-rendered.
+
 ## Layout and data sources
 
 - `FieldGuideForever.toc` is the client's runtime file list and load order.
