@@ -1,0 +1,4 @@
+ruleDirs:
+  - .sift/rules
+testConfigs:
+  - testDir: .sift/rule-tests

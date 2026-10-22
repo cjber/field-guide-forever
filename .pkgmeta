@@ -2,7 +2,6 @@ package-as: FieldGuideForever
 
 ignore:
   - .agents
-  - .sift
   - .editorconfig
   - .github
   - .gitattributes
@@ -10,6 +9,7 @@ ignore:
   - .luacheckrc
   - .luarc.json
   - .styluaignore
+  - .sift
   - AGENTS.md
   - CHANGELOG.md
   - docs

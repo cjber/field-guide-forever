@@ -6,7 +6,8 @@ description: "Project profile for sift in Field Guide Forever: the exact quality
 # sift project profile: Field Guide Forever
 
 Field Guide Forever is a World of Warcraft: Forever addon (Interface 16001) kept as a cosmetic field journal of
-the creatures a character has met. It runs inside the game's Lua 5.1 sandbox; there is no `require`: the client
+the creatures a character has met. The creature catalogue is read at runtime from the player's QuestieDB Forever;
+never add hand-written or vendored creature names, levels, ranks or placements. It runs inside the game's Lua 5.1 sandbox; there is no `require`: the client
 loads the files `FieldGuideForever.toc` lists, in that order, and each file receives `local addonName, ns = ...`.
 It ships as a zip built by the BigWigs packager (`.pkgmeta`) on a `v*` tag.
 
@@ -50,12 +51,17 @@ The screenshots are renders from `tools/mockups.py` (wowmock, the client's own a
 - `UNIT_DIED` combat-log handler and the progress callback: the kill path writes tables only; the UI refresh runs on
   the next frame.
 - The public `FieldGuideForever` API table (`Core/API.lua`) is the companion-addon contract, versioned.
+- `Integrations/QuestieDB.lua` is the only runtime reader of shared creature data; it reports `ok`, `missing`,
+  `unsupported` or `loading` and never builds the index inside a call.
+- `Core/LegacyIds.lua` migrates v1 synthetic ids by exact name and must be removed in the release after schema 2.
+- Personal progress (counts, rare confirmations, shinies) lives in SavedVariables; shared rarity classification
+  depends only on the NPC id and catalogue fields, never on progress.
 
 ## Zones
 
 | Path | Zone | Reason |
 |---|---|---|
-| `Data/Creatures.lua` | data | hand-curated catalogue; ids are stable and never renumbered |
+| `Data/Client.lua` | data | generated client constants from pinned wago.tools DB2; never hand-edited |
 | `Locales/enUS.lua` | data | every player-visible phrase, keyed by the English text |
 | `tools/` | script | mock renderer, screenshot and layout checks, CI helpers; not shipped |
 | `tests/` | test | headless LuaJIT harness |
