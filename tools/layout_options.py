@@ -627,7 +627,8 @@ def main():
         # Quantising is deterministic, so a second run is byte-identical, which is what makes these diffable.
         scene = wowmock.scene(ui, [(canvas, 0, 0)])
         rgb = getattr(scene, "image", scene).convert("RGB")
-        rgb.quantize(colors=256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(OUT / name, optimize=True)
+        palette = rgb.quantize(colors=256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+        palette.save(OUT / name, optimize=True)
         print(f"  {name}")
 
     save(mk.window(ui, badlands, golem, "CREATURES", icons, sigil), "current.png")
