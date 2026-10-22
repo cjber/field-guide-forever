@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+### Added
+
+- `tools/layout_options.py` and `docs/screenshots/options/`: design mockups of the four Field Guide window shapes under consideration - the shipping paper tabs, an external square-tab spine on each edge, a World Map sidecar drawer, and a LEGACY sub-panel - all rendered from the real catalogue and client art.
+
 ## [0.2.2] - 2026-10-22
 
 ### Changed
