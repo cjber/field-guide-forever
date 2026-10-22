@@ -5,10 +5,12 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-22
+
 ### Fixed
 
-- Resolve creature icons and displayed types from generated NPC metadata instead of QuestieDB's NPC-title field; unmapped NPCs use a neutral creature icon.
-- Keep addon and README mock icon resolution aligned with the pinned Classic-DB fallback data.
+- Creature icons and displayed types now come from generated NPC metadata instead of QuestieDB's NPC-title field, so entries no longer show a placeholder glyph; unmapped NPCs use a neutral creature icon.
+- The addon and the README mock art resolve creature icons through the same generated data and agree on the fallback.
 
 ## [0.2.0] - 2026-10-21
 
