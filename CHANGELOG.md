@@ -5,6 +5,12 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-23
+
+### Changed
+
+- Client constants now track the newest Forever build, 1.60.1.70532, so the daily data refresh and the pinned generator check agree again.
+
 ## [0.3.0] - 2026-10-22
 
 ### Added
