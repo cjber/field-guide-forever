@@ -13,7 +13,7 @@ OUT = ROOT / "Data" / "Client.lua"
 CREATURE_OUT = ROOT / "Data" / "CreatureIcons.lua"
 with tempfile.TemporaryDirectory(prefix="field-guide-data-") as temp:
     generated = Path(temp) / "Client.lua"
-    command = [sys.executable, "tools/gen_zones.py", "--build", "1.60.1.70450", "--offline", "--output", str(generated)]
+    command = [sys.executable, "tools/gen_zones.py", "--build", "1.60.1.70532", "--offline", "--output", str(generated)]
     subprocess.run(command, cwd=ROOT, check=True)
     expected = generated.read_bytes()
     subprocess.run(command, cwd=ROOT, check=True)
