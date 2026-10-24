@@ -1,0 +1,30 @@
+name: PR permission probe
+on:
+  push:
+    branches: ["probe-pr-permission"]
+permissions: {}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Try to open a pull request with the workflow token
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "probe-bot"
+          git config user.email "probe@example.invalid"
+          git checkout -b automation/pr-permission-probe
+          date -u > .pr-permission-probe.txt
+          git add .pr-permission-probe.txt
+          git commit -m "probe: touch a file"
+          git push origin automation/pr-permission-probe
+          if gh pr create --base main --head automation/pr-permission-probe --title "probe: PR permission check" --body "Automated probe of the Actions PR permission. Safe to close."; then
+            echo "PROBE_RESULT=can-create-pr"
+          else
+            echo "PROBE_RESULT=cannot-create-pr"
+            exit 1
+          fi
