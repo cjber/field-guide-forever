@@ -47,3 +47,40 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ needs.refresh.outputs.branch }}
         run: gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH"
+
+  # One open "Data refresh failed" issue: a scheduled run that fails again when retry-refresh.yml re-runs it
+  # opens it or adds to it, and the next run that passes closes it. The first attempt stays quiet because
+  # retry-refresh.yml re-runs it first. ci is skipped when the refresh never opened a PR, so this job reads
+  # both results explicitly instead of relying on the default needs rule.
+  report:
+    needs: [refresh, ci]
+    if: always() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: Data refresh failed
+          FAILED: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          issue=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$TITLE\"" \
+            --json number,title --jq "[.[] | select(.title == \"$TITLE\")][0].number // empty")
+          if [ "$FAILED" = true ] && [ "$RUN_ATTEMPT" = 1 ]; then
+            echo "retry-refresh.yml re-runs this once; only a failed re-run is reported"
+          elif [ "$FAILED" = true ]; then
+            body="The scheduled data refresh failed: $RUN_URL
+
+          If the client build moved but the refresh could not open its PR, this repository is missing the Actions permission that lets a workflow create a pull request, so the bundled client data in Data/Client.lua and the refresh branch stay as they were and the bundled data may be behind the client players run. Creating the PR needs the repository setting enabled by the owner; no workflow change can grant it.
+
+          Read the error in that run for anything else. The next scheduled run that passes closes this issue."
+            if [ -n "$issue" ]; then
+              gh issue comment "$issue" --repo "$GITHUB_REPOSITORY" --body "Failed again: $RUN_URL"
+            else
+              gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$body" --assignee "$GITHUB_REPOSITORY_OWNER"
+            fi
+          elif [ -n "$issue" ]; then
+            gh issue close "$issue" --repo "$GITHUB_REPOSITORY" --comment "The refresh passed again: $RUN_URL"
+          fi
