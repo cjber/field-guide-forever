@@ -56,7 +56,7 @@ class MockZone(TypedDict):
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "screenshots"
-MICRO_MENU_RENDER = ROOT.parent / "forever-core/docs/handoff/micro-menu-buttons/render.py"
+MICRO_MENU_RENDER = ROOT / "tools" / "micro_menu_render.py"
 
 
 def render_micro_menu_scenes():

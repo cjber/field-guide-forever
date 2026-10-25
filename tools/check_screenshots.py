@@ -40,7 +40,7 @@ SOURCES = (
     "tools/mockups.py",
     "tools/rarity.py",
     "tools/wowmock/wowmock.py",
-    "../forever-core/docs/handoff/micro-menu-buttons/render.py",
+    "tools/micro_menu_render.py",
 )
 RARITY_GEOMETRY = {
     "HEALTH_WINDOW": (32, 26, 143, 49),
