@@ -1,9 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent / "wowmock"))
-import wowmock as W
-from PIL import Image
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import wowmock.wowmock as W  # noqa: E402
+from PIL import Image  # ty: ignore[unresolved-import]  # Pillow is local only, like wowmock
 
 BUILD = "1.60.1.70532"
 ui = W.Ui(scale=2, build=BUILD)
@@ -72,10 +72,9 @@ def row(ui, w, h, buttons, hover_index=None, tooltip_lines=None, tooltip_side="l
             micro_button(canvas, xs[i], bottom - BTN_H, b[1], hover=hov)
         else:
             custom_button(canvas, xs[i], bottom - BTN_H, b[1], hover=hov)
-    if tooltip_lines:
+    if tooltip_lines and hover_index is not None:
         tip = W.tooltip(ui, tooltip_lines)
-        i = hover_index
-        tx = xs[i] + BTN_W / 2 - tip.width / 2
+        tx = xs[hover_index] + BTN_W / 2 - tip.width / 2
         ty = bottom - BTN_H - 8 - tip.height
         canvas.paste(tip, min(max(4, tx), w - 4 - tip.width), max(4, ty))
     return canvas
