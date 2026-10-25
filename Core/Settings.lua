@@ -10,13 +10,16 @@ ns.Settings = SettingsPanel
 ---@param y number
 ---@param get fun(): boolean
 ---@param set fun(checked: boolean)
-local function CheckButton(panel, text, y, get, set)
+local function CheckButton(panel, text, y, get, set, tooltip)
 	local check = CreateFrame("CheckButton", nil, panel, "InterfaceOptionsCheckButtonTemplate")
 	check:SetPoint("TOPLEFT", 16, y)
 	check:SetChecked(get() == true)
 	local label = check:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	label:SetPoint("LEFT", check, "RIGHT", 4, 0)
 	label:SetText(text)
+	if tooltip then
+		check.tooltipText = tooltip
+	end
 	check:SetScript("OnClick", function(self)
 		set(self:GetChecked() == true)
 		if ns.FireProgress then
@@ -61,6 +64,21 @@ local function BuildPanel()
 		end
 	end)
 
+	CheckButton(panel, L["Show the Field Guide micro menu button"], -144, function()
+		return ns.db and ns.db.options.microButton ~= false
+	end, function(checked)
+		if ns.db then
+			ns.db.options.microButton = checked
+		end
+		if ns.MicroButton then
+			ns.MicroButton.Refresh()
+		end
+	end, L["Adds a Field Guide button to the micro menu bar."])
+
+	local bindingNote = panel:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+	bindingNote:SetPoint("TOPLEFT", 36, -178)
+	bindingNote:SetText(L["Both buttons can also be bound in Key Bindings > AddOns."])
+
 	return panel
 end
 
@@ -81,4 +99,20 @@ end
 
 ns.On("PLAYER_LOGIN", function()
 	ns.SafeCall("settings", SettingsPanel.Register)
+	ns.SafeCall("micro button", function()
+		ns.MicroButton.Create({
+			name = "FieldGuideForeverMicroButton",
+			atlas = "Questlog",
+			icon = "Interface\\Icons\\inv_misc_book_09",
+			title = L["Field Guide"],
+			binding = "Shift-F",
+			subtext = L["Click to browse the field compendium"],
+			slot = "beforeGameMenu",
+			host = ns,
+			getShown = function()
+				return ns.db and ns.db.options.microButton ~= false
+			end,
+			onClick = ns.OpenGuide,
+		})
+	end)
 end)

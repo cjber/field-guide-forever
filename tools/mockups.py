@@ -14,8 +14,10 @@ Deterministic: the specimen counts come from the species id, so a second run is 
 import csv
 import json
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any, NotRequired, TypedDict
 
@@ -54,6 +56,15 @@ class MockZone(TypedDict):
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "screenshots"
+MICRO_MENU_RENDER = ROOT.parent / "forever-core/docs/handoff/micro-menu-buttons/render.py"
+
+
+def render_micro_menu_scenes():
+    with tempfile.TemporaryDirectory(prefix="field-guide-micro-menu-") as directory:
+        subprocess.run([sys.executable, str(MICRO_MENU_RENDER)], cwd=directory, check=True)
+        for scene in ("micro-menu-field-guide.png", "micro-menu-options.png"):
+            shutil.copy2(Path(directory) / scene, OUT / scene)
+
 
 # UI/Art.lua's palette, as wowmock colour tuples.
 GOLD = wowmock.rgb("e0b540")
@@ -1067,6 +1078,7 @@ def main():
         "QuestieDB Forever is required for creature data",
         ["Install Questie or standalone QuestieDB", "Restart the client or type /reload"],
     ).save(OUT / "missing-questiedb.png")
+    render_micro_menu_scenes()
 
     def write_readme_gallery():
         features = [
@@ -1078,6 +1090,8 @@ def main():
             ("search-filter.png", "Search and status filter"),
             ("tracking.png", "Tracked species"),
             ("settings.png", "Options panel"),
+            ("micro-menu-field-guide.png", "Field Guide micro menu button"),
+            ("micro-menu-options.png", "Micro menu button settings"),
             ("sighting-log.png", "Session sighting log"),
             ("rarity-target.png", "Target frame rarity"),
             ("rarity-nameplates.png", "Nameplate rarity"),

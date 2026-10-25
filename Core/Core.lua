@@ -240,6 +240,9 @@ function ns.Initialize()
 	if db.options.statsShare == nil then
 		db.options.statsShare = true
 	end
+	if db.options.microButton == nil then
+		db.options.microButton = true
+	end
 	ns.db = db
 	ns.ready = true
 	ns.GetCharacterState(true)
@@ -439,6 +442,13 @@ end)
 ns.On("ENCOUNTER_END", OnEncounterEnd)
 ns.On("ENCOUNTER_START", OnEncounterStart)
 
+local function OpenGuide()
+	if ns.Window and ns.Window.Toggle then
+		ns.SafeCall("open guide", ns.Window.Toggle)
+	end
+end
+ns.OpenGuide = OpenGuide
+
 SLASH_FIELDGUIDEFOREVER1 = "/fieldguide"
 SLASH_FIELDGUIDEFOREVER2 = "/fg"
 SLASH_FIELDGUIDEFOREVER3 = "/fgf"
@@ -462,7 +472,5 @@ SlashCmdList["FIELDGUIDEFOREVER"] = function(message)
 		end
 		return
 	end
-	if ns.Window and ns.Window.Toggle then
-		ns.SafeCall("slash", ns.Window.Toggle)
-	end
+	OpenGuide()
 end

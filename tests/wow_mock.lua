@@ -141,6 +141,24 @@ function methods:CreateTexture(name, layer)
 	return NewRegion("Texture", name, self, layer)
 end
 
+function methods:SetNormalAtlas(atlas)
+	self.normalAtlas = atlas
+end
+
+function methods:SetPushedAtlas(atlas)
+	self.pushedAtlas = atlas
+end
+
+function methods:SetDisabledAtlas(atlas)
+	self.disabledAtlas = atlas
+end
+
+function methods:SetHighlightAtlas(atlas)
+	self.highlightAtlas = atlas
+end
+
+function methods.Layout() end
+
 function methods:CreateMaskTexture()
 	return NewRegion("MaskTexture", nil, self)
 end
@@ -573,17 +591,55 @@ function Mock.Harness(opts)
 		SlashCmdList = {},
 		InterfaceOptions_AddCategory = function() end,
 	}, { __index = _G })
+	env._G = env
 
 	env._G = env
 	env.CreateFrame = function(kind, name, parent, template)
 		local created = Mock.CreateFrame(kind, name, parent, template)
+		created.template = template
+		if template == "MainMenuBarMicroButton" then
+			created.alert = {
+				Hide = function(self)
+					self.hidden = true
+				end,
+			}
+		end
 		if name then
 			env[name] = created
 		end
 		return created
 	end
 	env.UIParent = env.CreateFrame("Frame", "UIParent")
+	env.DEFAULT_CHAT_FRAME = { AddMessage = function() end }
 	env.GameTooltip = env.CreateFrame("Frame", "GameTooltip")
+	env.GameTooltip.SetOwner = function() end
+	env.GameTooltip.SetText = function() end
+	env.GameTooltip.AddLine = function() end
+	env.GameTooltip.Show = function() end
+	env.GameTooltip_Hide = function() end
+	env.NORMAL_FONT_COLOR = {
+		GetRGB = function()
+			return 1, 0.82, 0
+		end,
+	}
+	env.GRAY_FONT_COLOR = {
+		GetRGB = function()
+			return 0.5, 0.5, 0.5
+		end,
+	}
+	env.MicroMenu = env.CreateFrame("Frame", "MicroMenu")
+	env.MainMenuMicroButton = env.CreateFrame("Button", "MainMenuMicroButton", env.MicroMenu)
+	env.CollectionsMicroButton = env.CreateFrame("Button", "CollectionsMicroButton", env.MicroMenu)
+	env.AdventureGuideMicroButton = env.CreateFrame("Button", "AdventureGuideMicroButton", env.MicroMenu)
+	env.UpdateMicroButtons = function() end
+	env.hooksecurefunc = function(name, callback)
+		local original = env[name]
+		env[name] = function(...)
+			local result = { original(...) }
+			callback(...)
+			return unpack(result)
+		end
+	end
 
 	local ns = opts.ns or {}
 	local root = Mock.Root()
