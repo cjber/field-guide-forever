@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+### Added
+
+- Add a configurable Field Guide button to the micro menu, with the Shift-F binding.
+
 ## [0.3.1] - 2026-10-23
 
 ### Changed

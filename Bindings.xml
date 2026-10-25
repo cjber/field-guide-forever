@@ -1,0 +1,3 @@
+<Bindings>
+	<Binding name="CLICK FieldGuideForeverMicroButton:LeftButton" header="BINDING_HEADER_FIELDGUIDEFOREVER" default="SHIFT-F" category="ADDONS"/>
+</Bindings>

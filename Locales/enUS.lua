@@ -5,6 +5,12 @@ local _, ns = ...
 -- untranslated phrase readable instead of blank.
 ---@type table<string, string>
 local L = {
+	MICRO_MENU_UNAVAILABLE = "Micro menu unavailable; skipping custom button.",
+	["Show the Field Guide micro menu button"] = "Show the Field Guide micro menu button",
+	["Adds a Field Guide button to the micro menu bar."] = "Adds a Field Guide button to the micro menu bar.",
+	["Both buttons can also be bound in Key Bindings > AddOns."] = "Both buttons can also be bound in Key Bindings > AddOns.",
+	["Field Guide"] = "Field Guide",
+	["Click to browse the field compendium"] = "Click to browse the field compendium",
 	["Field Guide Forever"] = "Field Guide Forever",
 	["Field Guide Forever options"] = "Field Guide Forever options",
 	["FIELD GUIDE"] = "FIELD GUIDE",
@@ -125,6 +131,9 @@ local L = {
 	["Tirisfal Glades"] = "Tirisfal Glades",
 	["Silverpine Forest"] = "Silverpine Forest",
 }
+
+_G.BINDING_HEADER_FIELDGUIDEFOREVER = "Field Guide Forever"
+_G["BINDING_NAME_CLICK FieldGuideForeverMicroButton:LeftButton"] = "Open Field Guide"
 
 ns.L = setmetatable(L, {
 	__index = function(_, key)

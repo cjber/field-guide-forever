@@ -11,10 +11,12 @@
 ## OptionalDeps: QuestieDB, Questie
 
 Locales\enUS.lua
+Bindings.xml
 Data\Client.lua
 Data\CreatureIcons.lua
 Integrations\QuestieDB.lua
 Core\SafeCall.lua
+Core\MicroButton.lua
 Core\Model.lua
 Core\LegacyIds.lua
 Core\Core.lua
