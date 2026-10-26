@@ -158,59 +158,6 @@ local function BuildBreadcrumb(parent)
 	Window.breadcrumb = breadcrumb
 end
 
-local zoneMenu
----@param parent Frame
-local function BuildZoneMenu(parent)
-	zoneMenu = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-	zoneMenu:SetSize(260, #(ns.Zones or {}) * 22 + 8)
-	zoneMenu:SetPoint("TOPLEFT", 24, -67)
-	Art.Card(zoneMenu, "background", 0.98)
-	zoneMenu:Hide()
-	local scroll = 4
-	for index, zone in ipairs(ns.Zones or {}) do
-		local button = CreateFrame("Button", nil, zoneMenu)
-		button:SetPoint("TOPLEFT", 4, -scroll)
-		button:SetSize(252, 20)
-		local text = Art.Text(button, "GameFontHighlightSmall", "text")
-		text:SetPoint("LEFT", 6, 0)
-		text:SetText(string.format(L["%s · %s"], L[zone.continent], L[zone.name]))
-		button:SetScript("OnClick", function()
-			Window.SelectZone(index)
-		end)
-		scroll = scroll + 22
-	end
-end
-
-function Window.RebuildZoneMenu()
-	if zoneMenu then
-		zoneMenu:Hide()
-	end
-	if Window.frame then
-		BuildZoneMenu(Window.frame)
-	end
-end
-
-local filterMenu
----@param parent Frame
-local function BuildFilterMenu(parent)
-	filterMenu = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-	filterMenu:SetSize(170, #filters * 22 + 8)
-	filterMenu:SetPoint("TOPLEFT", 288, -93)
-	Art.Card(filterMenu, "background", 0.98)
-	filterMenu:Hide()
-	for index, info in ipairs(filters) do
-		local button = CreateFrame("Button", nil, filterMenu)
-		button:SetPoint("TOPLEFT", 4, -4 - (index - 1) * 22)
-		button:SetSize(162, 20)
-		local text = Art.Text(button, "GameFontHighlightSmall", "text")
-		text:SetPoint("LEFT", 6, 0)
-		text:SetText(L[info.text])
-		button:SetScript("OnClick", function()
-			Window.SetFilter(info.key)
-		end)
-	end
-end
-
 ---@param parent Frame
 local function BuildBottom(parent)
 	local bar = CreateFrame("Frame", nil, parent, "BackdropTemplate")
@@ -437,9 +384,6 @@ end
 ---@param key string
 function Window.SetFilter(key)
 	filter = key
-	if filterMenu then
-		filterMenu:Hide()
-	end
 	Window.Refresh()
 end
 
@@ -447,9 +391,6 @@ end
 function Window.SelectZone(index)
 	zoneIndex = index
 	selectedId = nil
-	if zoneMenu then
-		zoneMenu:Hide()
-	end
 	Window.Refresh()
 end
 
@@ -474,23 +415,38 @@ function Window.ToggleTrack()
 end
 
 function Window.ToggleZoneMenu()
-	if not frame then
+	if not frame or not Window.breadcrumb then
 		return
 	end
-	if not zoneMenu then
-		BuildZoneMenu(frame)
-	end
-	zoneMenu:SetShown(not zoneMenu:IsShown())
+	MenuUtil.CreateContextMenu(Window.breadcrumb, function(_, root)
+		root:CreateTitle(L["Choose a zone"])
+		for index, zone in ipairs(ns.Zones or {}) do
+			local zoneIndexAtBuild = index
+			local label = string.format(L["%s · %s"], L[zone.continent], L[zone.name])
+			root:CreateRadio(label, function()
+				return zoneIndex == zoneIndexAtBuild
+			end, function()
+				Window.SelectZone(zoneIndexAtBuild)
+			end)
+		end
+	end)
 end
 
 function Window.ToggleFilterMenu()
-	if not frame then
+	if not frame or not Window.filterButton then
 		return
 	end
-	if not filterMenu then
-		BuildFilterMenu(frame)
-	end
-	filterMenu:SetShown(not filterMenu:IsShown())
+	MenuUtil.CreateContextMenu(Window.filterButton, function(_, root)
+		root:CreateTitle(L["Filter species"])
+		for _, info in ipairs(filters) do
+			local key = info.key
+			root:CreateRadio(L[info.text], function()
+				return filter == key
+			end, function()
+				Window.SetFilter(key)
+			end)
+		end
+	end)
 end
 
 function Window.FollowPlayerZone()

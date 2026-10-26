@@ -51,6 +51,7 @@ read_globals = {
 	"GetZoneText",
 	"InCombatLockdown",
 	"InterfaceOptions_AddCategory",
+	"MenuUtil",
 	"Settings",
 	"UIParent",
 	"UISpecialFrames",

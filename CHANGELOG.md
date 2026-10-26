@@ -5,6 +5,19 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+### Fixed
+
+- **The cosmetic-rewards status column no longer collides with the locked marker.** `Locked · Mastered` is wider than
+  the 86-unit status box it was given, so the right-justified text overflowed into the `—` marker beside it; the label,
+  marker and status boxes now share the card's width with an 8-unit gutter each. The README mock's "Filter species"
+  dropdown also draws an opaque surface under `common-dropdown-bg`, whose atlas centre is translucent and let the
+  creature list show through the menu rows.
+
+### Changed
+
+- **Use Blizzard context menus for zone and filter choices.** The journal's custom rectangular panels are replaced by
+  `MenuUtil` radio menus, and the filter preview now shows the client's dropdown artwork instead of a made-up modal.
+
 ## [0.3.5] - 2026-10-26
 
 ### Changed

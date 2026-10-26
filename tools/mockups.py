@@ -26,6 +26,10 @@ import wowmock.wowmock as wowmock  # noqa: E402
 from wowmock.wowmock import (  # noqa: E402
     FONTS,
     INSET_FRAME_LAYOUT,
+    MenuCheckbox,
+    MenuTitle,
+    basic_panel,
+    context_menu,
     draw_nine_slice,
     minimal_scrollbar,
     portrait_frame_art,
@@ -859,11 +863,11 @@ def window(ui, zone, species, tab, icons, sigil):
         col_right = rx + 14 + (482 if column else 234)
         ly = ry + 370 + row_index * 20
         unlocked = rank >= reward_index + 1
-        text(canvas, col_x, ly, label, "GameFontDisableSmall", TEXT if unlocked else MUTED, width=120)
+        text(canvas, col_x, ly, label, "GameFontDisableSmall", TEXT if unlocked else MUTED, width=104)
         if unlocked:
-            canvas.draw(ui.atlas("common-icon-checkmark"), col_x + 126, ly, 12, 12, GREEN)
+            canvas.draw(ui.atlas("common-icon-checkmark"), col_x + 112, ly, 12, 12, GREEN)
         else:
-            text(canvas, col_x + 126, ly, "—", "GameFontNormal", MUTED, width=12)
+            text(canvas, col_x + 112, ly, "—", "GameFontNormal", MUTED, width=12)
         right(
             canvas,
             col_right,
@@ -871,7 +875,7 @@ def window(ui, zone, species, tab, icons, sigil):
             "UNLOCKED" if unlocked else f"Locked · {tier}",
             "GameFontDisableSmall",
             GREEN if unlocked else MUTED,
-            width=86,
+            width=92,
         )
 
     # Your records: no synthetic records are shown unless the mock models the actual Lua session log.
@@ -1047,21 +1051,35 @@ def main():
         canvas.image = base.image.copy()
         veil = Image.new("RGBA", (canvas.image.size[0], 26 + BAR_Y), (0, 0, 0, 150))
         canvas.composite(veil, 0, 0)
-        card(canvas, 205, 185, 602, 400)
-        text(canvas, 240, 220, title, "GameFontNormalLarge", GOLD)
-        text(canvas, 240, 257, subtitle, "GameFontDisableSmall", MUTED)
+        dialog, _, _ = basic_panel(ui, title, 602, 400)
+        dialog_x = (canvas.image.width - dialog.image.width) // 2
+        dialog_y = (canvas.image.height - dialog.image.height) // 2
+        canvas.composite(dialog.image, dialog_x, dialog_y)
+        content_x, content_y = 250, 238
+        text(canvas, content_x, content_y, subtitle, "GameFontDisableSmall", MUTED)
         for index, line in enumerate(lines):
-            y = 305 + index * 42
-            canvas.draw(ui.atlas("common-icon-checkmark"), 242, y, 20, 20, GREEN)
-            text(canvas, 276, y + 1, line, "GameFontNormal", TEXT)
+            y = content_y + 38 + index * 34
+            canvas.draw(ui.atlas("common-icon-checkmark"), content_x, y + 3, 16, 16, GREEN)
+            text(canvas, content_x + 28, y, line, "GameFontNormal", TEXT)
         return canvas
 
-    feature_overlay(
-        render(search_zone, search_species),
-        "Search and status filters",
-        f'Query: "{search_species["name"][:20]}" · Filter: Rare',
-        [search_species["name"], "Matching species only", "Clear search to restore the list"],
-    ).save(OUT / "search-filter.png")
+    # Show the native filter menu on the same all-species state as the All label and visible list.
+    filtered = render(badlands, siege_golem)
+    filter_menu, _ = context_menu(
+        ui,
+        [
+            MenuTitle("Filter species"),
+            MenuCheckbox("All", True),
+            MenuCheckbox("Discovered", False),
+            MenuCheckbox("Undiscovered", False),
+            MenuCheckbox("Mastered", False),
+            MenuCheckbox("Rare species", False),
+            MenuCheckbox("Shiny seen", False),
+        ],
+    )
+    # `scene()` adds 24 UI units of margin around the window; open the menu just below the filter button.
+    filtered.composite(filter_menu.image, filtered.px(312), filtered.px(110))
+    filtered.save(OUT / "search-filter.png")
     feature_overlay(
         render(search_zone, prowler),
         "Tracked species",
