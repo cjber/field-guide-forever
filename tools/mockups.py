@@ -863,11 +863,11 @@ def window(ui, zone, species, tab, icons, sigil):
         col_right = rx + 14 + (482 if column else 234)
         ly = ry + 370 + row_index * 20
         unlocked = rank >= reward_index + 1
-        text(canvas, col_x, ly, label, "GameFontDisableSmall", TEXT if unlocked else MUTED, width=120)
+        text(canvas, col_x, ly, label, "GameFontDisableSmall", TEXT if unlocked else MUTED, width=104)
         if unlocked:
-            canvas.draw(ui.atlas("common-icon-checkmark"), col_x + 126, ly, 12, 12, GREEN)
+            canvas.draw(ui.atlas("common-icon-checkmark"), col_x + 112, ly, 12, 12, GREEN)
         else:
-            text(canvas, col_x + 126, ly, "—", "GameFontNormal", MUTED, width=12)
+            text(canvas, col_x + 112, ly, "—", "GameFontNormal", MUTED, width=12)
         right(
             canvas,
             col_right,
@@ -875,7 +875,7 @@ def window(ui, zone, species, tab, icons, sigil):
             "UNLOCKED" if unlocked else f"Locked · {tier}",
             "GameFontDisableSmall",
             GREEN if unlocked else MUTED,
-            width=86,
+            width=92,
         )
 
     # Your records: no synthetic records are shown unless the mock models the actual Lua session log.
