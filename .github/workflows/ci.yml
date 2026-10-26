@@ -49,6 +49,25 @@ jobs:
       # Pillow is local-only for the renderer, so tools/ carries `ty: ignore[unresolved-import]` on those imports.
       - run: uvx ty@0.0.83 check tools --extra-search-path . --extra-search-path tools
 
+  # Data/Client.lua and Data/CreatureIcons.lua are generated and hand-editing them is forbidden, so this job
+  # regenerates both in a scratch tree from the pinned sources and fails on stale, byte-unstable or unlisted output.
+  # tools/.cache starts empty on a cold runner and the generator downloads the sha256-pinned inputs itself; the
+  # cache below only saves the download on later runs, keyed by the generators that carry the pins.
+  generated-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tools/.cache
+          key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py') }}
+          restore-keys: regeneration-${{ runner.os }}-
+      - name: Regenerate the shipped data in a scratch tree
+        run: python3 tools/check_generated.py
+
   # The repository's own rules and the shared quality lenses (Agent Labs sift), on every push and pull request.
   sift:
     runs-on: ubuntu-latest
