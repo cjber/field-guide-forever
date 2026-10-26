@@ -247,9 +247,6 @@ function ns.Initialize()
 	ns.ready = true
 	ns.GetCharacterState(true)
 	ns.QuestieDB.Start(function()
-		if ns.Window and ns.Window.RebuildZoneMenu then
-			ns.Window.RebuildZoneMenu()
-		end
 		ns.FireProgress()
 	end)
 	ns.FireProgress()

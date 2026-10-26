@@ -5,6 +5,11 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+### Changed
+
+- **Use Blizzard context menus for zone and filter choices.** The journal's custom rectangular panels are replaced by
+  `MenuUtil` radio menus, and the filter preview now shows the client's dropdown artwork instead of a made-up modal.
+
 ## [0.3.5] - 2026-10-26
 
 ### Changed
