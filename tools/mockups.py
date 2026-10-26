@@ -79,13 +79,13 @@ PANEL = wowmock.rgb("212429")
 FONTS["FieldGuideTabLabel"] = wowmock.Font(
     FONTS["GameFontDisableSmall"].path, 8, FONTS["GameFontDisableSmall"].color, (1, -1)
 )
-TAB_LABELS = ("CREATURES", "RARES", "SHINY", "INSTANCES")
 TAB_ICON_PATHS = (
     "interface/icons/inv_misc_book_09.blp",
-    "interface/icons/ability_hunter_beasttaming.blp",
-    "interface/icons/inv_enchant_shardprismaticlarge.blp",
-    "interface/icons/inv_misc_coin_01.blp",
+    "interface/icons/inv_misc_spyglass_02.blp",
+    "interface/icons/inv_scroll_03.blp",
+    "interface/icons/inv_chest_chain_05.blp",
 )
+TAB_TOOLTIPS = ("CREATURES", "RARES", "SHINY", "INSTANCES")
 
 W, H = 960, 720
 # UI/Window.lua's shell geometry, and the only place these numbers live in this file: the bottom bar is 924 wide at
@@ -599,44 +599,11 @@ def note(name, role, x, y, w, h):
     widgets.append({"name": name, "role": role, "x": round(x, 1), "y": round(y, 1), "w": round(w, 1), "h": round(h, 1)})
 
 
-def square_tab(canvas, x, y, icon, label, active):
-    """Draw one 64-square bottom plate; the frame's bottom bezel closes over its 6-unit seam."""
-    face = wowmock.rgb("35332b" if active else "141619")
-    border = wowmock.rgb("e0b540" if active else "4d4a42")
-    canvas.fill(x, y, 64, 64, face)
-    canvas.fill(x + 1, y + 1, 62, 62, wowmock.rgb("1c1e21" if active else "141619"))
-    canvas.fill(x, y, 64, 1, border)
-    canvas.fill(x, y, 1, 64, border)
-    canvas.fill(x + 63, y, 1, 64, border)
-    canvas.fill(x, y + 61, 64, 3, wowmock.rgb("e0b540") if active else wowmock.rgb("141619"))
-    icon_x, icon_y = x + 12, y + 9
-    canvas.draw(canvas.ui.texture(icon), icon_x, icon_y, 40, 40)
-    canvas.draw(
-        canvas.ui.texture("interface/common/whiteiconframe.blp"),
-        icon_x,
-        icon_y,
-        40,
-        40,
-        wowmock.rgb("e0b540" if active else "b8a16b"),
-    )
-    text(
-        canvas,
-        x,
-        y + 49,
-        label,
-        "FieldGuideTabLabel",
-        wowmock.rgb("e0b540" if active else "e3d9c2"),
-        justify="CENTER",
-        width=64,
-        box_height=11,
-    )
-
-
 def window(ui, zone, species, tab, icons, sigil):
     """The journal as UI/Window.lua builds it: a real PortraitFrameTemplate (metal NineSlice, circular portrait,
     centred title, close button) around the addon's own list and detail panes at their own anchors."""
     m = 26
-    canvas = ui.canvas(W + m * 2, H + m * 2 + 58)
+    canvas = ui.canvas(W + m * 2 + 60, H + m * 2)
     # Every scene draws the same shell, so the last one's widget list is the layout.
     LAYOUT.pop("widgets", None)
 
@@ -649,13 +616,17 @@ def window(ui, zone, species, tab, icons, sigil):
     # Bg first: the template is chrome only, and the addon paints its own opaque interior.
     canvas.fill(px(6), py(22), W - 12, H - 28, wowmock.rgb("0b0c0e"))
     index = ("CREATURES", "RARES", "SHINY", "INSTANCES").index(tab)
-    tab_x, tab_y = px(24), py(H - 6)
-    note("bottom tab strip", "tabs", tab_x, tab_y, 274, 64)
-    for tab_index, label in enumerate(TAB_LABELS):
-        tab_x, tab_y = px(24 + tab_index * 70), py(H - 6)
-        square_tab(canvas, tab_x, tab_y, TAB_ICON_PATHS[tab_index], label, tab_index == index)
-        note(f"tab plate {tab_index + 1}", "tabs", tab_x, tab_y, 64, 64)
     portrait_frame_art(canvas, m, m, W, H, sigil, "FIELD GUIDE")
+    strip_x, strip_y = px(W + 3), py(28)
+    note("right tab strip", "tabs", strip_x, strip_y, 51, 60 * 4 + 3 * 3)
+    for tab_index, tooltip in enumerate(TAB_TOOLTIPS):
+        tab_x, tab_y = strip_x, strip_y + tab_index * 63
+        canvas.draw(ui.atlas("questlog-tab-side"), tab_x, tab_y, 51, 60)
+        icon_x, icon_y = tab_x + 9, tab_y + 15.5
+        canvas.draw(ui.texture(TAB_ICON_PATHS[tab_index]), icon_x, icon_y, 29, 29)
+        if tab_index == index:
+            canvas.draw(ui.atlas("QuestLog-Tab-side-Glow-select"), tab_x, tab_y, 51, 60)
+        note(f"tab plate {tab_index + 1} {tooltip.lower()}", "tabs", tab_x, tab_y, 51, 60)
     text(
         canvas,
         px(58),
@@ -668,7 +639,7 @@ def window(ui, zone, species, tab, icons, sigil):
     )
 
     if tab == "INSTANCES":
-        view_x, view_y = px(18), py(110)
+        view_x, view_y = px(18), py(104)
         text(canvas, view_x + 4, view_y + 4, "Instances", "GameFontNormalLarge", GOLD)
         text(
             canvas, view_x + 4, view_y + 26, "Boss encounters recorded on this character", "GameFontDisableSmall", MUTED
@@ -702,19 +673,19 @@ def window(ui, zone, species, tab, icons, sigil):
         return canvas
 
     breadcrumb = f"{zone['continent']} > {zone['name']}"
-    text(canvas, px(24), py(55), breadcrumb, "GameFontNormal", TEXT)
+    text(canvas, px(24), py(44), breadcrumb, "GameFontNormal", TEXT)
     canvas.draw(
         ui.atlas("common-dropdown-c-button-hover-arrow"),
         px(28) + canvas.text_width(breadcrumb, FONTS["GameFontNormal"]),
-        py(57),
+        py(46),
         12,
         5,
     )
-    search_box(canvas, px(24), py(68), 250, 24, "Search creatures")
-    note("search", "input", px(24), py(68), 250, 24)
-    ui_panel_button(canvas, px(288), py(68), 128, 24, "All")
-    note("filter", "input", px(288), py(68), 128, 24)
-    canvas.draw(ui.atlas("_UI-Frame-InnerTopTile"), px(18), py(100), W - 36, 3)
+    search_box(canvas, px(24), py(62), 250, 24, "Search creatures")
+    note("search", "input", px(24), py(62), 250, 24)
+    ui_panel_button(canvas, px(288), py(62), 128, 24, "All")
+    note("filter", "input", px(288), py(62), 128, 24)
+    canvas.draw(ui.atlas("_UI-Frame-InnerTopTile"), px(18), py(94), W - 36, 3)
 
     # Left pane: the creature list.
     catalogued = sum(1 for s in zone["species"] if progress(s)["count"])
@@ -726,11 +697,11 @@ def window(ui, zone, species, tab, icons, sigil):
     rows = rows or zone["species"]
 
     if len(rows) > 8:
-        minimal_scrollbar(canvas, px(388), py(114), 440, visible=8 / len(rows))
+        minimal_scrollbar(canvas, px(388), py(108), 440, visible=8 / len(rows))
     for row_index, row in enumerate(rows[:8]):
         state = progress(row)
         chosen = row["id"] == species["id"]
-        y = py(110 + row_index * 58)
+        y = py(104 + row_index * 58)
         canvas.fill(px(22), y, 344, 58, wowmock.rgb("2b2a24") if chosen else wowmock.rgb("212429"))
         canvas.draw(icons[row["id"]], px(28), y + 13, 32, 32)
         canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), px(28), y + 13, 32, 32, BRASS)
@@ -760,7 +731,7 @@ def window(ui, zone, species, tab, icons, sigil):
     state = progress(species)
     count = state["count"]
     rank = rank_of(count)
-    rx, ry = px(426), py(110)
+    rx, ry = px(426), py(104)
 
     # The portrait is circular: draw it on its own layer, mask that, then paste. canvas.mask multiplies the whole
     # surface's alpha, so applying it to the main canvas would erase everything outside the portrait's rect.

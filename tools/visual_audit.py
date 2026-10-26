@@ -4,13 +4,14 @@
 in the same units the addon anchors them in. This reads that manifest and the PNGs together and holds them to the
 rules a player would notice, so a layout bug cannot reach a README, a store listing or a merge:
 
-- every widget sits inside the window frame, except bottom tabs may hang 64 units below it while staying on canvas;
+- every widget sits inside the window frame, except LargeSideTabButtonTemplate plates may hang off its right edge;
 - interactive widgets (buttons, tabs, inputs) never overlap, and side-by-side buttons keep at least `MIN_GAP` units
   between them and `MIN_INSET` from their container's edge;
 - in the rendered pixels, the button art is where the manifest says it is, inside the frame - the manifest is only
   trustworthy while the renderer still matches it.
 
-The square bottom plates are intentionally 6 units apart, below `MIN_GAP`; their spacing is checked separately.
+LargeSideTabButtonTemplate plates use the Quest Log's +3 right-edge anchor and -3 stacking gap. Their gap and
+their contact with the frame are exempt from the generic spacing rule; their precise geometry is checked separately.
 
     python3 tools/visual_audit.py             # audit docs/screenshots
     python3 tools/visual_audit.py --dir DIR   # audit another render directory
@@ -96,12 +97,14 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
         x1, y1 = x0 + widget["w"], y0 + widget["h"]
         if x0 < -MIN_INSET or y0 < -MIN_INSET or x1 > canvas["width"] + MIN_INSET or y1 > canvas["height"] + MIN_INSET:
             findings.append(f"{widget['name']}: {x1 - x0:g}x{y1 - y0:g} at ({x0:g}, {y0:g}) is off the canvas")
-        is_bottom_tab = widget["role"] == "tabs" and bottom - 6 <= y0 and y1 <= bottom + 64
+        is_side_tab = widget["role"] == "tabs" and x0 >= right and x1 <= right + 54
         if (
             x0 < frame["x"] - 0.5
             or x1 > right + 0.5
-            or (y0 < frame["y"] - 0.5 or y1 > bottom + 0.5)
-            and not is_bottom_tab
+            and not is_side_tab
+            or y0 < frame["y"] - 0.5
+            or y1 > bottom + 0.5
+            and not is_side_tab
         ):
             overflow = max(
                 frame["x"] - x0,
@@ -168,22 +171,22 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
                     findings.append(f"{first['name']} and {second['name']} overlap")
     interactive = [w for w in widgets if w["role"] in INTERACTIVE]
     tab_plates = [w for w in widgets if w["role"] == "tabs" and w["name"].startswith("tab plate")]
-    tab_strip = next((w for w in widgets if w["name"] == "bottom tab strip"), None)
+    tab_strip = next((w for w in widgets if w["name"] == "right tab strip"), None)
     if tab_strip:
-        if tab_strip["w"] != 274 or tab_strip["h"] != 64:
-            findings.append("bottom tab strip must be 274x64")
-        if tab_strip["x"] - frame["x"] != 24 or tab_strip["y"] != bottom - 6:
-            findings.append("bottom tab strip must align at x=24 and tuck 6 units under the frame")
+        if tab_strip["w"] != 51 or tab_strip["h"] != 249:
+            findings.append("LargeSideTabButtonTemplate strip must be 51x249")
+        if tab_strip["x"] != right + 3 or tab_strip["y"] != frame["y"] + 28:
+            findings.append("Quest Log tabs must start at frame TOPRIGHT +3,-28")
     if tab_plates:
-        if any(tab["w"] != 64 or tab["h"] != 64 for tab in tab_plates):
-            findings.append("bottom tab plates must be 64x64")
-        ordered_tabs = sorted(tab_plates, key=lambda tab: tab["x"])
-        if ordered_tabs[0]["x"] - frame["x"] != 24:
-            findings.append("first bottom tab must align 24 units from the frame's left edge")
+        if any(tab["w"] != 51 or tab["h"] != 60 for tab in tab_plates):
+            findings.append("native side tab plates must be 51x60")
+        ordered_tabs = sorted(tab_plates, key=lambda tab: tab["y"])
+        if ordered_tabs[0]["x"] - right != 3 or ordered_tabs[0]["y"] - frame["y"] != 28:
+            findings.append("first native side tab must anchor at TOPRIGHT +3,-28")
         for first, second in zip(ordered_tabs, ordered_tabs[1:], strict=False):
-            gap = second["x"] - first["x"] - first["w"]
-            if gap != 6:
-                findings.append(f"bottom tab gap is {gap:g} units, expected 6")
+            gap = second["y"] - first["y"] - first["h"]
+            if gap != 3:
+                findings.append(f"native side tab gap is {gap:g} units, expected 3")
     for button in (w for w in widgets if w["role"] == "button"):
         expected_width = BUTTON_WIDTH.get(button["name"])
         if expected_width and button["w"] != expected_width:
@@ -200,6 +203,8 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
     for index, first in enumerate(interactive):
         for second in interactive[index + 1 :]:
             if first["role"] == second["role"] == "tabs":
+                continue
+            if first["role"] == "tabs" and second["role"] == "tabs":
                 continue
             dx = max(first["x"], second["x"]) - min(first["x"] + first["w"], second["x"] + second["w"])
             dy = max(first["y"], second["y"]) - min(first["y"] + first["h"], second["y"] + second["h"])

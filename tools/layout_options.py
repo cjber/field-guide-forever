@@ -3,7 +3,7 @@
 The shapes Cillian asked to compare, rendered from the same catalogue, icons and card content the README
 screenshots use (so an option differs in chrome and geometry only, never in data):
 
-    current          the shipping window: large square tabs docked under the bottom bezel
+    current          the shipping window: Blizzard LargeSideTabButtonTemplate tabs on the right edge
     spine-left       standalone window, square external tabs on the left edge
     spine-right      standalone window, square external tabs on the right edge
     map-drawer       sidecar drawer hung off the World Map's right edge, square tabs on its outer edge
@@ -12,8 +12,8 @@ screenshots use (so an option differs in chrome and geometry only, never in data
     python3 tools/layout_options.py
 
 Renders into docs/screenshots/options/. Development only: `.pkgmeta` keeps tools/ and docs/ out of the addon.
-Tabs are drawn before the frame so the metal edge tucks over their seam, which is what makes an external tab
-read as part of the window instead of a sticker beside it.
+The current option uses the same native quest-log tab atlases as the shipping addon. The other four renders remain
+design comparisons and intentionally keep their existing treatments.
 """
 
 import sys

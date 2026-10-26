@@ -611,6 +611,14 @@ function Mock.Harness(opts)
 	env.CreateFrame = function(kind, name, parent, template)
 		local created = Mock.CreateFrame(kind, name, parent, template)
 		created.template = template
+		if template == "LargeSideTabButtonTemplate" then
+			created.Icon = NewRegion("Texture", nil, created)
+			created.SelectedTexture = NewRegion("Texture", nil, created)
+			created.SetFillToInterior = function() end
+			created.SetCustomOnMouseUpHandler = function(self, handler)
+				self.customOnMouseUpHandler = handler
+			end
+		end
 		if template == "MainMenuBarMicroButton" then
 			created.alert = {
 				Hide = function(self)

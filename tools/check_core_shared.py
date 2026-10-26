@@ -8,6 +8,8 @@ from pathlib import Path
 # The files this addon vendors from Forever Core. Field Guide is a private repo, so core's
 # tools/check_consumers.py cannot read it over unauthenticated raw; this is the Field Guide side of that gate.
 PATHS = (
+    "tools/deadcode.py",
+    "tools/deadcode-allow.txt",
     "Core/MicroButton.lua",
     "tests/micro_button_spec.lua",
     "UI/SettingsPage.lua",

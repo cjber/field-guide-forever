@@ -5,6 +5,17 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-10-26
+
+### Changed
+
+- **The journal's paper tabs are replaced by the client's own `LargeSideTabButtonTemplate` plates**, hung off the
+  right edge exactly as the Quest Log does them: 51x60 `questlog-tab-side` art, a 29x29 icon per tab, the
+  `QuestLog-Tab-side-Glow-select` glow on the active one and the native hover glow, with the tab's name in the
+  tooltip. The band the paper tabs used is gone, so the breadcrumb, search row and panes move up.
+- **The addon icon is the client's `INV_Misc_Book_09`** instead of a bundled texture, so the Field Guide ships no
+  raster art of its own.
+
 ## [0.3.4] - 2026-10-26
 
 ### Changed
