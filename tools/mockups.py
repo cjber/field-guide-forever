@@ -2,7 +2,7 @@
 """Mock screenshots of the Field Guide journal drawn with the client's own art (wowmock).
 
 Every pixel that is not the addon's own layout comes from the WoW: Forever client build (nine-slice dialog border,
-panel tabs, buttons, atlas gems, FRIZQT fonts, spell icons), fetched once from wago.tools and cached under
+buttons, atlas gems, FRIZQT fonts, spell icons), fetched once from wago.tools and cached under
 `tools/.cache/wowmock/`. This is a mock, not a capture: the frame is drawn the way UI/Window.lua draws it, at the
 window's logical size, on wowmock's plain backdrop.
 
@@ -28,7 +28,6 @@ from wowmock.wowmock import (  # noqa: E402
     INSET_FRAME_LAYOUT,
     draw_nine_slice,
     minimal_scrollbar,
-    panel_tabs,
     portrait_frame_art,
     search_box,
     ui_panel_button,
@@ -77,6 +76,16 @@ DIM = wowmock.rgb("9e998c")
 DARK = wowmock.rgb("1b1e22")
 TROUGH = wowmock.rgb("303236")
 PANEL = wowmock.rgb("212429")
+FONTS["FieldGuideTabLabel"] = wowmock.Font(
+    FONTS["GameFontDisableSmall"].path, 8, FONTS["GameFontDisableSmall"].color, (1, -1)
+)
+TAB_LABELS = ("CREATURES", "RARES", "SHINY", "INSTANCES")
+TAB_ICON_PATHS = (
+    "interface/icons/inv_misc_book_09.blp",
+    "interface/icons/ability_hunter_beasttaming.blp",
+    "interface/icons/inv_enchant_shardprismaticlarge.blp",
+    "interface/icons/inv_misc_coin_01.blp",
+)
 
 W, H = 960, 720
 # UI/Window.lua's shell geometry, and the only place these numbers live in this file: the bottom bar is 924 wide at
@@ -590,11 +599,44 @@ def note(name, role, x, y, w, h):
     widgets.append({"name": name, "role": role, "x": round(x, 1), "y": round(y, 1), "w": round(w, 1), "h": round(h, 1)})
 
 
+def square_tab(canvas, x, y, icon, label, active):
+    """Draw one 64-square bottom plate; the frame's bottom bezel closes over its 6-unit seam."""
+    face = wowmock.rgb("35332b" if active else "141619")
+    border = wowmock.rgb("e0b540" if active else "4d4a42")
+    canvas.fill(x, y, 64, 64, face)
+    canvas.fill(x + 1, y + 1, 62, 62, wowmock.rgb("1c1e21" if active else "141619"))
+    canvas.fill(x, y, 64, 1, border)
+    canvas.fill(x, y, 1, 64, border)
+    canvas.fill(x + 63, y, 1, 64, border)
+    canvas.fill(x, y + 61, 64, 3, wowmock.rgb("e0b540") if active else wowmock.rgb("141619"))
+    icon_x, icon_y = x + 12, y + 9
+    canvas.draw(canvas.ui.texture(icon), icon_x, icon_y, 40, 40)
+    canvas.draw(
+        canvas.ui.texture("interface/common/whiteiconframe.blp"),
+        icon_x,
+        icon_y,
+        40,
+        40,
+        wowmock.rgb("e0b540" if active else "b8a16b"),
+    )
+    text(
+        canvas,
+        x,
+        y + 49,
+        label,
+        "FieldGuideTabLabel",
+        wowmock.rgb("e0b540" if active else "e3d9c2"),
+        justify="CENTER",
+        width=64,
+        box_height=11,
+    )
+
+
 def window(ui, zone, species, tab, icons, sigil):
     """The journal as UI/Window.lua builds it: a real PortraitFrameTemplate (metal NineSlice, circular portrait,
     centred title, close button) around the addon's own list and detail panes at their own anchors."""
     m = 26
-    canvas = ui.canvas(W + m * 2, H + m * 2)
+    canvas = ui.canvas(W + m * 2, H + m * 2 + 58)
     # Every scene draws the same shell, so the last one's widget list is the layout.
     LAYOUT.pop("widgets", None)
 
@@ -606,6 +648,13 @@ def window(ui, zone, species, tab, icons, sigil):
 
     # Bg first: the template is chrome only, and the addon paints its own opaque interior.
     canvas.fill(px(6), py(22), W - 12, H - 28, wowmock.rgb("0b0c0e"))
+    index = ("CREATURES", "RARES", "SHINY", "INSTANCES").index(tab)
+    tab_x, tab_y = px(24), py(H - 6)
+    note("bottom tab strip", "tabs", tab_x, tab_y, 274, 64)
+    for tab_index, label in enumerate(TAB_LABELS):
+        tab_x, tab_y = px(24 + tab_index * 70), py(H - 6)
+        square_tab(canvas, tab_x, tab_y, TAB_ICON_PATHS[tab_index], label, tab_index == index)
+        note(f"tab plate {tab_index + 1}", "tabs", tab_x, tab_y, 64, 64)
     portrait_frame_art(canvas, m, m, W, H, sigil, "FIELD GUIDE")
     text(
         canvas,
@@ -618,15 +667,8 @@ def window(ui, zone, species, tab, icons, sigil):
         width=W - 58 - 24,
     )
 
-    tab_names = ["Creatures", "Rares", "Shiny", "Instances"]
-    index = ("CREATURES", "RARES", "SHINY", "INSTANCES").index(tab)
-    tab_rects = panel_tabs(canvas, px(24), py(58), tab_names, selected=index, gap=4)
-    strip_left = min(r[0] for r in tab_rects)
-    strip_right = max(r[0] + r[2] for r in tab_rects)
-    note("tabs", "tabs", strip_left, py(58), strip_right - strip_left, 32)
-
     if tab == "INSTANCES":
-        view_x, view_y = px(18), py(146)
+        view_x, view_y = px(18), py(110)
         text(canvas, view_x + 4, view_y + 4, "Instances", "GameFontNormalLarge", GOLD)
         text(
             canvas, view_x + 4, view_y + 26, "Boss encounters recorded on this character", "GameFontDisableSmall", MUTED
@@ -660,19 +702,19 @@ def window(ui, zone, species, tab, icons, sigil):
         return canvas
 
     breadcrumb = f"{zone['continent']} > {zone['name']}"
-    text(canvas, px(24), py(95), breadcrumb, "GameFontNormal", TEXT)
+    text(canvas, px(24), py(55), breadcrumb, "GameFontNormal", TEXT)
     canvas.draw(
         ui.atlas("common-dropdown-c-button-hover-arrow"),
         px(28) + canvas.text_width(breadcrumb, FONTS["GameFontNormal"]),
-        py(97),
+        py(57),
         12,
         5,
     )
-    search_box(canvas, px(24), py(112), 250, 24, "Search creatures")
-    note("search", "input", px(24), py(112), 250, 24)
-    ui_panel_button(canvas, px(288), py(112), 128, 24, "All")
-    note("filter", "input", px(288), py(112), 128, 24)
-    canvas.draw(ui.atlas("_UI-Frame-InnerTopTile"), px(18), py(142), W - 36, 3)
+    search_box(canvas, px(24), py(68), 250, 24, "Search creatures")
+    note("search", "input", px(24), py(68), 250, 24)
+    ui_panel_button(canvas, px(288), py(68), 128, 24, "All")
+    note("filter", "input", px(288), py(68), 128, 24)
+    canvas.draw(ui.atlas("_UI-Frame-InnerTopTile"), px(18), py(100), W - 36, 3)
 
     # Left pane: the creature list.
     catalogued = sum(1 for s in zone["species"] if progress(s)["count"])
@@ -684,11 +726,11 @@ def window(ui, zone, species, tab, icons, sigil):
     rows = rows or zone["species"]
 
     if len(rows) > 8:
-        minimal_scrollbar(canvas, px(388), py(150), 440, visible=8 / len(rows))
+        minimal_scrollbar(canvas, px(388), py(114), 440, visible=8 / len(rows))
     for row_index, row in enumerate(rows[:8]):
         state = progress(row)
         chosen = row["id"] == species["id"]
-        y = py(146 + row_index * 58)
+        y = py(110 + row_index * 58)
         canvas.fill(px(22), y, 344, 58, wowmock.rgb("2b2a24") if chosen else wowmock.rgb("212429"))
         canvas.draw(icons[row["id"]], px(28), y + 13, 32, 32)
         canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), px(28), y + 13, 32, 32, BRASS)
@@ -718,7 +760,7 @@ def window(ui, zone, species, tab, icons, sigil):
     state = progress(species)
     count = state["count"]
     rank = rank_of(count)
-    rx, ry = px(426), py(146)
+    rx, ry = px(426), py(110)
 
     # The portrait is circular: draw it on its own layer, mask that, then paste. canvas.mask multiplies the whole
     # surface's alpha, so applying it to the main canvas would erase everything outside the portrait's rect.
@@ -886,7 +928,7 @@ def window(ui, zone, species, tab, icons, sigil):
         "GameFontDisableSmall",
         DIM,
     )
-    note("Detail pane", "pane", rx, ry, 516, 494)
+    note("Detail pane", "pane", rx, ry, 516, 528)
 
     # Bottom bar: zone completion and the two buttons, at the bar's own coordinates (the addon anchors them to the
     # bar, so a button starts BAR_W - inset - width from the bar's left, not from the window's).
