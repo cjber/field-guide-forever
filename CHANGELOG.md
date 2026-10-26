@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.6] - 2026-10-26
+
 ### Fixed
 
 - **The cosmetic-rewards status column no longer collides with the locked marker.** `Locked · Mastered` is wider than
