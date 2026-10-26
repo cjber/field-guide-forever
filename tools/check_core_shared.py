@@ -10,6 +10,8 @@ from pathlib import Path
 PATHS = (
     "Core/MicroButton.lua",
     "tests/micro_button_spec.lua",
+    "UI/SettingsPage.lua",
+    "tests/settings_page_spec.lua",
 )
 
 
