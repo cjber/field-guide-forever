@@ -10,6 +10,7 @@ luacheck .
 for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
 uvx ruff@0.16.8 check tools && uvx ruff@0.16.8 format --check tools
 python3 tools/check_generated.py
+python3 tools/check_core_shared.py
 python3 tools/visual_audit.py
 python3 tools/check_screenshots.py
 python3 tools/changelog.py --check
@@ -22,7 +23,9 @@ Specs are Lua 5.1 scripts run with LuaJIT through `tests/wow_mock.lua`. `tools/m
 `docs/screenshots/` with wowmock against the pinned client build, `tools/check_screenshots.py` fails when an image is
 older than the sources it is drawn from (`--record` after a render), `tools/changelog.py` prints or checks a
 release's entry, `tools/check_package.py` checks what the packager built, and `tools/release_check.py` gates the
-release on a green full CI run.
+release on a green full CI run. `tools/check_core_shared.py` is the Field Guide side of the suite's core drift gate: because
+this repo is private, forever-core cannot read it over unauthenticated raw, so it checks itself against public
+forever-core main and `.github/workflows/core-shared-drift.yml` runs it on a schedule.
 `tools/visual_audit.py` reads the `docs/screenshots/layout.json` manifest `tools/mockups.py` writes and fails when a widget leaves the window
 frame, when two controls overlap or sit closer than 8 units apart, or when the rendered button art is not where the
 manifest says it is. A layout bug is fixed in the renderer's shared constants (and in `UI/Window.lua` if the addon
