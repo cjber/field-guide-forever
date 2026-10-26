@@ -1,8 +1,6 @@
 # The tooling scripts follow the Lua side's 120-column limit (stylua.toml, .luacheckrc).
 line-length = 120
 target-version = "py311"
-# tools/wowmock is the suite's vendored screenshot library, copied verbatim; lint the addon's own script only.
-extend-exclude = ["tools/wowmock"]
 
 [lint]
 select = ["E", "F", "I", "UP", "B", "EXE"]

@@ -11,15 +11,20 @@ wowmock, so what is approved here is what the addon paints.
     python3 tools/rarity.py
 """
 
+import os
 import sys
 from pathlib import Path
 
 from PIL import Image  # ty: ignore[unresolved-import]  # Pillow is local only
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "tools"))
-import wowmock.wowmock as wowmock  # noqa: E402
-from wowmock.wowmock import FONTS, Font, tint  # noqa: E402
+FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", ROOT.parent / "forever-core")).expanduser()
+WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
+if not (WOWMOCK / "wowmock.py").is_file():
+    raise SystemExit(f"wowmock.py not found in {WOWMOCK}; set FOREVER_CORE to the forever-core checkout")
+sys.path.insert(0, str(WOWMOCK))
+import wowmock  # noqa: E402
+from wowmock import FONTS, Font, tint  # noqa: E402
 
 OUT = ROOT / "docs" / "screenshots"
 

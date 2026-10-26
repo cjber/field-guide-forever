@@ -21,8 +21,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mockups as mk  # noqa: E402
-import wowmock.wowmock as wowmock  # noqa: E402
-from wowmock.wowmock import (  # noqa: E402
+import wowmock  # noqa: E402
+from wowmock import (  # noqa: E402
     FONTS,
     PORTRAIT_FRAME_TEMPLATE_LAYOUT,
     map_art,

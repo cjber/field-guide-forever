@@ -17,10 +17,11 @@ python3 tools/changelog.py --check
 python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check
 ```
 
-Specs are Lua 5.1 scripts run with LuaJIT through `tests/wow_mock.lua`. `tools/mockups.py` renders the README scenes from WoW client assets and a disposable fixture extracted from the pinned QuestieDB Forever release. The fixture lives only in an ignored cache directory under `tools/`.
+Specs are Lua 5.1 scripts run with LuaJIT through `tests/wow_mock.lua`. `FOREVER_CORE=/path/to/forever-core python3 tools/mockups.py` renders the README scenes from WoW client assets and a disposable fixture extracted from the pinned QuestieDB Forever release. The fixture lives only in an ignored cache directory under `tools/`.
 
-`tools/` holds the development tooling, which `.pkgmeta` keeps out of the package: `tools/mockups.py` renders
-`docs/screenshots/` with wowmock against the pinned client build, `tools/check_screenshots.py` fails when an image is
+`tools/` holds the development tooling, which `.pkgmeta` keeps out of the package: `tools/mockups.py` uses the
+shared renderer in the sibling `forever-core` checkout (`FOREVER_CORE` overrides its location) to render
+`docs/screenshots/` against the pinned client build, `tools/check_screenshots.py` fails when an image is
 older than the sources it is drawn from (`--record` after a render), `tools/changelog.py` prints or checks a
 release's entry, `tools/check_package.py` checks what the packager built, and `tools/release_check.py` gates the
 release on a green full CI run. `tools/check_core_shared.py` is the Field Guide side of the suite's core drift gate: because
