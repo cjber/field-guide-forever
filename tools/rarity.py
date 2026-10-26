@@ -23,8 +23,8 @@ WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
 if not (WOWMOCK / "wowmock.py").is_file():
     raise SystemExit(f"wowmock.py not found in {WOWMOCK}; set FOREVER_CORE to the forever-core checkout")
 sys.path.insert(0, str(WOWMOCK))
-import wowmock  # noqa: E402
-from wowmock import FONTS, Font, tint  # noqa: E402
+import wowmock  # noqa: E402  # ty: ignore[unresolved-import]
+from wowmock import FONTS, Font, tint  # noqa: E402  # ty: ignore[unresolved-import]
 
 OUT = ROOT / "docs" / "screenshots"
 
