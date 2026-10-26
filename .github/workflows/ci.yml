@@ -65,6 +65,8 @@ jobs:
           path: tools/.cache
           key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py') }}
           restore-keys: regeneration-${{ runner.os }}-
+      # gen_creature_icons.py builds its QuestieDB fixture with gen_mock_catalogue.py, which shells out to luajit.
+      - run: sudo apt-get update && sudo apt-get install -y luajit
       - name: Regenerate the shipped data in a scratch tree
         run: python3 tools/check_generated.py
 
