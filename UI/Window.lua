@@ -9,7 +9,7 @@ ns.Window = Window
 
 local WIDTH, HEIGHT = 960, 720
 local LEFT_WIDTH = 396
-local PANEL_HEIGHT = 528
+local PANEL_HEIGHT = 534
 
 ---@type Frame?
 local frame
@@ -21,10 +21,10 @@ local query = ""
 local zoneIndex = 1
 
 local tabs = {
-	{ key = "creatures", text = "CREATURES", icon = Art.TAB_ICONS.creatures },
-	{ key = "rares", text = "RARES", icon = Art.TAB_ICONS.rares },
-	{ key = "shiny", text = "SHINY", icon = Art.TAB_ICONS.shiny },
-	{ key = "instances", text = "INSTANCES", icon = Art.TAB_ICONS.instances },
+	{ key = "creatures", text = "CREATURES", icon = "Interface\\Icons\\INV_Misc_Book_09" },
+	{ key = "rares", text = "RARES", icon = "Interface\\Icons\\INV_Misc_Spyglass_02" },
+	{ key = "shiny", text = "SHINY", icon = "Interface\\Icons\\INV_Scroll_03" },
+	{ key = "instances", text = "INSTANCES", icon = "Interface\\Icons\\INV_Chest_Chain_05" },
 }
 
 local filters = {
@@ -80,11 +80,22 @@ local function BuildHeader(parent)
 
 	Window.tabButtons = {}
 	for index, info in ipairs(tabs) do
-		local button = Art.SquareTab(parent, info.icon, L[info.text])
+		local button = CreateFrame("Frame", nil, parent, "LargeSideTabButtonTemplate")
+		button:SetSize(43, 55)
+		button.Icon:SetTexture(info.icon)
+		button:SetFillToInterior(true)
+		button.tooltipText = L[info.text]
+		button:EnableMouse(true)
 		button.key = info.key
-		button:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", 24 + (index - 1) * 70, 6)
-		button:SetScript("OnClick", function()
-			Window.SetTab(info.key)
+		if index == 1 then
+			button:SetPoint("TOPLEFT", parent, "TOPRIGHT", 3, -28)
+		else
+			button:SetPoint("TOPLEFT", Window.tabButtons[index - 1], "BOTTOMLEFT", 0, -3)
+		end
+		button:SetCustomOnMouseUpHandler(function(_, mouseButton, upInside)
+			if mouseButton == "LeftButton" and upInside then
+				Window.SetTab(info.key)
+			end
 		end)
 		Window.tabButtons[index] = button
 	end
@@ -94,7 +105,7 @@ end
 local function BuildSearch(parent)
 	local search = CreateFrame("EditBox", nil, parent, "InputBoxTemplate")
 	search:SetSize(250, 24)
-	search:SetPoint("TOPLEFT", 24, -68)
+	search:SetPoint("TOPLEFT", 24, -62)
 	search:SetAutoFocus(false)
 	search:SetMaxLetters(40)
 	search:SetFontObject(GameFontHighlight)
@@ -116,7 +127,7 @@ local function BuildSearch(parent)
 	end)
 
 	local filterButton = MakeButton(parent, L["All"], 128, false)
-	filterButton:SetPoint("TOPLEFT", 288, -68)
+	filterButton:SetPoint("TOPLEFT", 288, -62)
 	filterButton:SetHeight(24)
 	filterButton:SetTextInsets(8, 8, 0, 0)
 	Window.filterButton = filterButton
@@ -125,15 +136,15 @@ local function BuildSearch(parent)
 	end)
 
 	local divider = Art.Line(parent, "border", 0.4)
-	divider:SetPoint("TOPLEFT", 18, -100)
-	divider:SetPoint("TOPRIGHT", -18, -100)
+	divider:SetPoint("TOPLEFT", 18, -94)
+	divider:SetPoint("TOPRIGHT", -18, -94)
 end
 
 ---@param parent Frame
 local function BuildBreadcrumb(parent)
 	local breadcrumb = CreateFrame("Button", nil, parent)
 	breadcrumb:SetSize(390, 20)
-	breadcrumb:SetPoint("TOPLEFT", 24, -50)
+	breadcrumb:SetPoint("TOPLEFT", 24, -44)
 	breadcrumb:SetScript("OnClick", function()
 		Window.ToggleZoneMenu()
 	end)
@@ -245,7 +256,7 @@ end
 
 local function UpdateTabs()
 	for _, button in ipairs(Window.tabButtons or {}) do
-		button:SetSelected(button.key == tab)
+		button:SetChecked(button.key == tab)
 	end
 end
 
@@ -381,6 +392,10 @@ function Window.Refresh()
 		end
 		Window.instances:Show()
 		Window.bottomBar:Hide()
+		Window.breadcrumb:Hide()
+		Window.search:Hide()
+		Window.searchPlaceholder:Hide()
+		Window.filterButton:Hide()
 		ns.InstancesView.Refresh(ns.Instances, ns.API.Encounters())
 		UpdateTabs()
 		return
@@ -390,6 +405,10 @@ function Window.Refresh()
 	end
 	Window.instances:Hide()
 	Window.bottomBar:Show()
+	Window.breadcrumb:Show()
+	Window.search:Show()
+	Window.searchPlaceholder:SetShown(query == "")
+	Window.filterButton:Show()
 	local entries = BuildEntries()
 	local stillListed = false
 	for _, entry in ipairs(entries) do
@@ -545,10 +564,10 @@ local function Create()
 	Window.catalogueNotice:SetJustifyH("CENTER")
 
 	local left = CreateFrame("Frame", nil, frame)
-	left:SetPoint("TOPLEFT", 18, -110)
+	left:SetPoint("TOPLEFT", 18, -104)
 	left:SetSize(LEFT_WIDTH, PANEL_HEIGHT)
 	local right = CreateFrame("Frame", nil, frame)
-	right:SetPoint("TOPLEFT", 426, -110)
+	right:SetPoint("TOPLEFT", 426, -104)
 	right:SetSize(516, PANEL_HEIGHT)
 
 	ns.List.Create(left, { Select = Window.SelectSpecies })
