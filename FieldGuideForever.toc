@@ -22,6 +22,7 @@ Core\LegacyIds.lua
 Core\Core.lua
 Core\Stats.lua
 Core\API.lua
+UI\SettingsPage.lua
 Core\Settings.lua
 UI\Art.lua
 UI\Tooltip.lua

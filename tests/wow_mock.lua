@@ -423,8 +423,15 @@ function methods:SetParent(parent)
 	self._parent = parent
 end
 
+-- A frame's methods are all in `methods`; anything else a client frame answers with nil when it has not been set.
+-- The fields named here are data a frame carries (Forever Core's settings page keeps its row cursor in one), so they
+-- must read nil until something writes them, exactly as on the client, and never the no-op the fallback returns.
+local DATA_FIELDS = { settingsRowY = true }
 setmetatable(methods, {
-	__index = function()
+	__index = function(_, key)
+		if DATA_FIELDS[key] then
+			return nil
+		end
 		return function()
 			return nil
 		end
@@ -590,6 +597,13 @@ function Mock.Harness(opts)
 		UISpecialFrames = {},
 		SlashCmdList = {},
 		InterfaceOptions_AddCategory = function() end,
+		-- The modern settings API, as Interface 16001 offers it: one canvas category registered by name.
+		Settings = {
+			RegisterCanvasLayoutCategory = function(panel, name)
+				return { panel = panel, name = name }
+			end,
+			RegisterAddOnCategory = function() end,
+		},
 	}, { __index = _G })
 	env._G = env
 
