@@ -9,7 +9,7 @@ ns.Window = Window
 
 local WIDTH, HEIGHT = 960, 720
 local LEFT_WIDTH = 396
-local PANEL_HEIGHT = 494
+local PANEL_HEIGHT = 528
 
 ---@type Frame?
 local frame
@@ -21,10 +21,10 @@ local query = ""
 local zoneIndex = 1
 
 local tabs = {
-	{ key = "creatures", text = "CREATURES" },
-	{ key = "rares", text = "RARES" },
-	{ key = "shiny", text = "SHINY" },
-	{ key = "instances", text = "INSTANCES" },
+	{ key = "creatures", text = "CREATURES", icon = Art.TAB_ICONS.creatures },
+	{ key = "rares", text = "RARES", icon = Art.TAB_ICONS.rares },
+	{ key = "shiny", text = "SHINY", icon = Art.TAB_ICONS.shiny },
+	{ key = "instances", text = "INSTANCES", icon = Art.TAB_ICONS.instances },
 }
 
 local filters = {
@@ -60,29 +60,6 @@ local function MakeButton(parent, text, width, solid)
 end
 
 ---@param parent Frame
----@param key string
----@param text string
----@param previous Frame?
----@return Frame
-local function MakeTab(parent, key, text, previous)
-	-- PanelTabButtonTemplate: the paper tabs the client uses on its own panels, with the selected art and the
-	-- white/gold text shift handled by PanelTemplates.
-	local button = CreateFrame("Button", nil, parent, "PanelTabButtonTemplate")
-	if previous then
-		button:SetPoint("TOPLEFT", previous, "TOPRIGHT", 4, 0)
-	else
-		button:SetPoint("TOPLEFT", 24, -58)
-	end
-	button:SetText(L[text])
-	PanelTemplates_TabResize(button, 0)
-	button.key = key
-	button:SetScript("OnClick", function()
-		Window.SetTab(key)
-	end)
-	return button
-end
-
----@param parent Frame
 local function BuildHeader(parent)
 	-- The template's own portrait and title; the addon only names them.
 	if parent.PortraitContainer and parent.PortraitContainer.Portrait then
@@ -101,13 +78,15 @@ local function BuildHeader(parent)
 	subtitle:SetPoint("TOP", 0, -28)
 	subtitle:SetText(L["Azeroth field journal"])
 
-	local headerLine = Art.Line(parent, "border", 0.5)
-	headerLine:SetPoint("TOPLEFT", 18, -52)
-	headerLine:SetPoint("TOPRIGHT", -18, -52)
-
 	Window.tabButtons = {}
 	for index, info in ipairs(tabs) do
-		Window.tabButtons[index] = MakeTab(parent, info.key, info.text, Window.tabButtons[index - 1])
+		local button = Art.SquareTab(parent, info.icon, L[info.text])
+		button.key = info.key
+		button:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", 24 + (index - 1) * 70, 6)
+		button:SetScript("OnClick", function()
+			Window.SetTab(info.key)
+		end)
+		Window.tabButtons[index] = button
 	end
 end
 
@@ -115,7 +94,7 @@ end
 local function BuildSearch(parent)
 	local search = CreateFrame("EditBox", nil, parent, "InputBoxTemplate")
 	search:SetSize(250, 24)
-	search:SetPoint("TOPLEFT", 24, -112)
+	search:SetPoint("TOPLEFT", 24, -68)
 	search:SetAutoFocus(false)
 	search:SetMaxLetters(40)
 	search:SetFontObject(GameFontHighlight)
@@ -137,7 +116,7 @@ local function BuildSearch(parent)
 	end)
 
 	local filterButton = MakeButton(parent, L["All"], 128, false)
-	filterButton:SetPoint("TOPLEFT", 288, -112)
+	filterButton:SetPoint("TOPLEFT", 288, -68)
 	filterButton:SetHeight(24)
 	filterButton:SetTextInsets(8, 8, 0, 0)
 	Window.filterButton = filterButton
@@ -146,15 +125,15 @@ local function BuildSearch(parent)
 	end)
 
 	local divider = Art.Line(parent, "border", 0.4)
-	divider:SetPoint("TOPLEFT", 18, -142)
-	divider:SetPoint("TOPRIGHT", -18, -142)
+	divider:SetPoint("TOPLEFT", 18, -100)
+	divider:SetPoint("TOPRIGHT", -18, -100)
 end
 
 ---@param parent Frame
 local function BuildBreadcrumb(parent)
 	local breadcrumb = CreateFrame("Button", nil, parent)
 	breadcrumb:SetSize(390, 20)
-	breadcrumb:SetPoint("TOPLEFT", 24, -90)
+	breadcrumb:SetPoint("TOPLEFT", 24, -50)
 	breadcrumb:SetScript("OnClick", function()
 		Window.ToggleZoneMenu()
 	end)
@@ -173,7 +152,7 @@ local zoneMenu
 local function BuildZoneMenu(parent)
 	zoneMenu = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 	zoneMenu:SetSize(260, #(ns.Zones or {}) * 22 + 8)
-	zoneMenu:SetPoint("TOPLEFT", 24, -111)
+	zoneMenu:SetPoint("TOPLEFT", 24, -67)
 	Art.Card(zoneMenu, "background", 0.98)
 	zoneMenu:Hide()
 	local scroll = 4
@@ -205,7 +184,7 @@ local filterMenu
 local function BuildFilterMenu(parent)
 	filterMenu = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 	filterMenu:SetSize(170, #filters * 22 + 8)
-	filterMenu:SetPoint("TOPLEFT", 288, -137)
+	filterMenu:SetPoint("TOPLEFT", 288, -93)
 	Art.Card(filterMenu, "background", 0.98)
 	filterMenu:Hide()
 	for index, info in ipairs(filters) do
@@ -266,11 +245,7 @@ end
 
 local function UpdateTabs()
 	for _, button in ipairs(Window.tabButtons or {}) do
-		if button.key == tab then
-			PanelTemplates_SelectTab(button)
-		else
-			PanelTemplates_DeselectTab(button)
-		end
+		button:SetSelected(button.key == tab)
 	end
 end
 
@@ -386,6 +361,7 @@ function Window.Refresh()
 	if not frame then
 		return
 	end
+	UpdateTabs()
 	if ns.catalogueStatus ~= "ok" then
 		for _, panel in ipairs(Window.creaturePanels or {}) do
 			panel:Hide()
@@ -404,9 +380,6 @@ function Window.Refresh()
 			panel:Hide()
 		end
 		Window.instances:Show()
-		Window.breadcrumb:Hide()
-		Window.search:Hide()
-		Window.filterButton:Hide()
 		Window.bottomBar:Hide()
 		ns.InstancesView.Refresh(ns.Instances, ns.API.Encounters())
 		UpdateTabs()
@@ -416,9 +389,6 @@ function Window.Refresh()
 		panel:Show()
 	end
 	Window.instances:Hide()
-	Window.breadcrumb:Show()
-	Window.search:Show()
-	Window.filterButton:Show()
 	Window.bottomBar:Show()
 	local entries = BuildEntries()
 	local stillListed = false
@@ -575,10 +545,10 @@ local function Create()
 	Window.catalogueNotice:SetJustifyH("CENTER")
 
 	local left = CreateFrame("Frame", nil, frame)
-	left:SetPoint("TOPLEFT", 18, -146)
+	left:SetPoint("TOPLEFT", 18, -110)
 	left:SetSize(LEFT_WIDTH, PANEL_HEIGHT)
 	local right = CreateFrame("Frame", nil, frame)
-	right:SetPoint("TOPLEFT", 426, -146)
+	right:SetPoint("TOPLEFT", 426, -110)
 	right:SetSize(516, PANEL_HEIGHT)
 
 	ns.List.Create(left, { Select = Window.SelectSpecies })

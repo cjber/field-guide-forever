@@ -3,7 +3,7 @@
 The shapes Cillian asked to compare, rendered from the same catalogue, icons and card content the README
 screenshots use (so an option differs in chrome and geometry only, never in data):
 
-    current          the shipping window: paper PanelTabButtonTemplate tabs inside the frame, top-left
+    current          the shipping window: large square tabs docked under the bottom bezel
     spine-left       standalone window, square external tabs on the left edge
     spine-right      standalone window, square external tabs on the right edge
     map-drawer       sidecar drawer hung off the World Map's right edge, square tabs on its outer edge
