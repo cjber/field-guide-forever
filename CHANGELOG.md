@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-10-26
+
 ### Changed
 
 - Field Guide tabs are now large square plates docked along the bottom edge of the window, replacing the paper tabs inside the frame; the freed band moves the breadcrumb, search and list up.
