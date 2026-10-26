@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-10-26
+
 ### Changed
 
 - **The settings page is now drawn by Forever Core's shared `UI/SettingsPage.lua`**, vendored byte for byte. Every option, label, tooltip and saved value is unchanged: the same four checkboxes write the same `options` keys, the micro-menu toggle still refreshes the button, and the binding note still sits under the rows. The page's own heading is still "Field Guide Forever options".
