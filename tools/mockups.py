@@ -13,6 +13,7 @@ Deterministic: the specimen counts come from the species id, so a second run is 
 
 import csv
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -21,9 +22,13 @@ import tempfile
 from pathlib import Path
 from typing import Any, NotRequired, TypedDict
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import wowmock.wowmock as wowmock  # noqa: E402
-from wowmock.wowmock import (  # noqa: E402
+FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
+WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
+if not (WOWMOCK / "wowmock.py").is_file():
+    raise SystemExit(f"wowmock.py not found in {WOWMOCK}; set FOREVER_CORE to the forever-core checkout")
+sys.path.insert(0, str(WOWMOCK))
+import wowmock  # noqa: E402  # ty: ignore[unresolved-import]
+from wowmock import (  # noqa: E402  # ty: ignore[unresolved-import]
     FONTS,
     INSET_FRAME_LAYOUT,
     MenuCheckbox,

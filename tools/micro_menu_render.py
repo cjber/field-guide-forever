@@ -1,9 +1,14 @@
+import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import wowmock.wowmock as W  # noqa: E402
-from PIL import Image  # ty: ignore[unresolved-import]  # Pillow is local only, like wowmock
+FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
+WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
+if not (WOWMOCK / "wowmock.py").is_file():
+    raise SystemExit(f"wowmock.py not found in {WOWMOCK}; set FOREVER_CORE to the forever-core checkout")
+sys.path.insert(0, str(WOWMOCK))
+import wowmock as W  # noqa: E402  # ty: ignore[unresolved-import]
+from PIL import Image  # noqa: E402  # ty: ignore[unresolved-import]  # Pillow is local only, like wowmock
 
 BUILD = "1.60.1.70532"
 ui = W.Ui(scale=2, build=BUILD)

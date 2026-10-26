@@ -93,7 +93,7 @@ The addon targets the WoW: Forever client, Interface 16001.
 | ![Hillsbrad Foothills](docs/screenshots/zone-0267.png) | ![Desolace](docs/screenshots/zone-0405.png) | ![Mount Hyjal](docs/screenshots/zone-0616.png) |
 | ![Undercity](docs/screenshots/zone-1497.png) | ![Orgrimmar](docs/screenshots/zone-1637.png) | ![Hall of Legends](docs/screenshots/zone-2917.png) |
 <!-- SCREENSHOT_GALLERY:END -->
-These mocked screenshots use the WoW: Forever client art and a disposable fixture extracted from the pinned QuestieDB Forever release into the ignored `tools/.cache/` directory. The addon never ships that fixture; in game it reads the player’s installed QuestieDB. The renderer also caches WoW: Forever client assets under `tools/.cache/wowmock/`.
+These mocked screenshots use the WoW: Forever client art and a disposable fixture extracted from the pinned QuestieDB Forever release into the ignored `tools/.cache/` directory. The addon never ships that fixture; in game it reads the player’s installed QuestieDB. The shared renderer in `forever-core` caches WoW: Forever client assets under `~/.cache/wowmock/`; set `FOREVER_CORE` to that checkout when regenerating scenes.
 
 ## Credits
 

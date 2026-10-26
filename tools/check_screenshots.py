@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Fail when a screenshot is older than the code it is drawn from (stdlib only).
 
-`tools/mockups.py` draws every image from this addon's catalogue, palette and window layout. `scenes.sha256` records
+`tools/mockups.py` draws every image from this addon's catalogue, palette and window layout with the shared renderer
+in forever-core. `scenes.sha256` records
 one digest over those sources beside each image's name, so any change to a source needs a fresh render. CI runs the
 plain check; after `python3 tools/mockups.py` run `--record` to rewrite the digests.
 
@@ -39,7 +40,6 @@ SOURCES = (
     "UI/Window.lua",
     "tools/mockups.py",
     "tools/rarity.py",
-    "tools/wowmock/wowmock.py",
     "tools/micro_menu_render.py",
 )
 RARITY_GEOMETRY = {
