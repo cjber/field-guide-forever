@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.7] - 2026-10-27
+
 - **Client constants regenerated for build 1.60.1.70630.** Zone, map and family constants come from the new build, and the pin readers now take the newest Forever build from wago.tools' `wowf` product as well as `wow_classic_beta`. wago lists 1.60.1.70630 only under `wowf`, so the daily refresh had been reporting itself already current and the bundled constants had stayed on the previous build.
 
 ## [0.3.6] - 2026-10-26
