@@ -108,5 +108,5 @@ for _, map in ipairs(ns.Instances) do
 	assert(map.id ~= 47, "an outdoor area ID is not mistaken for the Razorfen Kraul map")
 end
 assert(ns.SpeciesById[50003] and ns.SpeciesById[50003].zone == "The Hinterlands", "outdoor NPCs stay in their zone")
-assert(ns.ClientData.build == "1.60.1.70630", "generated constants retain the pinned Forever build")
+assert(ns.ClientData.build == "1.60.1.70658", "generated constants retain the pinned Forever build")
 print("data: ok")
