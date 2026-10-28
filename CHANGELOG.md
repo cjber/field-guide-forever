@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.9] - 2026-10-28
+
 - **Client constants re-pinned to build 1.60.1.70658.** The bundled zone, map and family tables are byte-identical to the 1.60.1.70630 pin, so nothing player-visible changes; the recorded build and every pinned constant move together.
 
 ## [0.3.8] - 2026-10-28
