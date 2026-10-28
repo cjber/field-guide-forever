@@ -10,7 +10,7 @@ sys.path.insert(0, str(WOWMOCK))
 import wowmock as W  # noqa: E402  # ty: ignore[unresolved-import]
 from PIL import Image  # noqa: E402  # ty: ignore[unresolved-import]  # Pillow is local only, like wowmock
 
-BUILD = "1.60.1.70658"
+BUILD = "1.60.1.70685"
 ui = W.Ui(scale=2, build=BUILD)
 
 BTN_W, BTN_H, STEP = 32, 41, 27
