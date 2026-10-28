@@ -5,7 +5,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
-## [[bestiary-forever]] - 2026-10-28
+## [0.3.10] - 2026-10-28
 
 - **Client constants re-pinned to build 1.60.1.70685.** The bundled zone, map and family tables are byte-identical to the 1.60.1.70658 pin, so nothing player-visible changes; the recorded build and every pinned constant move together.
 
