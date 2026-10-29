@@ -12,7 +12,7 @@ from forever_tools.wago import db2_rows
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / "tools" / ".cache"
 OUT = ROOT / "Data" / "Client.lua"
-AGENT = "FieldGuideForever data generator (+https://github.com/cjber/bestiary-forever)"
+AGENT = "FieldGuideForever data generator (+https://github.com/cjber/field-guide-forever)"
 TABLES = {
     "AreaTable": ("ID", "AreaName_lang", "ContinentID"),
     "Map": ("ID", "MapName_lang", "InstanceType"),
