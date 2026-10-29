@@ -30,7 +30,7 @@ LISTFILE_URL = f"https://github.com/wowdev/wow-listfile/releases/download/{LISTF
 LISTFILE_SHA256 = "4af8062799478d6f7a038ac9b9f3df1d9d519230e369e1bb399ff0ab41507fd6"
 MODEL_PATHS = CACHE / f"creature-model-paths-{LISTFILE_TAG}.json"
 MODEL_DATA_URL = "https://wago.tools/db2/CreatureModelData/csv?build=1.60.1.70450"
-AGENT = "FieldGuideForever species icon generator (+https://github.com/cjber/bestiary-forever)"
+AGENT = "FieldGuideForever species icon generator (+https://github.com/cjber/field-guide-forever)"
 MAX_RECORDS = 20_000
 MAX_PACKAGED_BYTES = 220_000  # measured output: 215,402 bytes, +21,058 from the 194,344-byte baseline
 

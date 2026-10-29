@@ -5,8 +5,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-# The files this addon vendors from Forever Core. Field Guide is a private repo, so core's
-# tools/check_consumers.py cannot read it over unauthenticated raw; this is the Field Guide side of that gate.
+# The files this addon vendors from Forever Core. This local check also runs on a schedule in GitHub Actions.
 PATHS = (
     "tools/deadcode.py",
     "tools/deadcode-allow.txt",
