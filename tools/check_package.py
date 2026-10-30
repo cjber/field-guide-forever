@@ -2,8 +2,10 @@
 """Check the packager's output before an upload (stdlib only).
 
 Runs after the BigWigs packager in the CI package job and before a tag in the release workflow, so what ships is
-checked rather than assumed: every file the TOC loads is present, nothing from development is, the licence and README
-are there, and the TOC's version and interface were actually substituted by the packager.
+checked rather than assumed: every file the TOC loads is present, nothing from development is, the licence, README and
+THIRD_PARTY.md are there with their credits (README's `## Credits` and THIRD_PARTY's `## Ideas and contributors`, WFA-10
+and WFA-31, as forever_tools.package checks them in the other Forever addons), and the TOC's version and interface were
+actually substituted by the packager.
 
     printf 'Package check\\n' > .release-notes.md
     <BigWigs packager> -d -z
@@ -18,7 +20,8 @@ ROOT = Path(__file__).resolve().parent.parent
 RELEASE = ROOT / ".release"
 ADDON = "FieldGuideForever"
 DEVELOPMENT = ("tests", "tools", "docs", "reference", "scratch", ".github")
-REQUIRED = ("LICENSE", "README.md")
+REQUIRED = ("LICENSE", "README.md", "THIRD_PARTY.md")
+CREDITS = (("README.md", "## Credits"), ("THIRD_PARTY.md", "## Ideas and contributors"))
 
 
 def toc_files(toc: Path) -> list[str]:
@@ -30,6 +33,24 @@ def toc_files(toc: Path) -> list[str]:
             continue
         loaded.append(line.replace("\\", "/"))
     return loaded
+
+
+def has_section(text: str, heading: str) -> bool:
+    """Whether Markdown `text` has the ATX `heading` with some text under it before the next heading of its level."""
+    level = len(heading) - len(heading.lstrip("#"))
+    lines = text.splitlines()
+    for at, line in enumerate(lines):
+        if line.strip() != heading:
+            continue
+        for following in lines[at + 1 :]:
+            stripped = following.strip()
+            hashes = len(stripped) - len(stripped.lstrip("#"))
+            if stripped.startswith("#") and hashes <= level and stripped[hashes : hashes + 1] == " ":
+                return False
+            if stripped:
+                return True
+        return False
+    return False
 
 
 def check(root: Path) -> list[str]:
@@ -49,6 +70,10 @@ def check(root: Path) -> list[str]:
     for name in REQUIRED:
         if not (addon / name).is_file():
             problems.append(f"{ADDON}/{name} is missing from the package")
+    for name, heading in CREDITS:
+        path = addon / name
+        if path.is_file() and not has_section(path.read_text(encoding="utf-8"), heading):
+            problems.append(f"{ADDON}/{name} has no {heading} section with text under it (WFA-10, WFA-31)")
     for entry in DEVELOPMENT:
         if (addon / entry).exists():
             problems.append(f"{ADDON}/{entry} is development-only and must not ship")
@@ -65,7 +90,7 @@ def main() -> int:
         for problem in problems:
             print(f"  - {problem}", file=sys.stderr)
         return 1
-    print(f"{ADDON} ships every file its TOC loads, with no development folders")
+    print(f"{ADDON} ships every file its TOC loads and its credits, with no development folders")
     return 0
 
 
