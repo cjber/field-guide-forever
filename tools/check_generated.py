@@ -26,7 +26,7 @@ def main() -> None:
             sys.executable,
             "tools/gen_zones.py",
             "--build",
-            "1.60.1.70685",
+            "1.60.1.70707",
             *mode,
             "--output",
             str(generated),
