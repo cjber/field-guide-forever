@@ -79,7 +79,7 @@ def generate(build, offline=False, output=OUT):
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("--build", default="1.60.1.70685")
+    p.add_argument("--build", default="1.60.1.70707")
     p.add_argument("--offline", action="store_true")
     p.add_argument("--output", type=Path, default=OUT)
     a = p.parse_args()
