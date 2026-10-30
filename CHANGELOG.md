@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **The addon ships its credits.** A new THIRD_PARTY.md lists every input with its pin and licence, and an Ideas and contributors table that credits each player whose report or idea is built, as the other Forever addons do. The README's Credits section is now a short paragraph that links it, and the package check fails a zip without either.
+
 ## [0.3.11] - 2026-10-30
 
 - **Client constants re-pinned to build 1.60.1.70707.** The bundled zone, map and family tables are byte-identical to the 1.60.1.70685 pin, so nothing player-visible changes; the recorded build and every pinned constant move together.

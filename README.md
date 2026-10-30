@@ -97,11 +97,7 @@ These mocked screenshots use the WoW: Forever client art and a disposable fixtur
 
 ## Credits
 
-- cjber, for the addon and the rest of the Forever addon suite.
-- @cillian, for the Field Guide visual polish idea.
-- Blizzard Entertainment, for Azeroth, its creatures and the client art the journal is built from.
-- The WoW: Forever project, for the client this addon is written for.
-- Everyone who reports a creature that is missing from the catalogue.
+Made by cjber. Blizzard Entertainment for Azeroth, its creatures and the client art the journal is built from; the WoW: Forever project for the client it is written for; and QuestieDB, read at runtime, for the creatures themselves. Thanks to everyone who reports a creature missing from the catalogue, a bug or a feature idea, here or on CurseForge. [THIRD_PARTY.md](THIRD_PARTY.md) lists every input and the full credits.
 
 World of Warcraft is a trademark of Blizzard Entertainment, Inc. This addon is not affiliated with or endorsed by
 Blizzard Entertainment.

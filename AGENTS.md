@@ -63,6 +63,10 @@ picture looks right, so a visual defect found by eye is fixed in the renderer an
 - Use tabs, annotations, `local addonName, ns = ...`, the established palette, and Blizzard fonts. Add `read_globals` to `.luacheckrc` only for actual client APIs.
 - Every user-facing feature has a mocked scene and README screenshot until the addon is published.
 - Do not edit `.pkgmeta` to include development-only tools, tests, or screenshots.
+- Credit players as every Forever addon does (WFA-33 in forever-core's `wow-forever-addon` skill): a fix for a reported
+  bug or a feature someone asked for ends its changelog bullet "thanks to X for the report" (or "for the idea") and adds
+  their row to THIRD_PARTY.md's `## Ideas and contributors`, by the handle they posted under. `tools/check_package.py`
+  fails a zip without that section or README's `## Credits`.
 
 ## Extra rules from the layout audit round
 
