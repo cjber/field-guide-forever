@@ -71,9 +71,11 @@ local migrated = ns.Migrate({
 			species = {
 				[1001] = { count = 99, rare = -4, shiny = 4, kills = 8, injected = function() end },
 				[1002] = false,
+				[1003] = { count = 3 },
 			},
 			encounters = "broken",
 			unexpected = true,
+			tracked = 1003,
 		},
 	},
 })
@@ -83,6 +85,10 @@ assert(migratedEntry.count == ns.Model.MASTERED_AT and migratedEntry.rare == 0 a
 assert(migratedEntry.injected == nil and migrated.chars["Old-Realm"].unexpected == nil)
 assert(migrated.chars["Old-Realm"].species[1002] == nil, "invalid entries are discarded")
 assert(type(migrated.chars["Old-Realm"].encounters) == "table", "corrupt encounter data is repaired")
+assert(migrated.chars["Old-Realm"].tracked == 1003, "the tracked species survives a reload")
+local legacy = migrated.chars["Old-Realm"].species[1003]
+assert(legacy.kills == 3 and legacy.killsEstimated, "kills taken from a save without them are marked as estimated")
+assert(not migratedEntry.killsEstimated, "a save that counted kills keeps them exact")
 local empty = ns.Migrate(false)
 assert(empty.version == ns.SCHEMA and type(empty.chars) == "table", "corrupt root data becomes valid empty state")
 
@@ -124,6 +130,22 @@ end
 local rare = API.Specimen(1019)
 assert(rare and rare.rareCount == ns.Model.RARE_TARGET and rare.rare, "rare sightings reach the variant target")
 
+-- The detail page reads the character's state: a known rare variant and the tracked species show as badges.
+ns.Detail.Create(harness.env.CreateFrame("Frame"))
+local character = ns.GetCharacterState(false)
+character.tracked = 1019
+ns.Detail.Show(ns.SpeciesById[1019], character, ns.SpeciesZone[1019])
+local badges = {}
+for _, badge in ipairs(ns.Detail.badges) do
+	if badge.frame:IsShown() then
+		badges[#badges + 1] = badge.text:GetText()
+	end
+end
+assert(table.concat(badges, ",") == "Common,Rare variant known,Tracked", table.concat(badges, ","))
+local research = ns.Detail.specimenCount:GetText()
+assert(research:find("^" .. rare.count .. " / "), "the research count is the species' own: " .. research)
+character.tracked = nil
+
 ns.Model.SetRandom(function()
 	return 0
 end)
@@ -145,6 +167,8 @@ assert(
 	encounters[1].sightings == 1 and encounters[1].firstSighting == 1000,
 	"encounter start records a personal sighting"
 )
+local bossLine = API.Sightings()[1]
+assert(bossLine.species == "Example Boss" and bossLine.zone == "Test Instance", "a boss kill is logged in its instance")
 harness:Fire("ENCOUNTER_END", 78, "Wiped Boss", 2, 5, 0)
 assert(#API.Encounters() == 1, "failed encounters never count as boss kills or entries")
 

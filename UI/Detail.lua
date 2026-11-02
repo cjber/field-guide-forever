@@ -215,15 +215,14 @@ local function SetLabelColor(text, key, color)
 end
 
 ---@param species FGSpecies
----@param state FGSpeciesState?
----@param zone FGZone
-local function UpdateBadges(species, state)
-	local variants = ns.Model.Variants(state, species.id)
+---@param character FGState?
+local function UpdateBadges(species, character)
+	local variants = ns.Model.Variants(character, species.id)
 	local labels = {
 		{ key = "Common", color = "text", show = true },
 		{ key = "Rare variant known", color = "rare", show = variants.rare.known },
 		{ key = "Shiny seen", color = "shiny", show = variants.shiny.known },
-		{ key = "Tracked", color = "complete", show = state and state.tracked == species.id },
+		{ key = "Tracked", color = "complete", show = character and character.tracked == species.id },
 	}
 	local x = 0
 	for index = 1, 4 do
@@ -286,10 +285,10 @@ local function UpdateVariant(card, variant, color, knownText)
 	end
 end
 
----@param state FGSpeciesState?
+---@param character FGState?
 ---@param species FGSpecies
-local function UpdateVariants(state, species)
-	local variants = ns.Model.Variants(state, species.id)
+local function UpdateVariants(character, species)
+	local variants = ns.Model.Variants(character, species.id)
 	UpdateVariant(Detail.variants[1], variants.common, "complete", L["Known"])
 	UpdateVariant(Detail.variants[2], variants.rare, "rare", L["Known"])
 	UpdateVariant(Detail.variants[3], variants.shiny, "gold", L["Known"])
@@ -384,9 +383,9 @@ local function UpdateSightings(species, zone)
 end
 
 ---@param species FGSpecies?
----@param state FGSpeciesState?
+---@param character FGState? the character's saved state, not one species' entry
 ---@param zone FGZone?
-function Detail.Show(species, state, zone)
+function Detail.Show(species, character, zone)
 	if not species or not zone then
 		Detail.name:SetText(L["Select a creature to read its entry."])
 		Detail.sub:SetText("")
@@ -409,9 +408,10 @@ function Detail.Show(species, state, zone)
 		)
 	)
 	Detail.lore:SetText(string.format(L['"%s"'], species.lore))
-	UpdateBadges(species, state)
+	local state = character and character.species and character.species[species.id] or nil
+	UpdateBadges(species, character)
 	UpdateResearch(state)
-	UpdateVariants(state, species)
+	UpdateVariants(character, species)
 	UpdateRewards(state)
 	UpdateSightings(species, zone)
 end
