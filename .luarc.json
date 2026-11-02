@@ -10,7 +10,6 @@
     "tests",
     "tools",
     ".release",
-    ".sift",
     ".claude",
     ".bugpatrol",
     ".speedpatrol",
