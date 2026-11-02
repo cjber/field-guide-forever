@@ -7,6 +7,9 @@ exclude_files = {
 	"types/**",
 	".claude/**",
 	"reference/**",
+	".bugpatrol/runs/**",
+	".speedpatrol/runs/**",
+	".sloppatrol/runs/**",
 }
 ignore = { "212/_.*" } -- unused arguments prefixed with _
 globals = {
