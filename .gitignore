@@ -11,3 +11,8 @@ scratch/
 
 # Bugpatrol: local data and screenshots of the real app
 .bugpatrol/runs/
+
+# Patrol runs: local data, whole checkouts
+.bugpatrol/runs/
+.speedpatrol/runs/
+.sloppatrol/runs/
