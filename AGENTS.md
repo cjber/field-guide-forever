@@ -14,7 +14,7 @@ python3 tools/check_core_shared.py
 python3 tools/visual_audit.py
 python3 tools/check_screenshots.py
 python3 tools/changelog.py --check
-python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check
+python3 .sloppatrol/gate.py --base origin/main && python3 .sloppatrol/agents.py check
 ```
 
 Specs are Lua 5.1 scripts run with LuaJIT through `tests/wow_mock.lua`. `FOREVER_CORE=/path/to/forever-core python3 tools/mockups.py` renders the README scenes from WoW client assets and a disposable fixture extracted from the pinned QuestieDB Forever release. The fixture lives only in an ignored cache directory under `tools/`.
@@ -73,7 +73,7 @@ picture looks right, so a visual defect found by eye is fixed in the renderer an
 - Never merge a change to `UI/` that leaves `python3 tools/visual_audit.py` red: read the rendered images, not just
   the diff.
 - Do not edit `.luacheckrc` to hide a real warning. Add a `read_globals` entry only for a genuine WoW API global.
-- Load `.agents/skills/sift-project/SKILL.md` before cleanup, dead-code or refactoring work.
+- Load `.agents/skills/sloppatrol-project/SKILL.md` before cleanup, dead-code or refactoring work.
 
 ## Release flow
 

@@ -1,9 +1,9 @@
 ---
-name: sift-project
-description: "Project profile for sift in Field Guide Forever: the exact quality-gate and evidence commands, live roots that must never be deleted as dead code, exclusions, conventions and risk order. Load before running sift or any code-quality, cleanup or dead-code work in this repository."
+name: sloppatrol-project
+description: "Project profile for Sloppatrol in Field Guide Forever: the exact quality-gate and evidence commands, live roots that must never be deleted as dead code, exclusions, conventions and risk order. Load before running Sloppatrol or any code-quality, cleanup or dead-code work in this repository."
 ---
 
-# sift project profile: Field Guide Forever
+# Sloppatrol project profile: Field Guide Forever
 
 Field Guide Forever is a World of Warcraft: Forever addon (Interface 16001) kept as a cosmetic field journal of
 the creatures a character has met. The creature catalogue is read at runtime from the player's QuestieDB Forever;
@@ -25,7 +25,7 @@ Run in order from the repository root. All must pass before and after any audit 
 | Screenshots fresh | `python3 tools/check_screenshots.py` | exit 0: no image older than the sources it is drawn from |
 | Rendered layout | `python3 tools/visual_audit.py` | exit 0: every widget inside the frame, no overlap, no bleed |
 | Changelog | `python3 tools/changelog.py --check` | exit 0 |
-| Project rules | `python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check` | exit 0 |
+| Project rules | `python3 .sloppatrol/gate.py --base origin/main && python3 .sloppatrol/agents.py check` | exit 0 |
 
 CI (`.github/workflows/ci.yml`) runs all of these. The specs are a headless harness, not the game client:
 `tests/wow_mock.lua` stubs the client APIs and loads the TOC's files. What needs the client itself is a `/reload`.
@@ -40,7 +40,7 @@ The screenshots are renders from `tools/mockups.py` (wowmock, the client's own a
 | Live roots | `rg -n 'hooksecurefunc\|RegisterEvent\|SetScript\|SlashCmdList\|UISpecialFrames' -g '*.lua'` | none |
 | Shared-table members | `rg -n 'ns\.[A-Z]' Core UI` | `Model.*` and `ns.API.*` are nested tables and need their own search |
 | Clones | `npx -y jscpd@4 --silent --min-lines 6 --ignore "docs/**,.types/**,**/.cache/**" .` | none |
-| Standards | `python3 .sift/agents.py standards` | resolves the pack pinned in AGENTS.md |
+| Standards (`wow-forever-addon`) | load the `wow-forever-addon` skill that AGENTS.md declares under `## Standards` | an audit reviews the addon against its WFA ids |
 
 ## Live roots
 
@@ -67,7 +67,7 @@ The screenshots are renders from `tools/mockups.py` (wowmock, the client's own a
 | `tests/` | test | headless LuaJIT harness |
 | `docs/`, `reference/`, `scratch/` | docs | screenshots and reference material; not shipped |
 | `.github/`, `.pkgmeta`, `.luacheckrc`, `.luarc.json`, `stylua.toml`, `.styluaignore`, `.gitignore` | config | |
-| `README.md`, `CHANGELOG.md`, `AGENTS.md`, `.agents/`, `.sift/` | docs | |
+| `README.md`, `CHANGELOG.md`, `AGENTS.md`, `.agents/`, `.sloppatrol/` | docs | |
 
 ## Conventions
 

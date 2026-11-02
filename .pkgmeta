@@ -9,7 +9,7 @@ ignore:
   - .luacheckrc
   - .luarc.json
   - .styluaignore
-  - .sift
+  - .sloppatrol
   - AGENTS.md
   - CHANGELOG.md
   - docs
