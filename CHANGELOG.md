@@ -5,6 +5,11 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **The tracked species stays tracked after a reload.** Loading the saved variables dropped it, so every `/reload` or login cleared the Track Species choice.
+- **The entry page shows its badges.** Rare variant known, Shiny seen and Tracked never appeared, and the variant cards stayed unknown, because the page was read from the wrong saved table.
+- **A boss kill is logged in its instance.** The sighting log gave the boss's own name as the place.
+- **Kill counts carried over from an older save say "at least".** A save from before kills were counted now marks them as an estimate.
+
 ## [0.3.12] - 2026-10-30
 
 - **The addon ships its credits.** A new THIRD_PARTY.md lists every input with its pin and licence, and an Ideas and contributors table that credits each player whose report or idea is built, as the other Forever addons do. The README's Credits section is now a short paragraph that links it, and the package check fails a zip without either.

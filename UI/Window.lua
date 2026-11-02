@@ -309,9 +309,7 @@ function Window.UpdateDetail()
 	local zone = CurrentZone()
 	local species = selectedId and ns.SpeciesById[selectedId] or nil
 	local speciesZone = species and ns.SpeciesZone[species.id] or zone
-	local state = ns.GetCharacterState(false)
-	local entry = species and state and state.species[species.id] or nil
-	ns.Detail.Show(species, entry, speciesZone)
+	ns.Detail.Show(species, ns.GetCharacterState(false), speciesZone)
 	UpdateTrackButton()
 end
 

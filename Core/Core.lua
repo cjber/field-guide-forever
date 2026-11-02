@@ -124,7 +124,9 @@ local function NormalizeState(state)
 			entry.kills = math.max(entry.kills, entry.count)
 			entry.rareKills = math.max(entry.rareKills, entry.rare)
 			entry.shinyFinds = math.max(entry.shinyFinds, entry.shiny)
+			-- A save from before kills were counted has only `count`: its kills are an estimate, as Model.Specimen says.
 			entry.killsEstimated = old.killsEstimated == true
+				or (old.kills == nil and old.killsEstimated == nil and entry.count > 0)
 			for field in pairs(SPECIMEN_TIMES) do
 				if type(old[field]) == "number" and old[field] >= 0 then
 					entry[field] = old[field]
@@ -174,6 +176,10 @@ local function NormalizeState(state)
 			end
 			clean.encounters[tostring(id)] = encounter
 		end
+	end
+	local tracked = tonumber(state.tracked)
+	if tracked and tracked > 0 and tracked % 1 == 0 then
+		clean.tracked = tracked
 	end
 	return clean
 end
@@ -355,7 +361,7 @@ local function OnEncounterEnd(encounterId, encounterName, difficultyId, _, succe
 	)
 	ns.Model.AddSighting({
 		time = time and time() or 0,
-		zone = encounterName,
+		zone = instanceName,
 		species = encounterName,
 		kind = result.firstKill and "boss-first" or "boss-kill",
 	})
