@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.13] - 2026-11-02
+
 - **The tracked species stays tracked after a reload.** Loading the saved variables dropped it, so every `/reload` or login cleared the Track Species choice.
 - **The entry page shows its badges.** Rare variant known, Shiny seen and Tracked never appeared, and the variant cards stayed unknown, because the page was read from the wrong saved table.
 - **A boss kill is logged in its instance.** The sighting log gave the boss's own name as the place.
