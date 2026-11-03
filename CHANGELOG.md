@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Leaderboards count observed kills consistently.** Estimated historical kills stay outside both personal and shared totals, and their baseline survives reloads. Opting out keeps personal boards available. Shared reports use the suite's bounded guild and group transport, with independent readers for other addons and complete kill totals alongside recent creature records.
+
 - **Progress updates keep your place in the creature list.** Scrolling no longer jumps to the top after tracking a creature or recording progress.
 
 - **Creature entries put the creature first.** A native model view sits beside matching zone artwork, with one research strip and Overview, Variants and Records tabs. The list leaves more room for the entry, and the window title reads Field Guide.

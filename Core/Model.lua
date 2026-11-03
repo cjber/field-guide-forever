@@ -213,6 +213,16 @@ function Model.Specimen(state, speciesId)
 	return entry
 end
 
+-- Historical mastery counts are estimates. Only kills observed after that baseline belong on shared boards.
+---@param entry FGSpeciesState
+---@return number
+function Model.ObservedKills(entry)
+	if entry.killsEstimated and entry.sharedKillsBaseline == nil then
+		entry.sharedKillsBaseline = entry.kills or entry.count or 0
+	end
+	return math.max(0, (entry.kills or 0) - (entry.sharedKillsBaseline or 0))
+end
+
 -- A nameplate observation is a local first sighting, not a claim that nobody else has seen the creature.
 ---@param state FGState
 ---@param speciesId integer

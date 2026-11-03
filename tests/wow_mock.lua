@@ -512,6 +512,9 @@ function Mock.Harness(opts)
 		GetTime = function()
 			return Mock.clock
 		end,
+		GetServerTime = function()
+			return Mock.clock
+		end,
 		GetZoneText = function()
 			return Mock.zone
 		end,
@@ -627,8 +630,7 @@ function Mock.Harness(opts)
 		},
 	}, { __index = _G })
 	env._G = env
-
-	env._G = env
+	env.ForeverPeerStats = false
 	env.CreateFrame = function(kind, name, parent, template)
 		local created = Mock.CreateFrame(kind, name, parent, template)
 		created.template = template

@@ -11,6 +11,8 @@ Field Guide Forever is cosmetic only. It never grants player power, changes comb
 - Character-local first sightings and first observed deaths, plus first rare and shiny records.
 - By default, shared cumulative records and earliest firsts are exchanged with guild and group addon users; disable this
   in the options to stop sending/receiving. Local tracking continues when sharing is off.
+- `/fgf leaderboard` ranks observed kills and always includes your character. Peer totals are player-reported.
+  Kill totals include every species; detailed shared creature records cover the most recent observations.
 - An Instances page for bosses reported by encounter events, with local first clears, attempts, kill totals and
   difficulty records. Entries appear after the client reports an encounter; this is not a verified world-first board.
 - Common, rare and shiny variants. A rare species needs three sightings to confirm its rare variant; a shiny is a
@@ -51,6 +53,8 @@ The addon targets the WoW: Forever client, Interface 16001.
 ![A short walk through the journal](docs/screenshots/demo.gif)
 
 ## Feature previews
+
+![Recorded kills leaderboard](docs/screenshots/leaderboard.png)
 
 ![Creatures journal](docs/screenshots/field-guide.png)
 
