@@ -8,9 +8,6 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 - **Creature rows and tooltips show rare variants you have found.** Both read one creature's record where the whole character's progress was needed, so a found rare variant never showed as known, a finished creature never got its tick, and the tooltip always said Locked.
 - **The window shows its book portrait.** The icon was set on a texture name the window template does not have.
 - **The filter button no longer calls a text-box-only method** while the window builds.
-
-- **Creature rows and tooltips show rare variants you have found.** The list and the tooltip read one creature's record where they needed the character's, so a found rare variant still said Locked and a finished creature never got its tick.
-- **The journal window opens with its book portrait.** The window set the portrait on a key the client's frame template does not have, and called an edit-box method on the filter button, which buttons lack.
 - **The daily data refresh moves the one build pin.** `BUILD` in `tools/gen_zones.py` is the only client build pin, so a refresh PR for a new client build passes its own regeneration check.
 
 ## [0.3.14] - 2026-11-03
