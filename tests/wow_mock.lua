@@ -594,9 +594,6 @@ function Mock.Harness(opts)
 				Mock.timers[#Mock.timers + 1] = fn
 			end,
 		},
-		CreateColor = function(r, g, b, a)
-			return { r = r, g = g, b = b, a = a }
-		end,
 		geterrorhandler = function()
 			return function() end
 		end,

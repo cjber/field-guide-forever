@@ -34,7 +34,6 @@ read_globals = {
 	"COMBATLOG_OBJECT_REACTION_HOSTILE",
 	"COMBATLOG_OBJECT_TYPE_NPC",
 	"CombatLogGetCurrentEventInfo",
-	"CreateColor",
 	"CreateFrame",
 	"GameFontDisableSmall",
 	"GameFontHighlight",

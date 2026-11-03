@@ -14,10 +14,6 @@ LE_PARTY_CATEGORY_INSTANCE = nil
 ---@field icon Texture the glyph drawn over the plate
 ---@field alert table? the template's alert overlay, hidden for a custom button
 
--- Texture: the bezel Art.Bezel draws over an icon, kept on the icon texture it frames.
----@class Texture
----@field Bezel? Texture
-
 -- The classic target frame's layout, which UI/Rarity.lua reads alongside the modern TargetFrameContainer. Each is
 -- absent on a client with the other layout, so every read checks for nil.
 ---@class TargetFrame

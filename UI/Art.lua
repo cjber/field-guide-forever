@@ -360,17 +360,6 @@ function Art.RGBA(key, alpha)
 	return color[1], color[2], color[3], alpha or 1
 end
 
----@param key string
----@param alpha? number
----@return ColorMixin?
-function Art.Color(key, alpha)
-	if not CreateColor then
-		return nil
-	end
-	local r, g, b, a = Art.RGBA(key, alpha)
-	return CreateColor(r, g, b, a)
-end
-
 ---@param texture Texture
 ---@param key string
 ---@param alpha? number
@@ -391,60 +380,6 @@ function Art.Texture(parent, layer, key, alpha)
 	return texture
 end
 
----@param frame Frame|BackdropTemplate
----@param colorKey? string
----@param alpha? number
-function Art.Card(frame, colorKey, alpha)
-	if rawget(frame, "NineSlice") then
-		return
-	end
-	if not frame.SetBackdrop then
-		return
-	end
-	frame:SetBackdrop({
-		bgFile = Art.WHITE,
-		edgeFile = Art.WHITE,
-		tile = false,
-		edgeSize = 1,
-		insets = { left = 0, right = 0, top = 0, bottom = 0 },
-	})
-	local r, g, b = Art.RGBA(colorKey or "panel", alpha or 1)
-	frame:SetBackdropColor(r, g, b, alpha or 1)
-	local br, bg, bb = Art.RGBA("border", 0.8)
-	frame:SetBackdropBorderColor(br, bg, bb, 0.8)
-end
-
----@param frame Frame|BackdropTemplate
-function Art.Panel(frame)
-	if rawget(frame, "NineSlice") then
-		return
-	end
-	if not frame.SetBackdrop then
-		return
-	end
-	frame:SetBackdrop({
-		bgFile = Art.WHITE,
-		edgeFile = Art.WHITE,
-		tile = false,
-		edgeSize = 1,
-		insets = { left = 0, right = 0, top = 0, bottom = 0 },
-	})
-	local r, g, b = Art.RGBA("background", 0.98)
-	frame:SetBackdropColor(r, g, b, 0.98)
-	local br, bg, bb = Art.RGBA("border", 0.9)
-	frame:SetBackdropBorderColor(br, bg, bb, 0.9)
-end
-
----@param frame Frame|BackdropTemplate
-function Art.Flatten(frame)
-	if frame.SetBackdrop then
-		frame:SetBackdrop(nil)
-	end
-	if frame.SetBackdropColor then
-		frame:SetBackdropColor(0, 0, 0, 0)
-	end
-end
-
 ---@param parent Frame
 ---@param key? string
 ---@param alpha? number
@@ -462,9 +397,11 @@ end
 ---@return FGBar bar
 ---@return Texture fill
 function Art.Bar(parent, width, height, key)
-	local bar = CreateFrame("Frame", nil, parent, "BackdropTemplate") --[[@as FGBar]]
+	local bar = CreateFrame("Frame", nil, parent) --[[@as FGBar]]
 	bar:SetSize(width, height)
-	Art.Card(bar, "background", 1)
+	local background = bar:CreateTexture(nil, "BACKGROUND")
+	background:SetAtlas("Profession-ProgressBar-BG")
+	background:SetAllPoints()
 	local fill = Art.Texture(bar, "ARTWORK", key or "gold", 1)
 	fill:SetPoint("TOPLEFT", bar, "TOPLEFT", 1, -1)
 	fill:SetHeight(height - 2)
@@ -496,24 +433,6 @@ function Art.Icon(texture, file, size)
 	texture:SetTexCoord(0, 1, 0, 1)
 	texture:SetTexture(file)
 	texture:SetSize(size, size)
-end
-
----The thin client bezel that frames an icon everywhere in the interface, drawn over an icon texture.
----@param texture Texture
-function Art.Bezel(texture)
-	local border = texture:GetParent():CreateTexture(nil, "OVERLAY")
-	border:SetTexture("Interface\\Common\\WhiteIconFrame")
-	local r, g, b = Art.RGBA("border", 0.85)
-	border:SetVertexColor(r, g, b, 0.85)
-	border:SetAllPoints(texture)
-	texture.Bezel = border
-	return border
-end
-
----@param family string?
----@return string
-function Art.FamilyIcon(family)
-	return Art.FAMILY_ICONS[family] or Art.GENERIC_CREATURE_ICON
 end
 
 ---The icon a species shows: its generated model icon, name refinement, then family and creature-type art.
