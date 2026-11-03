@@ -77,4 +77,4 @@ The screenshots are renders from `tools/mockups.py` (wowmock, the client's own a
 - `L["whole sentence"]` is the only source of player-visible text in `UI/`.
 - Comments explain *why* (client quirks, mock geometry), not what.
 - Runtime anchors and native template behavior own the layout. Fix runtime and renderer together; never hand-edit a PNG or use a render-only correction as runtime evidence.
-- A visual audit separately verifies composition against [Core's composition contract](https://github.com/cjber/forever-core/blob/main/docs/ui-composition.md): tab orientation/owning edge, complete image frame, source crop, one icon border owner. Freshness and geometry do not prove composition.
+- A visual audit separately verifies composition against [Core's composition contract](https://github.com/cjber/forever-core/blob/b4f6ef0b989eda9a3e42df9d170e60e0b1c9c272/docs/ui-composition.md): tab orientation/owning edge, complete image frame, source crop, one icon border owner. Freshness and geometry do not prove composition.

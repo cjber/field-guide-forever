@@ -81,8 +81,8 @@ picture looks right, so trace a visible defect to its runtime or renderer produc
 
 ## Native composition
 
-Load Forever Core's `wow-retail-ui-style` skill, [asset registry](https://github.com/cjber/forever-core/blob/main/docs/asset-registry.md) and
-[native composition contract](https://github.com/cjber/forever-core/blob/main/docs/ui-composition.md) before UI or screenshot work. Review a complete lockup against the native host
+Load Forever Core's `wow-retail-ui-style` skill, [asset registry](https://github.com/cjber/forever-core/blob/b4f6ef0b989eda9a3e42df9d170e60e0b1c9c272/docs/asset-registry.md) and
+[native composition contract](https://github.com/cjber/forever-core/blob/b4f6ef0b989eda9a3e42df9d170e60e0b1c9c272/docs/ui-composition.md) before UI or screenshot work. Review a complete lockup against the native host
 and current SkillUp/Adventure Guide references before implementing a redesign. Record tab orientation
 and owning edge, all four image-frame edges, icon source crop and single chrome owner. Freshness and
 geometry checks do not validate these relationships. AI concepts are proposals, not client evidence.
