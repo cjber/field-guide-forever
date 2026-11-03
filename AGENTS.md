@@ -7,6 +7,7 @@ Field Guide Forever targets the WoW: Forever client (Interface 16001). It keeps 
 ```sh
 stylua --check .
 luacheck .
+bash tools/typecheck.sh   # TOC/XML load graph and LuaLS 3.19.1, which must report nothing
 for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
 uvx ruff@0.16.8 check tools && uvx ruff@0.16.8 format --check tools
 python3 tools/check_generated.py
@@ -14,6 +15,7 @@ python3 tools/check_core_shared.py
 python3 tools/visual_audit.py
 python3 tools/check_screenshots.py
 python3 tools/changelog.py --check
+python3 tools/deadcode.py --check
 python3 .sloppatrol/gate.py --base origin/main && python3 .sloppatrol/agents.py check
 ```
 
@@ -26,7 +28,12 @@ older than the sources it is drawn from (`--record` after a render), `tools/chan
 release's entry, `tools/check_package.py` checks what the packager built, and `tools/release_check.py` gates the
 release on a green full CI run. `tools/check_core_shared.py` is the Field Guide side of the suite's core drift gate: it
 checks this repo's vendored copies against public forever-core main, and `.github/workflows/core-shared-drift.yml`
-runs it on a schedule.
+runs it on a schedule. `tools/typecheck.sh` verifies the vendored `tools/forever_tools/` (copied byte for byte from
+forever-core: refresh it only with `python3 tools/forever_tools/sync.py update --source <forever-core checkout>`),
+checks that the TOC/XML load graph reaches every runtime Lua file (`tools/typecheck_coverage.py`), then runs LuaLS
+over every TOC-loaded file against the pinned WoW API and FrameXML annotations. CI runs the gate in the jobs
+`deadcode`, `check`, `python`, `typecheck`, `generated-data`, `project-rules` (changelog and the Sloppatrol gate),
+`workflows`, `secrets` and `package`, each on every pull request.
 `tools/visual_audit.py` reads the `docs/screenshots/layout.json` manifest `tools/mockups.py` writes and fails when a widget leaves the window
 frame, when two controls overlap or sit closer than 8 units apart, or when the rendered button art is not where the
 manifest says it is. A layout bug is fixed in the renderer's shared constants (and in `UI/Window.lua` if the addon
@@ -45,6 +52,8 @@ picture looks right, so a visual defect found by eye is fixed in the renderer an
 - `Integrations/QuestieDB.lua` is the only runtime reader of QuestieDB. It builds the catalogue from the installed Forever API and reports `ok`, `missing`, `unsupported`, or `loading`.
 - Creature names, levels, ranks, and spawn placement are never hand-written or vendored. The old hand-maintained catalogue must not return.
 - `Data/Client.lua` is generated from pinned wago.tools DB2 exports by `tools/gen_zones.py`. It contains client constants only. `tools/check_generated.py` verifies the committed output against the pinned inputs.
+- `BUILD` in `tools/gen_zones.py` is the only client build pin: `tools/check_generated.py`, `tools/micro_menu_render.py` and `tests/data_spec.lua` read it. The daily `.github/workflows/refresh-data.yml` moves it to the newest Forever build on wago.tools, regenerates `Data/Client.lua` and opens a data PR.
+- `types/` holds LuaLS declarations for the namespace and for client globals the pinned annotations lack. It is never loaded by the TOC or shipped.
 - `Core/LegacyIds.lua` is a one-release migration map from old synthetic ids to names. It is only used to re-key existing records after QuestieDB loads; remove it in the release after schema 2.
 - `Core/Model.lua` contains pure state arithmetic and variant classification. It has no WoW API, I/O, or globals beyond `ns.Model`.
 - `Core/Core.lua` owns SavedVariables, character identity, catalogue lookup, combat-log recording, progress callbacks, and slash commands. Event handlers use `Core/SafeCall.lua`.

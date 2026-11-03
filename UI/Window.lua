@@ -11,7 +11,7 @@ local WIDTH, HEIGHT = 960, 720
 local LEFT_WIDTH = 396
 local PANEL_HEIGHT = 534
 
----@type Frame?
+---@type FGWindowFrame?
 local frame
 ---@type integer?
 local selectedId
@@ -45,10 +45,10 @@ end
 ---@param text string
 ---@param width number
 ---@param solid? boolean
----@return Frame
+---@return FGButton
 local function MakeButton(parent, text, width, solid)
 	-- The client's own button, so hover, press and disabled states are the ones players already know.
-	local button = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
+	local button = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate") --[[@as FGButton]]
 	button:SetSize(width, 26)
 	button:SetText(text)
 	button.Label = button:GetFontString()
@@ -59,11 +59,11 @@ local function MakeButton(parent, text, width, solid)
 	return button
 end
 
----@param parent Frame
+---@param parent FGWindowFrame
 local function BuildHeader(parent)
 	-- The template's own portrait and title; the addon only names them.
-	if parent.PortraitContainer and parent.PortraitContainer.Portrait then
-		parent.PortraitContainer.Portrait:SetTexture(Art.BOOK_ICON)
+	if parent.PortraitContainer and parent.PortraitContainer.portrait then
+		parent.PortraitContainer.portrait:SetTexture(Art.BOOK_ICON)
 	end
 	if parent.TitleContainer and parent.TitleContainer.TitleText then
 		parent.TitleContainer.TitleText:SetText(L["FIELD GUIDE"])
@@ -80,7 +80,7 @@ local function BuildHeader(parent)
 
 	Window.tabButtons = {}
 	for index, info in ipairs(tabs) do
-		local button = CreateFrame("Frame", nil, parent, "LargeSideTabButtonTemplate")
+		local button = CreateFrame("Frame", nil, parent, "LargeSideTabButtonTemplate") --[[@as FGTabButton]]
 		button:SetSize(43, 55)
 		button.Icon:SetTexture(info.icon)
 		button:SetFillToInterior(true)
@@ -129,7 +129,6 @@ local function BuildSearch(parent)
 	local filterButton = MakeButton(parent, L["All"], 128, false)
 	filterButton:SetPoint("TOPLEFT", 288, -62)
 	filterButton:SetHeight(24)
-	filterButton:SetTextInsets(8, 8, 0, 0)
 	Window.filterButton = filterButton
 	filterButton:SetScript("OnClick", function()
 		Window.ToggleFilterMenu()
@@ -471,13 +470,15 @@ local function SavePosition()
 	end
 end
 
+---@return FGWindowFrame
 local function Create()
 	if frame then
 		return frame
 	end
 	-- PortraitFrameTemplate supplies the metal NineSlice, the circular portrait bezel, the title and the close
 	-- button, so the journal sits in the client's own window rather than an addon-drawn rectangle.
-	frame = CreateFrame("Frame", "FieldGuideForeverFrame", UIParent, "PortraitFrameTemplate,BackdropTemplate")
+	local created = CreateFrame("Frame", "FieldGuideForeverFrame", UIParent, "PortraitFrameTemplate,BackdropTemplate")
+	frame = created --[[@as FGWindowFrame]]
 	Window.frame = frame
 	frame:SetSize(WIDTH, HEIGHT)
 	frame:SetFrameStrata("DIALOG")
@@ -547,8 +548,7 @@ local function Create()
 end
 
 function Window.Show()
-	Create()
-	frame:Show()
+	Create():Show()
 	Window.Refresh()
 end
 

@@ -43,7 +43,8 @@ function Instances.Create(parent)
 	return view
 end
 
----@param encounters FGEncounterState[]?
+---@param catalogue FGInstance[]?
+---@param personalRecords FGEncounterState[]?
 function Instances.Refresh(catalogue, personalRecords)
 	if not Instances.view then
 		return

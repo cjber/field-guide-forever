@@ -244,7 +244,6 @@ local function UpdateBadges(species, character)
 end
 
 ---@param state FGSpeciesState?
----@param species FGSpecies
 local function UpdateResearch(state)
 	local count = state and state.count or 0
 	local rank = ns.Model.Rank(count)

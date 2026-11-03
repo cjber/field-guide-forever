@@ -6,6 +6,7 @@ local _, ns = ...
 -- they show and what each one writes to the saved variables.
 local L = ns.L
 
+---@class FGSettingsModule
 local SettingsPanel = {}
 ns.Settings = SettingsPanel
 

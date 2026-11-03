@@ -1,6 +1,7 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+---@class FGStatsModule
 local Stats = {}
 ns.Stats = Stats
 
@@ -77,7 +78,7 @@ local function Schedule()
 	C_Timer.After(SEND_SPACING, function()
 		queueActive = false
 		local key, item = next(pending)
-		if not item then
+		if key == nil or not item then
 			return
 		end
 		local allowed = false
@@ -357,6 +358,9 @@ local function Receive(prefix, message, channel, sender)
 		return
 	end
 	local db = ns.db
+	if not db then
+		return
+	end
 	SanitizeShared()
 	db.sharedStats = db.sharedStats or {}
 	local peer = db.sharedStats[sender]

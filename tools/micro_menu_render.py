@@ -8,9 +8,9 @@ if not (WOWMOCK / "wowmock.py").is_file():
     raise SystemExit(f"wowmock.py not found in {WOWMOCK}; set FOREVER_CORE to the forever-core checkout")
 sys.path.insert(0, str(WOWMOCK))
 import wowmock as W  # noqa: E402  # ty: ignore[unresolved-import]
+from gen_zones import BUILD  # noqa: E402
 from PIL import Image  # noqa: E402  # ty: ignore[unresolved-import]  # Pillow is local only, like wowmock
 
-BUILD = "1.60.1.70753"
 ui = W.Ui(scale=2, build=BUILD)
 
 BTN_W, BTN_H, STEP = 32, 41, 27

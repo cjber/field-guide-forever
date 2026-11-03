@@ -357,7 +357,7 @@ function Art.Texture(parent, layer, key, alpha)
 	return texture
 end
 
----@param frame Frame
+---@param frame Frame|BackdropTemplate
 ---@param colorKey? string
 ---@param alpha? number
 function Art.Card(frame, colorKey, alpha)
@@ -377,7 +377,7 @@ function Art.Card(frame, colorKey, alpha)
 	frame:SetBackdropBorderColor(br, bg, bb, 0.8)
 end
 
----@param frame Frame
+---@param frame Frame|BackdropTemplate
 function Art.Panel(frame)
 	if not frame.SetBackdrop then
 		return
@@ -395,7 +395,7 @@ function Art.Panel(frame)
 	frame:SetBackdropBorderColor(br, bg, bb, 0.9)
 end
 
----@param frame Frame
+---@param frame Frame|BackdropTemplate
 function Art.Flatten(frame)
 	if frame.SetBackdrop then
 		frame:SetBackdrop(nil)
@@ -419,10 +419,10 @@ end
 ---@param width number
 ---@param height number
 ---@param key? string
----@return Frame bar
+---@return FGBar bar
 ---@return Texture fill
 function Art.Bar(parent, width, height, key)
-	local bar = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+	local bar = CreateFrame("Frame", nil, parent, "BackdropTemplate") --[[@as FGBar]]
 	bar:SetSize(width, height)
 	Art.Card(bar, "background", 1)
 	local fill = Art.Texture(bar, "ARTWORK", key or "gold", 1)

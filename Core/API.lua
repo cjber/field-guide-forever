@@ -7,16 +7,7 @@ local _, ns = ...
 -- additive API change to raise `minor`; Spawns and ZoneSpawns are the minor-1 additions.
 ---@class FGPublicAPI
 local API = { version = 1, minor = 1 }
----@class FGSpawn
----@field speciesID integer
----@field name string
----@field rare boolean
----@field catalogued boolean
----@field minLevel integer
----@field maxLevel integer
----@field map integer
----@field x number
----@field y number
+---@type FGSpawnCache?
 local spawnCache
 local FIRST_METRICS = {
 	first_sighting = true,
@@ -46,7 +37,7 @@ end
 
 -- QuestieDB stores AreaTable IDs and 0–100 coordinates. Resolve them only through its own ZoneDB tables; an
 -- unknown mapping is omitted instead of drawing the creature on a guessed map.
----@return table<integer, FGSpawn[]>?
+---@return FGSpawnCache?
 local function BuildSpawnCache()
 	local lib = rawget(_G, "LibQuestieDB")
 	if
@@ -147,7 +138,7 @@ end
 ---@param speciesId integer
 ---@return FGSpawn[]?
 function API.Spawns(speciesId)
-	if not SpawnsReady() or type(speciesId) ~= "number" or speciesId % 1 ~= 0 then
+	if not SpawnsReady() or not spawnCache or type(speciesId) ~= "number" or speciesId % 1 ~= 0 then
 		return nil
 	end
 	local species = ns.SpeciesById[speciesId]
@@ -160,7 +151,7 @@ end
 ---@param zoneName? string
 ---@return FGSpawn[]?
 function API.ZoneSpawns(zoneName)
-	if not SpawnsReady() then
+	if not SpawnsReady() or not spawnCache then
 		return nil
 	end
 	local zone
@@ -436,7 +427,7 @@ function API.Leaderboard(metric, subject)
 		or metric == "shiny_finds"
 		or metric:match("^first_")
 	if creatureMetric then
-		local entry = ns.Model.Specimen(state, tonumber(subject))
+		local entry = ns.Model.Specimen(state, tonumber(subject) or 0)
 		local fields = {
 			creature_kills = { value = entry.kills, time = entry.lastKill },
 			rare_kills = { value = entry.rareKills, time = entry.firstRare },

@@ -22,15 +22,7 @@ def main() -> None:
     mode = ["--offline"] if parser.parse_args().offline else []
     with tempfile.TemporaryDirectory(prefix="field-guide-data-") as temp:
         generated = Path(temp) / "Client.lua"
-        command = [
-            sys.executable,
-            "tools/gen_zones.py",
-            "--build",
-            "1.60.1.70753",
-            *mode,
-            "--output",
-            str(generated),
-        ]
+        command = [sys.executable, "tools/gen_zones.py", *mode, "--output", str(generated)]
         subprocess.run(command, cwd=ROOT, check=True)
         expected = generated.read_bytes()
         subprocess.run(command, cwd=ROOT, check=True)

@@ -11,7 +11,7 @@ local ROW_HEIGHT = 58
 local ROW_WIDTH = 356
 local BAR_WIDTH = 332
 
----@param row Frame
+---@param row FGListRow
 ---@param entry FGListEntry
 ---@param selectedId integer?
 local function UpdateRow(row, entry, selectedId)
@@ -20,7 +20,8 @@ local function UpdateRow(row, entry, selectedId)
 	local count = state and state.count or 0
 	Art.Icon(row.Icon, Art.SpeciesIcon(species.name, species.id), 32)
 	row.Name:SetText(species.name)
-	local variants = ns.Model.Variants(state, species.id)
+	local character = ns.GetCharacterState(false)
+	local variants = ns.Model.Variants(character, species.id)
 	local nameColor = variants.rare.known and "rare" or "text"
 	local nr, ng, nb = Art.RGBA(nameColor, 1)
 	row.Name:SetTextColor(nr, ng, nb, 1)
@@ -31,7 +32,7 @@ local function UpdateRow(row, entry, selectedId)
 	row.Fill:SetWidth(BAR_WIDTH * count / ns.Model.MASTERED_AT)
 	row.Selected:SetShown(selectedId == species.id)
 
-	local complete = ns.Model.IsComplete(state, species.id, species)
+	local complete = ns.Model.IsComplete(character, species.id, species)
 	if count >= ns.Model.MASTERED_AT then
 		row.Glyph:SetText(L["✦"])
 		local r, g, b = Art.RGBA("gold", 1)
@@ -53,9 +54,9 @@ local function UpdateRow(row, entry, selectedId)
 end
 
 ---@param index integer
----@return Frame
+---@return FGListRow
 local function CreateRow(index)
-	local row = CreateFrame("Button", nil, List.child)
+	local row = CreateFrame("Button", nil, List.child) --[[@as FGListRow]]
 	row:SetSize(ROW_WIDTH, ROW_HEIGHT)
 	row:SetPoint("TOPLEFT", 0, -(index - 1) * ROW_HEIGHT)
 
