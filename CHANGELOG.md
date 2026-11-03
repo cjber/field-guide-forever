@@ -5,8 +5,9 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
-- **Controls use the Forever asset set.** Buttons use the native gold-bordered family, and CI rejects legacy loose chrome in runtime UI and screenshot renderers.
-- **Every retained zone preview is rendered afresh.** Modal previews dim the entire journal beneath the dialog.
+- **Progress updates keep your place in the creature list.** Scrolling no longer jumps to the top after tracking a creature or recording progress.
+
+- **Creature entries put the creature first.** A native model view sits beside matching zone artwork, with one research strip and Overview, Variants and Records tabs. The list leaves more room for the entry, and the window title reads Field Guide.
 
 ## [0.3.16] - 2026-11-03
 

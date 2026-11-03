@@ -8,6 +8,10 @@ window's logical size, on wowmock's plain backdrop.
 
     python3 tools/mockups.py
 
+Headless gallery scenes show the native model's icon fallback. FIELD_GUIDE_DESIGN_PREVIEW=1 writes a separate
+layout preview; FIELD_GUIDE_MODEL_REFERENCE=/path/to/reference.webp may illustrate its Siege Golem viewport,
+labelled as a composition reference. Neither environment option changes the gallery's model fidelity.
+
 Deterministic: the specimen counts come from the species id, so a second run is byte-identical.
 """
 
@@ -22,6 +26,10 @@ import tempfile
 from pathlib import Path
 from typing import Any, NotRequired, TypedDict
 
+from gen_creature_icons import model_paths
+from gen_mock_catalogue import EXTRACTED, FIXTURE
+from gen_zones import BUILD
+
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
 WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
 if not (WOWMOCK / "wowmock.py").is_file():
@@ -33,7 +41,6 @@ from wowmock import (  # noqa: E402  # ty: ignore[unresolved-import]
     INSET_FRAME_LAYOUT,
     MenuCheckbox,
     MenuTitle,
-    basic_panel,
     context_menu,
     draw_nine_slice,
     minimal_scrollbar,
@@ -51,7 +58,6 @@ class MockSpecies(TypedDict):
     family: str
     min: int
     max: int
-    lore: str
     rare: bool
     boss: bool
     zone: NotRequired[str]
@@ -84,9 +90,7 @@ MUTED = wowmock.rgb("9e998c")
 BLUE = wowmock.rgb("85b8f2")
 GREEN = wowmock.rgb("7d9961")
 DIM = wowmock.rgb("9e998c")
-DARK = wowmock.rgb("1b1e22")
 TROUGH = wowmock.rgb("303236")
-PANEL = wowmock.rgb("212429")
 FONTS["FieldGuideTabLabel"] = wowmock.Font(
     FONTS["GameFontDisableSmall"].path, 8, FONTS["GameFontDisableSmall"].color, (1, -1)
 )
@@ -461,8 +465,7 @@ def load_catalogue():
         int(index): path
         for index, path in re.findall(r'^\s*\[(\d+)\] = "(interface/icons/[^\"]+)"', creature_source, re.MULTILINE)
     }
-    model_source = json.loads((ROOT / "tools" / ".cache" / "creature-model-paths-202610202236.json").read_text())
-    MODEL_ICON_IDS = {path: int(file_id) for path, file_id in model_source["icons"].items()}
+    _, MODEL_ICON_IDS = model_paths(offline=False)
     CREATURE_FAMILIES = {
         int(family_id): name for family_id, name in re.findall(r'ns\.ClientData\.families\[(\d+)\] = "([^"]+)"', source)
     }
@@ -487,10 +490,10 @@ def load_catalogue():
         zones[zone_id] = {
             "id": zone_id,
             "name": name,
-            "continent": continents.get(continent, str(continent)),
+            "continent": continents.get(continent, parent_map[0] if parent_map else "Unknown location"),
             "species": [],
         }
-    fixture = ROOT / "tools" / ".cache" / "questiedb-mock-catalogue-v1.0.6.tsv"
+    fixture = FIXTURE
     with fixture.open(encoding="utf-8", newline="") as stream:
         for row in csv.reader(stream, delimiter="\t"):
             if len(row) != 7:
@@ -504,7 +507,6 @@ def load_catalogue():
                 "family": creature_type,
                 "min": int(minimum or 1),
                 "max": int(maximum or minimum or 1),
-                "lore": "QuestieDB Forever mock fixture; no lore is supplied by the client database.",
                 "rare": int(rank or 0) == 2,
                 "boss": int(rank or 0) == 3,
             }
@@ -611,13 +613,15 @@ def note(name, role, x, y, w, h):
     widgets.append({"name": name, "role": role, "x": round(x, 1), "y": round(y, 1), "w": round(w, 1), "h": round(h, 1)})
 
 
-def window(ui, zone, species, tab, icons, sigil):
+def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, unavailable=False, catalogue=None):
     """The journal as UI/Window.lua builds it: a real PortraitFrameTemplate (metal NineSlice, circular portrait,
     centred title, close button) around the addon's own list and detail panes at their own anchors."""
     m = 26
     canvas = ui.canvas(W + m * 2 + 60, H + m * 2)
-    # Every scene draws the same shell, so the last one's widget list is the layout.
-    LAYOUT.pop("widgets", None)
+    # Each saved scene captures its own controls, including optional map navigation.
+    LAYOUT["widgets"] = []
+    LAYOUT["canvas"] = {"width": canvas.width, "height": canvas.height, "scale": ui.scale}
+    LAYOUT["frame"] = {"x": m, "y": m, "w": W, "h": H}
 
     def px(x):
         return m + x
@@ -630,7 +634,33 @@ def window(ui, zone, species, tab, icons, sigil):
     tiled(canvas, rock, px(2), py(21), W - 4, H - 23, rock.width / ui.scale, rock.height / ui.scale)
     canvas.draw(ui.atlas("_UI-Frame-TopTileStreaks"), px(6), py(21), W - 8, 43)
     index = ("CREATURES", "RARES", "SHINY", "INSTANCES").index(tab)
-    portrait_frame_art(canvas, m, m, W, H, sigil, "FIELD GUIDE")
+    portrait_frame_art(canvas, m, m, W, H, sigil, "Field Guide")
+    if unavailable:
+        note("Catalogue body", "pane", px(18), py(104), 924, 514)
+        note("Catalogue notice", "content", px(140), py(344), 680, 60)
+        text(
+            canvas,
+            px(58),
+            py(28),
+            "Azeroth field journal",
+            "GameFontDisableSmall",
+            MUTED,
+            justify="CENTER",
+            width=W - 82,
+        )
+        card(canvas, px(18), py(104), 924, 514)
+        text(
+            canvas,
+            px(140),
+            py(344),
+            "Install QuestieDB or Questie to load the creature catalogue.\nhttps://www.curseforge.com/wow/addons/questie",
+            "GameFontNormalLarge",
+            TEXT,
+            width=680,
+            justify="CENTER",
+        )
+        return canvas
+
     strip_x, strip_y = px(W + 3), py(28)
     note("right tab strip", "tabs", strip_x, strip_y, 55, 55 * 4 + 3 * 3)
     for tab_index, tooltip in enumerate(TAB_TOOLTIPS):
@@ -652,6 +682,9 @@ def window(ui, zone, species, tab, icons, sigil):
 
     if tab == "INSTANCES":
         view_x, view_y = px(18), py(104)
+        note("Instances body", "pane", view_x, view_y, 924, 514)
+        note("Instances title", "content", view_x + 4, view_y + 4, 884, 20)
+        note("Instances subtitle", "content", view_x + 4, view_y + 26, 884, 16)
         text(canvas, view_x + 4, view_y + 4, "Instances", "GameFontNormalLarge", GOLD)
         text(
             canvas, view_x + 4, view_y + 26, "Boss encounters recorded on this character", "GameFontDisableSmall", MUTED
@@ -667,6 +700,7 @@ def window(ui, zone, species, tab, icons, sigil):
         )
         for row_index, (instance_name, boss_name) in enumerate(boss_rows[:4]):
             row_y = view_y + 48 + row_index * 92
+            note(f"Instance row {row_index + 1}", "content", view_x, row_y, 884, 86)
             card(canvas, view_x, row_y, 884, 86)
             text(canvas, view_x + 12, row_y + 8, f"{instance_name} · {boss_name}", "GameFontNormal", TEXT, width=540)
             right(canvas, view_x + 872, row_y + 8, "0 recorded boss kills", "GameFontHighlightSmall", GOLD, width=180)
@@ -679,9 +713,6 @@ def window(ui, zone, species, tab, icons, sigil):
                 "GameFontDisableSmall",
                 MUTED,
             )
-        LAYOUT["canvas"] = {"width": canvas.width, "height": canvas.height, "scale": ui.scale}
-        LAYOUT["frame"] = {"x": px(0), "y": py(0), "w": W, "h": H}
-        LAYOUT.setdefault("scenes", [])
         return canvas
 
     breadcrumb = f"{zone['continent']} > {zone['name']}"
@@ -702,28 +733,39 @@ def window(ui, zone, species, tab, icons, sigil):
     # Left pane: the creature list.
     catalogued = sum(1 for s in zone["species"] if progress(s)["count"])
     rows = zone["species"]
-    if tab == "RARES":
-        rows = [s for s in rows if s["rare"] or progress(s)["rare"] >= RARE_TARGET]
-    elif tab == "SHINY":
-        rows = [s for s in rows if progress(s)["shiny"]]
-    rows = rows or zone["species"]
+    if tab in ("RARES", "SHINY"):
+        rows = [s for area in (catalogue or [zone]) for s in area["species"]]
+        rows = [s for s in rows if s["rare"]] if tab == "RARES" else [s for s in rows if progress(s)["shiny"]]
 
-    if len(rows) > 10:
-        minimal_scrollbar(canvas, px(388), py(108), 470, visible=10 / len(rows))
-    for row_index, row in enumerate(rows[:10]):
+    selected_row = next((i for i, row in enumerate(rows) if row["id"] == species["id"]), 0)
+    first_row = max(0, min(selected_row - 5, len(rows) - 12))
+    if len(rows) * 46 > 514:
+        minimal_scrollbar(
+            canvas,
+            px(322),
+            py(108),
+            506,
+            visible=514 / (len(rows) * 46),
+            offset=first_row * 46 / (len(rows) * 46 - 514),
+        )
+    list_bottom = canvas.px(py(618))
+    below_list = canvas.image.crop((0, list_bottom, canvas.image.width, canvas.image.height))
+    for row_index, row in enumerate(rows[first_row : first_row + 12]):
         state = progress(row)
         chosen = row["id"] == species["id"]
         y = py(104 + row_index * 46)
         if chosen:
-            canvas.draw(ui.texture("interface/questframe/ui-questtitlehighlight.blp"), px(18), y, 356, 46, blend="ADD")
+            canvas.draw(ui.texture("interface/questframe/ui-questtitlehighlight.blp"), px(18), y, 304, 46, blend="ADD")
         canvas.draw(icons[row["id"]], px(28), y + 5, 32, 32)
         canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), px(28), y + 5, 32, 32, BRASS)
         known = row["rare"] and state["rare"] >= RARE_TARGET
         # The kills figure is right-aligned from about px(308); a longer name is cut with an ellipsis so it never runs
         # under that figure and never stops mid-word without a mark.
-        name = row["name"] if len(row["name"]) <= 26 else row["name"][:25].rstrip() + "\u2026"
-        text(canvas, px(70), y + 5, name, "GameFontNormal", BLUE if known else TEXT, width=252)
-        level = str(row["min"]) if row["min"] == row["max"] else f"{row['min']}\u2013{row['max']}"
+        name = row["name"]
+        while canvas.text_width(name, FONTS["GameFontNormal"]) > 152:
+            name = name[:-2].rstrip() + "…"
+        text(canvas, px(70), y + 5, name, "GameFontNormal", BLUE if known else TEXT, width=152)
+        level = str(row["min"]) if row["min"] == row["max"] else f"{row['min']}-{row['max']}"
         text(
             canvas,
             px(70),
@@ -732,187 +774,190 @@ def window(ui, zone, species, tab, icons, sigil):
             "GameFontDisableSmall",
             MUTED,
         )
-        right(canvas, px(360), y + 5, f"{state['kills']} kills", "GameFontNormal", TEXT, width=64)
+        right(canvas, px(308), y + 5, f"{state['kills']} kills", "GameFontNormal", TEXT, width=64)
         complete = state["count"] >= 1 and bool(state["shiny"]) and (not row["rare"] or state["rare"] >= RARE_TARGET)
         if state["count"] >= MASTERED_AT:
-            marker(canvas, px(342), y + 28.5, 11, GOLD)
+            marker(canvas, px(290), y + 28.5, 11, GOLD)
         elif complete:
-            canvas.draw(ui.atlas("common-icon-checkmark"), px(340), y + 23, 11, 11, GREEN)
-        bar(canvas, px(28), y + 40, 332, 3, state["count"] / MASTERED_AT, GOLD)
+            canvas.draw(ui.atlas("common-icon-checkmark"), px(288), y + 23, 11, 11, GREEN)
+        bar(canvas, px(28), y + 40, 280, 3, state["count"] / MASTERED_AT, GOLD)
 
-    # Right pane: the selected creature's entry.
+    canvas.image.paste(below_list, (0, list_bottom))
+
+    # Fixed model/location area, one research strip and shared secondary page bounds.
     state = progress(species)
     count = state["count"]
     rank = rank_of(count)
-    rx, ry = px(426), py(104)
-
-    # The portrait is circular: draw it on its own layer, mask that, then paste. canvas.mask multiplies the whole
-    # surface's alpha, so applying it to the main canvas would erase everything outside the portrait's rect.
-    portrait = ui.canvas(canvas.width, canvas.height)
-    portrait.draw(icons[species["id"]], rx + 14, ry + 14, 58, 58)
-    portrait.mask(ui.texture("interface/characterframe/tempportraitalphamask.blp"), rx + 14, ry + 14, 58, 58)
-    canvas.paste(portrait, 0, 0)
-    canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), rx + 14, ry + 14, 58, 58, BRASS)
-    text(canvas, rx + 84, ry + 18, species["name"], "GameFontNormalLarge", GOLD)
-    level = str(species["min"]) if species["min"] == species["max"] else f"{species['min']}\u2013{species['max']}"
-    text(
-        canvas,
-        rx + 84,
-        ry + 40,
-        f"{species['family']} \u00b7 {zone['name']} \u00b7 Level {level}",
-        "GameFontDisableSmall",
-        MUTED,
-    )
-
-    badges = [("Common", TEXT, True)]
-    badges.append(("Rare variant known", BLUE, state["rare"] >= RARE_TARGET))
-    badges.append(("Shiny seen", GOLD, bool(state["shiny"])))
-    bx = rx + 14
-    for label, colour, show in badges:
-        if not show:
-            continue
-        width = max(50, canvas.text_width(label, FONTS["GameFontDisableSmall"]) + 14)
-        card(canvas, bx, ry + 76, width, 18, colour)
-        text(canvas, bx, ry + 76, label, "GameFontDisableSmall", colour, justify="CENTER", width=width, box_height=18)
-        bx += width + 6
-    note("Detail badges", "badge", rx + 14, ry + 76, bx - rx - 20, 18)
-
-    # Research card.
-    card(canvas, rx + 14, ry + 102, 488, 84)
-    note("Research card", "card", rx + 14, ry + 102, 488, 84)
-    text(canvas, rx + 24, ry + 109, "Research", "GameFontNormal", GOLD)
-    for pip_index, name in enumerate(PIPS):
-        x = rx + 14 + 28 + pip_index * 112
-        on = rank >= pip_index + 1
-        marker(canvas, x + 5, ry + 102 + 33, 11, GOLD if on else wowmock.rgb("4a4842"))
-        if pip_index < len(PIPS) - 1:
-            canvas.draw(
-                ui.atlas("_UI-Frame-InnerTopTile"),
-                x + 13,
-                ry + 102 + 31,
-                86,
-                3,
-                GOLD if rank >= pip_index + 2 else wowmock.rgb("3a382f"),
-            )
-        text(
-            canvas,
-            x - 39,
-            ry + 102 + 42,
-            name,
-            "GameFontDisableSmall",
-            TEXT if on else MUTED,
-            justify="CENTER",
-            width=88,
-        )
-    text(canvas, rx + 24, ry + 162, "Mastery", "GameFontDisableSmall", MUTED)
-    right(
-        canvas,
-        rx + 14 + 488 - 10,
-        ry + 162,
-        f"{count} / 10 · {state['kills']} recorded deaths",
-        "GameFontDisableSmall",
-        TEXT,
-        width=200,
-    )
-    bar(canvas, rx + 24, ry + 176, 468, 4, count / MASTERED_AT, GOLD)
-    note("Research bar", "progress", rx + 24, ry + 176, 468, 4)
-
-    # Lore card.
-    card(canvas, rx + 14, ry + 196, 488, 58)
-    note("Lore card", "card", rx + 14, ry + 196, 488, 58)
-    text(canvas, rx + 24, ry + 203, "Lore", "GameFontNormal", GOLD)
-    lore_font = FONTS["GameFontDisableSmall"]
-    lines = wrap_pixels(species["lore"], lore_font, 468, 2, canvas)
-    for line_index, line in enumerate(lines):
-        text(canvas, rx + 24, ry + 217 + line_index * 12, line, "GameFontDisableSmall", wowmock.rgb("c4baa4"))
-
-    # Variants.
-    text(canvas, rx + 14, ry + 264, "Variants", "GameFontNormal", GOLD)
-    variants = [
-        ("Common", "Known" if count else "0 / 1", bool(count), TEXT),
-        (
-            "Rare variant",
-            "Known" if state["rare"] >= RARE_TARGET else f"{state['rare']} / {RARE_TARGET}",
-            state["rare"] >= RARE_TARGET,
-            BLUE,
-        ),
-        (
-            "Shiny variant",
-            "Known" if state["shiny"] else f"{state['shiny']} / {SHINY_TARGET}",
-            bool(state["shiny"]),
-            GOLD,
-        ),
-    ]
-    for variant_index, (title, status, known, colour) in enumerate(variants):
-        vx = rx + 14 + variant_index * 165
-        vy = ry + 280
-        width = 158 if variant_index == 2 else 157
-        card(canvas, vx, vy, width, 52, colour if known else wowmock.rgb("3a382f"))
-        note(f"Variant card {variant_index + 1}", "card", vx, vy, width, 52)
-        text(canvas, vx + 10, vy + 7, title, "GameFontNormal", TEXT)
-        if known:
-            canvas.draw(ui.atlas("common-icon-checkmark"), vx + width - 22, vy + 7, 12, 12, colour)
-        else:
-            right(canvas, vx + width - 10, vy + 7, "—", "GameFontNormal", MUTED, width=12)
-        text(canvas, vx + 10, vy + 29, status, "GameFontDisableSmall", MUTED)
-
-    # Cosmetic rewards.
-    card(canvas, rx + 14, ry + 342, 488, 66)
-    note("Rewards card", "card", rx + 14, ry + 342, 488, 66)
-    text(canvas, rx + 24, ry + 349, "Cosmetic rewards", "GameFontNormal", GOLD)
-    rewards = (
-        ("Field sketch", "Discovered"),
-        ("Ink study", "Observed"),
-        ("Brass plate", "Studied"),
-        ("Gilded entry", "Mastered"),
-    )
-    for reward_index, (label, tier) in enumerate(rewards):
-        column, row_index = reward_index % 2, reward_index // 2
-        col_x = rx + 24 + (248 if column else 0)
-        col_right = rx + 14 + (482 if column else 234)
-        ly = ry + 370 + row_index * 20
-        unlocked = rank >= reward_index + 1
-        text(canvas, col_x, ly, label, "GameFontDisableSmall", TEXT if unlocked else MUTED, width=104)
-        if unlocked:
-            canvas.draw(ui.atlas("common-icon-checkmark"), col_x + 112, ly, 12, 12, GREEN)
-        else:
-            text(canvas, col_x + 112, ly, "—", "GameFontNormal", MUTED, width=12)
-        right(
-            canvas,
-            col_right,
-            ly,
-            "UNLOCKED" if unlocked else f"Locked · {tier}",
-            "GameFontDisableSmall",
-            GREEN if unlocked else MUTED,
-            width=92,
-        )
-
-    # Your records: no synthetic records are shown unless the mock models the actual Lua session log.
-    card(canvas, rx + 14, ry + 418, 488, 60)
-    note("Your records card", "card", rx + 14, ry + 418, 488, 60)
-    text(canvas, rx + 24, ry + 425, "Your records", "GameFontNormal", GOLD)
-    record_lines = []
-    record_stamp = f"{zone['name']} · 2026-10-22 10:00"
-    if state["kills"]:
-        record_lines.append(f"Personal first sighting: {record_stamp}")
-        record_lines.append(f"First death observed: {record_stamp}")
-    if state["rare"]:
-        record_lines.append(f"First rare recorded: {record_stamp}")
-    if state["shiny"]:
-        record_lines.append(f"First shiny recorded: {record_stamp}")
-    if not record_lines:
-        record_lines.append("No sightings yet this session.")
-    for line_index, line in enumerate(record_lines[:3]):
-        text(canvas, rx + 24, ry + 439 + line_index * 12, line, "GameFontDisableSmall", MUTED)
+    rx, ry = px(360), py(104)
+    text(canvas, rx + 14, ry + 14, species["name"], "GameFontNormalLarge", GOLD, width=554)
+    level = str(species["min"]) if species["min"] == species["max"] else f"{species['min']}-{species['max']}"
     text(
         canvas,
         rx + 14,
-        ry + 496,
-        "Cosmetic only — the field guide never grants player power.",
+        ry + 42,
+        f"{species['family']} · {zone['name']} · Level {level}",
         "GameFontDisableSmall",
-        DIM,
+        MUTED,
+        width=554,
     )
-    note("Detail pane", "pane", rx, ry, 516, 514)
+    art_table = re.search(r"Art.LOCATION_ART = \{(.*?)\n\}", (ROOT / "UI/Art.lua").read_text(), re.S)
+    assert art_table
+    locations = {int(zone_id): int(file) for zone_id, file in re.findall(r"\[(\d+)\] = (\d+)", art_table[1])}
+    art_file = locations.get(zone["id"])
+    if art_file:
+        canvas.draw(ui.texture(art_file).crop((33, 0, 223, 128)), rx + 378, ry + 80, 190, 128)
+    map_source = (EXTRACTED / "QuestieDB/support/Forever/Zones/areaIdToUiMapId.lua").read_text()
+    map_tables = {}
+    for name, body in re.findall(r"ZoneDB.private.(\w+) = \[\[return \{(.*?)\}\]\]", map_source, re.S):
+        map_tables[name] = {int(area): int(map_id) for area, map_id in re.findall(r"\[(\d+)\] = (\d+)", body)}
+    map_id = map_tables.get("areaIdToUiMapIdOverride", {}).get(
+        zone["id"], map_tables.get("areaIdToUiMapId", {}).get(zone["id"], 0)
+    )
+    reference = os.environ.get("FIELD_GUIDE_MODEL_REFERENCE") if os.environ.get("FIELD_GUIDE_DESIGN_PREVIEW") else None
+    if reference and species["id"] == 2749:
+        from PIL import Image  # ty: ignore[unresolved-import]
+
+        canvas.draw(Image.open(reference).convert("RGBA"), rx + 68, ry + 68, 240, 240)
+        text(
+            canvas,
+            rx + 14,
+            ry + 292,
+            "Model composition reference",
+            "GameFontDisableSmall",
+            MUTED,
+            width=348,
+            justify="CENTER",
+        )
+    else:
+        portrait_x = 140 if art_file else 243
+        model_width = 348 if art_file else 554
+        portrait = ui.canvas(canvas.width, canvas.height)
+        portrait.draw(icons[species["id"]], rx + portrait_x, ry + 124, 96, 96)
+        portrait.mask(
+            ui.texture("interface/characterframe/tempportraitalphamask.blp"), rx + portrait_x, ry + 124, 96, 96
+        )
+        canvas.paste(portrait, 0, 0)
+        text(
+            canvas,
+            rx + 14,
+            ry + 238,
+            "Creature portrait",
+            "GameFontDisableSmall",
+            MUTED,
+            width=model_width,
+            justify="CENTER",
+        )
+    if art_file:
+        text(canvas, rx + 378, ry + 220, zone["name"], "GameFontNormal", GOLD, width=190)
+    if map_id > 0:
+        map_x, map_y = rx + (378 if art_file else 231), ry + (258 if art_file else 282)
+        ui_panel_button(canvas, map_x, map_y, 120, 24, "Open map")
+        note("Open map", "button", map_x, map_y, 120, 24)
+    note(
+        "Creature viewport",
+        "model",
+        rx + 14,
+        ry + 68,
+        348 if art_file else 554,
+        200 if not art_file and map_id > 0 else 240,
+    )
+    if art_file:
+        note("Zone artwork", "image", rx + 378, ry + 80, 190, 128)
+
+    card(canvas, rx + 14, ry + 320, 554, 52)
+    text(canvas, rx + 24, ry + 328, PIPS[rank - 1] if rank else "Research", "GameFontNormal", GOLD)
+    right(
+        canvas,
+        rx + 558,
+        ry + 328,
+        f"{count} / 10 · {state['kills']} recorded deaths",
+        "GameFontDisableSmall",
+        TEXT,
+        width=350,
+    )
+    canvas.draw(ui.atlas("Profession-ProgressBar-BG"), rx + 24, ry + 350, 534, 12)
+    if count:
+        canvas.draw(
+            ui.texture("interface/targetingframe/ui-statusbar.blp"),
+            rx + 24,
+            ry + 350,
+            534 * min(1, count / MASTERED_AT),
+            12,
+            GOLD,
+        )
+    canvas.draw(ui.atlas("Profession-ProgressBar-frame"), rx + 24, ry + 350, 534, 12)
+    note("Research strip", "card", rx + 14, ry + 320, 554, 52)
+    note("Research bar", "progress", rx + 24, ry + 350, 534, 12)
+    # PanelTabButtonTemplate, with the same explicit 104-wide buttons as Detail.Create.
+    for index, name in enumerate(("Overview", "Variants", "Records")):
+        tx, ty, width = rx + 14 + index * 112, ry + 380, 104
+        prefix = "uiframe-activetab" if index == detail_page else "uiframe-tab"
+        left, right_art, middle = (
+            ui.atlas(f"{prefix}-left"),
+            ui.atlas(f"{prefix}-right"),
+            ui.atlas(f"_{prefix}-center"),
+        )
+        lx = tx + (-1 if index == detail_page else -3)
+        rax = tx + width + (8 if index == detail_page else 7) - right_art.width
+        canvas.draw(left, lx, ty)
+        canvas.draw(right_art, rax, ty)
+        canvas.draw(middle, lx + left.width, ty, rax - lx - left.width, middle.height)
+        text(
+            canvas,
+            tx,
+            ty + (14 if index == detail_page else 9),
+            name,
+            "GameFontHighlightSmall" if index == detail_page else "GameFontNormalSmall",
+            TEXT if index == detail_page else GOLD,
+            width=width,
+            justify="CENTER",
+        )
+    note("Detail tabs", "tabs", rx + 14, ry + 380, 328, 32)
+    if detail_page == 0:
+        # The runtime catalogue has no lore; its Overview page contains the cosmetic unlock summary.
+        for index, (label, tier) in enumerate(
+            zip(("Field sketch", "Ink study", "Brass plate", "Gilded entry"), PIPS, strict=True)
+        ):
+            x, y = rx + 14 + index % 2 * 277, ry + 420 + index // 2 * 24
+            status = "UNLOCKED" if rank >= index + 1 else f"Locked · {tier}"
+            text(canvas, x, y, f"{label}: {status}", "GameFontDisableSmall", TEXT, width=265)
+    elif detail_page == 1:
+        for index, (name, known, value, target) in enumerate(
+            (
+                ("Common", count > 0, count, 1),
+                ("Rare variant", state["rare"] >= RARE_TARGET, state["rare"], RARE_TARGET),
+                ("Shiny variant", bool(state["shiny"]), state["shiny"], SHINY_TARGET),
+            )
+        ):
+            y = ry + 420 + index * 24
+            text(canvas, rx + 14, y, name, "GameFontNormal", TEXT, width=160)
+            if known:
+                canvas.draw(ui.atlas("common-icon-checkmark"), rx + 190, y, 12, 12, (GREEN, BLUE, GOLD)[index])
+            else:
+                text(canvas, rx + 190, y, "-", "GameFontNormal", MUTED)
+            text(canvas, rx + 216, y, "Known" if known else f"{value} / {target}", "GameFontDisableSmall", MUTED)
+    else:
+        badges = [
+            ("Common", True, TEXT),
+            ("Rare variant known", state["rare"] >= RARE_TARGET, BLUE),
+            ("Shiny seen", bool(state["shiny"]), GOLD),
+        ]
+        badge_x = rx + 14
+        for label, show, colour in badges:
+            if show:
+                text(canvas, badge_x, ry + 420, label, "GameFontDisableSmall", colour, width=128)
+                badge_x += 136
+        records = []
+        stamp = f"{zone['name']} · 2026-10-22 10:00"
+        if state["kills"]:
+            records.extend((f"Personal first sighting: {stamp}", f"First death observed: {stamp}"))
+        if state["rare"]:
+            records.append(f"First rare recorded: {stamp}")
+        if state["shiny"]:
+            records.append(f"First shiny recorded: {stamp}")
+        for index, line in enumerate(records[:3] or ["No sightings yet this session."]):
+            text(canvas, rx + 14, ry + 444 + index * 12, line, "GameFontDisableSmall", TEXT, width=554)
+    note("Detail pane", "pane", rx, ry, 582, 514)
 
     # Bottom bar: zone completion and the two buttons, at the bar's own coordinates (the addon anchors them to the
     # bar, so a button starts BAR_W - inset - width from the bar's left, not from the window's).
@@ -938,12 +983,8 @@ def window(ui, zone, species, tab, icons, sigil):
     note("Bottom progress", "progress", px(BAR_X + 14), by + 28, 320, 10)
     ui_panel_button(canvas, px(OPEN_X), button_y, OPEN_W, BUTTON_H, "Open Journal")
     note("Open Journal", "button", px(OPEN_X), button_y, OPEN_W, BUTTON_H)
-    ui_panel_button(canvas, px(TRACK_X), button_y, TRACK_W, BUTTON_H, "Track Species")
+    ui_panel_button(canvas, px(TRACK_X), button_y, TRACK_W, BUTTON_H, "Tracking" if tracked else "Track Species")
     note("Track Species", "button", px(TRACK_X), button_y, TRACK_W, BUTTON_H)
-    if not LAYOUT.get("canvas"):
-        LAYOUT["canvas"] = {"width": canvas.width, "height": canvas.height, "scale": ui.scale}
-        LAYOUT["frame"] = {"x": px(0), "y": py(0), "w": W, "h": H}
-        LAYOUT["scenes"] = []
     return canvas
 
 
@@ -989,7 +1030,7 @@ def zone_pages(zones):
 
 
 def main():
-    ui = wowmock.Ui(scale=2)
+    ui = wowmock.Ui(build=BUILD, scale=2)
     OUT.mkdir(parents=True, exist_ok=True)
     for obsolete in OUT.glob("creature-??.png"):
         obsolete.unlink()
@@ -1004,7 +1045,7 @@ def main():
         f"{len(catalogued_ids | instance_ids)} placed NPCs, {len(MOCK_INSTANCES)} dungeons and raids, "
         f"{len(boss_ids)} rank-3 boss records."
     )
-    current_ids = {zone["id"] for zone in zones}
+    current_ids = {zone["id"] for zone in zone_pages(zones)}
     for previous in OUT.glob("zone-*.png"):
         if int(previous.stem.split("-")[1]) not in current_ids:
             previous.unlink()
@@ -1027,51 +1068,53 @@ def main():
     prowler = barrens["species"][0]
     badlands, siege_golem = pick("Badlands", lambda species: species["name"] == "Siege Golem")
     all_species = [(zone, species) for zone in zones for species in zone["species"]]
-    rare_zone, rare = next(((zone, species) for zone, species in all_species if species["rare"]), (barrens, prowler))
+    rare_zone, rare = next(
+        (
+            (zone, species)
+            for zone, species in all_species
+            if species["rare"] and progress(species)["rare"] >= RARE_TARGET
+        ),
+        (barrens, prowler),
+    )
     shiny_zone, shiny = next(
         ((zone, species) for zone, species in all_species if progress(species)["shiny"]),
         (barrens, prowler),
     )
 
-    def render(zone, species, tab="CREATURES"):
-        return wowmock.scene(ui, [(window(ui, zone, species, tab, icons, sigil), 0, 0)])
+    def render(zone, species, tab="CREATURES", detail_page=0, tracked=False, unavailable=False):
+        return wowmock.scene(
+            ui, [(window(ui, zone, species, tab, icons, sigil, detail_page, tracked, unavailable, zones), 0, 0)]
+        )
 
     def save(scene, name):
         scene.save(OUT / name)
         scenes: list[str] = LAYOUT.setdefault("scenes", [])
         scenes.append(name)
+        LAYOUT.setdefault("scene_layouts", {})[name] = {
+            "frame": dict(LAYOUT["frame"]),
+            "canvas": dict(LAYOUT["canvas"]),
+            "widgets": [dict(widget) for widget in LAYOUT["widgets"]],
+        }
+
+    if os.environ.get("FIELD_GUIDE_DESIGN_PREVIEW"):
+        preview = render(badlands, siege_golem, "CREATURES")
+        preview.save(ROOT / "docs/previews/field-guide-model-layout.png")
+        print("Design preview only: CDN model is a composition reference, not an in-game capture.")
+        return
 
     save(render(badlands, siege_golem, "CREATURES"), "field-guide.png")
-    save(render(rare_zone, rare, "RARES"), "rares.png")
+    save(render(rare_zone, rare, "RARES", 1), "rares.png")
     save(render(shiny_zone, shiny, "SHINY"), "shiny.png")
 
-    retained_zone_ids = {int(path.stem.split("-")[1]) for path in OUT.glob("zone-*.png")}
-    page_ids = retained_zone_ids | {zone["id"] for zone in zone_pages(zones)}
-    for zone in (zone for zone in zones if zone["id"] in page_ids):
+    for zone in zone_pages(zones):
         save(render(zone, zone["species"][0], "CREATURES"), f"zone-{zone['id']:04d}.png")
 
     search_zone = barrens
     search_species = barrens["species"][min(3, len(barrens["species"]) - 1)]
     save(render(search_zone, search_species, "CREATURES"), "search-filter.png")
-    save(render(rare_zone, rare, "RARES"), "rare-record.png")
-    save(render(shiny_zone, shiny, "SHINY"), "shiny-record.png")
-
-    def feature_overlay(base, title, subtitle, lines):
-        canvas = wowmock.Canvas(ui, base.width, base.height)
-        canvas.image = base.image.copy()
-        veil = Image.new("RGBA", canvas.image.size, (0, 0, 0, 150))
-        canvas.composite(veil, 0, 0)
-        dialog, _, _ = basic_panel(ui, title, 602, 400)
-        dialog_x = (canvas.image.width - dialog.image.width) // 2
-        dialog_y = (canvas.image.height - dialog.image.height) // 2
-        canvas.composite(dialog.image, dialog_x, dialog_y)
-        content_x, content_y = 250, 238
-        text(canvas, content_x, content_y, subtitle, "GameFontDisableSmall", MUTED)
-        for index, line in enumerate(lines):
-            y = content_y + 38 + index * 34
-            canvas.draw(ui.atlas("common-icon-checkmark"), content_x, y + 3, 16, 16, GREEN)
-            text(canvas, content_x + 28, y, line, "GameFontNormal", TEXT)
-        return canvas
+    save(render(search_zone, prowler, "CREATURES", tracked=True), "tracking.png")
+    save(render(rare_zone, rare, "RARES", 2), "rare-record.png")
+    save(render(shiny_zone, shiny, "SHINY", 2), "shiny-record.png")
 
     # Show the native filter menu on the same all-species state as the All label and visible list.
     filtered = render(badlands, siege_golem)
@@ -1090,36 +1133,38 @@ def main():
     # `scene()` adds 24 UI units of margin around the window; open the menu just below the filter button.
     filtered.composite(filter_menu.image, filtered.px(312), filtered.px(110))
     filtered.save(OUT / "search-filter.png")
-    feature_overlay(
-        render(search_zone, prowler),
-        "Tracked species",
-        "Tracking · current character",
-        [prowler["name"], "Shown in the journal bottom bar", "Progress remains character-local"],
-    ).save(OUT / "tracking.png")
-    feature_overlay(
-        render(barrens, prowler),
-        "Field Guide Forever options",
-        "Personal progress and sharing preferences",
-        ["Show undiscovered species", "Show the sighting log", "Share with guild and group"],
-    ).save(OUT / "settings.png")
-    feature_overlay(
-        render(barrens, prowler),
-        "Sightings this session",
-        "Your records · local to this character",
-        [
-            f"First sighting · {prowler['name']}",
-            f"First death · {prowler['name']}",
-            "Rare and shiny rolls stay personal",
-        ],
-    ).save(OUT / "sighting-log.png")
-    render(barrens, prowler, "INSTANCES").save(OUT / "instances-boss.png")
-    feature_overlay(
-        render(barrens, prowler),
-        "Creature catalogue unavailable",
-        "QuestieDB Forever is required for creature data",
-        ["Install Questie or standalone QuestieDB", "Restart the client or type /reload"],
-    ).save(OUT / "missing-questiedb.png")
+    # Core/Settings.lua registers this content in the client's Settings canvas, not a journal popup.
+    settings = ui.canvas(620, 220)
+    LAYOUT["widgets"] = []
+    LAYOUT["canvas"] = {"width": settings.width, "height": settings.height, "scale": ui.scale}
+    LAYOUT["frame"] = {"x": 0, "y": 0, "w": 620, "h": 220}
+    note("Settings content", "pane", 12, 12, 596, 196)
+    note("Settings title", "content", 16, 16, 380, 20)
+    settings.fill(0, 0, 620, 220, wowmock.rgb("0d0f12"))
+    text(settings, 16, 16, "Field Guide Forever options", "GameFontNormalLarge", GOLD)
+    labels = [
+        "Show undiscovered species",
+        "Show the sighting log",
+        "Share progress with guild and group addon users",
+        "Show the Field Guide micro menu button",
+    ]
+    for index, label in enumerate(labels):
+        y = 48 + index * 28
+        note(f"Settings checkbox {index + 1}", "content", 16, y, 26, 26)
+        note(
+            f"Settings label {index + 1}", "content", 46, y + 6, settings.text_width(label, FONTS["GameFontNormal"]), 16
+        )
+        settings.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), 16, y, 26, 26)
+        settings.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), 16, y, 26, 26)
+        text(settings, 46, y + 6, label, "GameFontNormal", GOLD)
+    text(settings, 36, 166, "Both buttons can also be bound in Key Bindings > AddOns.", "GameFontDisableSmall", MUTED)
+    note("Settings binding note", "content", 36, 166, 560, 16)
+    save(settings, "settings.png")
+    save(render(barrens, prowler, "CREATURES", 2), "sighting-log.png")
+    save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")
+    save(render(barrens, prowler, "INSTANCES"), "instances-boss.png")
     render_micro_menu_scenes()
+    subprocess.run([sys.executable, str(ROOT / "tools" / "rarity.py")], check=True)
 
     def write_readme_gallery():
         features = [
@@ -1130,10 +1175,10 @@ def main():
             ("shiny-record.png", "Personal shiny record"),
             ("search-filter.png", "Search and status filter"),
             ("tracking.png", "Tracked species"),
-            ("settings.png", "Options panel"),
+            ("settings.png", "Settings canvas content"),
             ("micro-menu-field-guide.png", "Field Guide micro menu button"),
             ("micro-menu-options.png", "Micro menu button settings"),
-            ("sighting-log.png", "Session sighting log"),
+            ("sighting-log.png", "Sighting records"),
             ("rarity-target.png", "Target frame rarity"),
             ("rarity-nameplates.png", "Nameplate rarity"),
             ("rarity-elite.png", "Elite rarity chrome"),

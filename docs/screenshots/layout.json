@@ -10,6 +10,3369 @@
     "x": 26,
     "y": 26
   },
+  "scene_layouts": {
+    "field-guide.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "instances-boss.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 514,
+          "name": "Instances body",
+          "role": "pane",
+          "w": 924,
+          "x": 44,
+          "y": 130
+        },
+        {
+          "h": 20,
+          "name": "Instances title",
+          "role": "content",
+          "w": 884,
+          "x": 48,
+          "y": 134
+        },
+        {
+          "h": 16,
+          "name": "Instances subtitle",
+          "role": "content",
+          "w": 884,
+          "x": 48,
+          "y": 156
+        },
+        {
+          "h": 86,
+          "name": "Instance row 1",
+          "role": "content",
+          "w": 884,
+          "x": 44,
+          "y": 178
+        },
+        {
+          "h": 86,
+          "name": "Instance row 2",
+          "role": "content",
+          "w": 884,
+          "x": 44,
+          "y": 270
+        },
+        {
+          "h": 86,
+          "name": "Instance row 3",
+          "role": "content",
+          "w": 884,
+          "x": 44,
+          "y": 362
+        },
+        {
+          "h": 86,
+          "name": "Instance row 4",
+          "role": "content",
+          "w": 884,
+          "x": 44,
+          "y": 454
+        }
+      ]
+    },
+    "missing-questiedb.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 514,
+          "name": "Catalogue body",
+          "role": "pane",
+          "w": 924,
+          "x": 44,
+          "y": 130
+        },
+        {
+          "h": 60,
+          "name": "Catalogue notice",
+          "role": "content",
+          "w": 680,
+          "x": 166,
+          "y": 370
+        }
+      ]
+    },
+    "rare-record.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "rares.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "search-filter.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "settings.png": {
+      "canvas": {
+        "height": 220,
+        "scale": 2,
+        "width": 620
+      },
+      "frame": {
+        "h": 220,
+        "w": 620,
+        "x": 0,
+        "y": 0
+      },
+      "widgets": [
+        {
+          "h": 196,
+          "name": "Settings content",
+          "role": "pane",
+          "w": 596,
+          "x": 12,
+          "y": 12
+        },
+        {
+          "h": 20,
+          "name": "Settings title",
+          "role": "content",
+          "w": 380,
+          "x": 16,
+          "y": 16
+        },
+        {
+          "h": 26,
+          "name": "Settings checkbox 1",
+          "role": "content",
+          "w": 26,
+          "x": 16,
+          "y": 48
+        },
+        {
+          "h": 16,
+          "name": "Settings label 1",
+          "role": "content",
+          "w": 157.5,
+          "x": 46,
+          "y": 54
+        },
+        {
+          "h": 26,
+          "name": "Settings checkbox 2",
+          "role": "content",
+          "w": 26,
+          "x": 16,
+          "y": 76
+        },
+        {
+          "h": 16,
+          "name": "Settings label 2",
+          "role": "content",
+          "w": 124.0,
+          "x": 46,
+          "y": 82
+        },
+        {
+          "h": 26,
+          "name": "Settings checkbox 3",
+          "role": "content",
+          "w": 26,
+          "x": 16,
+          "y": 104
+        },
+        {
+          "h": 16,
+          "name": "Settings label 3",
+          "role": "content",
+          "w": 279.0,
+          "x": 46,
+          "y": 110
+        },
+        {
+          "h": 26,
+          "name": "Settings checkbox 4",
+          "role": "content",
+          "w": 26,
+          "x": 16,
+          "y": 132
+        },
+        {
+          "h": 16,
+          "name": "Settings label 4",
+          "role": "content",
+          "w": 232.5,
+          "x": 46,
+          "y": 138
+        },
+        {
+          "h": 16,
+          "name": "Settings binding note",
+          "role": "content",
+          "w": 560,
+          "x": 36,
+          "y": 166
+        }
+      ]
+    },
+    "shiny-record.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "shiny.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "sighting-log.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "tracking.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-0001.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-0010.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-0016.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 617,
+          "y": 412
+        },
+        {
+          "h": 200,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 554,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-0038.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 617,
+          "y": 412
+        },
+        {
+          "h": 200,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 554,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-0046.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-0267.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-0331.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 764,
+          "y": 388
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 348,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 128,
+          "name": "Zone artwork",
+          "role": "image",
+          "w": 190,
+          "x": 764,
+          "y": 210
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-0405.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 617,
+          "y": 412
+        },
+        {
+          "h": 200,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 554,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-0616.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 617,
+          "y": 412
+        },
+        {
+          "h": 200,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 554,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-1497.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 617,
+          "y": 412
+        },
+        {
+          "h": 200,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 554,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-1637.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 120,
+          "x": 617,
+          "y": 412
+        },
+        {
+          "h": 200,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 554,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "zone-2917.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 240,
+          "name": "Creature viewport",
+          "role": "model",
+          "w": 554,
+          "x": 400,
+          "y": 198
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 450
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 480
+        },
+        {
+          "h": 32,
+          "name": "Detail tabs",
+          "role": "tabs",
+          "w": 328,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 10,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 684
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    }
+  },
   "scenes": [
     "field-guide.png",
     "rares.png",
@@ -19,17 +3382,21 @@
     "zone-0016.png",
     "zone-0038.png",
     "zone-0046.png",
-    "zone-0130.png",
-    "zone-0267.png",
     "zone-0331.png",
+    "zone-0267.png",
     "zone-0405.png",
     "zone-0616.png",
     "zone-1497.png",
     "zone-1637.png",
     "zone-2917.png",
     "search-filter.png",
+    "tracking.png",
     "rare-record.png",
-    "shiny-record.png"
+    "shiny-record.png",
+    "settings.png",
+    "sighting-log.png",
+    "missing-questiedb.png",
+    "instances-boss.png"
   ],
   "widgets": [
     {
@@ -89,83 +3456,59 @@
       "y": 88
     },
     {
-      "h": 18,
-      "name": "Detail badges",
-      "role": "badge",
-      "w": 173.0,
-      "x": 466,
-      "y": 206
+      "h": 24,
+      "name": "Open map",
+      "role": "button",
+      "w": 120,
+      "x": 764,
+      "y": 388
     },
     {
-      "h": 84,
-      "name": "Research card",
+      "h": 240,
+      "name": "Creature viewport",
+      "role": "model",
+      "w": 348,
+      "x": 400,
+      "y": 198
+    },
+    {
+      "h": 128,
+      "name": "Zone artwork",
+      "role": "image",
+      "w": 190,
+      "x": 764,
+      "y": 210
+    },
+    {
+      "h": 52,
+      "name": "Research strip",
       "role": "card",
-      "w": 488,
-      "x": 466,
-      "y": 232
+      "w": 554,
+      "x": 400,
+      "y": 450
     },
     {
-      "h": 4,
+      "h": 12,
       "name": "Research bar",
       "role": "progress",
-      "w": 468,
-      "x": 476,
-      "y": 306
+      "w": 534,
+      "x": 410,
+      "y": 480
     },
     {
-      "h": 58,
-      "name": "Lore card",
-      "role": "card",
-      "w": 488,
-      "x": 466,
-      "y": 326
-    },
-    {
-      "h": 52,
-      "name": "Variant card 1",
-      "role": "card",
-      "w": 157,
-      "x": 466,
-      "y": 410
-    },
-    {
-      "h": 52,
-      "name": "Variant card 2",
-      "role": "card",
-      "w": 157,
-      "x": 631,
-      "y": 410
-    },
-    {
-      "h": 52,
-      "name": "Variant card 3",
-      "role": "card",
-      "w": 158,
-      "x": 796,
-      "y": 410
-    },
-    {
-      "h": 66,
-      "name": "Rewards card",
-      "role": "card",
-      "w": 488,
-      "x": 466,
-      "y": 472
-    },
-    {
-      "h": 60,
-      "name": "Your records card",
-      "role": "card",
-      "w": 488,
-      "x": 466,
-      "y": 548
+      "h": 32,
+      "name": "Detail tabs",
+      "role": "tabs",
+      "w": 328,
+      "x": 400,
+      "y": 510
     },
     {
       "h": 514,
       "name": "Detail pane",
       "role": "pane",
-      "w": 516,
-      "x": 452,
+      "w": 582,
+      "x": 386,
       "y": 130
     },
     {

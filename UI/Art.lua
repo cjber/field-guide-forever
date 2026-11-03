@@ -23,6 +23,40 @@ Art.COLORS = {
 	complete = { 0.49, 0.60, 0.38 },
 }
 
+-- Native QuestionFrame Classic-zone illustrations; asset checks use tools/gen_zones.py's build.
+-- Content only: never used as frame chrome. Images showing Cataclysm terrain changes are omitted.
+Art.LOCATION_ART = {
+	[1] = 1851075, -- Dun Morogh
+	[3] = 1851093, -- Badlands
+	[8] = 1851108, -- Swamp of Sorrows
+	[10] = 1851098, -- Duskwood
+	[11] = 1851113, -- Wetlands
+	[12] = 1851068, -- Elwynn Forest
+	[14] = 1851076, -- Durotar
+	[15] = 1851099, -- Dustwallow Marsh
+	[17] = 1851084, -- The Barrens
+	[28] = 1851112, -- Western Plaguelands
+	[33] = 1851104, -- Stranglethorn Vale
+	[44] = 1851085, -- Redridge Mountains
+	[45] = 1851092, -- Arathi Highlands
+	[46] = 1851095, -- Burning Steppes
+	[47] = 1851103, -- The Hinterlands
+	[51] = 1851105, -- Searing Gorge
+	[85] = 1851089, -- Tirisfal Glades
+	[130] = 1851086, -- Silverpine Forest
+	[139] = 1851100, -- Eastern Plaguelands
+	[141] = 1851088, -- Teldrassil
+	[215] = 1851083, -- Mulgore
+	[267] = 1851080, -- Hillsbrad Foothills
+	[331] = 1851070, -- Ashenvale
+	[357] = 1851102, -- Feralas
+	[361] = 1851101, -- Felwood
+	[440] = 1851109, -- Tanaris
+	[490] = 1851111, -- Un'Goro Crater
+	[618] = 1851114, -- Winterspring
+	[1377] = 1851106, -- Silithus
+}
+
 Art.FAMILY_ICONS = {
 	Beast = "Interface\\Icons\\Ability_Hunter_BeastTaming",
 	Humanoid = "Interface\\Icons\\INV_Misc_Head_Human_01",

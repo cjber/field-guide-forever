@@ -8,7 +8,7 @@ local Window = {}
 ns.Window = Window
 
 local WIDTH, HEIGHT = 960, 700
-local LEFT_WIDTH = 396
+local LEFT_WIDTH = 330
 local PANEL_HEIGHT = 514
 
 ---@type FGWindowFrame?
@@ -66,7 +66,7 @@ local function BuildHeader(parent)
 		parent.PortraitContainer.portrait:SetTexture(Art.BOOK_ICON)
 	end
 	if parent.TitleContainer and parent.TitleContainer.TitleText then
-		parent.TitleContainer.TitleText:SetText(L["FIELD GUIDE"])
+		parent.TitleContainer.TitleText:SetText(L["Field Guide"])
 	end
 	if parent.CloseButton then
 		parent.CloseButton:SetScript("OnClick", function()
@@ -313,7 +313,8 @@ function Window.UpdateDetail()
 	UpdateTrackButton()
 end
 
-function Window.Refresh()
+---@param preserveScroll boolean?
+function Window.Refresh(preserveScroll)
 	if not frame then
 		return
 	end
@@ -376,7 +377,7 @@ function Window.Refresh()
 	if not stillListed then
 		selectedId = entries[1] and entries[1].species.id or nil
 	end
-	ns.List.Refresh(entries, selectedId)
+	ns.List.Refresh(entries, selectedId, preserveScroll)
 	Window.UpdateDetail()
 	UpdateProgress()
 	UpdateBreadcrumb()
@@ -420,7 +421,7 @@ function Window.ToggleTrack()
 	else
 		state.tracked = selectedId
 	end
-	Window.Refresh()
+	Window.Refresh(true)
 end
 
 function Window.ToggleZoneMenu()
@@ -532,8 +533,8 @@ local function Create()
 	left:SetPoint("TOPLEFT", 18, -104)
 	left:SetSize(LEFT_WIDTH, PANEL_HEIGHT)
 	local right = CreateFrame("Frame", nil, frame)
-	right:SetPoint("TOPLEFT", 426, -104)
-	right:SetSize(516, PANEL_HEIGHT)
+	right:SetPoint("TOPLEFT", 360, -104)
+	right:SetSize(582, PANEL_HEIGHT)
 
 	ns.List.Create(left, { Select = Window.SelectSpecies })
 	ns.Detail.Create(right)
@@ -591,7 +592,7 @@ ns.OnProgress(function()
 	C_Timer.After(0, function()
 		refreshPending = false
 		if Window.IsShown() then
-			Window.Refresh()
+			Window.Refresh(true)
 		end
 	end)
 end)

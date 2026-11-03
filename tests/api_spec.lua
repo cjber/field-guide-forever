@@ -146,6 +146,53 @@ local research = ns.Detail.specimenCount:GetText()
 assert(research:find("^" .. rare.count .. " / "), "the research count is the species' own: " .. research)
 character.tracked = nil
 
+local detail = ns.Detail
+assert(detail.model.creatureID == 1019, "selection loads the selected NPC model")
+local loads = detail.model.creatureLoads
+detail.Show(ns.SpeciesById[1019], character, ns.SpeciesZone[1019])
+assert(detail.model.creatureLoads == loads, "progress refresh does not reload the same model")
+assert(detail.portrait:IsShown(), "icon stays visible until a model actually loads")
+detail.model.modelFileID = 12345
+detail.model:GetScript("OnModelLoaded")(detail.model)
+assert(not detail.portrait:IsShown(), "a loaded model replaces the fallback")
+detail.SetPage(3)
+assert(detail.pages[3]:IsShown() and not detail.pages[1]:IsShown(), "records replace overview in fixed bounds")
+assert(detail.model:IsShown(), "switching secondary tabs preserves the model")
+detail.Show(nil, nil, nil)
+assert(detail.model.creatureID == nil and not detail.model:IsShown(), "empty selection clears a stale model")
+assert(
+	not detail.researchCard:IsShown() and not detail.mapButton:IsEnabled(),
+	"empty selection clears old progress and map"
+)
+detail.Show(ns.SpeciesById[1001], character, ns.SpeciesZone[1001])
+assert(detail.model.creatureID == 1001 and detail.portrait:IsShown(), "new selection restores fallback while loading")
+assert(detail.pages[3]:IsShown(), "selection preserves the chosen secondary tab")
+detail.SetPage(1)
+local originalAreaMaps = ns.QuestieDB.AreaMaps
+ns.QuestieDB.AreaMaps = function()
+	return { [17] = 1413, [38] = 1432 }, { [17] = 999 }
+end
+detail.Show(ns.SpeciesById[1001], character, ns.SpeciesZone[1001])
+assert(detail.locationArt._texture == ns.Art.LOCATION_ART[17], "the location uses native zone artwork")
+assert(detail.mapButton:IsEnabled(), "a resolved map enables navigation")
+detail.mapButton:GetScript("OnClick")()
+assert(harness.Mock.openedMap == 999, "map navigation respects QuestieDB overrides")
+detail.Show(ns.SpeciesById[1001], character, { id = 38, name = "Loch Modan", species = {} })
+assert(
+	detail.model:GetHeight() == 200 and detail.mapButton:IsShown(),
+	"art-free entries reserve a row below the model for navigation"
+)
+ns.QuestieDB.AreaMaps = function()
+	return { [17] = 1413 }, { [17] = 0 }
+end
+detail.Show(ns.SpeciesById[1001], character, ns.SpeciesZone[1001])
+assert(not detail.mapButton:IsEnabled() and not detail.mapButton:IsShown(), "zero map override suppresses navigation")
+ns.QuestieDB.AreaMaps = originalAreaMaps
+detail.Show(ns.SpeciesById[1001], character, { id = -1, name = "Unknown", species = {} })
+assert(not detail.locationArt:IsShown(), "a missing illustration never reuses another zone's art")
+assert(detail.model:GetWidth() == 554, "the model expands when no matching zone art is available")
+assert(not detail.mapButton:IsEnabled(), "an unresolved location disables old map navigation")
+
 ns.Model.SetRandom(function()
 	return 0
 end)
@@ -237,5 +284,28 @@ assert(
 local unknownZone = API.Progress("Nowhere")
 assert(unknownZone == nil, "an unknown zone has no answer")
 assert(API.Specimen(999999) == nil, "an unknown species has no answer")
+
+local listParent = harness.env.CreateFrame("Frame")
+listParent:SetSize(330, 514)
+ns.List.Create(listParent, { Select = function() end })
+ns.List.scroll:SetHeight(514)
+local listEntries = {}
+for index = 1, 30 do
+	listEntries[index] = { species = ns.SpeciesById[1001], state = {} }
+end
+ns.List.Refresh(listEntries, 1001)
+ns.List.scroll:SetVerticalScroll(400)
+ns.List.Refresh(listEntries, 1001, true)
+assert(ns.List.scroll:GetVerticalScroll() == 400, "progress refresh preserves the list scroll position")
+while #listEntries > 12 do
+	table.remove(listEntries)
+end
+ns.List.Refresh(listEntries, 1001, true)
+assert(ns.List.scroll:GetVerticalScroll() == 38, "a shorter list clamps scrolling to its new end")
+ns.List.Refresh(listEntries, 1001)
+assert(ns.List.scroll:GetVerticalScroll() == 0, "changing the list resets scrolling")
+ns.List.scroll:SetVerticalScroll(30)
+ns.List.Refresh({}, nil, true)
+assert(ns.List.scroll:GetVerticalScroll() == 0, "an empty list returns scrolling to zero")
 
 print("api: ok")

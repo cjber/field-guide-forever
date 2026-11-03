@@ -78,7 +78,7 @@ function Model.LevelRange(minLevel, maxLevel)
 	if minLevel == maxLevel then
 		return tostring(minLevel)
 	end
-	return string.format("%d–%d", minLevel, maxLevel)
+	return string.format("%d-%d", minLevel, maxLevel)
 end
 
 ---@param count number?

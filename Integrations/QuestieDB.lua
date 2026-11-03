@@ -37,6 +37,8 @@ local function ReadSupportTable(source)
 	return ok and type(value) == "table" and value or nil
 end
 
+local cachedAreaSource, cachedOverrideSource, cachedArea, cachedOverride
+
 -- QuestieDB's own ZoneDB tables from AreaTable ID to uiMapID: the base table and its overrides. nil when the lib,
 -- contract 2 or ZoneDB is missing.
 ---@return table<integer, integer>? area
@@ -57,11 +59,18 @@ function DB.AreaMaps()
 	end
 	local got, zoneDb = pcall(lib.Support.Get, "ZoneDB")
 	local private = got and type(zoneDb) == "table" and zoneDb.private
-	local area = private and ReadSupportTable(private.areaIdToUiMapId)
-	local override = private and ReadSupportTable(private.areaIdToUiMapIdOverride)
+	local areaSource = private and private.areaIdToUiMapId
+	local overrideSource = private and private.areaIdToUiMapIdOverride
+	if cachedArea and areaSource == cachedAreaSource and overrideSource == cachedOverrideSource then
+		return cachedArea, cachedOverride
+	end
+	local area = ReadSupportTable(areaSource)
+	local override = ReadSupportTable(overrideSource)
 	if not area or not override then
 		return nil
 	end
+	cachedAreaSource, cachedOverrideSource = areaSource, overrideSource
+	cachedArea, cachedOverride = area, override
 	return area, override
 end
 
@@ -116,10 +125,11 @@ local function Build()
 	table.sort(zoneIds)
 	for _, id in ipairs(zoneIds) do
 		local entry = ns.ClientData.zones[id]
+		local map = ns.ClientData.maps[entry.continent]
 		local zone = {
 			id = id,
 			name = entry.name,
-			continent = ns.ClientData.continents[entry.continent] or tostring(entry.continent),
+			continent = ns.ClientData.continents[entry.continent] or (map and map.name) or ns.L["Unknown location"],
 			species = {},
 		}
 		zonesById[id] = zone

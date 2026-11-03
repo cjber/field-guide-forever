@@ -66,13 +66,13 @@ The addon targets the WoW: Forever client, Interface 16001.
 
 ![Tracked species](docs/screenshots/tracking.png)
 
-![Options panel](docs/screenshots/settings.png)
+![Settings canvas content](docs/screenshots/settings.png)
 
 ![Field Guide micro menu button](docs/screenshots/micro-menu-field-guide.png)
 
 ![Micro menu button settings](docs/screenshots/micro-menu-options.png)
 
-![Session sighting log](docs/screenshots/sighting-log.png)
+![Sighting records](docs/screenshots/sighting-log.png)
 
 ![Target frame rarity](docs/screenshots/rarity-target.png)
 
