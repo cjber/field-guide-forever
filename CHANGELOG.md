@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Rarity colours respect later frame updates.** Target and nameplate cleanup leaves colours changed by Blizzard or another addon untouched. Reused nameplates restore their current appearance instead of an earlier creature's colours, and the background tint now uses Forever's native texture field. Thanks to cjber for the report (#71).
+
 - **Leaderboards count observed kills consistently.** Estimated historical kills stay outside both personal and shared totals, and their baseline survives reloads. Opting out keeps personal boards available. Shared reports use the suite's bounded guild and group transport, with independent readers for other addons and complete kill totals alongside recent creature records.
 
 - **Progress updates keep your place in the creature list.** Scrolling no longer jumps to the top after tracking a creature or recording progress.
