@@ -37,10 +37,11 @@
       "what": "Evidence names a different art cache from the renderer-selected BUILD",
       "why": "Ui(build=BUILD) selects 1.60.1.70753 for atlas metadata and texture reads. Explicit uv invocation verifies Pillow12.3.0.",
       "confidence": "high",
-      "status": "open",
-      "reason": "",
+      "status": "fixed",
+      "reason": "Verified renderer BUILD and corrected evidence source label.",
       "first_seen": "2026-11-03",
-      "updated": "2026-11-03"
+      "updated": "2026-11-03",
+      "guard": "lens-only: compare documented pins with actual renderer constructor and invocation"
     },
     {
       "id": "90e017ae3f",
@@ -119,10 +120,11 @@
       "what": "Hoisted local-only Pillow import lost the established type annotation",
       "why": "CI intentionally does not install Pillow for ty; all other local-only imports suppress unresolved-import.",
       "confidence": "high",
-      "status": "open",
-      "reason": "",
+      "status": "fixed",
+      "reason": "Restored local-only Pillow type annotation; ty and CI pass.",
       "first_seen": "2026-11-03",
-      "updated": "2026-11-03"
+      "updated": "2026-11-03",
+      "guard": "lens-only: run the configured ty check without installing local-only renderer dependencies"
     },
     {
       "id": "e4e83bb71b",
