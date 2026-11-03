@@ -15,7 +15,7 @@ local ACCENT = "◆"
 local PLATE_ACCENT_ALPHA = 0.72
 local discoveredThisSession = {}
 
----@type table<table, { desaturated: boolean, r: number, g: number, b: number, a: number }>
+---@type table<table, { desaturated: boolean, r: number, g: number, b: number, a: number, painted: number[] }>
 local originals = {}
 ---@type table<string, table>
 local platesByUnit = {}
@@ -26,8 +26,16 @@ local function Restore(texture)
 	if not texture or not original then
 		return
 	end
-	texture:SetDesaturated(original.desaturated)
-	texture:SetVertexColor(original.r, original.g, original.b, original.a)
+	originals[texture] = nil
+	local r, g, b, a = texture:GetVertexColor()
+	local painted = original.painted
+	-- Each property may have another writer. Undo only the values we still own.
+	if texture:IsDesaturated() then
+		texture:SetDesaturated(original.desaturated)
+	end
+	if r == painted[1] and g == painted[2] and b == painted[3] and a == painted[4] then
+		texture:SetVertexColor(original.r, original.g, original.b, original.a)
+	end
 end
 
 ---@param texture table?
@@ -36,21 +44,23 @@ local function Paint(texture, tier)
 	if not texture or not texture.GetVertexColor then
 		return
 	end
-	if not originals[texture] then
+	Restore(texture)
+	local color = Rarity.COLORS[tier]
+	if color then
 		local r, g, b, a = texture:GetVertexColor()
-		originals[texture] = {
+		local original = {
 			desaturated = texture.IsDesaturated and texture:IsDesaturated() or false,
 			r = r or 1,
 			g = g or 1,
 			b = b or 1,
 			a = a or 1,
+			painted = {},
 		}
-	end
-	Restore(texture)
-	local color = Rarity.COLORS[tier]
-	if color then
 		texture:SetDesaturated(true)
 		texture:SetVertexColor(color[1], color[2], color[3], 1)
+		-- Read back the engine's colour precision before comparing it on cleanup.
+		original.painted = { texture:GetVertexColor() } -- multi-value: retain the four colour channels
+		originals[texture] = original
 	end
 end
 
@@ -157,7 +167,7 @@ end
 local function UpdatePlate(plate, unit)
 	local frame = plate and plate.UnitFrame
 	local healthBar = frame and frame.healthBar
-	local trough = healthBar and (healthBar.background or healthBar.Background)
+	local trough = healthBar and healthBar.bgTexture
 	local name = UnitName and UnitName(unit) or nil
 	local species = ns.FindSpecies(name, ns.CurrentZone())
 	local tier = SpeciesTier(species)
@@ -197,7 +207,7 @@ events:SetScript("OnEvent", function(_, event, unit)
 			end
 			if plate and plate.UnitFrame and plate.UnitFrame.healthBar then
 				local bar = plate.UnitFrame.healthBar
-				Restore(bar.background or bar.Background)
+				Restore(bar.bgTexture)
 			end
 		end
 	end
