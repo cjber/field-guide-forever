@@ -89,6 +89,11 @@ assert(migrated.chars["Old-Realm"].tracked == 1003, "the tracked species survive
 local legacy = migrated.chars["Old-Realm"].species[1003]
 assert(legacy.kills == 3 and legacy.killsEstimated, "kills taken from a save without them are marked as estimated")
 assert(not migratedEntry.killsEstimated, "a save that counted kills keeps them exact")
+legacy.sharedKillsBaseline = 3
+legacy.kills = 5
+local reloaded = ns.Migrate(migrated).chars["Old-Realm"].species[1003]
+assert(reloaded.sharedKillsBaseline == 3, "the estimated-kill baseline survives a reload")
+assert(reloaded.kills == 5, "reloading preserves observed kills after the baseline")
 local empty = ns.Migrate(false)
 assert(empty.version == ns.SCHEMA and type(empty.chars) == "table", "corrupt root data becomes valid empty state")
 
@@ -247,7 +252,8 @@ for index = 1, 101 do
 	harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|1001|1|900", "GUILD", peer)
 end
 local peerCount = 0
-for _ in pairs(harness.env.FieldGuideForeverDB.sharedStats) do
+local ownStore = harness.env.FieldGuideForeverDB.peerStats[ns.CharacterKey()].fieldguide
+for _ in pairs(ownStore) do
 	peerCount = peerCount + 1
 end
 assert(peerCount <= 100, "shared peer storage is bounded")
@@ -255,7 +261,7 @@ for index = 1, 513 do
 	harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|" .. index .. "|1|900", "GUILD", "CapPeer1")
 end
 local rowCount = 0
-for _ in pairs(harness.env.FieldGuideForeverDB.sharedStats.CapPeer1.fieldguide) do
+for _ in pairs(ownStore.CapPeer1 and ownStore.CapPeer1.creature_kills or {}) do
 	rowCount = rowCount + 1
 end
 assert(rowCount <= 512, "shared subject rows per peer are bounded")
@@ -263,13 +269,14 @@ assert(rowCount <= 512, "shared subject rows per peer are bounded")
 harness.Mock.inGuild = true
 harness:Fire("GROUP_ROSTER_UPDATE")
 harness:RunTimers()
+harness:RunTimers()
 local sent = harness.Mock.sentAddonMessages[1]
 assert(
 	sent and sent.prefix == "WFAStats" and sent.channel == "GUILD",
 	"local progress broadcasts on the shared guild channel"
 )
 assert(
-	sent.message:match("^1|fieldguide|[%a_]+|[%d_]+|%d+|%d+$"),
+	sent.message:match("^1|fieldguide|[%a_]+|[%w_]+|%d+|%d+$"),
 	"outbound messages match the shared versioned schema"
 )
 ns.Stats.SetEnabled(false)
@@ -280,6 +287,22 @@ assert(
 	localOnly and #localOnly == 1 and localOnly[1].source == "local",
 	"the local leaderboard remains available after opt-out"
 )
+local personalBoard = API.Leaderboard("creature_kills", "1001")
+assert(
+	personalBoard and #personalBoard == 1 and personalBoard[1].source == "local",
+	"opting out hides peers on an individual board while preserving the personal row"
+)
+local state = ns.GetCharacterState(false)
+local entry = state.species[1001]
+local beforeTotal = localOnly[1].value
+entry.kills = entry.kills + 100
+entry.sharedKillsBaseline = 100
+entry.killsEstimated = true
+assert(API.LeaderboardSummary()[1].value == beforeTotal, "summary subtracts the same historical baseline as sharing")
+assert(API.Leaderboard("creature_kills", "1001")[1].value == 2, "individual boards use observed kills too")
+entry.kills = entry.kills - 100
+entry.sharedKillsBaseline = nil
+entry.killsEstimated = nil
 
 local unknownZone = API.Progress("Nowhere")
 assert(unknownZone == nil, "an unknown zone has no answer")

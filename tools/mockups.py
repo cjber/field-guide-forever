@@ -1163,11 +1163,28 @@ def main():
     save(render(barrens, prowler, "CREATURES", 2), "sighting-log.png")
     save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")
     save(render(barrens, prowler, "INSTANCES"), "instances-boss.png")
+    output = subprocess.run(
+        ["luajit", "tools/leaderboard_scene.lua"], cwd=ROOT, capture_output=True, text=True, check=True
+    ).stdout.splitlines()
+    font = wowmock.Font("fonts/arialn.ttf", 14, wowmock.rgb("ffffff"), (1, -1))
+    measure = ui.canvas(1, 1)
+    width = max(measure.text_width(line, font) for line in output) + 24
+    height = len(output) * 22 + 16
+    chat = ui.canvas(width, height)
+    chat.fill(0, 0, width, height, wowmock.rgb("0d0f12"))
+    LAYOUT["widgets"] = []
+    LAYOUT["canvas"] = {"width": width, "height": height, "scale": ui.scale}
+    LAYOUT["frame"] = {"x": 0, "y": 0, "w": width, "h": height}
+    for index, line in enumerate(output):
+        chat.text(12, 8 + index * 22, line, font)
+        note(f"Leaderboard line {index + 1}", "content", 12, 8 + index * 22, width - 24, 16)
+    save(chat, "leaderboard.png")
     render_micro_menu_scenes()
     subprocess.run([sys.executable, str(ROOT / "tools" / "rarity.py")], check=True)
 
     def write_readme_gallery():
         features = [
+            ("leaderboard.png", "Recorded kills leaderboard"),
             ("field-guide.png", "Creatures journal"),
             ("rares.png", "Rares page"),
             ("rare-record.png", "Personal rare record"),

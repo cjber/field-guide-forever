@@ -101,6 +101,7 @@
 ---@field window FGWindowPosition
 ---@field options FGOptions
 ---@field sharedStats? table<string, table<string, table<string, table<string, FGStatRecord>>>> peer -> addon -> subject -> metric
+---@field peerStats table<string, table<string, table>> character -> source -> Core protocol store
 
 -- How far one variant of a species has got: common, rare or shiny.
 ---@class FGVariant
@@ -267,6 +268,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field Model FGModel
 ---@field API FGPublicAPI
 ---@field Stats FGStatsModule
+---@field PeerStats table shared Core peer transport factories
 ---@field QuestieDB FGQuestieDBModule
 ---@field Settings FGSettingsModule
 ---@field SettingsPage FGSettingsPageModule

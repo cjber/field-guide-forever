@@ -281,6 +281,125 @@
         }
       ]
     },
+    "leaderboard.png": {
+      "canvas": {
+        "height": 302,
+        "scale": 2,
+        "width": 349.5
+      },
+      "frame": {
+        "h": 302,
+        "w": 349.5,
+        "x": 0,
+        "y": 0
+      },
+      "widgets": [
+        {
+          "h": 16,
+          "name": "Leaderboard line 1",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 8
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 2",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 30
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 3",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 52
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 4",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 74
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 5",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 96
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 6",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 118
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 7",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 140
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 8",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 162
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 9",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 184
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 10",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 206
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 11",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 228
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 12",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 250
+        },
+        {
+          "h": 16,
+          "name": "Leaderboard line 13",
+          "role": "content",
+          "w": 325.5,
+          "x": 12,
+          "y": 272
+        }
+      ]
+    },
     "missing-questiedb.png": {
       "canvas": {
         "height": 752,
@@ -3396,7 +3515,8 @@
     "settings.png",
     "sighting-log.png",
     "missing-questiedb.png",
-    "instances-boss.png"
+    "instances-boss.png",
+    "leaderboard.png"
   ],
   "widgets": [
     {

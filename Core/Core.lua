@@ -5,7 +5,7 @@ local L = ns.L
 ns.ready = false
 ns.Zones = ns.Zones or {}
 ns.Instances = ns.Instances or {}
-ns.SCHEMA = 2
+ns.SCHEMA = 3
 ---@type fun()[]
 local progressCallbacks = {}
 
@@ -127,6 +127,11 @@ local function NormalizeState(state)
 			-- A save from before kills were counted has only `count`: its kills are an estimate, as Model.Specimen says.
 			entry.killsEstimated = old.killsEstimated == true
 				or (old.kills == nil and old.killsEstimated == nil and entry.count > 0)
+			if old.sharedKillsBaseline ~= nil then
+				entry.sharedKillsBaseline = Integer(old.sharedKillsBaseline, entry.kills)
+			elseif entry.killsEstimated then
+				entry.sharedKillsBaseline = entry.kills
+			end
 			for field in pairs(SPECIMEN_TIMES) do
 				if type(old[field]) == "number" and old[field] >= 0 then
 					entry[field] = old[field]
@@ -194,7 +199,7 @@ function ns.Migrate(db)
 	end
 	local version = Integer(db.version)
 	if version > ns.SCHEMA then
-		return { version = ns.SCHEMA, chars = {}, window = {}, options = {} }, true
+		return { version = ns.SCHEMA, chars = {}, window = {}, options = {}, peerStats = {} }, true
 	end
 	db.chars = type(db.chars) == "table" and db.chars or {}
 	for key, state in pairs(db.chars) do
@@ -206,6 +211,7 @@ function ns.Migrate(db)
 	end
 	db.window = type(db.window) == "table" and db.window or {}
 	db.options = type(db.options) == "table" and db.options or {}
+	ns.Stats.Migrate(db)
 
 	db.version = ns.SCHEMA
 	return db
@@ -308,7 +314,7 @@ function ns.RecordKill(name)
 	if not state then
 		return nil
 	end
-	local timestamp = time and time() or 0
+	local timestamp = GetServerTime()
 	local result = ns.Model.Record(state, species.id, { species = species, time = timestamp, zone = zone.name })
 	local kind = "kill"
 	if result.shiny then
@@ -345,7 +351,7 @@ function ns.RecordSighting(unit)
 	if not state then
 		return false
 	end
-	local timestamp = time and time() or 0
+	local timestamp = GetServerTime()
 	local first = ns.Model.RecordSighting(state, species.id, timestamp, zone.name)
 	if first then
 		ns.Model.AddSighting({ time = timestamp, zone = zone.name, species = species.name, kind = "sighting" })
@@ -370,12 +376,12 @@ local function OnEncounterEnd(encounterId, encounterName, difficultyId, _, succe
 		encounterId,
 		encounterName,
 		difficultyId,
-		time and time() or 0,
+		GetServerTime(),
 		instanceName,
 		difficultyName
 	)
 	ns.Model.AddSighting({
-		time = time and time() or 0,
+		time = GetServerTime(),
 		zone = instanceName,
 		species = encounterName,
 		kind = result.firstKill and "boss-first" or "boss-kill",
@@ -391,7 +397,7 @@ local function OnEncounterStart(encounterId, encounterName, difficultyId)
 	if not state then
 		return
 	end
-	local timestamp = time and time() or 0
+	local timestamp = GetServerTime()
 	local instanceName = GetInstanceInfo and select(1, GetInstanceInfo()) or ""
 	local difficultyName = GetDifficultyInfo and GetDifficultyInfo(difficultyId) or nil
 	local result = ns.Model.ObserveEncounter(
@@ -486,10 +492,12 @@ SlashCmdList["FIELDGUIDEFOREVER"] = function(message)
 			return
 		end
 		print(L["Field Guide recorded kills (peer totals are reported, not verified):"])
-		for index = 1, math.min(10, #rows) do
-			local row = rows[index]
-			local label = row.source == "local" and L["local"] or L["reported"]
-			print(string.format(L["%d. %s — %d kills (%s)"], index, row.player, row.value, label))
+		print(L["Reports come from guild and group addon users."])
+		for index, row in ipairs(rows) do
+			if index <= 10 or row.source == "local" then
+				local label = row.source == "local" and L["local"] or L["reported"]
+				print(string.format(L["%d. %s - %d kills (%s)"], index, row.player, row.value, label))
+			end
 		end
 		return
 	end

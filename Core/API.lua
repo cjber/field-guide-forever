@@ -382,13 +382,7 @@ API.GetEncounters = API.Encounters
 ---@param subject string
 ---@return { player: string, value: integer, time: integer, source: string }[]?
 function API.Leaderboard(metric, subject)
-	if
-		not Ready()
-		or not ns.db
-		or ns.db.options.statsShare == false
-		or type(metric) ~= "string"
-		or type(subject) ~= "string"
-	then
+	if not Ready() or not ns.db or type(metric) ~= "string" or type(subject) ~= "string" then
 		return nil
 	end
 	local rows = {}
@@ -401,7 +395,7 @@ function API.Leaderboard(metric, subject)
 	if creatureMetric then
 		local entry = ns.Model.Specimen(state, tonumber(subject) or 0)
 		local fields = {
-			creature_kills = { value = entry.kills, time = entry.lastKill },
+			creature_kills = { value = ns.Model.ObservedKills(entry), time = entry.lastKill },
 			rare_kills = { value = entry.rareKills, time = entry.firstRare },
 			shiny_finds = { value = entry.shinyFinds, time = entry.firstShiny },
 			first_sighting = { value = 1, time = entry.firstSighting },
@@ -410,6 +404,14 @@ function API.Leaderboard(metric, subject)
 			first_shiny = { value = 1, time = entry.firstShiny },
 		}
 		localRecord = fields[metric]
+		if metric == "creature_kills" and subject == "all" then
+			local total, stamp = 0, 0
+			for _, specimen in pairs(state and state.species or {}) do
+				total = total + ns.Model.ObservedKills(specimen)
+				stamp = math.max(stamp, specimen.lastKill or 0)
+			end
+			localRecord = { value = total, time = stamp }
+		end
 	elseif metric:match("^boss_") then
 		local encounterId, difficulty = subject:match("^(%d+)_(%d+)$")
 		local encounter = state and state.encounters and state.encounters[encounterId or subject]
@@ -433,22 +435,26 @@ function API.Leaderboard(metric, subject)
 		UnitName and UnitName("player") or "Unknown",
 		GetRealmName and GetRealmName() or "Unknown"
 	)
-	if localRecord and localRecord.time and (localRecord.value or 0) > 0 then
+	if localRecord then
 		rows[#rows + 1] = {
 			player = playerName,
-			value = localRecord.value,
-			time = localRecord.time,
+			value = FIRST_METRICS[metric] and not localRecord.time and 0 or localRecord.value,
+			time = localRecord.time or 0,
 			source = "local",
 		}
 	end
-	for peerName, peer in pairs(ns.Stats and ns.Stats.Shared() or {}) do
+	local peers = ns.db.options.statsShare ~= false and ns.Stats and ns.Stats.Shared() or {}
+	for peerName, peer in pairs(peers) do
 		local data = peer.fieldguide and peer.fieldguide[subject] and peer.fieldguide[subject][metric]
 		if data then
 			rows[#rows + 1] = { player = peerName, value = data.value, time = data.time, source = "peer" }
 		end
 	end
 	table.sort(rows, function(a, b)
-		if FIRST_METRICS and FIRST_METRICS[metric] then
+		if FIRST_METRICS[metric] and (a.time == 0) ~= (b.time == 0) then
+			return b.time == 0
+		end
+		if FIRST_METRICS and FIRST_METRICS[metric] and a.time ~= b.time then
 			return a.time < b.time
 		end
 		if a.value == b.value then
@@ -470,7 +476,7 @@ function API.LeaderboardSummary()
 	local localTotal = 0
 	local state = ns.GetCharacterState(false)
 	for _, entry in pairs(state and state.species or {}) do
-		localTotal = localTotal + (entry.kills or entry.count or 0)
+		localTotal = localTotal + ns.Model.ObservedKills(entry)
 	end
 	local localPlayer = string.format(
 		"%s-%s",
@@ -483,11 +489,15 @@ function API.LeaderboardSummary()
 			local species = peer.fieldguide
 			if type(species) == "table" then
 				local total = 0
-				for _, metrics in pairs(species) do
+				local aggregate = species.all and species.all.creature_kills
+				for subject, metrics in pairs(species) do
 					local kills = type(metrics) == "table" and metrics.creature_kills
-					if type(kills) == "table" then
+					if subject ~= "all" and type(kills) == "table" then
 						total = total + (tonumber(kills.value) or 0)
 					end
+				end
+				if aggregate then
+					total = aggregate.value
 				end
 				if total > 0 and player ~= localPlayer then
 					totals[player] = { player = player, value = total, source = "reported" }
