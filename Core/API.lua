@@ -23,39 +23,11 @@ local function Ready()
 	return ns.ready == true
 end
 
----@param source any
----@return table?
-local function ReadSupportTable(source)
-	local chunk = type(source) == "string" and loadstring(source)
-	if not chunk then
-		return nil
-	end
-	setfenv(chunk, {})
-	local ok, value = pcall(chunk)
-	return ok and type(value) == "table" and value or nil
-end
-
 -- QuestieDB stores AreaTable IDs and 0–100 coordinates. Resolve them only through its own ZoneDB tables; an
 -- unknown mapping is omitted instead of drawing the creature on a guessed map.
 ---@return FGSpawnCache?
 local function BuildSpawnCache()
-	local lib = rawget(_G, "LibQuestieDB")
-	if
-		type(lib) ~= "table"
-		or type(lib.RequireContract) ~= "function"
-		or type(lib.Support) ~= "table"
-		or type(lib.Support.Get) ~= "function"
-	then
-		return nil
-	end
-	local ok, contract = pcall(lib.RequireContract, 2)
-	if not ok or not contract then
-		return nil
-	end
-	local got, zoneDb = pcall(lib.Support.Get, "ZoneDB")
-	local private = got and type(zoneDb) == "table" and zoneDb.private
-	local area = private and ReadSupportTable(private.areaIdToUiMapId)
-	local override = private and ReadSupportTable(private.areaIdToUiMapIdOverride)
+	local area, override = ns.QuestieDB.AreaMaps()
 	if not area or not override then
 		return nil
 	end
