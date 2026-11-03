@@ -619,7 +619,9 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
     m = 26
     canvas = ui.canvas(W + m * 2 + 60, H + m * 2)
     # Each saved scene captures its own controls, including optional map navigation.
-    LAYOUT.pop("widgets", None)
+    LAYOUT["widgets"] = []
+    LAYOUT["canvas"] = {"width": canvas.width, "height": canvas.height, "scale": ui.scale}
+    LAYOUT["frame"] = {"x": m, "y": m, "w": W, "h": H}
 
     def px(x):
         return m + x
@@ -705,9 +707,6 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
                 "GameFontDisableSmall",
                 MUTED,
             )
-        LAYOUT["canvas"] = {"width": canvas.width, "height": canvas.height, "scale": ui.scale}
-        LAYOUT["frame"] = {"x": px(0), "y": py(0), "w": W, "h": H}
-        LAYOUT.setdefault("scenes", [])
         return canvas
 
     breadcrumb = f"{zone['continent']} > {zone['name']}"
@@ -980,10 +979,6 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
     note("Open Journal", "button", px(OPEN_X), button_y, OPEN_W, BUTTON_H)
     ui_panel_button(canvas, px(TRACK_X), button_y, TRACK_W, BUTTON_H, "Tracking" if tracked else "Track Species")
     note("Track Species", "button", px(TRACK_X), button_y, TRACK_W, BUTTON_H)
-    if not LAYOUT.get("canvas"):
-        LAYOUT["canvas"] = {"width": canvas.width, "height": canvas.height, "scale": ui.scale}
-        LAYOUT["frame"] = {"x": px(0), "y": py(0), "w": W, "h": H}
-        LAYOUT["scenes"] = []
     return canvas
 
 
@@ -1149,9 +1144,9 @@ def main():
         text(settings, 46, y + 6, label, "GameFontNormal", GOLD)
     text(settings, 36, 166, "Both buttons can also be bound in Key Bindings > AddOns.", "GameFontDisableSmall", MUTED)
     settings.save(OUT / "settings.png")
-    render(barrens, prowler, "CREATURES", 2).save(OUT / "sighting-log.png")
-    render(barrens, prowler, unavailable=True).save(OUT / "missing-questiedb.png")
-    render(barrens, prowler, "INSTANCES").save(OUT / "instances-boss.png")
+    save(render(barrens, prowler, "CREATURES", 2), "sighting-log.png")
+    save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")
+    save(render(barrens, prowler, "INSTANCES"), "instances-boss.png")
     render_micro_menu_scenes()
     subprocess.run([sys.executable, str(ROOT / "tools" / "rarity.py")], check=True)
 
