@@ -9,7 +9,7 @@ check; gallery scenes show the native portrait fallback.
 - Runtime: `UI/Window.lua`, `UI/Detail.lua`, `UI/List.lua` and `UI/Art.lua`.
 - Renderer: `tools/mockups.py`, using Forever Core `113d426fe0d8ab18f068e7046e8bb6b46c57845c`.
 - FrameXML discovery: Gethe/wow-ui-source `70ef1b2fd78061a73f886c4a1e79dc5b5cff6d5e`, client `1.60.1.69913`.
-- Art cache: `1.60.1.70124`, Pillow `12.3.0`. Generated catalogue constants use the separate `1.60.1.70753` pin.
+- Art cache and generated catalogue constants: `1.60.1.70753`, selected by `BUILD` in `tools/gen_zones.py`. Final renders used Pillow `12.3.0` through `uv run --with Pillow==12.3.0`. Native tab atlas dimensions were also cross-checked against `1.60.1.70124`.
 
 ## Attachment and chrome ownership
 
