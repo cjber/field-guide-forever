@@ -97,7 +97,7 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
         x1, y1 = x0 + widget["w"], y0 + widget["h"]
         if x0 < -MIN_INSET or y0 < -MIN_INSET or x1 > canvas["width"] + MIN_INSET or y1 > canvas["height"] + MIN_INSET:
             findings.append(f"{widget['name']}: {x1 - x0:g}x{y1 - y0:g} at ({x0:g}, {y0:g}) is off the canvas")
-        is_side_tab = widget["role"] == "tabs" and x0 >= right and x1 <= right + 54
+        is_side_tab = widget["role"] == "tabs" and x0 >= right and x1 <= right + 58
         if (
             x0 < frame["x"] - 0.5
             or x1 > right + 0.5
@@ -173,13 +173,13 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
     tab_plates = [w for w in widgets if w["role"] == "tabs" and w["name"].startswith("tab plate")]
     tab_strip = next((w for w in widgets if w["name"] == "right tab strip"), None)
     if tab_strip:
-        if tab_strip["w"] != 51 or tab_strip["h"] != 249:
-            findings.append("LargeSideTabButtonTemplate strip must be 51x249")
+        if tab_strip["w"] != 55 or tab_strip["h"] != 229:
+            findings.append("LargeSideTabButtonTemplate strip must be 55x229")
         if tab_strip["x"] != right + 3 or tab_strip["y"] != frame["y"] + 28:
-            findings.append("Quest Log tabs must start at frame TOPRIGHT +3,-28")
+            findings.append("Native side tabs must start at frame TOPRIGHT +3,-28")
     if tab_plates:
-        if any(tab["w"] != 51 or tab["h"] != 60 for tab in tab_plates):
-            findings.append("native side tab plates must be 51x60")
+        if any(tab["w"] != 55 or tab["h"] != 55 for tab in tab_plates):
+            findings.append("native side tab plates must be 55x55")
         ordered_tabs = sorted(tab_plates, key=lambda tab: tab["y"])
         if ordered_tabs[0]["x"] - right != 3 or ordered_tabs[0]["y"] - frame["y"] != 28:
             findings.append("first native side tab must anchor at TOPRIGHT +3,-28")

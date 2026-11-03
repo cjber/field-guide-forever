@@ -201,7 +201,7 @@ function Detail.Create(parent)
 	BuildSightings(parent)
 
 	Detail.note = Art.Text(parent, "GameFontDisableSmall", "muted")
-	Detail.note:SetPoint("BOTTOMLEFT", 14, 2)
+	Detail.note:SetPoint("BOTTOMLEFT", 14, 8)
 	Detail.note:SetText(L["Cosmetic only — the field guide never grants player power."])
 end
 
