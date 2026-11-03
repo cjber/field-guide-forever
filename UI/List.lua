@@ -8,8 +8,8 @@ local List = {}
 ns.List = List
 
 local ROW_HEIGHT = 46
-local ROW_WIDTH = 356
-local BAR_WIDTH = 332
+local ROW_WIDTH = 304
+local BAR_WIDTH = 280
 
 ---@param row FGListRow
 ---@param entry FGListEntry
@@ -79,7 +79,9 @@ local function CreateRow(index)
 
 	row.Name = Art.Text(row, "GameFontNormal", "text")
 	row.Name:SetPoint("TOPLEFT", 52, -5)
-	row.Name:SetWidth(210)
+	row.Name:SetWidth(152)
+	row.Name:SetWordWrap(false)
+	row.Name:SetMaxLines(1)
 
 	row.Sub = Art.Text(row, "GameFontDisableSmall", "muted")
 	row.Sub:SetPoint("TOPLEFT", 52, -23)
@@ -131,7 +133,7 @@ function List.Create(parent, controller)
 
 	List.empty = Art.Text(parent, "GameFontDisableSmall", "muted")
 	List.empty:SetPoint("TOP", parent, "TOP", 0, -36)
-	List.empty:SetWidth(330)
+	List.empty:SetWidth(304)
 	List.empty:SetJustifyH("CENTER")
 	List.empty:SetText(L["No creatures match your search."])
 	List.empty:Hide()
@@ -139,10 +141,12 @@ end
 
 ---@param entries FGListEntry[]
 ---@param selectedId integer?
-function List.Refresh(entries, selectedId)
+---@param preserveScroll boolean?
+function List.Refresh(entries, selectedId, preserveScroll)
 	if not List.child then
 		return
 	end
+	local offset = preserveScroll and List.scroll:GetVerticalScroll() or 0
 	List.entries = entries or {}
 	for index, entry in ipairs(List.entries) do
 		local row = List.rows[index]
@@ -159,7 +163,8 @@ function List.Refresh(entries, selectedId)
 	List.child:SetHeight(math.max(1, #List.entries * ROW_HEIGHT))
 	List.empty:SetShown(#List.entries == 0)
 	if List.scroll and List.scroll.SetVerticalScroll then
-		List.scroll:SetVerticalScroll(0)
+		local maximum = math.max(0, List.child:GetHeight() - List.scroll:GetHeight())
+		List.scroll:SetVerticalScroll(math.min(offset, maximum))
 	end
 end
 

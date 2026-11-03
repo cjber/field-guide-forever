@@ -71,13 +71,15 @@ def frame_box(image: Any) -> tuple[int, int, int, int]:
     return left, top, right, max(rows)
 
 
-def red_extent(image: Any, top: int, bottom: int) -> tuple[int, int, list[int]]:
+def red_extent(
+    image: Any, top: int, bottom: int, left: int = 0, right: int | None = None
+) -> tuple[int, int, list[int]]:
     """Horizontal extent of button art in a row band, plus the x of every red column (to find the gap)."""
     width, _ = image.size
     pixels = image.load()
     columns = [
         x
-        for x in range(width)
+        for x in range(max(0, left), min(width, right if right is not None else width))
         if any(is_button_red(pixels[x, y]) for y in range(max(0, top), min(image.size[1], bottom), 2))
     ]
     if not columns:
@@ -192,7 +194,14 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
         if expected_width and button["w"] != expected_width:
             findings.append(f"{button['name']}: width {button['w']:g}, expected {expected_width}")
         containing_bar = next(
-            (bar for bar in containers if bar["x"] <= button["x"] and bar["x"] + bar["w"] >= button["x"] + button["w"]),
+            (
+                bar
+                for bar in containers
+                if bar["x"] <= button["x"]
+                and bar["x"] + bar["w"] >= button["x"] + button["w"]
+                and bar["y"] <= button["y"]
+                and bar["y"] + bar["h"] >= button["y"] + button["h"]
+            ),
             None,
         )
         if containing_bar:
@@ -220,7 +229,7 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
 
 
 def check_image(path: Path, layout: dict[str, Any]) -> list[str]:
-    """The pixels: button art inside the frame, in two pieces, where the manifest says it is."""
+    """Check each button row against its manifest bounds and spacing."""
     findings: list[str] = []
     image = load_png(path)
     frame_left, frame_top, frame_right, _ = frame_box(image)
@@ -229,34 +238,44 @@ def check_image(path: Path, layout: dict[str, Any]) -> list[str]:
     buttons = [w for w in layout["widgets"] if w["role"] == "button"]
     if not buttons:
         return findings
-    top = min(b["y"] for b in buttons)
-    bottom = max(b["y"] + b["h"] for b in buttons)
-    band_top = round(top * scale + offset_y) - ART_SLOP
-    band_bottom = round(bottom * scale + offset_y) + ART_SLOP
-    left, right, columns = red_extent(image, band_top, band_bottom)
-    if not columns:
-        return [f"{path.name}: no button art found in the bottom bar band"]
-    if right > frame_right + 1:
-        overshoot = (right - frame_right) / scale
-        findings.append(
-            f"{path.name}: button art reaches x={right}, {overshoot:.0f} units past the frame edge ({frame_right})"
+    # Navigation and footer buttons occupy separate rows; projecting them together hides overlaps.
+    rows: dict[float, list[dict[str, Any]]] = {}
+    for button in buttons:
+        rows.setdefault(button["y"], []).append(button)
+    for row in rows.values():
+        top = min(b["y"] for b in row)
+        bottom = max(b["y"] + b["h"] for b in row)
+        band_top = round(top * scale + offset_y) - ART_SLOP
+        band_bottom = round(bottom * scale + offset_y) + ART_SLOP
+        row_left = round(frame_left + (min(b["x"] for b in row) - layout["frame"]["x"]) * scale) - ART_SLOP
+        row_right = round(frame_left + (max(b["x"] + b["w"] for b in row) - layout["frame"]["x"]) * scale) + ART_SLOP
+        overflow_left, overflow_right, _ = red_extent(image, band_top, band_bottom)
+        left, right, columns = red_extent(image, band_top, band_bottom, row_left, row_right)
+        if not columns:
+            findings.append(f"{path.name}: no button art found at button row {top:g}")
+            continue
+        if overflow_right > frame_right + 1:
+            overshoot = (overflow_right - frame_right) / scale
+            findings.append(
+                f"{path.name}: button art reaches x={overflow_right}, "
+                f"{overshoot:.0f} units past the frame edge ({frame_right})"
+            )
+        if overflow_left < frame_left - 1:
+            findings.append(f"{path.name}: button art starts at x={overflow_left}, left of the frame ({frame_left})")
+        expected = max(round(b["w"] * scale) for b in row)
+        widest = max(
+            (max(run) - min(run) + 1 for run in _runs(columns) if run),
+            default=0,
         )
-    if left < frame_left - 1:
-        findings.append(f"{path.name}: button art starts at x={left}, left of the frame ({frame_left})")
-    expected = max(round(b["w"] * scale) for b in buttons)
-    widest = max(
-        (max(run) - min(run) + 1 for run in _runs(columns) if run),
-        default=0,
-    )
-    if widest and abs(widest - expected) > expected * 0.15:
-        findings.append(f"{path.name}: widest button is {widest}px, the manifest's widest is {expected}px")
-    runs = [run for run in _runs(columns) if len(run) > ART_SLOP]
-    if len(buttons) > 1 and len(runs) < len(buttons):
-        findings.append(f"{path.name}: {len(runs)} separate button(s) drawn, the manifest has {len(buttons)}")
-    for first, second in zip(runs, runs[1:], strict=False):
-        gap = min(second) - max(first) - 1
-        if gap < MIN_GAP * scale:
-            findings.append(f"{path.name}: {gap}px between buttons (minimum {MIN_GAP * scale:.0f}px)")
+        if widest and abs(widest - expected) > expected * 0.15:
+            findings.append(f"{path.name}: widest button is {widest}px, the manifest's widest is {expected}px")
+        runs = [run for run in _runs(columns) if len(run) > ART_SLOP]
+        if len(row) > 1 and len(runs) < len(row):
+            findings.append(f"{path.name}: {len(runs)} separate button(s) drawn, the manifest has {len(row)}")
+        for first, second in zip(runs, runs[1:], strict=False):
+            gap = min(second) - max(first) - 1
+            if gap < MIN_GAP * scale:
+                findings.append(f"{path.name}: {gap}px between buttons (minimum {MIN_GAP * scale:.0f}px)")
     return findings
 
 
@@ -280,11 +299,15 @@ def main(argv: list[str] | None = None) -> int:
     if not manifest.is_file():
         sys.exit(f"visual_audit: {manifest} is missing; run `python3 tools/mockups.py` first")
     layout: dict[str, Any] = json.loads(manifest.read_text(encoding="utf-8"))
-    findings = check_manifest(layout)
+    per_scene = layout.get("scene_layouts", {})
+    findings = [] if per_scene else check_manifest(layout)
     scenes = layout.get("scenes") or [path.name for path in sorted(args.dir.glob("*.png"))]
     images = [args.dir / name for name in scenes if (args.dir / name).is_file()]
     for path in images:
-        findings.extend(check_image(path, layout))
+        scene_layout = per_scene.get(path.name, layout)
+        if per_scene:
+            findings.extend(f"{path.name}: {finding}" for finding in check_manifest(scene_layout))
+        findings.extend(check_image(path, scene_layout))
     for finding in findings:
         print(f"visual_audit: {finding}")
     print(

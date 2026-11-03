@@ -62,6 +62,29 @@ local zoneRows = API.ZoneSpawns("The Barrens")
 assert(zoneRows and #zoneRows == 1 and zoneRows[1].map == 100, "zone queries return only that zone's AreaId rows")
 assert(API.Spawns(999999) == nil and API.ZoneSpawns("Unknown Zone") == nil, "unknown inputs return nil")
 
+local firstArea, firstOverride = harness.ns.QuestieDB.AreaMaps()
+local compileCalls = 0
+harness.env.loadstring = function(source)
+	compileCalls = compileCalls + 1
+	return loadstring(source)
+end
+local cachedArea, cachedOverride = harness.ns.QuestieDB.AreaMaps()
+assert(
+	cachedArea == firstArea and cachedOverride == firstOverride and compileCalls == 0,
+	"unchanged maps reuse compiled tables"
+)
+local originalSupportGet = harness.env.LibQuestieDB.Support.Get
+harness.env.LibQuestieDB.Support.Get = function()
+	return { private = { areaIdToUiMapId = "return {[17]=303}", areaIdToUiMapIdOverride = "return {}" } }
+end
+local updatedArea = harness.ns.QuestieDB.AreaMaps()
+assert(
+	updatedArea ~= firstArea and updatedArea[17] == 303 and compileCalls == 2,
+	"changed support strings invalidate map cache"
+)
+harness.env.LibQuestieDB.Support.Get = originalSupportGet
+harness.env.loadstring = nil
+
 harness:Kill("Plainstrider")
 local catalogued = API.Spawns(1001)
 assert(catalogued[1].catalogued, "catalogued reports this character's specimen progress")
@@ -84,5 +107,16 @@ withoutSupport.env.LibQuestieDB = {
 withoutSupport:Fire("ADDON_LOADED", "FieldGuideForever")
 withoutSupport:RunTimers()
 assert(withoutSupport.env.FieldGuideForever.API.Spawns(1001) == nil, "missing QuestieDB Support fails closed")
+
+creature.zoneID = 2917
+creature.spawns = { [2917] = { { 50, 50 } } }
+local barracks = Mock.Harness()
+barracks.env.LibQuestieDB = { Npc = harness.env.LibQuestieDB.Npc }
+barracks:Fire("ADDON_LOADED", "FieldGuideForever")
+barracks:RunTimers()
+assert(
+	barracks.ns.SpeciesZone[1001].continent == barracks.ns.ClientData.maps[450].name,
+	"a non-continent outdoor map uses its generated name instead of a numeric breadcrumb"
+)
 
 print("spawns: ok")

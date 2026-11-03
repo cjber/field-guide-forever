@@ -57,6 +57,7 @@ function Mock.TocFiles()
 end
 
 function Mock.Reset()
+	Mock.openedMap = nil
 	Mock.zone = "The Barrens"
 	Mock.clock = 1000
 	Mock.frames = {}
@@ -108,6 +109,20 @@ Mock.NewRegion = NewRegion
 
 function methods:SetScript(event, fn)
 	self._scripts[event] = fn
+end
+
+function methods:SetCreature(id)
+	self.creatureID = id
+	self.creatureLoads = (rawget(self, "creatureLoads") or 0) + 1
+end
+
+function methods:ClearModel()
+	self.modelFileID = nil
+	self.creatureID = nil
+end
+
+function methods:GetModelFileID()
+	return rawget(self, "modelFileID")
 end
 
 function methods:GetScript(event)
@@ -393,7 +408,13 @@ function methods:SetScrollChild(child)
 	self._scrollChild = child
 end
 
-function methods.SetVerticalScroll() end
+function methods:SetVerticalScroll(value)
+	self.verticalScroll = value
+end
+
+function methods:GetVerticalScroll()
+	return rawget(self, "verticalScroll") or 0
+end
 
 function methods.SetBackdrop() end
 
@@ -426,7 +447,7 @@ end
 -- A frame's methods are all in `methods`; anything else a client frame answers with nil when it has not been set.
 -- The fields named here are data a frame carries (Forever Core's settings page keeps its row cursor in one), so they
 -- must read nil until something writes them, exactly as on the client, and never the no-op the fallback returns.
-local DATA_FIELDS = { settingsRowY = true }
+local DATA_FIELDS = { settingsRowY = true, creatureID = true, modelFileID = true }
 setmetatable(methods, {
 	__index = function(_, key)
 		if DATA_FIELDS[key] then
@@ -631,6 +652,20 @@ function Mock.Harness(opts)
 		end
 		return created
 	end
+	env.PanelTemplates_SelectTab = function(button)
+		button.selected = true
+	end
+	env.PanelTemplates_DeselectTab = function(button)
+		button.selected = false
+	end
+	env.PanelTemplates_TabResize = function(button, _padding, width)
+		button:SetSize(width, 32)
+	end
+	env.C_Map = {
+		OpenWorldMap = function(id)
+			Mock.openedMap = id
+		end,
+	}
 	env.UIParent = env.CreateFrame("Frame", "UIParent")
 	env.DEFAULT_CHAT_FRAME = { AddMessage = function() end }
 	env.GameTooltip = env.CreateFrame("Frame", "GameTooltip")

@@ -21,6 +21,10 @@ globals = {
 	"SlashCmdList",
 }
 read_globals = {
+	"C_Map",
+	"PanelTemplates_SelectTab",
+	"PanelTemplates_DeselectTab",
+	"PanelTemplates_TabResize",
 	"LibQuestieDB",
 	"QuestieDB",
 	"Questie",

@@ -5,7 +5,7 @@ multiplies the tier colour back in, which is exactly what UI/Rarity.lua does at 
 and `SetVertexColor`. So these sheets are the recolour itself: COMMON is the untouched client frame, and silver, gold
 and shiny are the same textures with the brass removed and the tier colour laid into the shading.
 
-Every pixel that is not the addon's own layout comes from the pinned WoW: Forever build (1.60.1.70124) through
+Every pixel that is not the addon's own layout comes from the pinned WoW: Forever build through
 wowmock, so what is approved here is what the addon paints.
 
     python3 tools/rarity.py
@@ -15,6 +15,7 @@ import os
 import sys
 from pathlib import Path
 
+from gen_zones import BUILD
 from PIL import Image  # ty: ignore[unresolved-import]  # Pillow is local only
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -182,7 +183,7 @@ def sheet(ui, icons, name, elite=False, plates=False):
 
 
 def main():
-    ui = wowmock.Ui(scale=2)
+    ui = wowmock.Ui(build=BUILD, scale=2)
     OUT.mkdir(parents=True, exist_ok=True)
     icons = {
         key: ui.texture(f"interface/icons/{value}.blp")

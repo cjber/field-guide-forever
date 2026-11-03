@@ -31,6 +31,8 @@ SOURCES = (
     "Core/Model.lua",
     "Core/Core.lua",
     "Core/Stats.lua",
+    "Core/Settings.lua",
+    "UI/SettingsPage.lua",
     "UI/Rarity.lua",
     "Locales/enUS.lua",
     "UI/Art.lua",
