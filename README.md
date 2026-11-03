@@ -95,6 +95,20 @@ The addon targets the WoW: Forever client, Interface 16001.
 <!-- SCREENSHOT_GALLERY:END -->
 These mocked screenshots use the WoW: Forever client art and a disposable fixture extracted from the pinned QuestieDB Forever release into the ignored `tools/.cache/` directory. The addon never ships that fixture; in game it reads the player’s installed QuestieDB. The shared renderer in `forever-core` caches WoW: Forever client assets under `~/.cache/wowmock/`; set `FOREVER_CORE` to that checkout when regenerating scenes.
 
+## Works alongside
+
+Other addons record some of the same things, so Field Guide says where they meet rather than pretending they
+do not:
+
+| Addon | What overlaps | What happens |
+|---|---|---|
+| RareScanner | rare kills per creature, and a per-character "rare killed" flag | both keep their own counts from the same kill events; nothing is shared or fought over |
+| SilverDragon | per-zone rare sightings with coordinates | Field Guide keeps its own first-sighting record; SilverDragon's history is separate |
+| AutoBiographer | a per-creature kill count shown in unit tooltips | the counts deliberately differ: Field Guide counts every hostile death matching its zone catalogue, AutoBiographer only tagged or group credit |
+
+None of them hook the same event in a way that collides: the client broadcasts events to every frame that
+registers, and each addon writes only its own SavedVariables.
+
 ## Credits
 
 Made by cjber. Blizzard Entertainment for Azeroth, its creatures and the client art the journal is built from; the WoW: Forever project for the client it is written for; and QuestieDB, read at runtime, for the creatures themselves. Thanks to everyone who reports a creature missing from the catalogue, a bug or a feature idea, here or on CurseForge. [THIRD_PARTY.md](THIRD_PARTY.md) lists every input and the full credits.
