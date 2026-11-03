@@ -159,6 +159,7 @@ function FGSightingLog.List() end
 -- A bar Art.Bar draws: a backdrop frame and the fill texture a caller sizes.
 ---@class FGBar : BackdropTemplate
 ---@field Fill Texture
+---@field SetProgress fun(self: FGBar, fraction: number)
 
 -- A row of the creature list (UI/List.lua) and the widgets it is drawn with.
 ---@class FGListRow : Button
@@ -175,9 +176,8 @@ function FGSightingLog.List() end
 ---@field species? FGSpecies
 ---@field entry? FGListEntry
 
--- The journal window (UI/Window.lua): the client's portrait frame with its own opaque background.
+-- The journal window (UI/Window.lua): the client's portrait frame and native chrome.
 ---@class FGWindowFrame : PortraitFrameTemplate, BackdropTemplate
----@field Bg Texture
 
 -- A side tab of the journal window.
 ---@class FGTabButton : LargeSideTabButtonTemplate

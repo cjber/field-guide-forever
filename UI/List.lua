@@ -29,7 +29,7 @@ local function UpdateRow(row, entry, selectedId)
 		string.format(L["%s · Lv %s"], L[species.family], ns.Model.LevelRange(species.minLevel, species.maxLevel))
 	)
 	row.Counter:SetText(string.format(L["%d kills"], state and (state.kills or state.count) or 0))
-	row.Fill:SetWidth(BAR_WIDTH * count / ns.Model.MASTERED_AT)
+	row.Bar:SetProgress(count / ns.Model.MASTERED_AT)
 	row.Selected:SetShown(selectedId == species.id)
 
 	local complete = ns.Model.IsComplete(character, species.id, species)

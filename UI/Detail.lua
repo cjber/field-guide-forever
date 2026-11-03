@@ -18,7 +18,7 @@ local REWARDS = { "Field sketch", "Ink study", "Brass plate", "Gilded entry" }
 ---@param height number
 ---@return Frame
 local function Card(parent, x, y, width, height)
-	local card = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+	local card = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
 	card:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
 	card:SetSize(width, height)
 	Art.Card(card)
@@ -33,7 +33,7 @@ local function BuildBadges(parent)
 	holder:SetSize(CARD_WIDTH, 18)
 	Detail.badges = {}
 	for index = 1, 4 do
-		local badge = CreateFrame("Frame", nil, holder, "BackdropTemplate")
+		local badge = CreateFrame("Frame", nil, holder, "InsetFrameTemplate")
 		badge:SetSize(60, 18)
 		Art.Card(badge, "panel", 0.9)
 		local text = Art.Text(badge, "GameFontDisableSmall", "text")
@@ -78,7 +78,7 @@ local function BuildResearch(parent)
 	Detail.specimenCount:SetPoint("TOPRIGHT", -10, -60)
 	local bar = Art.Bar(card, CARD_WIDTH - 20, 4, "gold")
 	bar:SetPoint("TOPLEFT", 10, -74)
-	Detail.specimenBar = bar.Fill
+	Detail.specimenBar = bar
 end
 
 ---@param parent Frame
@@ -263,7 +263,7 @@ local function UpdateResearch(state)
 	local format = state and state.killsEstimated and "%d / %d · at least %d recorded deaths"
 		or "%d / %d · %d recorded deaths"
 	Detail.specimenCount:SetText(string.format(L[format], count, ns.Model.MASTERED_AT, killCount))
-	Detail.specimenBar:SetWidth((CARD_WIDTH - 20) * count / ns.Model.MASTERED_AT)
+	Detail.specimenBar:SetProgress(count / ns.Model.MASTERED_AT)
 	Detail.specimenBar:Show()
 end
 

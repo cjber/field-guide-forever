@@ -159,7 +159,7 @@ end
 
 ---@param parent Frame
 local function BuildBottom(parent)
-	local bar = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+	local bar = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
 	bar:SetPoint("BOTTOMLEFT", 18, 12)
 	bar:SetSize(924, 58)
 	Art.Card(bar, "panel", 0.96)
@@ -295,7 +295,8 @@ local function UpdateProgress()
 	local percent = math.floor(progress.fraction * 100 + 0.5)
 	Window.progressText:SetText(string.format(L["%d%%"], percent))
 	Window.progressCount:SetText(string.format(L["%d of %d species"], progress.catalogued, progress.total))
-	Window.progressFill:SetWidth(320 * progress.fraction)
+	Window.progressFill:SetShown(progress.fraction > 0)
+	Window.progressFill:SetWidth(318 * progress.fraction)
 end
 
 local function UpdateTrackButton()
@@ -321,7 +322,15 @@ function Window.Refresh()
 		for _, panel in ipairs(Window.creaturePanels or {}) do
 			panel:Hide()
 		end
+		for _, button in ipairs(Window.tabButtons or {}) do
+			button:Hide()
+		end
 		Window.instances:Hide()
+		Window.bottomBar:Hide()
+		Window.breadcrumb:Hide()
+		Window.search:Hide()
+		Window.searchPlaceholder:Hide()
+		Window.filterButton:Hide()
 		Window.catalogueNotice:Show()
 		Window.catalogueNotice:SetText(
 			ns.catalogueStatus == "loading" and L["Loading QuestieDB catalogue…"]
@@ -330,6 +339,9 @@ function Window.Refresh()
 		return
 	end
 	Window.catalogueNotice:Hide()
+	for _, button in ipairs(Window.tabButtons or {}) do
+		button:Show()
+	end
 	if tab == "instances" then
 		for _, panel in ipairs(Window.creaturePanels or {}) do
 			panel:Hide()
@@ -488,12 +500,6 @@ local function Create()
 	frame:EnableMouse(true)
 	frame:RegisterForDrag("LeftButton")
 	frame:Hide()
-	-- PortraitFrameTemplate is only the chrome; the journal supplies its own opaque Bg so the world never shows
-	-- through the list.
-	frame.Bg = frame:CreateTexture(nil, "BACKGROUND")
-	frame.Bg:SetAllPoints(frame)
-	frame.Bg:SetColorTexture(Art.RGBA("background", 0.98))
-
 	local position = ns.db and ns.db.window
 	if position and position.point then
 		frame:SetPoint(position.point, UIParent, position.point, position.x or 0, position.y or 0)

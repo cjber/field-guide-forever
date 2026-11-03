@@ -92,7 +92,7 @@ function Instances.Refresh(catalogue, personalRecords)
 	for index, encounter in ipairs(encounters) do
 		local row = Instances.rows[index]
 		if not row then
-			row = CreateFrame("Frame", nil, Instances.child, "BackdropTemplate")
+			row = CreateFrame("Frame", nil, Instances.child, "InsetFrameTemplate")
 			row:SetSize(884, ROW_HEIGHT - 6)
 			Art.Card(row, "panel", 0.8)
 			row:SetPoint("TOPLEFT", 0, -(index - 1) * ROW_HEIGHT)

@@ -361,6 +361,9 @@ end
 ---@param colorKey? string
 ---@param alpha? number
 function Art.Card(frame, colorKey, alpha)
+	if rawget(frame, "NineSlice") then
+		return
+	end
 	if not frame.SetBackdrop then
 		return
 	end
@@ -379,6 +382,9 @@ end
 
 ---@param frame Frame|BackdropTemplate
 function Art.Panel(frame)
+	if rawget(frame, "NineSlice") then
+		return
+	end
 	if not frame.SetBackdrop then
 		return
 	end
@@ -428,8 +434,13 @@ function Art.Bar(parent, width, height, key)
 	local fill = Art.Texture(bar, "ARTWORK", key or "gold", 1)
 	fill:SetPoint("TOPLEFT", bar, "TOPLEFT", 1, -1)
 	fill:SetHeight(height - 2)
-	fill:SetWidth(0)
+	fill:Hide()
 	bar.Fill = fill
+	function bar:SetProgress(fraction)
+		fraction = math.max(0, math.min(1, fraction or 0))
+		self.Fill:SetWidth((width - 2) * fraction)
+		self.Fill:SetShown(fraction > 0)
+	end
 	return bar, fill
 end
 
