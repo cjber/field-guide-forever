@@ -152,6 +152,11 @@ assert(research:find("^" .. rare.count .. " / "), "the research count is the spe
 character.tracked = nil
 
 local detail = ns.Detail
+assert(detail.tabs[1].template == "PanelTopTabButtonTemplate", "detail tabs use the native upper-edge control")
+local point, owner, edge = detail.tabs[1]:GetPoint()
+assert(point == "BOTTOMLEFT" and owner == detail.content and edge == "TOPLEFT", "tabs join the content edge")
+assert(detail.location.template == "InsetFrameTemplate", "zone artwork has its own native border")
+assert(detail.name:GetParent() == detail.content, "detail labels render above the content background")
 assert(detail.model.creatureID == 1019, "selection loads the selected NPC model")
 local loads = detail.model.creatureLoads
 detail.Show(ns.SpeciesById[1019], character, ns.SpeciesZone[1019])
@@ -184,9 +189,12 @@ detail.mapButton:GetScript("OnClick")()
 assert(harness.Mock.openedMap == 999, "map navigation respects QuestieDB overrides")
 detail.Show(ns.SpeciesById[1001], character, { id = 38, name = "Loch Modan", species = {} })
 assert(
-	detail.model:GetHeight() == 200 and detail.mapButton:IsShown(),
+	detail.model:GetHeight() == 180 and detail.mapButton:IsShown(),
 	"art-free entries reserve a row below the model for navigation"
 )
+local _, _, _, _, mapY = detail.mapButton:GetPoint()
+local _, _, _, _, noticeY = detail.modelNotice:GetPoint()
+assert(-mapY >= -noticeY + detail.modelNotice:GetHeight() + 8, "map navigation clears the fallback caption")
 ns.QuestieDB.AreaMaps = function()
 	return { [17] = 1413 }, { [17] = 0 }
 end
@@ -194,7 +202,10 @@ detail.Show(ns.SpeciesById[1001], character, ns.SpeciesZone[1001])
 assert(not detail.mapButton:IsEnabled() and not detail.mapButton:IsShown(), "zero map override suppresses navigation")
 ns.QuestieDB.AreaMaps = originalAreaMaps
 detail.Show(ns.SpeciesById[1001], character, { id = -1, name = "Unknown", species = {} })
-assert(not detail.locationArt:IsShown(), "a missing illustration never reuses another zone's art")
+assert(
+	not detail.locationArt:IsShown() and not detail.location:IsShown(),
+	"missing art leaves no stale picture or frame"
+)
 assert(detail.model:GetWidth() == 554, "the model expands when no matching zone art is available")
 assert(not detail.mapButton:IsEnabled(), "an unresolved location disables old map navigation")
 

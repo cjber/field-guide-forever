@@ -157,8 +157,8 @@ function FGSightingLog.Clear() end
 ---@return FGSightingLog
 function FGSightingLog.List() end
 
--- A bar Art.Bar draws: a backdrop frame and the fill texture a caller sizes.
----@class FGBar : BackdropTemplate
+-- A bar Art.Bar draws: a frame with native background art and a sized fill texture.
+---@class FGBar : Frame
 ---@field Fill Texture
 ---@field SetProgress fun(self: FGBar, fraction: number)
 

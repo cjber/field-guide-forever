@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 IGNORED = ("types/", "tests/", "tools/", "docs/", ".agents/", "Nav/", ".types/", ".sloppatrol/", "reference/")
+SCRATCH_DIRS = {".git", ".venv", ".bugpatrol", ".sloppatrol", ".speedpatrol"}
 # Consumer-only shared modules are stored here as source for sync_consumers.py.
 CORE_SOURCE_ONLY = {"UI/Report.lua", "UI/ForeverFamily.lua"}
 
@@ -17,7 +18,7 @@ def rel(path):
 
 
 def source_files(pattern):
-    return sorted(p for p in ROOT.rglob(pattern) if not any(x in {".git", ".venv"} for x in p.parts))
+    return sorted(p for p in ROOT.rglob(pattern) if not any(x in SCRATCH_DIRS for x in p.parts))
 
 
 def ignored(path):
@@ -45,7 +46,7 @@ def scan():
 
     definitions = []
     for path, content in texts.items():
-        if ROOT.name == "forever-core" and rel(path) in CORE_SOURCE_ONLY:
+        if (ROOT / "ForeverCore.toc").is_file() and rel(path) in CORE_SOURCE_ONLY:
             continue
         for match in re.finditer(
             r"\bfunction\s+ns\.([A-Za-z_]\w*)\s*\(|\bns\.([A-Za-z_]\w*)\s*=\s*function\b", content
@@ -67,7 +68,7 @@ def scan():
                 toc_entries.add(entry)
     for path in source_files("*.lua"):
         name = rel(path)
-        if ignored(path) or (ROOT.name == "forever-core" and name in CORE_SOURCE_ONLY):
+        if ignored(path) or ((ROOT / "ForeverCore.toc").is_file() and name in CORE_SOURCE_ONLY):
             continue
         if not any(name == entry or name.endswith("/" + entry) for entry in toc_entries):
             errors.append((name, 1, "Lua file is not named by any TOC"))
@@ -87,7 +88,7 @@ def scan():
     for source in reference_sources:
         if ignored(source):
             continue
-        if ROOT.name == "forever-core" and rel(source) in CORE_SOURCE_ONLY:
+        if (ROOT / "ForeverCore.toc").is_file() and rel(source) in CORE_SOURCE_ONLY:
             continue
         content = source.read_text(encoding="utf-8", errors="replace").replace("\\", "/")
         if source.suffix == ".lua":

@@ -29,6 +29,7 @@ from typing import Any, NotRequired, TypedDict
 from gen_creature_icons import model_paths
 from gen_mock_catalogue import EXTRACTED, FIXTURE
 from gen_zones import BUILD
+from PIL import Image
 
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
 WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
@@ -39,6 +40,7 @@ import wowmock  # noqa: E402  # ty: ignore[unresolved-import]
 from wowmock import (  # noqa: E402  # ty: ignore[unresolved-import]
     FONTS,
     INSET_FRAME_LAYOUT,
+    Atlas,
     MenuCheckbox,
     MenuTitle,
     context_menu,
@@ -90,7 +92,6 @@ MUTED = wowmock.rgb("9e998c")
 BLUE = wowmock.rgb("85b8f2")
 GREEN = wowmock.rgb("7d9961")
 DIM = wowmock.rgb("9e998c")
-TROUGH = wowmock.rgb("303236")
 FONTS["FieldGuideTabLabel"] = wowmock.Font(
     FONTS["GameFontDisableSmall"].path, 8, FONTS["GameFontDisableSmall"].color, (1, -1)
 )
@@ -553,10 +554,10 @@ def progress(species):
 
 
 def bar(canvas, x, y, w, h, fraction, colour):
-    canvas.fill(x, y, w, h, TROUGH)
-    filled = max(0, min(w, round(w * fraction)))
+    canvas.draw(canvas.ui.atlas("Profession-ProgressBar-BG"), x, y, w, h)
+    filled = max(0, min(w - 2, (w - 2) * fraction))
     if filled:
-        canvas.fill(x, y, filled, h, colour)
+        canvas.fill(x + 1, y + 1, filled, h - 2, colour)
 
 
 def card(canvas, x, y, w, h, border=None):
@@ -564,6 +565,12 @@ def card(canvas, x, y, w, h, border=None):
     marble = canvas.ui.texture("interface/framegeneral/ui-background-marble.blp")
     tiled(canvas, marble, x, y, w, h, marble.width / canvas.ui.scale, marble.height / canvas.ui.scale)
     draw_nine_slice(canvas, INSET_FRAME_LAYOUT, x, y, w, h)
+
+
+def top_tab_art(atlas):
+    cut = round(atlas.image.height * 0.25)
+    image = atlas.image.crop((0, cut, atlas.image.width, atlas.image.height)).transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+    return Atlas(atlas.name, image, atlas.width, atlas.height * 0.75, atlas.tile_h, atlas.tile_v, atlas.slice)
 
 
 def text(canvas, x, y, value, font, colour=TEXT, **kwargs):
@@ -757,7 +764,6 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
         if chosen:
             canvas.draw(ui.texture("interface/questframe/ui-questtitlehighlight.blp"), px(18), y, 304, 46, blend="ADD")
         canvas.draw(icons[row["id"]], px(28), y + 5, 32, 32)
-        canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), px(28), y + 5, 32, 32, BRASS)
         known = row["rare"] and state["rare"] >= RARE_TARGET
         # The kills figure is right-aligned from about px(308); a longer name is cut with an ellipsis so it never runs
         # under that figure and never stops mid-word without a mark.
@@ -789,12 +795,15 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
     count = state["count"]
     rank = rank_of(count)
     rx, ry = px(360), py(104)
-    text(canvas, rx + 14, ry + 14, species["name"], "GameFontNormalLarge", GOLD, width=554)
+    # Detail.Create parents all body controls to its native 582x486 InsetFrameTemplate content frame.
+    # Draw that frame before the controls so the mock preserves the runtime chrome and layering.
+    card(canvas, rx, ry + 28, 582, 486)
+    text(canvas, rx + 14, ry + 44, species["name"], "GameFontNormalLarge", GOLD, width=554)
     level = str(species["min"]) if species["min"] == species["max"] else f"{species['min']}-{species['max']}"
     text(
         canvas,
         rx + 14,
-        ry + 42,
+        ry + 72,
         f"{species['family']} · {zone['name']} · Level {level}",
         "GameFontDisableSmall",
         MUTED,
@@ -805,7 +814,8 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
     locations = {int(zone_id): int(file) for zone_id, file in re.findall(r"\[(\d+)\] = (\d+)", art_table[1])}
     art_file = locations.get(zone["id"])
     if art_file:
-        canvas.draw(ui.texture(art_file).crop((33, 0, 223, 128)), rx + 378, ry + 80, 190, 128)
+        card(canvas, rx + 378, ry + 110, 190, 128)
+        canvas.draw(ui.texture(art_file).crop((33, 0, 223, 128)), rx + 384, ry + 114, 178.125, 120)
     map_source = (EXTRACTED / "QuestieDB/support/Forever/Zones/areaIdToUiMapId.lua").read_text()
     map_tables = {}
     for name, body in re.findall(r"ZoneDB.private.(\w+) = \[\[return \{(.*?)\}\]\]", map_source, re.S):
@@ -815,13 +825,11 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
     )
     reference = os.environ.get("FIELD_GUIDE_MODEL_REFERENCE") if os.environ.get("FIELD_GUIDE_DESIGN_PREVIEW") else None
     if reference and species["id"] == 2749:
-        from PIL import Image  # ty: ignore[unresolved-import]
-
-        canvas.draw(Image.open(reference).convert("RGBA"), rx + 68, ry + 68, 240, 240)
+        canvas.draw(Image.open(reference).convert("RGBA"), rx + 83, ry + 98, 210, 210)
         text(
             canvas,
             rx + 14,
-            ry + 292,
+            ry + 310,
             "Model composition reference",
             "GameFontDisableSmall",
             MUTED,
@@ -832,15 +840,15 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
         portrait_x = 140 if art_file else 243
         model_width = 348 if art_file else 554
         portrait = ui.canvas(canvas.width, canvas.height)
-        portrait.draw(icons[species["id"]], rx + portrait_x, ry + 124, 96, 96)
+        portrait.draw(icons[species["id"]], rx + portrait_x, ry + 144, 96, 96)
         portrait.mask(
-            ui.texture("interface/characterframe/tempportraitalphamask.blp"), rx + portrait_x, ry + 124, 96, 96
+            ui.texture("interface/characterframe/tempportraitalphamask.blp"), rx + portrait_x, ry + 144, 96, 96
         )
         canvas.paste(portrait, 0, 0)
         text(
             canvas,
             rx + 14,
-            ry + 238,
+            ry + 258,
             "Creature portrait",
             "GameFontDisableSmall",
             MUTED,
@@ -848,49 +856,50 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
             justify="CENTER",
         )
     if art_file:
-        text(canvas, rx + 378, ry + 220, zone["name"], "GameFontNormal", GOLD, width=190)
+        text(canvas, rx + 378, ry + 250, zone["name"], "GameFontNormal", GOLD, width=190)
     if map_id > 0:
-        map_x, map_y = rx + (378 if art_file else 231), ry + (258 if art_file else 282)
+        map_x, map_y = rx + (378 if art_file else 231), ry + (282 if art_file else 296)
         ui_panel_button(canvas, map_x, map_y, 120, 24, "Open map")
         note("Open map", "button", map_x, map_y, 120, 24)
     note(
         "Creature viewport",
         "model",
         rx + 14,
-        ry + 68,
+        ry + 98,
         348 if art_file else 554,
-        200 if not art_file and map_id > 0 else 240,
+        180 if not art_file and map_id > 0 else 210,
     )
     if art_file:
-        note("Zone artwork", "image", rx + 378, ry + 80, 190, 128)
+        note("Zone artwork", "image", rx + 384, ry + 114, 178.125, 120)
+        note("Zone artwork frame", "card", rx + 378, ry + 110, 190, 128)
 
-    card(canvas, rx + 14, ry + 320, 554, 52)
-    text(canvas, rx + 24, ry + 328, PIPS[rank - 1] if rank else "Research", "GameFontNormal", GOLD)
+    card(canvas, rx + 14, ry + 330, 554, 52)
+    text(canvas, rx + 24, ry + 338, PIPS[rank - 1] if rank else "Research", "GameFontNormal", GOLD)
     right(
         canvas,
         rx + 558,
-        ry + 328,
+        ry + 338,
         f"{count} / 10 · {state['kills']} recorded deaths",
         "GameFontDisableSmall",
         TEXT,
         width=350,
     )
-    canvas.draw(ui.atlas("Profession-ProgressBar-BG"), rx + 24, ry + 350, 534, 12)
+    canvas.draw(ui.atlas("Profession-ProgressBar-BG"), rx + 24, ry + 360, 534, 12)
     if count:
         canvas.draw(
             ui.texture("interface/targetingframe/ui-statusbar.blp"),
             rx + 24,
-            ry + 350,
+            ry + 360,
             534 * min(1, count / MASTERED_AT),
             12,
             GOLD,
         )
-    canvas.draw(ui.atlas("Profession-ProgressBar-frame"), rx + 24, ry + 350, 534, 12)
-    note("Research strip", "card", rx + 14, ry + 320, 554, 52)
-    note("Research bar", "progress", rx + 24, ry + 350, 534, 12)
-    # PanelTabButtonTemplate, with the same explicit 104-wide buttons as Detail.Create.
+    canvas.draw(ui.atlas("Profession-ProgressBar-frame"), rx + 24, ry + 360, 534, 12)
+    note("Research strip", "card", rx + 14, ry + 330, 554, 52)
+    note("Research bar", "progress", rx + 24, ry + 360, 534, 12)
+    # PanelTopTabButtonTemplate, with the native top-facing art and 104-wide buttons.
     for index, name in enumerate(("Overview", "Variants", "Records")):
-        tx, ty, width = rx + 14 + index * 112, ry + 380, 104
+        tx, ty, width = rx + 14 + index * 112, ry, 104
         prefix = "uiframe-activetab" if index == detail_page else "uiframe-tab"
         left, right_art, middle = (
             ui.atlas(f"{prefix}-left"),
@@ -899,26 +908,27 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
         )
         lx = tx + (-1 if index == detail_page else -3)
         rax = tx + width + (8 if index == detail_page else 7) - right_art.width
-        canvas.draw(left, lx, ty)
-        canvas.draw(right_art, rax, ty)
-        canvas.draw(middle, lx + left.width, ty, rax - lx - left.width, middle.height)
+        left, right_art, middle = top_tab_art(left), top_tab_art(right_art), top_tab_art(middle)
+        canvas.draw(left, lx, ty + 28 - left.height)
+        canvas.draw(right_art, rax, ty + 28 - right_art.height)
+        canvas.draw(middle, lx + left.width, ty + 28 - left.height, rax - lx - left.width, middle.height)
         text(
             canvas,
             tx,
-            ty + (14 if index == detail_page else 9),
+            ty + (11 if index == detail_page else 15),
             name,
             "GameFontHighlightSmall" if index == detail_page else "GameFontNormalSmall",
             TEXT if index == detail_page else GOLD,
             width=width,
             justify="CENTER",
         )
-    note("Detail tabs", "tabs", rx + 14, ry + 380, 328, 32)
+    note("Detail tabs", "tabs", rx + 14, ry - 4, 328, 32)
     if detail_page == 0:
         # The runtime catalogue has no lore; its Overview page contains the cosmetic unlock summary.
         for index, (label, tier) in enumerate(
             zip(("Field sketch", "Ink study", "Brass plate", "Gilded entry"), PIPS, strict=True)
         ):
-            x, y = rx + 14 + index % 2 * 277, ry + 420 + index // 2 * 24
+            x, y = rx + 14 + index % 2 * 277, ry + 400 + index // 2 * 24
             status = "UNLOCKED" if rank >= index + 1 else f"Locked · {tier}"
             text(canvas, x, y, f"{label}: {status}", "GameFontDisableSmall", TEXT, width=265)
     elif detail_page == 1:
@@ -929,7 +939,7 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
                 ("Shiny variant", bool(state["shiny"]), state["shiny"], SHINY_TARGET),
             )
         ):
-            y = ry + 420 + index * 24
+            y = ry + 400 + index * 24
             text(canvas, rx + 14, y, name, "GameFontNormal", TEXT, width=160)
             if known:
                 canvas.draw(ui.atlas("common-icon-checkmark"), rx + 190, y, 12, 12, (GREEN, BLUE, GOLD)[index])
@@ -945,7 +955,7 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
         badge_x = rx + 14
         for label, show, colour in badges:
             if show:
-                text(canvas, badge_x, ry + 420, label, "GameFontDisableSmall", colour, width=128)
+                text(canvas, badge_x, ry + 400, label, "GameFontDisableSmall", colour, width=128)
                 badge_x += 136
         records = []
         stamp = f"{zone['name']} · 2026-10-22 10:00"
@@ -956,8 +966,8 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
         if state["shiny"]:
             records.append(f"First shiny recorded: {stamp}")
         for index, line in enumerate(records[:3] or ["No sightings yet this session."]):
-            text(canvas, rx + 14, ry + 444 + index * 12, line, "GameFontDisableSmall", TEXT, width=554)
-    note("Detail pane", "pane", rx, ry, 582, 514)
+            text(canvas, rx + 14, ry + 424 + index * 12, line, "GameFontDisableSmall", TEXT, width=554)
+    note("Detail pane", "pane", rx, ry + 28, 582, 486)
 
     # Bottom bar: zone completion and the two buttons, at the bar's own coordinates (the addon anchors them to the
     # bar, so a button starts BAR_W - inset - width from the bar's left, not from the window's).
@@ -1259,6 +1269,4 @@ def main():
 
 
 if __name__ == "__main__":
-    from PIL import Image  # ty: ignore[unresolved-import]  # Pillow is local only, like wowmock
-
     sys.exit(main())

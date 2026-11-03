@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.18] - 2026-11-03
+
+- **Creature entries use one native journal layout.** Detail tabs join the top of their panel, zone illustrations have complete native frames, and creature icons keep one border. Related facts sit closer together without changing your saved progress, thanks to cjber for the report.
+
 ## [0.3.17] - 2026-11-03
 
 - **Leaderboards count observed kills consistently.** Estimated historical kills stay outside both personal and shared totals, and their baseline survives reloads. Opting out keeps personal boards available. Shared reports use the suite's bounded guild and group transport, with independent readers for other addons and complete kill totals alongside recent creature records.

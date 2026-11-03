@@ -94,7 +94,6 @@ function Instances.Refresh(catalogue, personalRecords)
 		if not row then
 			row = CreateFrame("Frame", nil, Instances.child, "InsetFrameTemplate")
 			row:SetSize(884, ROW_HEIGHT - 6)
-			Art.Card(row, "panel", 0.8)
 			row:SetPoint("TOPLEFT", 0, -(index - 1) * ROW_HEIGHT)
 			row.name = Art.Text(row, "GameFontNormal", "text")
 			row.name:SetPoint("TOPLEFT", 12, -8)

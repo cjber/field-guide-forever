@@ -162,7 +162,6 @@ local function BuildBottom(parent)
 	local bar = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
 	bar:SetPoint("BOTTOMLEFT", 18, 12)
 	bar:SetSize(924, 58)
-	Art.Card(bar, "panel", 0.96)
 	Window.bottomBar = bar
 
 	local label = Art.Text(bar, "GameFontDisableSmall", "muted")

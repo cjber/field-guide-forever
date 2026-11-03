@@ -50,21 +50,27 @@ end
 function Detail.Create(parent)
 	---@cast parent FGDetailParent
 	Detail.parent = parent
-	parent.minTabWidth, parent.maxTabWidth = 104, 104
+	local content = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
+	content:SetPoint("TOPLEFT", 0, -28)
+	content:SetSize(582, 486)
+	Detail.content = content
+	local host = parent
+	parent = content
+	host.minTabWidth, host.maxTabWidth = 104, 104
 	modelSpecies = nil
 	currentMap = nil
 	Detail.name = Art.Text(parent, "GameFontNormalLarge", "gold")
-	Detail.name:SetPoint("TOPLEFT", 14, -14)
+	Detail.name:SetPoint("TOPLEFT", 14, -16)
 	Detail.name:SetSize(CARD_WIDTH, 22)
 	Detail.name:SetWordWrap(false)
 	Detail.sub = Art.Text(parent, "GameFontDisableSmall", "muted")
-	Detail.sub:SetPoint("TOPLEFT", 14, -42)
+	Detail.sub:SetPoint("TOPLEFT", 14, -44)
 	Detail.sub:SetSize(CARD_WIDTH, 14)
 	Detail.sub:SetWordWrap(false)
 
 	Detail.model = CreateFrame("PlayerModel", nil, parent)
-	Detail.model:SetPoint("TOPLEFT", 14, -68)
-	Detail.model:SetSize(348, 240)
+	Detail.model:SetPoint("TOPLEFT", 14, -70)
+	Detail.model:SetSize(348, 210)
 	Detail.model:SetKeepModelOnHide(true)
 	Detail.model:SetScript("OnModelLoaded", function(self)
 		if modelSpecies and (self:GetModelFileID() or 0) > 0 then
@@ -73,25 +79,27 @@ function Detail.Create(parent)
 		end
 	end)
 	Detail.portrait = Art.Portrait(parent, 96)
-	Detail.portrait:SetPoint("TOPLEFT", 140, -124)
+	Detail.portrait:SetPoint("TOPLEFT", 140, -116)
 	Detail.modelNotice = Art.Text(parent, "GameFontDisableSmall", "muted")
-	Detail.modelNotice:SetPoint("TOPLEFT", 14, -238)
+	Detail.modelNotice:SetPoint("TOPLEFT", parent, "TOPLEFT", 14, -230)
 	Detail.modelNotice:SetSize(348, 28)
 	Detail.modelNotice:SetJustifyH("CENTER")
 	Detail.modelNotice:SetText(L["Creature portrait"])
 
-	Detail.location = Card(parent, 378, -80, 190, 128)
+	Detail.location = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
+	Detail.location:SetPoint("TOPLEFT", 378, -82)
+	Detail.location:SetSize(190, 128)
 	Detail.location:SetClipsChildren(true)
 	Detail.locationArt = Detail.location:CreateTexture(nil, "ARTWORK")
-	Detail.locationArt:SetPoint("TOPLEFT")
-	Detail.locationArt:SetSize(190, 128)
+	Detail.locationArt:SetPoint("TOPLEFT", 6, -4)
+	Detail.locationArt:SetSize(178.125, 120) -- art-ok: native 190x128 crop, uniformly scaled to 120 high
 	Detail.locationArt:SetTexCoord(33 / 256, 223 / 256, 0, 1)
 	Detail.locationName = Art.Text(parent, "GameFontNormal", "gold")
-	Detail.locationName:SetPoint("TOPLEFT", 378, -220)
+	Detail.locationName:SetPoint("TOPLEFT", 378, -222)
 	Detail.locationName:SetSize(190, 28)
 	Detail.locationName:SetJustifyV("TOP")
 	Detail.mapButton = CreateFrame("Button", nil, parent, "SharedButtonSmallTemplate")
-	Detail.mapButton:SetPoint("TOPLEFT", 378, -258)
+	Detail.mapButton:SetPoint("TOPLEFT", 378, -254)
 	Detail.mapButton:SetSize(120, 24)
 	Detail.mapButton:SetText(L["Open map"])
 	Detail.mapButton:SetScript("OnClick", function()
@@ -101,7 +109,7 @@ function Detail.Create(parent)
 	end)
 
 	local research = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
-	research:SetPoint("TOPLEFT", 14, -320)
+	research:SetPoint("TOPLEFT", 14, -302)
 	research:SetSize(CARD_WIDTH, 52)
 	Detail.researchCard = research
 	Detail.rank = Art.Text(research, "GameFontNormal", "gold")
@@ -126,15 +134,15 @@ function Detail.Create(parent)
 
 	Detail.pages, Detail.tabs = {}, {}
 	for index, name in ipairs({ "Overview", "Variants", "Records" }) do
-		local button = CreateFrame("Button", nil, parent, "PanelTabButtonTemplate")
-		button:SetPoint("TOPLEFT", 14 + (index - 1) * 112, -380)
+		local button = CreateFrame("Button", nil, host, "PanelTopTabButtonTemplate")
+		button:SetPoint("BOTTOMLEFT", content, "TOPLEFT", 14 + (index - 1) * 112, 0)
 		button:SetText(L[name])
 		PanelTemplates_TabResize(button, 0, 104, 104)
 		button:SetScript("OnClick", function()
 			Detail.SetPage(index)
 		end)
 		Detail.tabs[index] = button
-		Detail.pages[index] = Card(parent, 14, -420, CARD_WIDTH, 80)
+		Detail.pages[index] = Card(parent, 14, -372, CARD_WIDTH, 80)
 	end
 
 	Detail.variants, Detail.rewards = {}, {}
@@ -188,12 +196,13 @@ local function UpdateLocation(zone)
 	Detail.locationArt:SetTexture(art)
 	Detail.locationArt:SetShown(art ~= nil)
 	Detail.locationName:SetShown(art ~= nil)
+	Detail.location:SetShown(art ~= nil)
 	Detail.model:SetWidth(art and 348 or CARD_WIDTH)
-	Detail.model:SetHeight((art or not currentMap) and 240 or 200)
+	Detail.model:SetHeight((art or not currentMap) and 210 or 180)
 	Detail.mapButton:ClearAllPoints()
-	Detail.mapButton:SetPoint("TOPLEFT", art and 378 or 231, art and -258 or -282)
+	Detail.mapButton:SetPoint("TOPLEFT", Detail.content, "TOPLEFT", art and 378 or 231, art and -254 or -268)
 	Detail.portrait:ClearAllPoints()
-	Detail.portrait:SetPoint("TOPLEFT", art and 140 or 243, -124)
+	Detail.portrait:SetPoint("TOPLEFT", art and 140 or 243, -116)
 	Detail.modelNotice:SetWidth(art and 348 or CARD_WIDTH)
 end
 

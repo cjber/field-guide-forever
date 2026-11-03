@@ -75,7 +75,6 @@ local function CreateRow(index)
 	row.Icon = row:CreateTexture(nil, "ARTWORK")
 	row.Icon:SetPoint("TOPLEFT", 10, -5)
 	row.Icon:SetSize(32, 32)
-	Art.Bezel(row.Icon)
 
 	row.Name = Art.Text(row, "GameFontNormal", "text")
 	row.Name:SetPoint("TOPLEFT", 52, -5)
