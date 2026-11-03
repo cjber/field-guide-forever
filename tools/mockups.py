@@ -28,8 +28,8 @@ from typing import Any, NotRequired, TypedDict
 
 from gen_creature_icons import model_paths
 from gen_mock_catalogue import EXTRACTED, FIXTURE
-from gen_zones import BUILD
 from PIL import Image  # ty: ignore[unresolved-import]
+from ui_art import BUILD as ART_BUILD
 
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
 WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
@@ -1040,7 +1040,7 @@ def zone_pages(zones):
 
 
 def main():
-    ui = wowmock.Ui(build=BUILD, scale=2)
+    ui = wowmock.Ui(build=ART_BUILD, scale=2)
     OUT.mkdir(parents=True, exist_ok=True)
     for obsolete in OUT.glob("creature-??.png"):
         obsolete.unlink()
