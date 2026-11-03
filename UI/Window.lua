@@ -7,9 +7,9 @@ local Art = ns.Art
 local Window = {}
 ns.Window = Window
 
-local WIDTH, HEIGHT = 960, 720
+local WIDTH, HEIGHT = 960, 700
 local LEFT_WIDTH = 396
-local PANEL_HEIGHT = 534
+local PANEL_HEIGHT = 514
 
 ---@type FGWindowFrame?
 local frame
@@ -81,7 +81,7 @@ local function BuildHeader(parent)
 	Window.tabButtons = {}
 	for index, info in ipairs(tabs) do
 		local button = CreateFrame("Frame", nil, parent, "LargeSideTabButtonTemplate") --[[@as FGTabButton]]
-		button:SetSize(43, 55)
+		button:SetSize(55, 55)
 		button.Icon:SetTexture(info.icon)
 		button:SetFillToInterior(true)
 		button.tooltipText = L[info.text]
@@ -519,7 +519,11 @@ local function Create()
 	BuildBreadcrumb(frame)
 	BuildSearch(frame)
 	BuildBottom(frame)
-	Window.catalogueNotice = Art.Text(frame, "GameFontNormalLarge", "text")
+	local body = CreateFrame("Frame", nil, frame, "InsetFrameTemplate")
+	body:SetPoint("TOPLEFT", 18, -104)
+	body:SetSize(924, PANEL_HEIGHT)
+
+	Window.catalogueNotice = Art.Text(body, "GameFontNormalLarge", "text")
 	Window.catalogueNotice:SetPoint("CENTER", frame, "CENTER", 0, -12)
 	Window.catalogueNotice:SetWidth(680)
 	Window.catalogueNotice:SetJustifyH("CENTER")

@@ -7,7 +7,7 @@ local Art = ns.Art
 local List = {}
 ns.List = List
 
-local ROW_HEIGHT = 58
+local ROW_HEIGHT = 46
 local ROW_WIDTH = 356
 local BAR_WIDTH = 332
 
@@ -60,37 +60,38 @@ local function CreateRow(index)
 	row:SetSize(ROW_WIDTH, ROW_HEIGHT)
 	row:SetPoint("TOPLEFT", 0, -(index - 1) * ROW_HEIGHT)
 
-	row.Background = Art.Texture(row, "BACKGROUND", "panel", 0.55)
-	row.Background:SetAllPoints(row)
-	row.Selected = Art.Texture(row, "BACKGROUND", "gold", 0.10)
-	row.Selected:SetPoint("TOPLEFT", 4, 0)
-	row.Selected:SetPoint("BOTTOMRIGHT", -8, 0)
+	-- The same additive row highlight used by the native quest and collection lists.
+	row.Selected = row:CreateTexture(nil, "BACKGROUND")
+	row.Selected:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+	row.Selected:SetBlendMode("ADD")
+	row.Selected:SetAllPoints(row)
 	row.Selected:Hide()
-	row.Hover = Art.Texture(row, "BACKGROUND", "gold", 0.06)
-	row.Hover:SetPoint("TOPLEFT", 4, 0)
-	row.Hover:SetPoint("BOTTOMRIGHT", -8, 0)
+	row.Hover = row:CreateTexture(nil, "HIGHLIGHT")
+	row.Hover:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+	row.Hover:SetBlendMode("ADD")
+	row.Hover:SetAllPoints(row)
 	row.Hover:Hide()
 
 	row.Icon = row:CreateTexture(nil, "ARTWORK")
-	row.Icon:SetPoint("TOPLEFT", 10, -13)
+	row.Icon:SetPoint("TOPLEFT", 10, -5)
 	row.Icon:SetSize(32, 32)
 	Art.Bezel(row.Icon)
 
 	row.Name = Art.Text(row, "GameFontNormal", "text")
-	row.Name:SetPoint("TOPLEFT", 52, -8)
-	row.Name:SetWidth(250)
+	row.Name:SetPoint("TOPLEFT", 52, -5)
+	row.Name:SetWidth(210)
 
 	row.Sub = Art.Text(row, "GameFontDisableSmall", "muted")
-	row.Sub:SetPoint("TOPLEFT", 52, -27)
+	row.Sub:SetPoint("TOPLEFT", 52, -23)
 
 	row.Counter = Art.Text(row, "GameFontNormal", "text")
-	row.Counter:SetPoint("TOPRIGHT", -14, -8)
+	row.Counter:SetPoint("TOPRIGHT", -14, -5)
 
 	row.Glyph = Art.Text(row, "GameFontNormal", "gold")
-	row.Glyph:SetPoint("TOPRIGHT", -14, -28)
+	row.Glyph:SetPoint("TOPRIGHT", -14, -23)
 
 	local bar = Art.Bar(row, BAR_WIDTH, 3, "gold")
-	bar:SetPoint("TOPLEFT", 10, -49)
+	bar:SetPoint("TOPLEFT", 10, -40)
 	row.Bar, row.Fill = bar, bar.Fill
 
 	row:SetScript("OnClick", function()

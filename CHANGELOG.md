@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **The journal uses native textured content panels and tighter creature rows.** The list and detail share a marble inset, rows use the native highlight, and the smaller window keeps related information together. Screenshot rendering now preserves the template backgrounds and uses the same side tabs as the addon.
+
 ## [0.3.15] - 2026-11-03
 
 - **Going back to an older version no longer erases your journal.** A save written by a newer Field Guide was replaced with an empty one at logout, losing every character's creatures, kills and options. The older version now leaves that save as it is, so updating again finds everything.

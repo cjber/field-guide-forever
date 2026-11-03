@@ -14,7 +14,7 @@ local ROW_HEIGHT = 92
 function Instances.Create(parent)
 	local view = CreateFrame("Frame", nil, parent)
 	view:SetPoint("TOPLEFT", 18, -104)
-	view:SetSize(924, 534)
+	view:SetSize(924, 514)
 	view:Hide()
 	Instances.view = view
 

@@ -39,6 +39,8 @@ from wowmock import (  # noqa: E402  # ty: ignore[unresolved-import]
     minimal_scrollbar,
     portrait_frame_art,
     search_box,
+    side_tab,
+    tiled,
     ui_panel_button,
 )
 
@@ -96,7 +98,7 @@ TAB_ICON_PATHS = (
 )
 TAB_TOOLTIPS = ("CREATURES", "RARES", "SHINY", "INSTANCES")
 
-W, H = 960, 720
+W, H = 960, 700
 # UI/Window.lua's shell geometry, and the only place these numbers live in this file: the bottom bar is 924 wide at
 # BOTTOMLEFT (18, 12), and each button is anchored to the bar's TOPRIGHT by its right inset, exactly as the addon
 # anchors them. Drawing from the same arithmetic the Lua does is what keeps a render from drifting off the frame.
@@ -557,7 +559,8 @@ def bar(canvas, x, y, w, h, fraction, colour):
 
 def card(canvas, x, y, w, h, border=None):
     """A restrained inset using the client's InsetFrameTemplate NineSlice chrome."""
-    canvas.fill(x, y, w, h, wowmock.rgb("171a1e"))
+    marble = canvas.ui.texture("interface/framegeneral/ui-background-marble.blp")
+    tiled(canvas, marble, x, y, w, h, marble.width / canvas.ui.scale, marble.height / canvas.ui.scale)
     draw_nine_slice(canvas, INSET_FRAME_LAYOUT, x, y, w, h)
 
 
@@ -622,20 +625,18 @@ def window(ui, zone, species, tab, icons, sigil):
     def py(y):
         return m + y
 
-    # Bg first: the template is chrome only, and the addon paints its own opaque interior.
-    canvas.fill(px(6), py(22), W - 12, H - 28, wowmock.rgb("0b0c0e"))
+    # PortraitFrameTexturedBaseTemplate supplies tiled rock, not a flat black fill.
+    rock = ui.texture("interface/framegeneral/ui-background-rock.blp")
+    tiled(canvas, rock, px(2), py(21), W - 4, H - 23, rock.width / ui.scale, rock.height / ui.scale)
+    canvas.draw(ui.atlas("_UI-Frame-TopTileStreaks"), px(6), py(21), W - 8, 43)
     index = ("CREATURES", "RARES", "SHINY", "INSTANCES").index(tab)
     portrait_frame_art(canvas, m, m, W, H, sigil, "FIELD GUIDE")
     strip_x, strip_y = px(W + 3), py(28)
-    note("right tab strip", "tabs", strip_x, strip_y, 51, 60 * 4 + 3 * 3)
+    note("right tab strip", "tabs", strip_x, strip_y, 55, 55 * 4 + 3 * 3)
     for tab_index, tooltip in enumerate(TAB_TOOLTIPS):
-        tab_x, tab_y = strip_x, strip_y + tab_index * 63
-        canvas.draw(ui.atlas("questlog-tab-side"), tab_x, tab_y, 51, 60)
-        icon_x, icon_y = tab_x + 9, tab_y + 15.5
-        canvas.draw(ui.texture(TAB_ICON_PATHS[tab_index]), icon_x, icon_y, 29, 29)
-        if tab_index == index:
-            canvas.draw(ui.atlas("QuestLog-Tab-side-Glow-select"), tab_x, tab_y, 51, 60)
-        note(f"tab plate {tab_index + 1} {tooltip.lower()}", "tabs", tab_x, tab_y, 51, 60)
+        tab_x, tab_y = strip_x, strip_y + tab_index * 58
+        side_tab(canvas, tab_x, tab_y, TAB_ICON_PATHS[tab_index], selected=tab_index == index)
+        note(f"tab plate {tab_index + 1} {tooltip.lower()}", "tabs", tab_x, tab_y, 55, 55)
     text(
         canvas,
         px(58),
@@ -646,6 +647,8 @@ def window(ui, zone, species, tab, icons, sigil):
         justify="CENTER",
         width=W - 58 - 24,
     )
+
+    card(canvas, px(18), py(104), 924, 514)
 
     if tab == "INSTANCES":
         view_x, view_y = px(18), py(104)
@@ -705,36 +708,37 @@ def window(ui, zone, species, tab, icons, sigil):
         rows = [s for s in rows if progress(s)["shiny"]]
     rows = rows or zone["species"]
 
-    if len(rows) > 8:
-        minimal_scrollbar(canvas, px(388), py(108), 440, visible=8 / len(rows))
-    for row_index, row in enumerate(rows[:8]):
+    if len(rows) > 10:
+        minimal_scrollbar(canvas, px(388), py(108), 470, visible=10 / len(rows))
+    for row_index, row in enumerate(rows[:10]):
         state = progress(row)
         chosen = row["id"] == species["id"]
-        y = py(104 + row_index * 58)
-        canvas.fill(px(22), y, 344, 58, wowmock.rgb("2b2a24") if chosen else wowmock.rgb("212429"))
-        canvas.draw(icons[row["id"]], px(28), y + 13, 32, 32)
-        canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), px(28), y + 13, 32, 32, BRASS)
+        y = py(104 + row_index * 46)
+        if chosen:
+            canvas.draw(ui.texture("interface/questframe/ui-questtitlehighlight.blp"), px(18), y, 356, 46, blend="ADD")
+        canvas.draw(icons[row["id"]], px(28), y + 5, 32, 32)
+        canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), px(28), y + 5, 32, 32, BRASS)
         known = row["rare"] and state["rare"] >= RARE_TARGET
         # The kills figure is right-aligned from about px(308); a longer name is cut with an ellipsis so it never runs
         # under that figure and never stops mid-word without a mark.
         name = row["name"] if len(row["name"]) <= 26 else row["name"][:25].rstrip() + "\u2026"
-        text(canvas, px(70), y + 8, name, "GameFontNormal", BLUE if known else TEXT, width=252)
+        text(canvas, px(70), y + 5, name, "GameFontNormal", BLUE if known else TEXT, width=252)
         level = str(row["min"]) if row["min"] == row["max"] else f"{row['min']}\u2013{row['max']}"
         text(
             canvas,
             px(70),
-            y + 27,
+            y + 23,
             f"{row['family']} \u00b7 Lv {level}",
             "GameFontDisableSmall",
             MUTED,
         )
-        right(canvas, px(360), y + 8, f"{state['kills']} kills", "GameFontNormal", TEXT, width=64)
+        right(canvas, px(360), y + 5, f"{state['kills']} kills", "GameFontNormal", TEXT, width=64)
         complete = state["count"] >= 1 and bool(state["shiny"]) and (not row["rare"] or state["rare"] >= RARE_TARGET)
         if state["count"] >= MASTERED_AT:
-            marker(canvas, px(342), y + 32, 11, GOLD)
+            marker(canvas, px(342), y + 28.5, 11, GOLD)
         elif complete:
-            canvas.draw(ui.atlas("common-icon-checkmark"), px(340), y + 27, 11, 11, GREEN)
-        bar(canvas, px(28), y + 49, 332, 3, state["count"] / MASTERED_AT, GOLD)
+            canvas.draw(ui.atlas("common-icon-checkmark"), px(340), y + 23, 11, 11, GREEN)
+        bar(canvas, px(28), y + 40, 332, 3, state["count"] / MASTERED_AT, GOLD)
 
     # Right pane: the selected creature's entry.
     state = progress(species)
@@ -903,12 +907,12 @@ def window(ui, zone, species, tab, icons, sigil):
     text(
         canvas,
         rx + 14,
-        ry + 484,
+        ry + 496,
         "Cosmetic only — the field guide never grants player power.",
         "GameFontDisableSmall",
         DIM,
     )
-    note("Detail pane", "pane", rx, ry, 516, 528)
+    note("Detail pane", "pane", rx, ry, 516, 514)
 
     # Bottom bar: zone completion and the two buttons, at the bar's own coordinates (the addon anchors them to the
     # bar, so a button starts BAR_W - inset - width from the bar's left, not from the window's).
