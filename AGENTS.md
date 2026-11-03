@@ -2,7 +2,7 @@
 
 Field Guide Forever targets the WoW: Forever client (Interface 16001). It keeps a cosmetic journal of creatures a character has encountered, with local progress and shared catalogue facts. It never grants player power, changes combat, or calls protected functions.
 
-The shared suite standards are pinned to forever-core `af94fd89610c9128bc11ec07354bd9dabafb5dd0`. For UI work, read the pinned `wow-retail-ui-style` skill, `/home/cjber/drive/proj/wow/forever-core/docs/asset-registry.md`, and `/home/cjber/drive/proj/wow/forever-core/docs/asset-audit.md` before changing layouts or assets. Use native Blizzard templates and approved atlas textures, and check the blacklist even when an asset matches a broad native prefix.
+The shared suite standards are pinned to forever-core `af94fd89610c9128bc11ec07354bd9dabafb5dd0`. For UI work, read the pinned [wow-retail-ui-style skill](https://github.com/cjber/forever-core/blob/af94fd89610c9128bc11ec07354bd9dabafb5dd0/.agents/skills/wow-retail-ui-style/SKILL.md), [asset registry](https://github.com/cjber/forever-core/blob/af94fd89610c9128bc11ec07354bd9dabafb5dd0/docs/asset-registry.md), and [asset audit](https://github.com/cjber/forever-core/blob/af94fd89610c9128bc11ec07354bd9dabafb5dd0/docs/asset-audit.md) before changing layouts or assets. Use native Blizzard templates and approved atlas textures, and check the blacklist even when an asset matches a broad native prefix.
 
 ## Commands
 
