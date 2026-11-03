@@ -322,7 +322,15 @@ function Window.Refresh()
 		for _, panel in ipairs(Window.creaturePanels or {}) do
 			panel:Hide()
 		end
+		for _, button in ipairs(Window.tabButtons or {}) do
+			button:Hide()
+		end
 		Window.instances:Hide()
+		Window.bottomBar:Hide()
+		Window.breadcrumb:Hide()
+		Window.search:Hide()
+		Window.searchPlaceholder:Hide()
+		Window.filterButton:Hide()
 		Window.catalogueNotice:Show()
 		Window.catalogueNotice:SetText(
 			ns.catalogueStatus == "loading" and L["Loading QuestieDB catalogue…"]
@@ -331,6 +339,9 @@ function Window.Refresh()
 		return
 	end
 	Window.catalogueNotice:Hide()
+	for _, button in ipairs(Window.tabButtons or {}) do
+		button:Show()
+	end
 	if tab == "instances" then
 		for _, panel in ipairs(Window.creaturePanels or {}) do
 			panel:Hide()
