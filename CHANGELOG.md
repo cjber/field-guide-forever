@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.15] - 2026-11-03
+
 - **Going back to an older version no longer erases your journal.** A save written by a newer Field Guide was replaced with an empty one at logout, losing every character's creatures, kills and options. The older version now leaves that save as it is, so updating again finds everything.
 - **Shared stats from other players cost less to take in.** Every stats message from a group or guild member re-checked the whole shared table; a table already checked is no longer walked again, so a busy guild channel no longer slows the addon down as it fills.
 - **Progress bars no longer flash full at zero.** A zero-width texture is treated as unset by the client, so empty mastery and zone progress bars could render as full width. Bars now hide their fill at zero and use native inset frame chrome for journal cards.
