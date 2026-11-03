@@ -3,6 +3,7 @@ local _, ns = ...
 local L = ns.L
 local Art = ns.Art
 
+---@class FGTooltipModule
 local Tooltip = {}
 ns.Tooltip = Tooltip
 
@@ -29,7 +30,7 @@ function Tooltip.Show(owner, entry)
 		true
 	)
 	GameTooltip:AddLine(string.format(L["Research: %s"], L[ns.Model.RankName(count)]), tr, tg, tb, true)
-	local variants = ns.Model.Variants(state, species.id)
+	local variants = ns.Model.Variants(ns.GetCharacterState(false), species.id)
 	local known = L["Known"]
 	local locked = L["Locked"]
 	GameTooltip:AddLine(("%s: %s"):format(L["Common"], variants.common.known and known or locked), tr, tg, tb, true)

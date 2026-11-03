@@ -23,7 +23,7 @@ local platesByUnit = {}
 ---@param texture table?
 local function Restore(texture)
 	local original = texture and originals[texture]
-	if not original then
+	if not texture or not original then
 		return
 	end
 	texture:SetDesaturated(original.desaturated)
@@ -135,7 +135,8 @@ local function UpdateTarget()
 	local target = _G.TargetFrame
 	local entry = species and ns.Model.Specimen(ns.GetCharacterState(false), species.id)
 	local tier = SpeciesTier(species)
-	local discovery = entry
+	local discovery = species
+		and entry
 		and entry.firstSighting
 		and not discoveredThisSession[species.id]
 		and entry.firstSighting == (time and time() or 0)
@@ -162,7 +163,8 @@ local function UpdatePlate(plate, unit)
 	local tier = SpeciesTier(species)
 	Paint(trough, tier)
 	local entry = species and ns.Model.Specimen(ns.GetCharacterState(false), species.id)
-	local discovery = entry
+	local discovery = species
+		and entry
 		and entry.firstSighting
 		and not discoveredThisSession[species.id]
 		and entry.firstSighting == (time and time() or 0)
@@ -187,10 +189,11 @@ events:SetScript("OnEvent", function(_, event, unit)
 			platesByUnit[unit] = plate
 			UpdatePlate(plate, unit)
 		else
+			---@type table?
 			local plate = platesByUnit[unit]
 			platesByUnit[unit] = nil
 			if not plate then
-				plate = C_NamePlate.GetNamePlateForUnit(unit)
+				plate = C_NamePlate.GetNamePlateForUnit(unit) --[[@as table?]]
 			end
 			if plate and plate.UnitFrame and plate.UnitFrame.healthBar then
 				local bar = plate.UnitFrame.healthBar

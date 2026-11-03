@@ -4,7 +4,7 @@
 
 | Input | What it gives | Pin | Licence | Ships in zip |
 |---|---|---|---|---|
-| WoW: Forever client tables, via [wago.tools](https://wago.tools) | Zone names, instance types, creature families and portrait IDs in `Data/Client.lua` | `--build` default in `tools/gen_zones.py` | Blizzard Entertainment's game data | Yes, as generated data |
+| WoW: Forever client tables, via [wago.tools](https://wago.tools) | Zone names, instance types, creature families and portrait IDs in `Data/Client.lua` | `BUILD` in `tools/gen_zones.py` | Blizzard Entertainment's game data | Yes, as generated data |
 | [CMaNGOS classic-db](https://github.com/cmangos/classic-db), the [wow-listfile](https://github.com/wowdev/wow-listfile) community listfile and the client's `CreatureModelData`, via wago.tools | Which species icon each creature shows, in `Data/CreatureIcons.lua` | `CMANGOS_COMMIT`, `LISTFILE_TAG` and `MODEL_DATA_URL` in `tools/gen_creature_icons.py` | classic-db: GPL-3.0; the listfile publishes no licence and only file IDs are used; client data: Blizzard Entertainment's | Yes, as generated data |
 | [QuestieDB](https://github.com/Questie/QuestieDB) and Questie, installed by the player | Creature names, levels, ranks and spawn locations, read at runtime (`Integrations/QuestieDB.lua`) | None; whatever the player has installed | QuestieDB carries no licence; nothing is copied | No |
 | QuestieDB-Forever release zip | The mock catalogue the specs run against | `TAG` in `tools/gen_mock_catalogue.py` | QuestieDB carries no licence | No, tests only |

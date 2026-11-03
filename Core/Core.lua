@@ -295,10 +295,13 @@ function ns.RecordKill(name)
 	end
 	local zone = ns.CurrentZone()
 	local species = ns.FindSpecies(name, zone)
-	if not species then
+	if not species or not zone then
 		return nil
 	end
 	local state = ns.GetCharacterState(true)
+	if not state then
+		return nil
+	end
 	local timestamp = time and time() or 0
 	local result = ns.Model.Record(state, species.id, { species = species, time = timestamp, zone = zone.name })
 	local kind = "kill"
@@ -329,10 +332,13 @@ function ns.RecordSighting(unit)
 	end
 	local zone = ns.CurrentZone()
 	local species = ns.FindSpecies(UnitName(unit), zone)
-	if not species then
+	if not species or not zone then
 		return false
 	end
 	local state = ns.GetCharacterState(true)
+	if not state then
+		return false
+	end
 	local timestamp = time and time() or 0
 	local first = ns.Model.RecordSighting(state, species.id, timestamp, zone.name)
 	if first then
@@ -348,6 +354,9 @@ local function OnEncounterEnd(encounterId, encounterName, difficultyId, _, succe
 		return
 	end
 	local state = ns.GetCharacterState(true)
+	if not state then
+		return
+	end
 	local instanceName = GetInstanceInfo and select(1, GetInstanceInfo()) or ""
 	local difficultyName = GetDifficultyInfo and GetDifficultyInfo(difficultyId) or nil
 	local result = ns.Model.RecordEncounter(
@@ -373,6 +382,9 @@ local function OnEncounterStart(encounterId, encounterName, difficultyId)
 		return
 	end
 	local state = ns.GetCharacterState(true)
+	if not state then
+		return
+	end
 	local timestamp = time and time() or 0
 	local instanceName = GetInstanceInfo and select(1, GetInstanceInfo()) or ""
 	local difficultyName = GetDifficultyInfo and GetDifficultyInfo(difficultyId) or nil

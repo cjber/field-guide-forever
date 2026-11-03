@@ -1,6 +1,7 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+---@class FGQuestieDBModule
 local DB = {}
 ns.QuestieDB = DB
 local status = "missing"
@@ -136,7 +137,7 @@ local function Build()
 				local area = ns.ClientData.zones[z]
 				local mapId = area and tonumber(area.continent)
 				local map = mapId and ns.ClientData.maps[mapId]
-				if IsJournalInstance(map) then
+				if mapId and map and IsJournalInstance(map) then
 					local group = instanceSpecies[mapId]
 					if not group then
 						group = {

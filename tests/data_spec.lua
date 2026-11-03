@@ -108,5 +108,8 @@ for _, map in ipairs(ns.Instances) do
 	assert(map.id ~= 47, "an outdoor area ID is not mistaken for the Razorfen Kraul map")
 end
 assert(ns.SpeciesById[50003] and ns.SpeciesById[50003].zone == "The Hinterlands", "outdoor NPCs stay in their zone")
-assert(ns.ClientData.build == "1.60.1.70753", "generated constants retain the pinned Forever build")
+local generator = assert(io.open(here .. "/../tools/gen_zones.py"))
+local pinned = generator:read("*a"):match('\nBUILD = "([%d.]+)"')
+generator:close()
+assert(pinned and ns.ClientData.build == pinned, "generated constants retain the build tools/gen_zones.py pins")
 print("data: ok")

@@ -9,6 +9,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from forever_tools.wago import db2_rows
 
+# The Forever client build every generated constant comes from. .github/workflows/refresh-data.yml moves it to the
+# newest build; tools/check_generated.py, tools/micro_menu_render.py and tests/data_spec.lua read it from here.
+BUILD = "1.60.1.70753"
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / "tools" / ".cache"
 OUT = ROOT / "Data" / "Client.lua"
@@ -79,7 +82,7 @@ def generate(build, offline=False, output=OUT):
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("--build", default="1.60.1.70753")
+    p.add_argument("--build", default=BUILD)
     p.add_argument("--offline", action="store_true")
     p.add_argument("--output", type=Path, default=OUT)
     a = p.parse_args()

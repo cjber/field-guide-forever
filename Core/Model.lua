@@ -87,7 +87,7 @@ function Model.RankName(count)
 	return Model.RANK_NAMES[Model.Rank(count)] or Model.RANK_NAMES[0]
 end
 
----@param state FGState?
+---@param state FGState
 ---@param speciesId integer
 ---@return FGSpeciesState
 local function Entry(state, speciesId)
@@ -133,7 +133,7 @@ end
 -- per kill, not per species, because a shiny is a property of the individual encountered.
 ---@param state FGState
 ---@param speciesId integer
----@param opts? { rare?: boolean, species?: FGSpecies, random?: fun(...: any): number }
+---@param opts? { rare?: boolean, species?: FGSpecies, time?: number, zone?: string, random?: fun(...: any): number }
 ---@return { count: integer, rank: integer, shiny: boolean, rare: boolean, newlyDiscovered: boolean,
 --- rareKnown: boolean, shinyKnown: boolean }
 function Model.Record(state, speciesId, opts)
@@ -358,7 +358,7 @@ end
 
 -- Session-only sightings, newest first. They are deliberately outside the saved state: a field journal keeps the
 -- catalogue forever, but remembers today's walk only until the client closes.
----@type FGSighting[]
+---@type FGSightingLog
 local sightings = {}
 Model.Sightings = sightings
 
@@ -384,7 +384,7 @@ function Model.ClearSightings()
 	end
 end
 
----@return FGSighting[]
+---@return FGSightingLog
 function Model.GetSightings()
 	return sightings
 end

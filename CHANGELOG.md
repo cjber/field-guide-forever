@@ -5,6 +5,11 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Creature rows and tooltips show rare variants you have found.** Both read one creature's record where the whole character's progress was needed, so a found rare variant never showed as known, a finished creature never got its tick, and the tooltip always said Locked.
+- **The window shows its book portrait.** The icon was set on a texture name the window template does not have.
+- **The filter button no longer calls a text-box-only method** while the window builds.
+- **The daily data refresh moves the one build pin.** `BUILD` in `tools/gen_zones.py` is the only client build pin, so a refresh PR for a new client build passes its own regeneration check.
+
 ## [0.3.14] - 2026-11-03
 
 - **The client constants and every generator pin follow build 1.60.1.70753.** The bundled zone, map, family and portrait tables are unchanged in what they contain; the recorded build, the source checksums and the pinned build in `tools/gen_zones.py`, `tools/check_generated.py` and `tools/micro_menu_render.py` move together, so the regeneration gate stays exact.
