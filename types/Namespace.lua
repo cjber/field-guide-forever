@@ -185,7 +185,7 @@ function FGSightingLog.List() end
 ---@field key string
 
 -- A button UI/Window.lua makes, with its label font string.
----@class FGButton : UIPanelButtonTemplate
+---@class FGButton : SharedButtonSmallTemplate
 ---@field Label FontString
 
 -- A row of the creature list: the species, its saved progress and the zone it is listed under.
