@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.16] - 2026-11-03
+
 - **The journal uses native textured content panels and tighter creature rows.** The list and detail share a marble inset, rows use the native highlight, and the smaller window keeps related information together. Screenshot rendering now preserves the template backgrounds and uses the same side tabs as the addon.
 
 ## [0.3.15] - 2026-11-03
