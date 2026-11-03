@@ -1,6 +1,6 @@
 # Native composition sweep
 
-Source audit of the eight active addons, using current `origin/main` rather than stale local main checkouts. Field Guide is checked at `e013ac2`. References identify host relationships, not blanket approval
+Source audit of the eight active addons, using the revisions recorded below rather than stale local main checkouts. References identify host relationships, not blanket approval
 of every pixel in a screenshot. Field Guide runtime changes await review of the single lockup proposal.
 
 | Addon | Native pattern | Evidence |
@@ -25,3 +25,14 @@ of every pixel in a screenshot. Field Guide runtime changes await review of the 
 
 Core's `docs/ui-composition.md` owns the shared contract. The proposed mock is a direction for owner
 review, not evidence that an atlas, mask or runtime path is valid.
+
+## Audited revisions
+
+- `adventure-guide-forever`: `b5282bfd02a2ee232cc8ac3acebee4c26022a5ab`
+- `shortest-path-forever`: `2617289e31911595ef08735846a2621939b373c5`
+- `skillup-forever`: `cac812000920c208b7eeb2a3522b9da1f69bf843`
+- `tweaks-forever`: `dcd8b363f7d2985730f668123d5fe18a25649cdc`
+- `legacy-forever`: `95d27c2f153a36835a42a81885cf047e57924b2f`
+- `commissions-forever`: `17ce629ce2a5ce30e14862946104b953a3f85e20`
+- `hoard-forever`: `0f25db6ce24118456175913f930e81676df64049`
+- `field-guide-forever`: `e013ac2f8b0971ab7c1f1bac9f5384d09add426f`, this proposal branch's runtime base.
