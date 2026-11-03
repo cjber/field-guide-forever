@@ -7,8 +7,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-IGNORED = ("types/", "tests/", "tools/", "docs/", ".agents/", "Nav/", ".types/", ".sloppatrol/", "reference/")
-SCRATCH_DIRS = {".git", ".venv", ".bugpatrol", ".sloppatrol", ".speedpatrol"}
+IGNORED = ("types/", "tests/", "tools/", "docs/", ".agents/", "Nav/", ".types/", "reference/")
+SCRATCH_ROOTS = {".git", ".venv", "scratch", ".release"}
+SCRATCH_RUNS = {".bugpatrol", ".sloppatrol", ".speedpatrol"}
+PATROL_GUIDANCE = {"instructions.md"}
 # Consumer-only shared modules are stored here as source for sync_consumers.py.
 CORE_SOURCE_ONLY = {"UI/Report.lua", "UI/ForeverFamily.lua"}
 
@@ -17,8 +19,27 @@ def rel(path):
     return path.relative_to(ROOT).as_posix()
 
 
+def is_scratch(path):
+    parts = path.relative_to(ROOT).parts
+    if any(part in {".git", ".venv"} for part in parts):
+        return True
+    if parts and parts[0] in SCRATCH_ROOTS:
+        return True
+    if parts and parts[0] in SCRATCH_RUNS:
+        return (
+            len(parts) < 2
+            or parts[1] == "runs"
+            or len(parts) > 2
+            or parts[1] not in PATROL_GUIDANCE
+            and not parts[1].endswith((".yml", ".yaml"))
+        )
+    return False
+
+
 def source_files(pattern):
-    return sorted(p for p in ROOT.rglob(pattern) if not any(x in SCRATCH_DIRS for x in p.relative_to(ROOT).parts))
+    return sorted(
+        p for p in ROOT.rglob(pattern) if not is_scratch(p) and p.relative_to(ROOT).parts[:2] != ("tools", ".cache")
+    )
 
 
 def ignored(path):
@@ -62,6 +83,8 @@ def scan():
 
     toc_entries = set()
     for toc in source_files("*.toc"):
+        if ignored(toc):
+            continue
         for line in toc.read_text(encoding="utf-8", errors="replace").splitlines():
             entry = line.split("#", 1)[0].strip().replace("\\", "/").lstrip("./")
             if entry.lower().endswith(".lua"):

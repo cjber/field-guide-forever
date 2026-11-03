@@ -92,7 +92,7 @@ function Detail.Create(parent)
 	Detail.location:SetClipsChildren(true)
 	Detail.locationArt = Detail.location:CreateTexture(nil, "ARTWORK")
 	Detail.locationArt:SetPoint("TOPLEFT", 6, -4)
-	Detail.locationArt:SetSize(178.125, 120) -- art-ok: native 190x128 crop, uniformly scaled to 120 high
+	Detail.locationArt:SetSize(178.125, 120)
 	Detail.locationArt:SetTexCoord(33 / 256, 223 / 256, 0, 1)
 	Detail.locationName = Art.Text(parent, "GameFontNormal", "gold")
 	Detail.locationName:SetPoint("TOPLEFT", 378, -222)
