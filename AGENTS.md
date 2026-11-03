@@ -38,14 +38,14 @@ over every TOC-loaded file against the pinned WoW API and FrameXML annotations. 
 `workflows`, `secrets` and `package`, each on every pull request.
 `tools/visual_audit.py` reads the `docs/screenshots/layout.json` manifest `tools/mockups.py` writes and fails when a widget leaves the window
 frame, when two controls overlap or sit closer than 8 units apart, or when the rendered button art is not where the
-manifest says it is. A layout bug is fixed in the renderer's shared constants (and in `UI/Window.lua` if the addon
-agrees), then re-rendered; never by editing a PNG.
+manifest says it is. Runtime anchors and native template behavior are the source of truth. Fix the runtime producer and
+matching renderer together, then re-render; never fix only a PNG or silently diverge the mock from the addon.
 
 Before handing off any README or mockup change, open every screenshot the README references and inspect the rendered
 images directly at full resolution, and step through the frames of `docs/screenshots/demo.gif`. Check for overlapping text or controls,
 widgets or markers clipped at a frame or card edge, content drawn outside its panel, misaligned rows, and truncated
 labels. A green `tools/check_screenshots.py` and `tools/visual_audit.py` prove freshness and geometry only; they do not prove the
-picture looks right, so a visual defect found by eye is fixed in the renderer and re-rendered.
+picture looks right, so trace a visible defect to its runtime or renderer producer, correct it there and regenerate matching renders.
 
 ## Layout and data sources
 
@@ -78,6 +78,14 @@ picture looks right, so a visual defect found by eye is fixed in the renderer an
   bug or a feature someone asked for ends its changelog bullet "thanks to X for the report" (or "for the idea") and adds
   their row to THIRD_PARTY.md's `## Ideas and contributors`, by the handle they posted under. `tools/check_package.py`
   fails a zip without that section or README's `## Credits`.
+
+## Native composition
+
+Load Forever Core's [Retail UI style skill](https://github.com/cjber/forever-core/blob/b4f6ef0b989eda9a3e42df9d170e60e0b1c9c272/.agents/skills/wow-retail-ui-style/SKILL.md), [asset registry](https://github.com/cjber/forever-core/blob/b4f6ef0b989eda9a3e42df9d170e60e0b1c9c272/docs/asset-registry.md) and
+[native composition contract](https://github.com/cjber/forever-core/blob/b4f6ef0b989eda9a3e42df9d170e60e0b1c9c272/docs/ui-composition.md) before UI or screenshot work. Review a complete lockup against the native host
+and current SkillUp/Adventure Guide references before implementing a redesign. Record tab orientation
+and owning edge, all four image-frame edges, icon source crop and single chrome owner. Freshness and
+geometry checks do not validate these relationships. AI concepts are proposals, not client evidence.
 
 ## Extra rules from the layout audit round
 
