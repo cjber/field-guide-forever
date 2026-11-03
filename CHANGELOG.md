@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Going back to an older version no longer erases your journal.** A save written by a newer Field Guide was replaced with an empty one at logout, losing every character's creatures, kills and options. The older version now leaves that save as it is, so updating again finds everything.
+- **Shared stats from other players cost less to take in.** Every stats message from a group or guild member re-checked the whole shared table; a table already checked is no longer walked again, so a busy guild channel no longer slows the addon down as it fills.
 - **Creature rows and tooltips show rare variants you have found.** Both read one creature's record where the whole character's progress was needed, so a found rare variant never showed as known, a finished creature never got its tick, and the tooltip always said Locked.
 - **The window shows its book portrait.** The icon was set on a texture name the window template does not have.
 - **The filter button no longer calls a text-box-only method** while the window builds.

@@ -286,7 +286,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field CurrentZone fun(): FGZone?
 ---@field FindSpecies fun(name: string?, zone: FGZone?): FGSpecies?
 ---@field CharacterKey fun(): string
----@field Migrate fun(db: any): FGDB
+---@field Migrate fun(db: any): FGDB, boolean?
 ---@field GetCharacterState fun(create?: boolean): FGState?
 ---@field Initialize fun()
 ---@field OnProgress fun(fn: fun())
