@@ -1045,20 +1045,21 @@ def main():
     save(render(rare_zone, rare, "RARES"), "rares.png")
     save(render(shiny_zone, shiny, "SHINY"), "shiny.png")
 
-    for zone in zone_pages(zones):
+    retained_zone_ids = {int(path.stem.split("-")[1]) for path in OUT.glob("zone-*.png")}
+    page_ids = retained_zone_ids | {zone["id"] for zone in zone_pages(zones)}
+    for zone in (zone for zone in zones if zone["id"] in page_ids):
         save(render(zone, zone["species"][0], "CREATURES"), f"zone-{zone['id']:04d}.png")
 
     search_zone = barrens
     search_species = barrens["species"][min(3, len(barrens["species"]) - 1)]
     save(render(search_zone, search_species, "CREATURES"), "search-filter.png")
-    save(render(search_zone, prowler, "CREATURES"), "tracking.png")
     save(render(rare_zone, rare, "RARES"), "rare-record.png")
     save(render(shiny_zone, shiny, "SHINY"), "shiny-record.png")
 
     def feature_overlay(base, title, subtitle, lines):
         canvas = wowmock.Canvas(ui, base.width, base.height)
         canvas.image = base.image.copy()
-        veil = Image.new("RGBA", (canvas.image.size[0], 26 + BAR_Y), (0, 0, 0, 150))
+        veil = Image.new("RGBA", canvas.image.size, (0, 0, 0, 150))
         canvas.composite(veil, 0, 0)
         dialog, _, _ = basic_panel(ui, title, 602, 400)
         dialog_x = (canvas.image.width - dialog.image.width) // 2
