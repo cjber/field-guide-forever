@@ -17,6 +17,6 @@ Credit for the ideas and reports behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
-| cjber | Asked for the Field Guide's visual polish | |
+| cjber | Asked for the Field Guide's visual polish and reported the shared-frame colour restoration conflict (#71) | |
 
 Thanks also to everyone else who reported a bug or asked for a feature, here or on CurseForge.
