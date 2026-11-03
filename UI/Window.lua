@@ -48,7 +48,7 @@ end
 ---@return FGButton
 local function MakeButton(parent, text, width, solid)
 	-- The client's own button, so hover, press and disabled states are the ones players already know.
-	local button = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate") --[[@as FGButton]]
+	local button = CreateFrame("Button", nil, parent, "SharedButtonSmallTemplate") --[[@as FGButton]]
 	button:SetSize(width, 26)
 	button:SetText(text)
 	button.Label = button:GetFontString()

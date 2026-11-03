@@ -5,6 +5,9 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Controls use the Forever asset set.** Buttons use the native gold-bordered family, and CI rejects legacy loose chrome in runtime UI and screenshot renderers.
+- **Every retained zone preview is rendered afresh.** Modal previews dim the entire journal beneath the dialog.
+
 ## [0.3.16] - 2026-11-03
 
 - **The journal uses native textured content panels and tighter creature rows.** The list and detail share a marble inset, rows use the native highlight, and the smaller window keeps related information together. Screenshot rendering now preserves the template backgrounds and uses the same side tabs as the addon.
