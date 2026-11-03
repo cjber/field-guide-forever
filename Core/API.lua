@@ -564,3 +564,8 @@ API.GetSharedStats = API.SharedStats
 FieldGuideForever = FieldGuideForever or {}
 FieldGuideForever.API = API
 ns.API = API
+
+-- canary: deliberate type error, must fail typecheck
+---@type number
+local canaryCount = "not a number"
+local _ = canaryCount
