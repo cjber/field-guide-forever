@@ -30,6 +30,19 @@
       "guard": "lens-only: namespace reachability requires checking TOC, runtime callers, dynamic lookups and open branches"
     },
     {
+      "id": "90295e57c5",
+      "lens": "stale-docs",
+      "file": "docs/previews/native-journal-evidence.md",
+      "quote": "- Art cache: `1.60.1.70124`, Pillow `12.3.0`. Generated catalogue constants use the separate `1.60.1.70753` pin.",
+      "what": "Evidence names a different art cache from the renderer-selected BUILD",
+      "why": "Ui(build=BUILD) selects 1.60.1.70753 for atlas metadata and texture reads. Explicit uv invocation verifies Pillow12.3.0.",
+      "confidence": "high",
+      "status": "open",
+      "reason": "",
+      "first_seen": "2026-11-03",
+      "updated": "2026-11-03"
+    },
+    {
       "id": "90e017ae3f",
       "lens": "stale-docs",
       "file": "docs/previews/native-journal-evidence.md",
@@ -97,6 +110,19 @@
       "first_seen": "2026-11-03",
       "updated": "2026-11-03",
       "guard": "lens-only: runtime template and renderer parity needs native atlas metadata and source review"
+    },
+    {
+      "id": "99d34c6395",
+      "lens": "silent-fallbacks",
+      "file": "tools/mockups.py",
+      "quote": "from PIL import Image",
+      "what": "Hoisted local-only Pillow import lost the established type annotation",
+      "why": "CI intentionally does not install Pillow for ty; all other local-only imports suppress unresolved-import.",
+      "confidence": "high",
+      "status": "open",
+      "reason": "",
+      "first_seen": "2026-11-03",
+      "updated": "2026-11-03"
     },
     {
       "id": "e4e83bb71b",
