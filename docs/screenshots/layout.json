@@ -222,6 +222,62 @@
           "w": 55,
           "x": 989,
           "y": 228
+        },
+        {
+          "h": 514,
+          "name": "Instances body",
+          "role": "pane",
+          "w": 924,
+          "x": 44,
+          "y": 130
+        },
+        {
+          "h": 20,
+          "name": "Instances title",
+          "role": "content",
+          "w": 884,
+          "x": 48,
+          "y": 134
+        },
+        {
+          "h": 16,
+          "name": "Instances subtitle",
+          "role": "content",
+          "w": 884,
+          "x": 48,
+          "y": 156
+        },
+        {
+          "h": 86,
+          "name": "Instance row 1",
+          "role": "content",
+          "w": 884,
+          "x": 44,
+          "y": 178
+        },
+        {
+          "h": 86,
+          "name": "Instance row 2",
+          "role": "content",
+          "w": 884,
+          "x": 44,
+          "y": 270
+        },
+        {
+          "h": 86,
+          "name": "Instance row 3",
+          "role": "content",
+          "w": 884,
+          "x": 44,
+          "y": 362
+        },
+        {
+          "h": 86,
+          "name": "Instance row 4",
+          "role": "content",
+          "w": 884,
+          "x": 44,
+          "y": 454
         }
       ]
     },
@@ -237,7 +293,24 @@
         "x": 26,
         "y": 26
       },
-      "widgets": []
+      "widgets": [
+        {
+          "h": 514,
+          "name": "Catalogue body",
+          "role": "pane",
+          "w": 924,
+          "x": 44,
+          "y": 130
+        },
+        {
+          "h": 60,
+          "name": "Catalogue notice",
+          "role": "content",
+          "w": 680,
+          "x": 166,
+          "y": 370
+        }
+      ]
     },
     "rare-record.png": {
       "canvas": {
@@ -713,6 +786,109 @@
           "w": 120,
           "x": 836,
           "y": 672
+        }
+      ]
+    },
+    "settings.png": {
+      "canvas": {
+        "height": 220,
+        "scale": 2,
+        "width": 620
+      },
+      "frame": {
+        "h": 220,
+        "w": 620,
+        "x": 0,
+        "y": 0
+      },
+      "widgets": [
+        {
+          "h": 196,
+          "name": "Settings content",
+          "role": "pane",
+          "w": 596,
+          "x": 12,
+          "y": 12
+        },
+        {
+          "h": 20,
+          "name": "Settings title",
+          "role": "content",
+          "w": 380,
+          "x": 16,
+          "y": 16
+        },
+        {
+          "h": 26,
+          "name": "Settings checkbox 1",
+          "role": "content",
+          "w": 26,
+          "x": 16,
+          "y": 48
+        },
+        {
+          "h": 16,
+          "name": "Settings label 1",
+          "role": "content",
+          "w": 157.5,
+          "x": 46,
+          "y": 54
+        },
+        {
+          "h": 26,
+          "name": "Settings checkbox 2",
+          "role": "content",
+          "w": 26,
+          "x": 16,
+          "y": 76
+        },
+        {
+          "h": 16,
+          "name": "Settings label 2",
+          "role": "content",
+          "w": 124.0,
+          "x": 46,
+          "y": 82
+        },
+        {
+          "h": 26,
+          "name": "Settings checkbox 3",
+          "role": "content",
+          "w": 26,
+          "x": 16,
+          "y": 104
+        },
+        {
+          "h": 16,
+          "name": "Settings label 3",
+          "role": "content",
+          "w": 279.0,
+          "x": 46,
+          "y": 110
+        },
+        {
+          "h": 26,
+          "name": "Settings checkbox 4",
+          "role": "content",
+          "w": 26,
+          "x": 16,
+          "y": 132
+        },
+        {
+          "h": 16,
+          "name": "Settings label 4",
+          "role": "content",
+          "w": 232.5,
+          "x": 46,
+          "y": 138
+        },
+        {
+          "h": 16,
+          "name": "Settings binding note",
+          "role": "content",
+          "w": 560,
+          "x": 36,
+          "y": 166
         }
       ]
     },
@@ -3217,6 +3393,7 @@
     "search-filter.png",
     "rare-record.png",
     "shiny-record.png",
+    "settings.png",
     "sighting-log.png",
     "missing-questiedb.png",
     "instances-boss.png"

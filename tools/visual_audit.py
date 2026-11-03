@@ -144,7 +144,7 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
     for pane in panes:
         pane_right = pane["x"] + pane["w"]
         pane_bottom = pane["y"] + pane["h"]
-        for widget in [*cards, *(w for w in widgets if w["role"] in {"badge", "progress"})]:
+        for widget in [*cards, *(w for w in widgets if w["role"] in {"badge", "progress", "content"})]:
             if widget["role"] == "progress" and widget["name"] != "Research bar":
                 continue
             if (
@@ -232,12 +232,12 @@ def check_image(path: Path, layout: dict[str, Any]) -> list[str]:
     """Check each button row against its manifest bounds and spacing."""
     findings: list[str] = []
     image = load_png(path)
-    frame_left, frame_top, frame_right, _ = frame_box(image)
-    scale = (frame_right - frame_left) / layout["frame"]["w"]
-    offset_y = frame_top - layout["frame"]["y"] * scale
     buttons = [w for w in layout["widgets"] if w["role"] == "button"]
     if not buttons:
         return findings
+    frame_left, frame_top, frame_right, _ = frame_box(image)
+    scale = (frame_right - frame_left) / layout["frame"]["w"]
+    offset_y = frame_top - layout["frame"]["y"] * scale
     # Navigation and footer buttons occupy separate rows; projecting them together hides overlaps.
     rows: dict[float, list[dict[str, Any]]] = {}
     for button in buttons:

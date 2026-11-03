@@ -636,6 +636,8 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
     index = ("CREATURES", "RARES", "SHINY", "INSTANCES").index(tab)
     portrait_frame_art(canvas, m, m, W, H, sigil, "Field Guide")
     if unavailable:
+        note("Catalogue body", "pane", px(18), py(104), 924, 514)
+        note("Catalogue notice", "content", px(140), py(344), 680, 60)
         text(
             canvas,
             px(58),
@@ -680,6 +682,9 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
 
     if tab == "INSTANCES":
         view_x, view_y = px(18), py(104)
+        note("Instances body", "pane", view_x, view_y, 924, 514)
+        note("Instances title", "content", view_x + 4, view_y + 4, 884, 20)
+        note("Instances subtitle", "content", view_x + 4, view_y + 26, 884, 16)
         text(canvas, view_x + 4, view_y + 4, "Instances", "GameFontNormalLarge", GOLD)
         text(
             canvas, view_x + 4, view_y + 26, "Boss encounters recorded on this character", "GameFontDisableSmall", MUTED
@@ -695,6 +700,7 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
         )
         for row_index, (instance_name, boss_name) in enumerate(boss_rows[:4]):
             row_y = view_y + 48 + row_index * 92
+            note(f"Instance row {row_index + 1}", "content", view_x, row_y, 884, 86)
             card(canvas, view_x, row_y, 884, 86)
             text(canvas, view_x + 12, row_y + 8, f"{instance_name} · {boss_name}", "GameFontNormal", TEXT, width=540)
             right(canvas, view_x + 872, row_y + 8, "0 recorded boss kills", "GameFontHighlightSmall", GOLD, width=180)
@@ -1129,6 +1135,11 @@ def main():
     filtered.save(OUT / "search-filter.png")
     # Core/Settings.lua registers this content in the client's Settings canvas, not a journal popup.
     settings = ui.canvas(620, 220)
+    LAYOUT["widgets"] = []
+    LAYOUT["canvas"] = {"width": settings.width, "height": settings.height, "scale": ui.scale}
+    LAYOUT["frame"] = {"x": 0, "y": 0, "w": 620, "h": 220}
+    note("Settings content", "pane", 12, 12, 596, 196)
+    note("Settings title", "content", 16, 16, 380, 20)
     settings.fill(0, 0, 620, 220, wowmock.rgb("0d0f12"))
     text(settings, 16, 16, "Field Guide Forever options", "GameFontNormalLarge", GOLD)
     labels = [
@@ -1139,11 +1150,16 @@ def main():
     ]
     for index, label in enumerate(labels):
         y = 48 + index * 28
+        note(f"Settings checkbox {index + 1}", "content", 16, y, 26, 26)
+        note(
+            f"Settings label {index + 1}", "content", 46, y + 6, settings.text_width(label, FONTS["GameFontNormal"]), 16
+        )
         settings.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), 16, y, 26, 26)
         settings.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), 16, y, 26, 26)
         text(settings, 46, y + 6, label, "GameFontNormal", GOLD)
     text(settings, 36, 166, "Both buttons can also be bound in Key Bindings > AddOns.", "GameFontDisableSmall", MUTED)
-    settings.save(OUT / "settings.png")
+    note("Settings binding note", "content", 36, 166, 560, 16)
+    save(settings, "settings.png")
     save(render(barrens, prowler, "CREATURES", 2), "sighting-log.png")
     save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")
     save(render(barrens, prowler, "INSTANCES"), "instances-boss.png")
