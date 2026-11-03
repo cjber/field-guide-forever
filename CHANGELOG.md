@@ -8,6 +8,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 ## [0.3.18] - 2026-11-03
 
 - **Creature entries use one native journal layout.** Detail tabs join the top of their panel, zone illustrations have complete native frames, and creature icons keep one border. Related facts sit closer together without changing your saved progress, thanks to cjber for the report.
+- **Rarity colours respect later frame updates.** Target and nameplate cleanup leaves colours changed by Blizzard or another addon untouched. Reused nameplates restore their current appearance instead of an earlier creature's colours, and the background tint now uses Forever's native texture field. Thanks to cjber for the report (#71).
+
 
 ## [0.3.17] - 2026-11-03
 

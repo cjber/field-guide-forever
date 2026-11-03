@@ -29,7 +29,7 @@ from typing import Any, NotRequired, TypedDict
 from gen_creature_icons import model_paths
 from gen_mock_catalogue import EXTRACTED, FIXTURE
 from gen_zones import BUILD
-from PIL import Image
+from PIL import Image  # ty: ignore[unresolved-import]
 
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
 WOWMOCK = FOREVER_CORE / "tools" / "wowmock"

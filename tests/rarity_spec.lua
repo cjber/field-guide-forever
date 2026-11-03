@@ -62,7 +62,8 @@ trough:SetVertexColor(unpack(original))
 local unitFrame = Mock.CreateFrame("Frame")
 unitFrame.name = unitFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 unitFrame.healthBar = Mock.CreateFrame("Frame")
-unitFrame.healthBar.background = trough
+unitFrame.healthBar.bgTexture = trough
+unitFrame.healthBar.background, unitFrame.healthBar.Background = false, false
 local plate = { UnitFrame = unitFrame }
 local plateAttached = true
 harness.env.C_NamePlate = {
@@ -86,5 +87,42 @@ Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
 plateR, plateG, plateB, a = trough:GetVertexColor()
 assert(not trough:IsDesaturated(), "removing a pooled nameplate restores the trough")
 assert(plateR == original[1] and plateG == original[2] and plateB == original[3] and a == original[4])
+
+-- Blizzard and other addons can repaint pooled textures between our events.
+local changed = { 0.2, 0.4, 0.6, 0.5 }
+chrome:SetVertexColor(unpack(changed))
+Mock.Fire("PLAYER_TARGET_CHANGED")
+r, g, b, a = chrome:GetVertexColor()
+assert(r == changed[1] and g == changed[2] and b == changed[3] and a == changed[4], "cleanup preserves a later repaint")
+
+plateAttached = true
+trough:SetVertexColor(unpack(changed))
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
+plateR, plateG, plateB, a = trough:GetVertexColor()
+assert(
+	plateR == changed[1] and plateG == changed[2] and plateB == changed[3] and a == changed[4],
+	"a reused plate restores its current baseline"
+)
+
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
+trough:SetVertexColor(unpack(original))
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
+plateR, plateG, plateB, a = trough:GetVertexColor()
+assert(
+	plateR == original[1] and plateG == original[2] and plateB == original[3] and a == original[4],
+	"plate cleanup leaves another writer's tint untouched"
+)
+assert(not trough:IsDesaturated(), "plate cleanup restores its own saturation after another writer changes the tint")
+
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
+trough:SetDesaturated(false)
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
+plateR, plateG, plateB, a = trough:GetVertexColor()
+assert(
+	plateR == original[1] and plateG == original[2] and plateB == original[3] and a == original[4],
+	"plate cleanup restores its own tint after another writer changes saturation"
+)
+assert(not trough:IsDesaturated(), "plate cleanup preserves another writer's saturation")
 
 print("rarity: ok")
