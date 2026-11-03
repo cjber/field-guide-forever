@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **The client constants and every generator pin follow build 1.60.1.70753.** The bundled zone, map, family and portrait tables are unchanged in what they contain; the recorded build, the source checksums and the pinned build in `tools/gen_zones.py` and `tools/check_generated.py` move together, so the regeneration gate stays exact.
+
 ## [0.3.13] - 2026-11-02
 
 - **The tracked species stays tracked after a reload.** Loading the saved variables dropped it, so every `/reload` or login cleared the Track Species choice.

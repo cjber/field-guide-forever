@@ -1,12 +1,12 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
--- Generated from wago.tools Forever build 1.60.1.70707; do not edit.
+-- Generated from wago.tools Forever build 1.60.1.70753; do not edit.
 -- AreaTable: 1375 rows; sha256 e7ccbde2cd084329ff0cccaa5af7f33facc42079d410bb1d2569dc9bce10a379
--- Map: 73 rows; sha256 63e3681e1d37c2860ed4744511201121dd1391b8351ecb97d41ece33dc7b4f24
+-- Map: 73 rows; sha256 392e2f6e2cb338570c9e5e6368d59e65525c18d99c3b4e89c27fdcd123923099
 -- CreatureFamily: 27 rows; sha256 7ba620ec805373038287cce591422996d963b85868c2e1f41a4b89d4e0713a6c
--- CreatureDisplayInfo: 14221 rows; sha256 16f661179d23e8a9045e2bd2ad7030f6e3d6f8664af48fa3369f6231df99f717
-ns.ClientData = { build = "1.60.1.70707", continents = {}, zones = {}, maps = {}, families = {}, portraits = {} }
+-- CreatureDisplayInfo: 14221 rows; sha256 1a99cf04f2bb17a37187426fa46515e57e729a8fd31b31225cd23d3ea8d6accf
+ns.ClientData = { build = "1.60.1.70753", continents = {}, zones = {}, maps = {}, families = {}, portraits = {} }
 ns.ClientData.continents[0] = "Eastern Kingdoms"
 ns.ClientData.continents[1] = "Kalimdor"
 ns.ClientData.zones[1] = { name = "Dun Morogh", continent = 0 }
