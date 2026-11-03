@@ -25,6 +25,46 @@ function DB.State()
 	return status
 end
 
+---@param source any
+---@return table?
+local function ReadSupportTable(source)
+	local chunk = type(source) == "string" and loadstring(source)
+	if not chunk then
+		return nil
+	end
+	setfenv(chunk, {})
+	local ok, value = pcall(chunk)
+	return ok and type(value) == "table" and value or nil
+end
+
+-- QuestieDB's own ZoneDB tables from AreaTable ID to uiMapID: the base table and its overrides. nil when the lib,
+-- contract 2 or ZoneDB is missing.
+---@return table<integer, integer>? area
+---@return table<integer, integer>? override
+function DB.AreaMaps()
+	local lib = rawget(_G, "LibQuestieDB")
+	if
+		type(lib) ~= "table"
+		or type(lib.RequireContract) ~= "function"
+		or type(lib.Support) ~= "table"
+		or type(lib.Support.Get) ~= "function"
+	then
+		return nil
+	end
+	local ok, contract = pcall(lib.RequireContract, 2)
+	if not ok or not contract then
+		return nil
+	end
+	local got, zoneDb = pcall(lib.Support.Get, "ZoneDB")
+	local private = got and type(zoneDb) == "table" and zoneDb.private
+	local area = private and ReadSupportTable(private.areaIdToUiMapId)
+	local override = private and ReadSupportTable(private.areaIdToUiMapIdOverride)
+	if not area or not override then
+		return nil
+	end
+	return area, override
+end
+
 local function ReadNpc(id, lib)
 	if lib and lib.Npc and type(lib.Npc.GetAll) == "function" then
 		local values = lib.Npc.GetAll(id, REQUIRED)

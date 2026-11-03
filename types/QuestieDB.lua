@@ -1,7 +1,7 @@
 ---@meta
 
 -- The parts of QuestieDB (the LibQuestieDB global, contract 2, github.com/Questie/QuestieDB) and Questie
--- (github.com/Questie/Questie) that Integrations/QuestieDB.lua and Core/API.lua read. Both are optional dependencies,
+-- (github.com/Questie/Questie) that Integrations/QuestieDB.lua reads. Both are optional dependencies,
 -- so every read checks the type at runtime first.
 
 -- An entity reader: LibQuestieDB.Npc.

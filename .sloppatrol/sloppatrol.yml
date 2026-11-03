@@ -14,7 +14,7 @@ checks:
   # check_screenshots.py is left out: it hashes Core/ and UI/, so any refactor there fails it until
   # tools/screenshots.py re-renders, which needs forever-core and Pillow that a run checkout lacks.
   - { name: gate, run: "python3 .sloppatrol/gate.py --base origin/main && python3 .sloppatrol/agents.py check" }
-focus: [Core/**, UI/**, Journal/**, Integrations/**]
+focus: [Core/**, UI/**, Integrations/**]
 ignore: [Data/**, Locales/**, Libs/**, tools/forever_tools/**]
 guards: { maxFiles: 8, maxLines: 400 }
 agents:

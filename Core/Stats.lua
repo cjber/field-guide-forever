@@ -238,6 +238,8 @@ local function RowCount(peer)
 	return count
 end
 
+local sanitized
+
 local function SanitizeShared()
 	if not ns.db then
 		return
@@ -326,6 +328,7 @@ local function SanitizeShared()
 			end
 		end
 	end
+	sanitized = shared
 end
 
 local function IsSelf(sender)
@@ -361,7 +364,10 @@ local function Receive(prefix, message, channel, sender)
 	if not db then
 		return
 	end
-	SanitizeShared()
+	-- Receive only stores validated, in-limit rows, so a table already sanitized stays clean.
+	if db.sharedStats ~= sanitized then
+		SanitizeShared()
+	end
 	db.sharedStats = db.sharedStats or {}
 	local peer = db.sharedStats[sender]
 	if not peer then

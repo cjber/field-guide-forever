@@ -184,13 +184,17 @@ local function NormalizeState(state)
 	return clean
 end
 
+-- The saved variables brought up to ns.SCHEMA. A save from a newer version is left untouched and the second return
+-- is true: the caller then works on the fresh table it gets and must not save it over the newer data.
+---@return table db
+---@return boolean? newer
 function ns.Migrate(db)
 	if type(db) ~= "table" then
 		db = {}
 	end
 	local version = Integer(db.version)
 	if version > ns.SCHEMA then
-		return { version = ns.SCHEMA, chars = {}, window = {}, options = {} }
+		return { version = ns.SCHEMA, chars = {}, window = {}, options = {} }, true
 	end
 	db.chars = type(db.chars) == "table" and db.chars or {}
 	for key, state in pairs(db.chars) do
@@ -235,8 +239,10 @@ function ns.Initialize()
 	if type(FieldGuideForeverDB) ~= "table" then
 		FieldGuideForeverDB = {}
 	end
-	local db = ns.Migrate(FieldGuideForeverDB)
-	FieldGuideForeverDB = db
+	local db, newer = ns.Migrate(FieldGuideForeverDB)
+	if not newer then
+		FieldGuideForeverDB = db
+	end
 	if db.options.showUndiscovered == nil then
 		db.options.showUndiscovered = true
 	end
