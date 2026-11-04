@@ -16,10 +16,12 @@ Data\Client.lua
 Data\CreatureIcons.lua
 Integrations\QuestieDB.lua
 Core\SafeCall.lua
+Core\Secret.lua
 Core\MicroButton.lua
 Core\Model.lua
 Core\LegacyIds.lua
 Core\Core.lua
+Core\Kills.lua
 Core\PeerStats.lua
 Core\Stats.lua
 Core\API.lua
