@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.23] - 2026-11-04
+
 - **Kills are recorded again on Forever 1.60.1.** The client no longer lets addons read the combat log, so Field Guide now counts a kill when your target or a creature with a showing nameplate dies and nobody outside your group tagged it, and when a rare's map marker you saw alive turns dead nearby. Each death counts once, however many of these report it. A creature that dies with no nameplate and not targeted is not seen, so enemy nameplates (`V`) catch the most. Thanks to cjber for the report (#91).
 
 ## [0.3.22] - 2026-11-04
