@@ -1,6 +1,6 @@
 # Field Guide Forever
 
-A field journal for the creatures of Azeroth. Hostile NPC deaths reported in a catalogued zone are recorded in the journal. The addon reads names, levels, ranks and placements from the player’s Forever QuestieDB; the catalogue follows that database as it updates. Rare creatures keep separate personal records, and each observed death has a 1-in-500 shiny roll.
+A field journal for the creatures of Azeroth. Hostile creatures you kill in a catalogued zone are recorded in the journal. The addon reads names, levels, ranks and placements from the player’s Forever QuestieDB; the catalogue follows that database as it updates. Rare creatures keep separate personal records, and each observed death has a 1-in-500 shiny roll.
 
 Field Guide Forever is cosmetic only. It never grants player power, changes combat or calls a protected function.
 
@@ -25,6 +25,14 @@ Field Guide Forever is cosmetic only. It never grants player power, changes comb
 ## Creature database
 
 Install Questie or the standalone QuestieDB addon. Field Guide reads the Forever QuestieDB API at runtime and shows an install prompt when it is missing or incompatible. Creature names, levels, ranks and spawn locations are not bundled. Client-only zone names, instance types, families and portrait IDs are generated from pinned wago.tools DB2 exports.
+
+## How kills are counted
+
+The Forever client keeps the combat log from addons, so Field Guide counts a kill it can see: a creature you have
+targeted or whose nameplate is showing dies, and nobody outside your group tagged it first. A rare also counts when
+its map marker, seen alive, turns dead while it is on your minimap. A creature that dies with no nameplate shown and
+not targeted, or whose name the client hides from addons, is not counted. Turn on enemy nameplates (`V`) to catch
+everything you fight.
 
 ## Research ranks
 
@@ -108,7 +116,7 @@ do not:
 |---|---|---|
 | RareScanner | rare kills per creature, and a per-character "rare killed" flag | both keep their own counts from the same kill events; nothing is shared or fought over |
 | SilverDragon | per-zone rare sightings with coordinates | Field Guide keeps its own first-sighting record; SilverDragon's history is separate |
-| AutoBiographer | a per-creature kill count shown in unit tooltips | the counts deliberately differ: Field Guide counts every hostile death matching its zone catalogue, AutoBiographer only tagged or group credit |
+| AutoBiographer | a per-creature kill count shown in unit tooltips | the counts deliberately differ: Field Guide counts deaths it sees on your target, nameplates and rare markers, AutoBiographer counts tagged or group credit |
 
 None of them hook the same event in a way that collides: the client broadcasts events to every frame that
 registers, and each addon writes only its own SavedVariables.

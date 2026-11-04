@@ -48,7 +48,7 @@ The screenshots are renders from `tools/mockups.py` (wowmock, the client's own a
 - `ns.*`: the shared addon table; search all files for `ns.Name`, not the local file.
 - `## SavedVariables: FieldGuideForeverDB`: keys in `Core/Core.lua` `DEFAULTS` may hold data written by older versions.
 - `SLASH_FIELDGUIDEFOREVER1/2` and the `UISpecialFrames` entry: called by the client by name.
-- `UNIT_DIED` combat-log handler and the progress callback: the kill path writes tables only; the UI refresh runs on
+- The kill handlers in `Core/Kills.lua` (`UNIT_HEALTH`, `NAME_PLATE_UNIT_REMOVED`, the vignette events) and the progress callback: the kill path writes tables only; the UI refresh runs on
   the next frame.
 - The public `FieldGuideForever` API table (`Core/API.lua`) is the companion-addon contract, versioned.
 - `Integrations/QuestieDB.lua` is the only runtime reader of shared creature data; it reports `ok`, `missing`,
@@ -73,7 +73,7 @@ The screenshots are renders from `tools/mockups.py` (wowmock, the client's own a
 
 - Tabs, 120 columns, double quotes (StyLua). `---@type` annotations; namespaces through `local _, ns = ...`.
 - Keep `Core/Model.lua` pure: no WoW API, no I/O, no globals beyond `ns.Model`.
-- The combat-log handler never touches a frame.
+- The kill handlers never touch a frame.
 - `L["whole sentence"]` is the only source of player-visible text in `UI/`.
 - Comments explain *why* (client quirks, mock geometry), not what.
 - Runtime anchors and native template behavior own the layout. Fix runtime and renderer together; never hand-edit a PNG or use a render-only correction as runtime evidence.

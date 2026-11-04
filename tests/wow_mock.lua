@@ -1,5 +1,7 @@
--- A headless client good enough for the specs: frames are inert tables, events are delivered by hand, and the combat
--- log is whatever the spec placed in Mock.combatLog. Nothing here is loaded by the addon.
+-- A headless client good enough for the specs: frames are inert tables and events are delivered by hand. Units are what
+-- the spec placed in Mock.units (names), Mock.guids, Mock.dead and Mock.tapDenied; map markers are Mock.vignettes. Like
+-- Forever, the client has no addon reader for the combat log unless a harness asks for one ({ combatLog = true }), and
+-- then it returns Mock.combatLog. Nothing here is loaded by the addon.
 
 local Mock = {}
 
@@ -11,6 +13,12 @@ Mock.named = {}
 Mock.timers = {}
 Mock.combatLog = nil
 Mock.units = {}
+Mock.guids = {}
+Mock.dead = {}
+Mock.tapDenied = {}
+Mock.vignettes = {}
+Mock.spawnCounter = 0
+Mock.refusedEvents = {}
 Mock.inGuild = false
 Mock.inGroup = false
 Mock.inRaid = false
@@ -66,6 +74,11 @@ function Mock.Reset()
 	Mock.timers = {}
 	Mock.combatLog = nil
 	Mock.units = {}
+	Mock.guids = {}
+	Mock.dead = {}
+	Mock.tapDenied = {}
+	Mock.vignettes = {}
+	Mock.spawnCounter = 0
 	Mock.inGuild = false
 	Mock.inGroup = false
 	Mock.inRaid = false
@@ -134,6 +147,9 @@ function methods:HookScript(event, fn)
 end
 
 function methods:RegisterEvent(event)
+	if Mock.refusedEvents[event] then
+		error("Attempt to register for a restricted event: " .. event)
+	end
 	self._events[event] = true
 	Mock.eventFrames[event] = Mock.eventFrames[event] or {}
 	for _, frame in ipairs(Mock.eventFrames[event]) do
@@ -492,17 +508,32 @@ function Mock.RunTimers()
 	end
 end
 
----@param name string
-function Mock.Kill(name)
-	Mock.combatLog = { 0, "UNIT_DIED", false, nil, nil, nil, nil, nil, name, 0x440 }
-	Mock.Fire("COMBAT_LOG_EVENT_UNFILTERED")
+-- A fresh creature GUID, as the client builds one: the NPC id is the sixth field and the spawn the seventh.
+---@param npcId integer?
+---@return string
+function Mock.CreatureGUID(npcId)
+	Mock.spawnCounter = Mock.spawnCounter + 1
+	return string.format("Creature-0-1-0-1-%d-%010X", npcId or 0, Mock.spawnCounter)
 end
 
----@param opts? { ns?: table, files?: string[] }
+-- The player's target dies, the way Forever reports it to an addon: its health event, with UnitIsDead now true.
+---@param name string
+---@param npcId integer?
+function Mock.Kill(name, npcId)
+	Mock.units.target = name
+	Mock.guids.target = Mock.CreatureGUID(npcId)
+	Mock.dead.target = true
+	Mock.tapDenied.target = nil
+	Mock.Fire("UNIT_HEALTH", "target")
+end
+
+-- `combatLog` gives the client an addon reader for the combat log; `refuse` names events whose registration raises.
+---@param opts? { ns?: table, files?: string[], combatLog?: boolean, refuse?: table<string, boolean> }
 ---@return table
 function Mock.Harness(opts)
 	opts = opts or {}
 	Mock.Reset()
+	Mock.refusedEvents = opts.refuse or {}
 	local env = setmetatable({
 		print = print,
 		time = function()
@@ -530,6 +561,31 @@ function Mock.Harness(opts)
 		UnitIsPlayer = function()
 			return false
 		end,
+		UnitIsDead = function(unit)
+			return Mock.dead[unit] == true
+		end,
+		UnitCanAttack = function()
+			return true
+		end,
+		UnitIsTapDenied = function(unit)
+			return Mock.tapDenied[unit] == true
+		end,
+		C_VignetteInfo = {
+			GetVignettes = function()
+				local guids = {}
+				for index, vignette in ipairs(Mock.vignettes) do
+					guids[index] = vignette.vignetteGUID
+				end
+				return guids
+			end,
+			GetVignetteInfo = function(vignetteGUID)
+				for _, vignette in ipairs(Mock.vignettes) do
+					if vignette.vignetteGUID == vignetteGUID then
+						return vignette
+					end
+				end
+			end,
+		},
 		GetInstanceInfo = function()
 			return "Test Instance"
 		end,
@@ -572,8 +628,8 @@ function Mock.Harness(opts)
 		UnitLevel = function()
 			return 60
 		end,
-		UnitGUID = function()
-			return "Player-1"
+		UnitGUID = function(unit)
+			return Mock.guids[unit] or "Player-1"
 		end,
 		InCombatLockdown = function()
 			return false
@@ -583,11 +639,6 @@ function Mock.Harness(opts)
 		end,
 		GetBuildInfo = function()
 			return "1.15.0", "16001"
-		end,
-		CombatLogGetCurrentEventInfo = function()
-			if Mock.combatLog then
-				return unpack(Mock.combatLog)
-			end
 		end,
 		C_Timer = {
 			After = function(_, fn)
@@ -627,6 +678,13 @@ function Mock.Harness(opts)
 		},
 	}, { __index = _G })
 	env._G = env
+	if opts.combatLog then
+		env.CombatLogGetCurrentEventInfo = function()
+			if Mock.combatLog then
+				return unpack(Mock.combatLog)
+			end
+		end
+	end
 	env.ForeverPeerStats = false
 	env.CreateFrame = function(kind, name, parent, template)
 		local created = Mock.CreateFrame(kind, name, parent, template)
@@ -724,8 +782,8 @@ function Mock.Harness(opts)
 	function harness.RunTimers(_)
 		Mock.RunTimers()
 	end
-	function harness.Kill(_, name)
-		Mock.Kill(name)
+	function harness.Kill(_, name, npcId)
+		Mock.Kill(name, npcId)
 	end
 	return harness
 end

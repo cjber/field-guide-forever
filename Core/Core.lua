@@ -49,7 +49,7 @@ function ns.CurrentZone()
 	return ns.FindZone(name)
 end
 
--- Exact names are what the combat log gives for a creature; case comes from the client's locale, so compare
+-- Exact names are what the client gives for a creature; case comes from the client's locale, so compare
 -- lowered strings rather than relying on it.
 ---@param name string?
 ---@param zone FGZone?
@@ -284,29 +284,17 @@ function ns.FireProgress()
 	end
 end
 
-local HOSTILE = COMBATLOG_OBJECT_REACTION_HOSTILE or 0x00000040
-local NPC = COMBATLOG_OBJECT_TYPE_NPC or 0x00000400
-
--- Combat log flags are powers of two. Division keeps this file free of the bit library and of any client API that
--- a headless spec would need to stub.
----@param flags integer?
----@param flag integer
----@return boolean
-local function HasFlag(flags, flag)
-	if not flags or flag <= 0 then
-		return false
-	end
-	return math.floor(flags / flag) % 2 == 1
-end
-
+-- A kill names its creature by NPC id when the client let us read the unit's GUID, else by name. Either way the
+-- creature must belong to the zone the player is in, as every catalogue lookup does.
 ---@param name string?
+---@param npcId integer?
 ---@return table?
-function ns.RecordKill(name)
+function ns.RecordKill(name, npcId)
 	if not ns.ready then
 		return nil
 	end
 	local zone = ns.CurrentZone()
-	local species = ns.FindSpecies(name, zone)
+	local species = npcId and ns.SpeciesZone[npcId] == zone and ns.SpeciesById[npcId] or ns.FindSpecies(name, zone)
 	if not species or not zone then
 		return nil
 	end
@@ -343,7 +331,7 @@ function ns.RecordSighting(unit)
 		return false
 	end
 	local zone = ns.CurrentZone()
-	local species = ns.FindSpecies(UnitName(unit), zone)
+	local species = ns.FindSpecies(ns.Readable(UnitName(unit)), zone)
 	if not species or not zone then
 		return false
 	end
@@ -420,22 +408,6 @@ local function OnEncounterStart(encounterId, encounterName, difficultyId)
 	ns.FireProgress()
 end
 
--- UNIT_DIED names the creature in the destination fields. Only a hostile NPC counts: a friendly guard or another
--- player dying is not a field observation.
-local function OnCombatLog()
-	if not CombatLogGetCurrentEventInfo then
-		return
-	end
-	local _, subevent, _, _, _, _, _, _, destName, destFlags = CombatLogGetCurrentEventInfo()
-	if subevent ~= "UNIT_DIED" then
-		return
-	end
-	if not HasFlag(destFlags, HOSTILE) or not HasFlag(destFlags, NPC) then
-		return
-	end
-	ns.RecordKill(destName)
-end
-
 ---@type table<string, fun(...)[]>
 local handlers = {}
 local events = CreateFrame("Frame")
@@ -445,12 +417,18 @@ events:SetScript("OnEvent", function(_, event, ...)
 	end
 end)
 
+-- Registering for an event the client keeps from addons raises, so a refused registration returns false and leaves
+-- no handler behind instead of stopping the file that asked.
 ---@param event string
 ---@param fn function
+---@return boolean registered
 function ns.On(event, fn)
+	if not pcall(events.RegisterEvent, events, event) then
+		return false
+	end
 	handlers[event] = handlers[event] or {}
 	table.insert(handlers[event], fn)
-	events:RegisterEvent(event)
+	return true
 end
 
 ns.On("ADDON_LOADED", function(name)
@@ -459,7 +437,6 @@ ns.On("ADDON_LOADED", function(name)
 	end
 end)
 ns.On("PLAYER_LOGIN", ns.Initialize)
-ns.On("COMBAT_LOG_EVENT_UNFILTERED", OnCombatLog)
 ns.On("NAME_PLATE_UNIT_ADDED", function(unit)
 	ns.RecordSighting(unit)
 end)

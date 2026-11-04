@@ -139,7 +139,7 @@ end
 
 local function UpdateTarget()
 	local zone = ns.CurrentZone()
-	local name = UnitName and UnitName("target") or nil
+	local name = ns.Readable(UnitName("target"))
 	local species = ns.FindSpecies(name, zone)
 	Paint(TargetChrome(), SpeciesTier(species))
 	local target = _G.TargetFrame
@@ -168,7 +168,7 @@ local function UpdatePlate(plate, unit)
 	local frame = plate and plate.UnitFrame
 	local healthBar = frame and frame.healthBar
 	local trough = healthBar and healthBar.bgTexture
-	local name = UnitName and UnitName(unit) or nil
+	local name = ns.Readable(UnitName(unit))
 	local species = ns.FindSpecies(name, ns.CurrentZone())
 	local tier = SpeciesTier(species)
 	Paint(trough, tier)

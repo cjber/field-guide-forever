@@ -17,6 +17,6 @@ Credit for the ideas and reports behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
-| cjber | Asked for native journal composition and single-border icons, and reported shared-frame colour restoration conflicts (#71) | |
+| cjber | Asked for native journal composition and single-border icons, and reported shared-frame colour restoration conflicts (#71) and kills going unrecorded once the client closed the combat log to addons (#91) | |
 
 Thanks also to everyone else who reported a bug or asked for a feature, here or on CurseForge.

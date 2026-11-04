@@ -9,7 +9,7 @@ The shared suite standards are pinned to forever-core `af94fd89610c9128bc11ec073
 ```sh
 stylua --check .
 luacheck .
-bash tools/typecheck.sh   # TOC/XML load graph and LuaLS 3.19.1, which must report nothing
+bash tools/typecheck.sh   # TOC/XML load graph, secret-value lint and LuaLS 3.19.1, which must report nothing
 for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
 uvx ruff@0.16.8 check tools && uvx ruff@0.16.8 format --check tools
 python3 tools/check_generated.py
@@ -58,7 +58,7 @@ picture looks right, so trace a visible defect to its runtime or renderer produc
 - `types/` holds LuaLS declarations for the namespace and for client globals the pinned annotations lack. It is never loaded by the TOC or shipped.
 - `Core/LegacyIds.lua` is a one-release migration map from old synthetic ids to names. It is only used to re-key existing records after QuestieDB loads; remove it in the release after schema 2.
 - `Core/Model.lua` contains pure state arithmetic and variant classification. It has no WoW API, I/O, or globals beyond `ns.Model`.
-- `Core/Core.lua` owns SavedVariables, character identity, catalogue lookup, combat-log recording, progress callbacks, and slash commands. Event handlers use `Core/SafeCall.lua`.
+- `Core/Core.lua` owns SavedVariables, character identity, catalogue lookup, kill and sighting recording, progress callbacks, and slash commands. `Core/Kills.lua` detects kills from the signals the client lets addons read (target and nameplate deaths, rare map markers; the combat log only where a client still allows it) and counts each death once. `Core/Secret.lua` holds `ns.Readable`, through which every possibly secret value (unit GUIDs and names) is read. Event handlers use `Core/SafeCall.lua`.
 - `Core/API.lua` is the versioned addon-to-addon contract. It returns nil until saved state and catalogue data are ready.
 - `Core/Settings.lua` registers options. `UI/Art.lua` owns frame helpers and palette; `UI/Window.lua` owns the shell and selection; other files in `UI/` own focused views.
 - `tests/` contains the mock client and model, data, rarity, and API specs. `docs/screenshots/` contains the README gallery; neither ships in the addon package.
@@ -67,9 +67,9 @@ picture looks right, so trace a visible defect to its runtime or renderer produc
 
 - Runtime code targets Lua 5.1. Keep new globals limited to SavedVariables, the public API, and client-required slash globals.
 - Keep `Core/Model.lua` pure and inject random sources in tests.
-- The combat log writes SavedVariables and schedules refresh work; it never touches UI frames.
+- Kill detection writes SavedVariables and schedules refresh work; it never touches UI frames.
 - Saved progress is character-local. Shared rarity classification depends only on stable QuestieDB NPC ids and shared rank fields, never on personal progress.
-- Match creature names case-insensitively only when resolving localized combat-log names or migrating old records; never use personal progress to classify catalogue rarity.
+- Match creature names case-insensitively only when resolving localized creature names from a kill or sighting, or migrating old records; never use personal progress to classify catalogue rarity.
 - Keep SavedVariables flat and serialisable. Do not persist frames, functions, userdata, or the session sighting log.
 - Use tabs, annotations, `local addonName, ns = ...`, the established palette, and Blizzard fonts. Add `read_globals` to `.luacheckrc` only for actual client APIs.
 - Every user-facing feature has a mocked scene and README screenshot until the addon is published.
