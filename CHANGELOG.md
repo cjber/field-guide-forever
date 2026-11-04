@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.19] - 2026-11-04
+
 - **Screenshot art stays on the reviewed UI build.** Client data refreshes no longer move journal, rarity or micro-menu artwork to an unreviewed build.
 
 ## [0.3.18] - 2026-11-03
