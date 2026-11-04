@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.20] - 2026-11-04
+
+- **The shared asset scanner reads XML too.** Adopted from Forever Core: backdrop file attributes, inline script handlers and texture markup in XML text are checked against the same asset blacklist as Lua.
+
 ## [0.3.19] - 2026-11-04
 
 - **Screenshot art stays on the reviewed UI build.** Client data refreshes no longer move journal, rarity or micro-menu artwork to an unreviewed build.
