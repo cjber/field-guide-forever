@@ -5,6 +5,11 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.22] - 2026-11-04
+
+- **Suite tooling stays in step with Forever Core.** The vendored shared-file drift check and the dead-code scan pick up Forever Core's newest rules, so this addon's gate now rejects what the rest of the suite rejects. Nothing a player sees changes.
+
+
 ## [0.3.21] - 2026-11-04
 
 - **Bundled client data follows Forever 1.60.1.70755.** Zone, map, family and creature display constants are regenerated from the new build, and every README scene is re-rendered against it.
