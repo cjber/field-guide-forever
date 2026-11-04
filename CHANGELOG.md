@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **No more "C stack overflow" errors from the micro-menu button.** It hooked the game's micro-menu update again on every refresh, so errors piled up and the frame rate dropped. It now hooks once.
+
 ## [0.3.24] - 2026-11-04
 
 - **Client constants now name the 1.60.1.70790 build.** Zones, maps and creature families are regenerated from the new Forever client build, and the README scenes are re-rendered from it. The regenerated values match the previous build, so nothing a player sees changes.
