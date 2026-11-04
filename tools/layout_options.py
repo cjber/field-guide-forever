@@ -271,13 +271,12 @@ def panes(canvas, ui, zone, species, tab, icons, box, px, py, compact=False):
     )
     mk.bar(canvas, px(detail_x + inner + 10), py(y + 76), card_w - 20, 4, count / mk.MASTERED_AT, GOLD)
 
-    # lore (full layout only: the drawer's column has no room for a 60-word paragraph)
+    # The drawer's compact column omits this catalogue summary.
     if not compact:
         y = at("lore")
         mk.card(canvas, px(detail_x + inner), py(y), card_w, 58)
-        mk.text(canvas, px(detail_x + inner + 10), py(y + 7), "Lore", "GameFontNormal", GOLD)
-        lore_font = FONTS["GameFontDisableSmall"]
-        for line_index, line in enumerate(mk.wrap_pixels(species["lore"], lore_font, card_w - 20, 2, canvas)):
+        mk.text(canvas, px(detail_x + inner + 10), py(y + 7), "Catalogue", "GameFontNormal", GOLD)
+        for line_index, line in enumerate([f"NPC ID: {species['id']}", f"Location: {zone['name']}"]):
             mk.text(
                 canvas,
                 px(detail_x + inner + 10),
@@ -618,7 +617,7 @@ def legacy_subpanel(ui, zone, species, tab, icons, tab_icons, sigil):
 def main():
     from PIL import Image  # ty: ignore[unresolved-import]
 
-    ui = wowmock.Ui(scale=2)
+    ui = wowmock.Ui(build=mk.ART_BUILD, scale=2)
     OUT.mkdir(parents=True, exist_ok=True)
     for stale in OUT.glob("*.png"):
         stale.unlink()

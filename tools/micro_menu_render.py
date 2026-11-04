@@ -8,10 +8,10 @@ if not (WOWMOCK / "wowmock.py").is_file():
     raise SystemExit(f"wowmock.py not found in {WOWMOCK}; set FOREVER_CORE to the forever-core checkout")
 sys.path.insert(0, str(WOWMOCK))
 import wowmock as W  # noqa: E402  # ty: ignore[unresolved-import]
-from gen_zones import BUILD  # noqa: E402
 from PIL import Image  # noqa: E402  # ty: ignore[unresolved-import]  # Pillow is local only, like wowmock
+from ui_art import BUILD as ART_BUILD  # noqa: E402
 
-ui = W.Ui(scale=2, build=BUILD)
+ui = W.Ui(build=ART_BUILD, scale=2)
 
 BTN_W, BTN_H, STEP = 32, 41, 27
 NATIVE = [
@@ -161,7 +161,7 @@ base.save("micro-menu-options.png")
 print("wrote micro-menu-options.png", base.image.size)
 
 # ---- 4. zoomed detail strip at 4x
-ui4 = W.Ui(scale=6, build=BUILD)
+ui4 = W.Ui(build=ART_BUILD, scale=6)
 
 
 def zoomed(path):

@@ -6,15 +6,15 @@ import os
 import sys
 from pathlib import Path
 
-from gen_zones import BUILD
 from PIL import Image, ImageDraw  # ty: ignore[unresolved-import]
+from ui_art import BUILD as ART_BUILD
 
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core"))
 sys.path.insert(0, str(FOREVER_CORE / "tools/wowmock"))
 import wowmock  # noqa: E402  # ty: ignore[unresolved-import]
 
 ROOT = Path(__file__).resolve().parents[1]
-ui = wowmock.Ui(build=BUILD, scale=1)
+ui = wowmock.Ui(build=ART_BUILD, scale=1)
 candidates = [
     ("Badlands - Classic warboard", 1851093, "Location illustration candidate"),
     ("Northern Barrens - Classic warboard", 1851084, "Location illustration candidate"),
@@ -47,11 +47,13 @@ def fetch(item):
 def main():
     items = candidates
     if "--zones" in sys.argv:
+        cache = ROOT / "tools/.cache/zone-art-audit/warboard-classic.json"
+        cache.parent.mkdir(parents=True, exist_ok=True)
         items = [
             (name.rsplit("-", 1)[-1].removesuffix(".blp"), int(file), "Zone artwork, check depicted era")
             for file, name in json.loads(
                 ui.wago.cached(
-                    ROOT / "tools/.cache/zone-art-audit/warboard-classic.json",
+                    cache,
                     "https://wago.tools/api/files?search=answer-warboard-classic",
                 )
             ).items()
@@ -63,7 +65,9 @@ def main():
     small = ui.font(wowmock.FONTS["GameFontHighlightSmall"])
     sheet = Image.new("RGB", (1260, 48 + ((len(items) + 2) // 3) * 260), (24, 25, 28))
     draw = ImageDraw.Draw(sheet)
-    draw.text((18, 12), f"Native asset audit - build {BUILD} - candidates, not a final UI", font=font, fill="white")
+    draw.text(
+        (18, 12), f"Native asset audit - build {ui.wago.build} - candidates, not a final UI", font=font, fill="white"
+    )
     for index, (title, image, status, ref) in enumerate(results):
         x, y = 18 + index % 3 * 414, 48 + index // 3 * 260
         if image is not None:

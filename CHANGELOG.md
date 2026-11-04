@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Screenshot art stays on the reviewed UI build.** Client data refreshes no longer move journal, rarity or micro-menu artwork to an unreviewed build.
+
 ## [0.3.18] - 2026-11-03
 
 - **Creature entries use one native journal layout.** Detail tabs join the top of their panel, zone illustrations have complete native frames, and creature icons keep one border. Related facts sit closer together without changing your saved progress, thanks to cjber for the report.

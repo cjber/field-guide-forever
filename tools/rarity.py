@@ -15,8 +15,8 @@ import os
 import sys
 from pathlib import Path
 
-from gen_zones import BUILD
 from PIL import Image  # ty: ignore[unresolved-import]  # Pillow is local only
+from ui_art import BUILD as ART_BUILD
 
 ROOT = Path(__file__).resolve().parent.parent
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", ROOT.parent / "forever-core")).expanduser()
@@ -183,7 +183,7 @@ def sheet(ui, icons, name, elite=False, plates=False):
 
 
 def main():
-    ui = wowmock.Ui(build=BUILD, scale=2)
+    ui = wowmock.Ui(build=ART_BUILD, scale=2)
     OUT.mkdir(parents=True, exist_ok=True)
     icons = {
         key: ui.texture(f"interface/icons/{value}.blp")

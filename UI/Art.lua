@@ -23,7 +23,7 @@ Art.COLORS = {
 	complete = { 0.49, 0.60, 0.38 },
 }
 
--- Native QuestionFrame Classic-zone illustrations; asset checks use tools/gen_zones.py's build.
+-- Native QuestionFrame Classic-zone illustrations; asset checks use tools/ui_art.py's reviewed build.
 -- Content only: never used as frame chrome. Images showing Cataclysm terrain changes are omitted.
 Art.LOCATION_ART = {
 	[1] = 1851075, -- Dun Morogh

@@ -43,6 +43,7 @@ SOURCES = (
     "UI/Instances.lua",
     "UI/List.lua",
     "UI/Window.lua",
+    "tools/ui_art.py",
     "tools/mockups.py",
     "tools/rarity.py",
     "tools/micro_menu_render.py",
