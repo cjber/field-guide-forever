@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.21] - 2026-11-04
+
+- **Bundled client data follows Forever 1.60.1.70755.** Zone, map, family and creature display constants are regenerated from the new build, and every README scene is re-rendered against it.
+
 ## [0.3.20] - 2026-11-04
 
 - **The shared asset scanner reads XML too.** Adopted from Forever Core: backdrop file attributes, inline script handlers and texture markup in XML text are checked against the same asset blacklist as Lua.
