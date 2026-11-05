@@ -336,6 +336,38 @@ function Model.Variants(state, speciesId)
 	}
 end
 
+-- Only species the catalogue marks rare have a rare form. One recorded anyway (a creature that showed up rare) keeps
+-- the rare it earned.
+---@param state FGState?
+---@param species FGSpecies
+---@return boolean
+function Model.HasRareForm(state, species)
+	return species.rare == true or Model.Specimen(state, species.id).rare > 0
+end
+
+-- Rare and shiny forms collected across a list of species. A species with no rare form adds nothing to the rare
+-- total, so it never counts as missing.
+---@param state FGState?
+---@param speciesList FGSpecies[]
+---@return { rare: integer, rareTotal: integer, shiny: integer, shinyTotal: integer }
+function Model.VariantTotals(state, speciesList)
+	local totals = { rare = 0, rareTotal = 0, shiny = 0, shinyTotal = 0 }
+	for _, species in ipairs(speciesList or {}) do
+		local variants = Model.Variants(state, species.id)
+		if Model.HasRareForm(state, species) then
+			totals.rareTotal = totals.rareTotal + 1
+			if variants.rare.known then
+				totals.rare = totals.rare + 1
+			end
+		end
+		totals.shinyTotal = totals.shinyTotal + 1
+		if variants.shiny.known then
+			totals.shiny = totals.shiny + 1
+		end
+	end
+	return totals
+end
+
 ---@param state FGState?
 ---@param speciesId integer
 ---@param species? FGSpecies
@@ -345,7 +377,7 @@ function Model.IsComplete(state, speciesId, species)
 	if not variants.common.known or not variants.shiny.known then
 		return false
 	end
-	return not (species and species.rare) or variants.rare.known
+	return not (species and Model.HasRareForm(state, species)) or variants.rare.known
 end
 
 -- A zone is catalogued when a species has at least one specimen, not when it is mastered. `fraction` is between

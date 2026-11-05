@@ -7,165 +7,167 @@ local Art = ns.Art
 local Detail = {}
 ns.Detail = Detail
 
-local CARD_WIDTH = 554
+local PANE_WIDTH, PANE_HEIGHT = 582, 514
+local INNER_WIDTH = 554
 local PIPS = { "Discovered", "Observed", "Studied", "Mastered" }
-local REWARDS = { "Field sketch", "Ink study", "Brass plate", "Gilded entry" }
+-- The three collectible forms, as Wardrobe cards across the top of the entry.
+local KINDS = { "common", "rare", "shiny" }
+local CARD_WIDTH, CARD_HEIGHT, CARD_GAP = 164, 219, 20
+local CARD_ICON = 72
+local SHINY_SPARKLES = { { 0.36, -0.44, 16 }, { -0.44, -0.30, 11 }, { 0.48, 0.20, 9 } }
 
--- The model and research strip stay fixed while secondary pages share the same bounds.
-local selectedPage = 1
 local modelSpecies
 local currentMap
 
+---@class FGVariantCard : Frame
+---@field kind FGVariantKind
+---@field Border Texture
+---@field Glow Texture
+---@field Icon Texture
+---@field IconBorder Texture
+---@field Unknown FontString
+---@field Sparkles Texture[]
+---@field Title FontString
+---@field Status FontString
+
 ---@param parent Frame
----@param x number
----@param y number
----@param width number
----@param height number
----@return Frame
-local function Card(parent, x, y, width, height)
-	local card = CreateFrame("Frame", nil, parent)
-	card:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
-	card:SetSize(width, height)
+---@param kind FGVariantKind
+---@param index integer
+---@return FGVariantCard
+local function CreateCard(parent, kind, index)
+	local card = CreateFrame("Frame", nil, parent) --[[@as FGVariantCard]]
+	card.kind = kind
+	card:SetSize(CARD_WIDTH, CARD_HEIGHT)
+	local left = (PANE_WIDTH - (3 * CARD_WIDTH + 2 * CARD_GAP)) / 2
+	card:SetPoint("TOPLEFT", parent, "TOPLEFT", left + (index - 1) * (CARD_WIDTH + CARD_GAP), -64)
+	-- The Appearances tab's own collected and uncollected card frames.
+	card.Glow = card:CreateTexture(nil, "BACKGROUND")
+	card.Glow:SetAtlas("collections-upgradeglow")
+	card.Glow:SetBlendMode("ADD")
+	-- A halo behind the shiny icon only, so the card's title and status stay readable.
+	card.Glow:SetPoint("CENTER", card, "TOP", 0, -82)
+	card.Glow:SetSize(CARD_ICON + 48, CARD_ICON + 48)
+	card.Border = card:CreateTexture(nil, "BORDER")
+	card.Border:SetAllPoints()
+	card.Icon = card:CreateTexture(nil, "ARTWORK")
+	card.Icon:SetSize(CARD_ICON, CARD_ICON)
+	card.Icon:SetPoint("CENTER", card, "TOP", 0, -82)
+	card.IconBorder = card:CreateTexture(nil, "OVERLAY")
+	card.IconBorder:SetPoint("TOPLEFT", card.Icon, "TOPLEFT", -6, 6)
+	card.IconBorder:SetPoint("BOTTOMRIGHT", card.Icon, "BOTTOMRIGHT", 6, -6)
+	card.Unknown = card:CreateFontString(nil, "OVERLAY", "GameFontDisableHuge")
+	card.Unknown:SetPoint("CENTER", card.Icon, "CENTER", 0, 0)
+	card.Unknown:SetText(L["?"])
+	card.Sparkles = {}
+	for sparkleIndex, sparkle in ipairs(SHINY_SPARKLES) do
+		local star = card:CreateTexture(nil, "OVERLAY", nil, 1)
+		star:SetAtlas(Art.SHINY_STAR)
+		star:SetBlendMode("ADD")
+		star:SetSize(sparkle[3], sparkle[3])
+		star:SetPoint("CENTER", card.Icon, "CENTER", sparkle[1] * 96, -sparkle[2] * 96)
+		card.Sparkles[sparkleIndex] = star
+	end
+	card.Title = Art.Text(card, "GameFontNormalLarge", "gold")
+	card.Title:SetPoint("TOP", 0, -150)
+	card.Title:SetWidth(CARD_WIDTH)
+	card.Title:SetJustifyH("CENTER")
+	card.Status = Art.Text(card, "GameFontDisableSmall", "muted")
+	card.Status:SetPoint("TOP", 0, -176)
+	card.Status:SetWidth(CARD_WIDTH - 12)
+	card.Status:SetJustifyH("CENTER")
 	return card
 end
 
----@param page integer
-function Detail.SetPage(page)
-	selectedPage = page
-	for index, panel in ipairs(Detail.pages) do
-		panel:SetShown(index == page)
-		if index == page then
-			PanelTemplates_SelectTab(Detail.tabs[index])
-		else
-			PanelTemplates_DeselectTab(Detail.tabs[index])
-		end
-	end
-end
-
----@class FGDetailParent: Frame
----@field minTabWidth number?
----@field maxTabWidth number?
-
 ---@param parent Frame
 function Detail.Create(parent)
-	---@cast parent FGDetailParent
 	Detail.parent = parent
 	local content = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
-	content:SetPoint("TOPLEFT", 0, -28)
-	content:SetSize(582, 486)
+	content:SetPoint("TOPLEFT", 0, 0)
+	content:SetSize(PANE_WIDTH, PANE_HEIGHT)
 	Detail.content = content
-	local host = parent
+	-- The Collections journal's own backdrop behind the cards.
+	local backdrop = content:CreateTexture(nil, "BACKGROUND", nil, 1)
+	backdrop:SetAtlas("Collections-background")
+	backdrop:SetPoint("TOPLEFT", 3, -3)
+	backdrop:SetPoint("BOTTOMRIGHT", -3, 3)
 	parent = content
-	host.minTabWidth, host.maxTabWidth = 104, 104
 	modelSpecies = nil
 	currentMap = nil
 	Detail.name = Art.Text(parent, "GameFontNormalLarge", "gold")
-	Detail.name:SetPoint("TOPLEFT", 14, -16)
-	Detail.name:SetSize(CARD_WIDTH, 22)
+	Detail.name:SetPoint("TOPLEFT", 14, -14)
+	Detail.name:SetSize(INNER_WIDTH, 22)
 	Detail.name:SetWordWrap(false)
-	Detail.sub = Art.Text(parent, "GameFontDisableSmall", "muted")
-	Detail.sub:SetPoint("TOPLEFT", 14, -44)
-	Detail.sub:SetSize(CARD_WIDTH, 14)
+	Detail.sub = Art.Text(parent, "GameFontHighlightSmall", "text")
+	Detail.sub:SetPoint("TOPLEFT", 14, -38)
+	Detail.sub:SetSize(INNER_WIDTH, 14)
 	Detail.sub:SetWordWrap(false)
 
-	Detail.model = CreateFrame("PlayerModel", nil, parent)
-	Detail.model:SetPoint("TOPLEFT", 14, -70)
-	Detail.model:SetSize(348, 210)
+	Detail.cards = {}
+	for index, kind in ipairs(KINDS) do
+		Detail.cards[kind] = CreateCard(parent, kind, index)
+	end
+	-- The common card shows the live model once the form is collected; the icon covers it until the model loads.
+	local common = Detail.cards.common
+	Detail.portrait = common.Icon
+	Detail.model = CreateFrame("PlayerModel", nil, common)
+	Detail.model:SetPoint("TOPLEFT", 6, -10)
+	Detail.model:SetSize(CARD_WIDTH - 12, 132)
 	Detail.model:SetKeepModelOnHide(true)
 	Detail.model:SetScript("OnModelLoaded", function(self)
 		if modelSpecies and (self:GetModelFileID() or 0) > 0 then
 			Detail.portrait:Hide()
+			common.IconBorder:Hide()
 		end
 	end)
-	Detail.portrait = Art.Portrait(parent, 96)
-	Detail.portrait:SetPoint("TOPLEFT", 140, -116)
+
+	local research = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
+	research:SetPoint("TOPLEFT", 14, -300)
+	research:SetSize(INNER_WIDTH, 52)
+	Detail.researchCard = research
+	Detail.rank = Art.Text(research, "GameFontNormal", "gold")
+	Detail.rank:SetPoint("TOPLEFT", 10, -8)
+	Detail.rank:SetWidth(100)
+	Detail.specimenCount = Art.Text(research, "GameFontHighlightSmall", "text")
+	Detail.specimenCount:SetPoint("TOPRIGHT", -10, -8)
+	Detail.specimenCount:SetWidth(350)
+	Detail.specimenCount:SetJustifyH("RIGHT")
+	Detail.specimenBar = Art.StatusBar(research, INNER_WIDTH - 20, 12, ns.Model.MASTERED_AT)
+	Detail.specimenBar:SetPoint("TOPLEFT", 10, -30)
+
+	-- Records and place, side by side under the research strip.
+	Detail.recordsTitle = Art.Text(parent, "GameFontNormal", "gold")
+	Detail.recordsTitle:SetPoint("TOPLEFT", 14, -370)
+	Detail.recordsTitle:SetText(L["Records"])
+	Detail.sightingText = Art.Text(parent, "GameFontHighlightSmall", "text")
+	Detail.sightingText:SetPoint("TOPLEFT", 14, -392)
+	Detail.sightingText:SetSize(350, 80)
+	Detail.sightingText:SetJustifyH("LEFT")
+	Detail.sightingText:SetJustifyV("TOP")
+	Detail.sightingText:SetWordWrap(true)
+	Detail.sightingText:SetMaxLines(4)
+	Detail.sightingText:SetSpacing(4)
 
 	Detail.location = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
-	Detail.location:SetPoint("TOPLEFT", 378, -82)
-	Detail.location:SetSize(190, 128)
+	Detail.location:SetPoint("TOPLEFT", 378, -364)
+	Detail.location:SetSize(190, 112)
 	Detail.location:SetClipsChildren(true)
 	Detail.locationArt = Detail.location:CreateTexture(nil, "ARTWORK")
 	Detail.locationArt:SetPoint("TOPLEFT", 6, -4)
-	Detail.locationArt:SetSize(178.125, 120)
+	Detail.locationArt:SetSize(178, 104)
 	Detail.locationArt:SetTexCoord(33 / 256, 223 / 256, 0, 1)
 	Detail.locationName = Art.Text(parent, "GameFontNormal", "gold")
-	Detail.locationName:SetPoint("TOPLEFT", 378, -222)
-	Detail.locationName:SetSize(190, 28)
-	Detail.locationName:SetJustifyV("TOP")
+	Detail.locationName:SetPoint("TOPLEFT", 378, -484)
+	Detail.locationName:SetSize(88, 16)
+	Detail.locationName:SetWordWrap(false)
 	Detail.mapButton = CreateFrame("Button", nil, parent, "SharedButtonSmallTemplate")
-	Detail.mapButton:SetPoint("TOPLEFT", 378, -254)
-	Detail.mapButton:SetSize(120, 24)
+	Detail.mapButton:SetPoint("TOPLEFT", 470, -480)
+	Detail.mapButton:SetSize(98, 22)
 	Detail.mapButton:SetText(L["Open map"])
 	Detail.mapButton:SetScript("OnClick", function()
 		if currentMap then
 			C_Map.OpenWorldMap(currentMap)
 		end
 	end)
-
-	local research = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
-	research:SetPoint("TOPLEFT", 14, -302)
-	research:SetSize(CARD_WIDTH, 52)
-	Detail.researchCard = research
-	Detail.rank = Art.Text(research, "GameFontNormal", "gold")
-	Detail.rank:SetPoint("TOPLEFT", 10, -8)
-	Detail.rank:SetWidth(100)
-	Detail.specimenCount = Art.Text(research, "GameFontDisableSmall", "text")
-	Detail.specimenCount:SetPoint("TOPRIGHT", -10, -8)
-	Detail.specimenCount:SetWidth(350)
-	Detail.specimenCount:SetJustifyH("RIGHT")
-	Detail.specimenBar = Art.StatusBar(research, CARD_WIDTH - 20, 12, ns.Model.MASTERED_AT)
-	Detail.specimenBar:SetPoint("TOPLEFT", 10, -30)
-
-	Detail.pages, Detail.tabs = {}, {}
-	for index, name in ipairs({ "Overview", "Variants", "Records" }) do
-		local button = CreateFrame("Button", nil, host, "PanelTopTabButtonTemplate")
-		button:SetPoint("BOTTOMLEFT", content, "TOPLEFT", 14 + (index - 1) * 112, 0)
-		button:SetText(L[name])
-		PanelTemplates_TabResize(button, 0, 104, 104)
-		button:SetScript("OnClick", function()
-			Detail.SetPage(index)
-		end)
-		Detail.tabs[index] = button
-		Detail.pages[index] = Card(parent, 14, -372, CARD_WIDTH, 80)
-	end
-
-	Detail.variants, Detail.rewards = {}, {}
-	for index = 1, 3 do
-		local row = Card(Detail.pages[2], 0, -(index - 1) * 24, CARD_WIDTH, 20)
-		local name = Art.Text(row, "GameFontNormal", "text")
-		name:SetPoint("LEFT", 0, 0)
-		name:SetWidth(160)
-		name:SetText(L[({ "Common", "Rare variant", "Shiny variant" })[index]])
-		local tick = row:CreateTexture(nil, "OVERLAY")
-		tick:SetPoint("LEFT", 176, 0)
-		tick:SetSize(12, 12)
-		local dash = Art.Text(row, "GameFontNormal", "muted")
-		dash:SetPoint("LEFT", 176, 0)
-		local status = Art.Text(row, "GameFontDisableSmall", "muted")
-		status:SetPoint("LEFT", 202, 0)
-		status:SetWidth(260)
-		Detail.variants[index] = { frame = row, name = name, tick = tick, dash = dash, status = status }
-	end
-	Detail.badges = {}
-	for index = 1, 4 do
-		local row = Card(Detail.pages[3], 0, 0, 128, 16)
-		local label = Art.Text(row, "GameFontDisableSmall", "text")
-		label:SetAllPoints()
-		label:SetWordWrap(false)
-		Detail.badges[index] = { frame = row, text = label }
-		local reward = Art.Text(Detail.pages[1], "GameFontDisableSmall", "text")
-		reward:SetPoint("TOPLEFT", ((index - 1) % 2) * 277, -((index - 1) >= 2 and 24 or 0))
-		reward:SetWidth(265)
-		Detail.rewards[index] = reward
-	end
-	Detail.sightingCard = Card(Detail.pages[3], 0, -24, CARD_WIDTH, 56)
-	Detail.sightingText = Art.Text(Detail.sightingCard, "GameFontDisableSmall", "text")
-	Detail.sightingText:SetAllPoints()
-	Detail.sightingText:SetJustifyH("LEFT")
-	Detail.sightingText:SetJustifyV("TOP")
-	Detail.sightingText:SetWordWrap(true)
-	Detail.sightingText:SetMaxLines(3)
-	Detail.SetPage(selectedPage)
 end
 
 ---@param zone FGZone
@@ -181,50 +183,6 @@ local function UpdateLocation(zone)
 	Detail.locationArt:SetShown(art ~= nil)
 	Detail.locationName:SetShown(art ~= nil)
 	Detail.location:SetShown(art ~= nil)
-	Detail.model:SetWidth(art and 348 or CARD_WIDTH)
-	Detail.model:SetHeight((art or not currentMap) and 210 or 180)
-	Detail.mapButton:ClearAllPoints()
-	Detail.mapButton:SetPoint("TOPLEFT", Detail.content, "TOPLEFT", art and 378 or 231, art and -254 or -268)
-	Detail.portrait:ClearAllPoints()
-	Detail.portrait:SetPoint("TOPLEFT", art and 140 or 243, -116)
-end
-
----@param text FontString
----@param key string
----@param color string
-local function SetLabelColor(text, key, color)
-	text:SetText(L[key])
-	local r, g, b = Art.RGBA(color, 1)
-	text:SetTextColor(r, g, b, 1)
-end
-
----@param species FGSpecies
----@param character FGState?
-local function UpdateBadges(species, character)
-	local variants = ns.Model.Variants(character, species.id)
-	local labels = {
-		{ key = "Common", color = "text", show = true },
-		{ key = "Rare variant known", color = "rare", show = variants.rare.known },
-		{ key = "Shiny seen", color = "shiny", show = variants.shiny.known },
-		{ key = "Tracked", color = "complete", show = character and character.tracked == species.id },
-	}
-	local x = 0
-	for index = 1, 4 do
-		local badge = Detail.badges[index]
-		local info = labels[index]
-		if info.show then
-			badge.text:SetText(L[info.key])
-			local width = 128
-			badge.frame:SetWidth(width)
-			badge.frame:SetPoint("TOPLEFT", x, 0)
-			local r, g, b = Art.RGBA(info.color, 1)
-			badge.text:SetTextColor(r, g, b, 1)
-			badge.frame:Show()
-			x = x + width + 8
-		else
-			badge.frame:Hide()
-		end
-	end
 end
 
 ---@param state FGSpeciesState?
@@ -239,39 +197,71 @@ local function UpdateResearch(state)
 	Detail.specimenBar:SetValue(count)
 end
 
----@param card table
+-- What a card says under its title: collected, or how the form is earned.
+---@param kind FGVariantKind
 ---@param variant FGVariant
----@param color string
----@param knownText string
-local function UpdateVariant(card, variant, color, knownText)
-	if variant.known then
-		card.tick:SetAtlas("common-icon-checkmark")
-		card.tick:SetVertexColor(Art.RGBA(color, 1))
-		card.dash:SetText("")
-		card.status:SetText(knownText)
-	else
-		card.tick:SetTexture(nil)
-		SetLabelColor(card.dash, "-", "muted")
-		card.status:SetText(string.format(L["%d / %d"], variant.count, variant.target))
+---@param absent boolean
+---@return string
+local function CardStatus(kind, variant, absent)
+	if absent then
+		return L["Only rare creatures have one"]
+	elseif variant.known then
+		return L["Collected"]
+	elseif kind == "common" then
+		return L["Defeat one"]
+	elseif kind == "rare" then
+		return string.format(L["%d / %d rare kills"], variant.count, variant.target)
 	end
+	return string.format(L["1 in %d per kill"], ns.Model.SHINY_CHANCE)
+end
+
+local TITLES = { common = "Common", rare = "Rare", shiny = "Shiny" }
+
+---@param card FGVariantCard
+---@param variant FGVariant
+---@param icon string
+---@param absent boolean
+local function UpdateCard(card, variant, icon, absent)
+	local kind = card.kind
+	local known = variant.known and not absent
+	card.Border:SetAtlas(known and "transmog-wardrobe-border-collected" or "transmog-wardrobe-border-uncollected")
+	card.Border:SetAlpha(absent and 0.5 or 1)
+	card.Glow:SetShown(kind == "shiny" and known)
+	for _, star in ipairs(card.Sparkles) do
+		star:SetShown(kind == "shiny" and known)
+	end
+	card.Icon:SetShown(not absent)
+	card.IconBorder:SetShown(not absent)
+	card.Unknown:SetShown(not absent and not known)
+	if not absent then
+		Art.Icon(card.Icon, icon, CARD_ICON)
+		-- Missing: the creature's silhouette, as the Appearances tab shows an item not yet collected.
+		card.Icon:SetDesaturated(not known)
+		local shade = known and 1 or 0.08
+		card.Icon:SetVertexColor(shade, shade, shade, 1)
+		card.IconBorder:SetAtlas(Art.VARIANT_BORDERS[kind])
+		local edge = known and 1 or 0.45
+		card.IconBorder:SetVertexColor(edge, edge, edge, 1)
+	end
+	card.Title:SetText(absent and L["No rare form"] or L[TITLES[kind]])
+	card.Title:SetFontObject(known and "GameFontNormalLarge" or "GameFontNormal")
+	local titleColor = (not known and "muted") or (kind == "rare" and "rare") or "gold"
+	card.Title:SetTextColor(Art.RGBA(titleColor, 1))
+	card.Status:SetText(CardStatus(kind, variant, absent))
+	card.Status:SetFontObject(known and "GameFontHighlightSmall" or "GameFontDisableSmall")
+	card.Status:SetTextColor(Art.RGBA(known and "complete" or "muted", 1))
 end
 
 ---@param character FGState?
 ---@param species FGSpecies
-local function UpdateVariants(character, species)
+local function UpdateCards(character, species)
 	local variants = ns.Model.Variants(character, species.id)
-	UpdateVariant(Detail.variants[1], variants.common, "complete", L["Known"])
-	UpdateVariant(Detail.variants[2], variants.rare, "rare", L["Known"])
-	UpdateVariant(Detail.variants[3], variants.shiny, "gold", L["Known"])
-end
-
----@param state FGSpeciesState?
-local function UpdateRewards(state)
-	local rank = ns.Model.Rank(state and state.count or 0)
-	for index, label in ipairs(Detail.rewards) do
-		local status = rank >= index and L["Unlocked"] or string.format(L["Unlocks at %s"], L[PIPS[index]])
-		label:SetText(string.format(L["%s: %s"], L[REWARDS[index]], status))
+	local icon = Art.SpeciesIcon(species.name, species.id)
+	local noRare = not ns.Model.HasRareForm(character, species)
+	for _, kind in ipairs(KINDS) do
+		UpdateCard(Detail.cards[kind], variants[kind], icon, kind == "rare" and noRare)
 	end
+	Detail.model:SetShown(variants.common.known)
 end
 
 ---@param species FGSpecies
@@ -279,14 +269,15 @@ end
 local function UpdateSightings(species, zone)
 	local options = ns.db and ns.db.options or {}
 	local showLog = options.showSightingLog ~= false
-	Detail.sightingCard:SetShown(showLog)
+	Detail.recordsTitle:SetShown(showLog)
+	Detail.sightingText:SetShown(showLog)
 	if not showLog then
 		return
 	end
 	local lines = {}
 	local record = ns.Model.Specimen(ns.GetCharacterState(false), species.id)
 	local function AddLine(line)
-		if #lines < 3 then
+		if #lines < 4 then
 			lines[#lines + 1] = line
 		end
 	end
@@ -315,7 +306,7 @@ local function UpdateSightings(species, zone)
 		AddLine(string.format(L["First shiny recorded: %s"], firstShiny))
 	end
 	for _, entry in ipairs(ns.Model.GetSightings()) do
-		if #lines >= 3 then
+		if #lines >= 4 then
 			break
 		end
 		if entry.species == species.name and entry.zone == zone.name then
@@ -338,6 +329,16 @@ local function UpdateSightings(species, zone)
 	end
 end
 
+---@param shown boolean
+local function SetEntryShown(shown)
+	for _, card in pairs(Detail.cards) do
+		card:SetShown(shown)
+	end
+	Detail.researchCard:SetShown(shown)
+	Detail.recordsTitle:SetShown(shown)
+	Detail.sightingText:SetShown(shown)
+end
+
 ---@param species FGSpecies?
 ---@param character FGState? the character's saved state, not one species' entry
 ---@param zone FGZone?
@@ -347,38 +348,21 @@ function Detail.Show(species, character, zone)
 		currentMap = nil
 		Detail.model:ClearModel()
 		Detail.model:Hide()
-		Detail.portrait:Hide()
+		SetEntryShown(false)
 		Detail.location:Hide()
 		Detail.locationName:SetText("")
+		Detail.locationName:Hide()
 		Detail.mapButton:Disable()
 		Detail.mapButton:Hide()
-		Detail.researchCard:Hide()
-		for _, page in ipairs(Detail.pages) do
-			page:Hide()
-		end
-		for _, button in ipairs(Detail.tabs) do
-			button:Hide()
-		end
 		Detail.name:SetText(L["Select a creature to read its entry."])
 		Detail.sub:SetText("")
-		for _, badge in ipairs(Detail.badges) do
-			badge.frame:Hide()
-		end
 		Detail.sightingText:SetText("")
 		return
 	end
-	Detail.model:Show()
-	Detail.location:Show()
-	Detail.researchCard:Show()
-	for _, button in ipairs(Detail.tabs) do
-		button:Show()
-	end
-	Detail.SetPage(selectedPage)
+	SetEntryShown(true)
 	if modelSpecies ~= species.id then
 		Detail.model:ClearModel()
 		modelSpecies = species.id
-		Art.Icon(Detail.portrait, Art.SpeciesIcon(species.name, species.id), 96)
-		Detail.portrait:Show()
 		Detail.model:SetCreature(species.id)
 		Detail.model:SetCamDistanceScale(1)
 		Detail.model:SetPortraitZoom(0)
@@ -395,9 +379,11 @@ function Detail.Show(species, character, zone)
 		)
 	)
 	local state = character and character.species and character.species[species.id] or nil
-	UpdateBadges(species, character)
 	UpdateResearch(state)
-	UpdateVariants(character, species)
-	UpdateRewards(state)
+	UpdateCards(character, species)
+	-- A model that already loaded for this species keeps the icon hidden; a new one shows it until it loads.
+	local loaded = Detail.model:IsShown() and (Detail.model:GetModelFileID() or 0) > 0
+	Detail.portrait:SetShown(not loaded)
+	Detail.cards.common.IconBorder:SetShown(not loaded)
 	UpdateSightings(species, zone)
 end

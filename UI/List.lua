@@ -9,8 +9,10 @@ ns.List = List
 
 local ROW_HEIGHT = 46
 local ROW_WIDTH = 304
+local MARK_SIZE = 16
+local MARK_GAP = 6
 local NAME_WIDTH = 152
--- A tagged name gives up room for the tag, so NEW never runs under the kill count.
+-- A tagged name gives up room for the tag, so NEW never runs under the variant marks.
 local TAGGED_NAME_WIDTH = 110
 
 -- The mount journal's New tag (Blizzard_MountCollection.xml): NEW after the name's text, over collections-newglow.
@@ -31,8 +33,6 @@ end
 ---@param selectedId integer?
 local function UpdateRow(row, entry, selectedId)
 	local species = entry.species
-	local state = entry.state
-	local count = state and state.count or 0
 	Art.Icon(row.Icon, Art.SpeciesIcon(species.name, species.id), 32)
 	row.Name:SetText(species.name)
 	local character = ns.GetCharacterState(false)
@@ -43,21 +43,11 @@ local function UpdateRow(row, entry, selectedId)
 	row.Sub:SetText(
 		string.format(L["%s · Lv %s"], L[species.family], ns.Model.LevelRange(species.minLevel, species.maxLevel))
 	)
-	row.Counter:SetText(string.format(L["%d kills"], state and (state.kills or state.count) or 0))
 	row.Selected:SetShown(selectedId == species.id)
-
-	local complete = ns.Model.IsComplete(character, species.id, species)
-	if count >= ns.Model.MASTERED_AT then
-		row.Glyph:SetText(L["✦"])
-		local r, g, b = Art.RGBA("gold", 1)
-		row.Glyph:SetTextColor(r, g, b, 1)
-	elseif complete then
-		row.Glyph:SetText(L["✓"])
-		local r, g, b = Art.RGBA("complete", 1)
-		row.Glyph:SetTextColor(r, g, b, 1)
-	else
-		row.Glyph:SetText("")
-	end
+	local icon = Art.SpeciesIcon(species.name, species.id)
+	Art.VariantMark(row.Marks.common, "common", variants.common.known, icon)
+	Art.VariantMark(row.Marks.rare, "rare", variants.rare.known, icon, not ns.Model.HasRareForm(character, species))
+	Art.VariantMark(row.Marks.shiny, "shiny", variants.shiny.known, icon)
 	if variants.rare.known then
 		row.Name:SetTextColor(Art.RGBA("rare", 1))
 	else
@@ -112,11 +102,13 @@ local function CreateRow(index)
 	row.Sub = Art.Text(row, "GameFontDisableSmall", "muted")
 	row.Sub:SetPoint("TOPLEFT", 52, -23)
 
-	row.Counter = Art.Text(row, "GameFontNormal", "text")
-	row.Counter:SetPoint("TOPRIGHT", -14, -5)
-
-	row.Glyph = Art.Text(row, "GameFontNormal", "gold")
-	row.Glyph:SetPoint("TOPRIGHT", -14, -23)
+	-- Common, rare and shiny, left to right: lit when collected, dark while missing, empty with no rare form.
+	row.Marks = {}
+	for slot, kind in ipairs({ "common", "rare", "shiny" }) do
+		local mark = Art.CreateVariantMark(row, MARK_SIZE)
+		mark:SetPoint("RIGHT", row, "RIGHT", -14 - (3 - slot) * (MARK_SIZE + MARK_GAP), 0)
+		row.Marks[kind] = mark
+	end
 
 	row:SetScript("OnClick", function()
 		if List.controller and row.species then

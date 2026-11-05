@@ -81,36 +81,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "Badlands totals",
+          "role": "header",
+          "w": 166.5,
+          "x": 795.5,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -118,7 +134,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -126,23 +142,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -509,36 +533,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "Swamp of Sorrows totals",
+          "role": "header",
+          "w": 219.0,
+          "x": 743.0,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -546,7 +586,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -554,23 +594,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -676,36 +724,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "Badlands totals",
+          "role": "header",
+          "w": 166.5,
+          "x": 795.5,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -713,7 +777,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -721,23 +785,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -843,36 +915,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "The Barrens totals",
+          "role": "header",
+          "w": 199.0,
+          "x": 763.0,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -880,7 +968,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -888,23 +976,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -1145,36 +1241,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "Dun Morogh totals",
+          "role": "header",
+          "w": 191.5,
+          "x": 770.5,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -1182,7 +1294,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -1190,23 +1302,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -1312,36 +1432,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "Dun Morogh totals",
+          "role": "header",
+          "w": 191.5,
+          "x": 770.5,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -1349,7 +1485,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -1357,23 +1493,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -1479,36 +1623,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "The Barrens totals",
+          "role": "header",
+          "w": 199.0,
+          "x": 763.0,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -1516,7 +1676,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -1524,23 +1684,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -1646,36 +1814,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "The Barrens totals",
+          "role": "header",
+          "w": 199.0,
+          "x": 763.0,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -1683,7 +1867,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -1691,23 +1875,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -1813,36 +2005,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "Dun Morogh totals",
+          "role": "header",
+          "w": 191.5,
+          "x": 770.5,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -1850,7 +2058,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -1858,23 +2066,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -1980,36 +2196,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "Duskwood totals",
+          "role": "header",
+          "w": 180.0,
+          "x": 782.0,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -2017,7 +2249,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -2025,23 +2257,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -2147,20 +2387,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 617,
-          "y": 426
+          "h": 12,
+          "name": "Azshara totals",
+          "role": "header",
+          "w": 167.0,
+          "x": 795.0,
+          "y": 56
         },
         {
-          "h": 180,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 554,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 219,
+          "name": "Common card",
+          "role": "card",
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -2168,7 +2440,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -2176,23 +2448,23 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -2298,20 +2570,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 617,
-          "y": 426
+          "h": 12,
+          "name": "Loch Modan totals",
+          "role": "header",
+          "w": 196.0,
+          "x": 766.0,
+          "y": 56
         },
         {
-          "h": 180,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 554,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 219,
+          "name": "Common card",
+          "role": "card",
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -2319,7 +2623,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -2327,23 +2631,23 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -2449,36 +2753,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "Burning Steppes totals",
+          "role": "header",
+          "w": 202.0,
+          "x": 760.0,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -2486,7 +2806,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -2494,23 +2814,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -2616,36 +2944,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "Hillsbrad Foothills totals",
+          "role": "header",
+          "w": 214.5,
+          "x": 747.5,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -2653,7 +2997,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -2661,23 +3005,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -2783,36 +3135,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 764,
-          "y": 412
+          "h": 12,
+          "name": "Ashenvale totals",
+          "role": "header",
+          "w": 186.0,
+          "x": 776.0,
+          "y": 56
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 348,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
         },
         {
-          "h": 120,
-          "name": "Zone artwork",
-          "role": "image",
-          "w": 178.1,
-          "x": 770,
-          "y": 244
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 128,
-          "name": "Zone artwork frame",
+          "h": 219,
+          "name": "Common card",
           "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 240
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -2820,7 +3188,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -2828,23 +3196,31 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 112,
+          "name": "Zone artwork frame",
+          "role": "card",
+          "w": 190,
+          "x": 764,
+          "y": 494
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -2950,20 +3326,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 617,
-          "y": 426
+          "h": 12,
+          "name": "Desolace totals",
+          "role": "header",
+          "w": 179.5,
+          "x": 782.5,
+          "y": 56
         },
         {
-          "h": 180,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 554,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 219,
+          "name": "Common card",
+          "role": "card",
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -2971,7 +3379,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -2979,23 +3387,23 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -3101,20 +3509,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 617,
-          "y": 426
+          "h": 12,
+          "name": "Mount Hyjal totals",
+          "role": "header",
+          "w": 181.5,
+          "x": 780.5,
+          "y": 56
         },
         {
-          "h": 180,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 554,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 219,
+          "name": "Common card",
+          "role": "card",
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -3122,7 +3562,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -3130,23 +3570,23 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -3252,20 +3692,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 617,
-          "y": 426
+          "h": 12,
+          "name": "Undercity totals",
+          "role": "header",
+          "w": 182.0,
+          "x": 780.0,
+          "y": 56
         },
         {
-          "h": 180,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 554,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 219,
+          "name": "Common card",
+          "role": "card",
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -3273,7 +3745,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -3281,23 +3753,23 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -3403,20 +3875,52 @@
           "y": 88
         },
         {
-          "h": 24,
-          "name": "Open map",
-          "role": "button",
-          "w": 120,
-          "x": 617,
-          "y": 426
+          "h": 12,
+          "name": "Orgrimmar totals",
+          "role": "header",
+          "w": 189.5,
+          "x": 772.5,
+          "y": 56
         },
         {
-          "h": 180,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 554,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 219,
+          "name": "Common card",
+          "role": "card",
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -3424,7 +3928,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -3432,23 +3936,23 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
+          "y": 500
         },
         {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
         },
         {
           "h": 58,
@@ -3554,12 +4058,52 @@
           "y": 88
         },
         {
-          "h": 210,
-          "name": "Creature viewport",
-          "role": "model",
-          "w": 554,
-          "x": 400,
-          "y": 228
+          "h": 12,
+          "name": "Hall of Legends totals",
+          "role": "header",
+          "w": 199.0,
+          "x": 763.0,
+          "y": 56
+        },
+        {
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 219,
+          "name": "Common card",
+          "role": "card",
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
         },
         {
           "h": 52,
@@ -3567,7 +4111,7 @@
           "role": "card",
           "w": 554,
           "x": 400,
-          "y": 460
+          "y": 430
         },
         {
           "h": 12,
@@ -3575,23 +4119,15 @@
           "role": "progress",
           "w": 534,
           "x": 410,
-          "y": 490
+          "y": 460
         },
         {
-          "h": 32,
-          "name": "Detail tabs",
-          "role": "tabs",
-          "w": 328,
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
           "x": 400,
-          "y": 126
-        },
-        {
-          "h": 486,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 158
+          "y": 500
         },
         {
           "h": 58,
@@ -3644,10 +4180,10 @@
     "zone-1497.png",
     "zone-1637.png",
     "zone-2917.png",
-    "search-filter.png",
     "tracking.png",
     "rare-record.png",
     "shiny-record.png",
+    "search-filter.png",
     "settings.png",
     "sighting-log.png",
     "missing-questiedb.png",
@@ -3712,36 +4248,52 @@
       "y": 88
     },
     {
-      "h": 24,
-      "name": "Open map",
-      "role": "button",
-      "w": 120,
-      "x": 764,
-      "y": 412
+      "h": 12,
+      "name": "The Barrens totals",
+      "role": "header",
+      "w": 199.0,
+      "x": 763.0,
+      "y": 56
     },
     {
-      "h": 210,
-      "name": "Creature viewport",
-      "role": "model",
-      "w": 348,
-      "x": 400,
-      "y": 228
+      "h": 12,
+      "name": "All zones totals",
+      "role": "header",
+      "w": 205.5,
+      "x": 756.5,
+      "y": 74
     },
     {
-      "h": 120,
-      "name": "Zone artwork",
-      "role": "image",
-      "w": 178.1,
-      "x": 770,
-      "y": 244
+      "h": 514,
+      "name": "Detail pane",
+      "role": "pane",
+      "w": 582,
+      "x": 386,
+      "y": 130
     },
     {
-      "h": 128,
-      "name": "Zone artwork frame",
+      "h": 219,
+      "name": "Common card",
       "role": "card",
-      "w": 190,
-      "x": 764,
-      "y": 240
+      "w": 164,
+      "x": 411.0,
+      "y": 194
+    },
+    {
+      "h": 219,
+      "name": "Rare card",
+      "role": "card",
+      "w": 164,
+      "x": 595.0,
+      "y": 194
+    },
+    {
+      "h": 219,
+      "name": "Shiny card",
+      "role": "card",
+      "w": 164,
+      "x": 779.0,
+      "y": 194
     },
     {
       "h": 52,
@@ -3749,7 +4301,7 @@
       "role": "card",
       "w": 554,
       "x": 400,
-      "y": 460
+      "y": 430
     },
     {
       "h": 12,
@@ -3757,23 +4309,31 @@
       "role": "progress",
       "w": 534,
       "x": 410,
-      "y": 490
+      "y": 460
     },
     {
-      "h": 32,
-      "name": "Detail tabs",
-      "role": "tabs",
-      "w": 328,
+      "h": 102,
+      "name": "Records",
+      "role": "content",
+      "w": 350,
       "x": 400,
-      "y": 126
+      "y": 500
     },
     {
-      "h": 486,
-      "name": "Detail pane",
-      "role": "pane",
-      "w": 582,
-      "x": 386,
-      "y": 158
+      "h": 112,
+      "name": "Zone artwork frame",
+      "role": "card",
+      "w": 190,
+      "x": 764,
+      "y": 494
+    },
+    {
+      "h": 22,
+      "name": "Open map",
+      "role": "button",
+      "w": 98,
+      "x": 856,
+      "y": 610
     },
     {
       "h": 58,

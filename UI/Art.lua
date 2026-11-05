@@ -474,6 +474,57 @@ function Art.MakePortrait(texture)
 	texture:AddMaskTexture(mask)
 end
 
+-- A collectible form reads by its item-quality border, as on a loot toast: white for common, blue for rare, gold
+-- for shiny. Missing forms are the same art, darkened.
+Art.VARIANT_BORDERS = {
+	common = "loottoast-itemborder-white",
+	rare = "loottoast-itemborder-blue",
+	shiny = "loottoast-itemborder-gold",
+}
+Art.SHINY_STAR = "Rare-Elite-Star"
+
+---@param parent Frame
+---@param size number
+---@return FGVariantMark
+function Art.CreateVariantMark(parent, size)
+	local mark = CreateFrame("Frame", nil, parent) --[[@as FGVariantMark]]
+	mark:SetSize(size, size)
+	mark.Icon = mark:CreateTexture(nil, "ARTWORK")
+	mark.Icon:SetPoint("TOPLEFT", 2, -2)
+	mark.Icon:SetPoint("BOTTOMRIGHT", -2, 2)
+	mark.Border = mark:CreateTexture(nil, "OVERLAY")
+	mark.Border:SetAllPoints()
+	mark.Star = mark:CreateTexture(nil, "ARTWORK")
+	mark.Star:SetAtlas(Art.SHINY_STAR)
+	mark.Star:SetAllPoints()
+	return mark
+end
+
+-- The shiny mark is the gold star; common and rare are the species icon in their quality border. A form the species
+-- does not have leaves an empty slot.
+---@param mark FGVariantMark
+---@param kind FGVariantKind
+---@param known boolean
+---@param icon string
+---@param absent? boolean
+function Art.VariantMark(mark, kind, known, icon, absent)
+	mark:SetShown(not absent)
+	local shade = known and 1 or 0.3
+	mark.Star:SetShown(kind == "shiny")
+	mark.Icon:SetShown(kind ~= "shiny")
+	mark.Border:SetShown(kind ~= "shiny")
+	if kind == "shiny" then
+		local r, g, b = Art.RGBA("shiny", 1)
+		mark.Star:SetVertexColor(r * shade, g * shade, b * shade, 1)
+		return
+	end
+	mark.Icon:SetTexture(icon)
+	mark.Icon:SetDesaturated(not known)
+	mark.Icon:SetVertexColor(shade, shade, shade, 1)
+	mark.Border:SetAtlas(Art.VARIANT_BORDERS[kind])
+	mark.Border:SetVertexColor(shade, shade, shade, 1)
+end
+
 ---@param parent Frame
 ---@param size number
 ---@return Texture
