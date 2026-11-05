@@ -18,6 +18,6 @@ Credit for the ideas and reports behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
-| cjber | Asked for native journal composition and single-border icons, and reported shared-frame colour restoration conflicts (#71) and kills going unrecorded once the client closed the combat log to addons (#91), and asked for an on-screen moment when a new creature is killed | |
+| cjber | Asked for native journal composition and single-border icons, reported shared-frame colour restoration conflicts (#71) and kills going unrecorded once the client closed the combat log to addons (#91), asked for an on-screen moment when a new creature is killed, and asked for obvious rarity marks on target frames and nameplates plus a session preview (#123, #124) | |
 
 Thanks also to everyone else who reported a bug or asked for a feature, here or on CurseForge.

@@ -373,6 +373,20 @@ function methods:GetAlpha()
 	return self._alpha
 end
 
+function methods.SetBlendMode() end
+
+function methods.SetFromAlpha() end
+
+function methods.SetToAlpha() end
+
+function methods.SetDuration() end
+
+function methods.SetOrder() end
+
+function methods.SetSmoothing() end
+
+function methods.SetStartDelay() end
+
 function methods:SetScale(scale)
 	self._scale = scale
 end

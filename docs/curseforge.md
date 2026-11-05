@@ -24,7 +24,7 @@ Records keep the date you first saw a creature, first killed one and first found
 - **Research ranks**: kills move a species through Discovered (1), Observed (3), Studied (6) and Mastered (10). The kill count keeps going after that.
 - **Zone completion**: the share of a zone's species you have recorded.
 - **Rares and shinies**: a rare variant is confirmed after three sightings, and every recorded kill has a 1 in 500 chance of a shiny.
-- **Rarity colours**: some species are silver, gold or shiny, the same for every player. Your target frame and their nameplates take that colour.
+- **Rarity marks**: some species are silver, gold or shiny, the same for every player. Your target frame takes the tier colour, a glow and a portrait badge, and its nameplate gets a tier border and mark; shiny creatures pulse. `/fg preview` shows all three for this session.
 - **Records**: first sighting and first kill for each creature, kept per character, and a sighting log for the current session.
 - **Tracking**: mark the species you are working on.
 - **Instances**: bosses the game reports when an encounter ends, with first clears, attempts and kills by difficulty. It is a personal record, not a verified world-first board.
@@ -38,7 +38,7 @@ A creature that dies with no nameplate showing and not targeted is not counted. 
 
 ## Usage
 
-Type `/fg` or `/fieldguide`, press Shift-F, or click the Field Guide button in the micro menu. `/fgf leaderboard` prints the kill leaderboard and `/fgf help` lists the commands. Options are under Options > AddOns > Field Guide Forever.
+Type `/fg` or `/fieldguide`, press Shift-F, or click the Field Guide button in the micro menu. `/fg preview` shows every creature as silver, gold or shiny for this session, `/fgf leaderboard` prints the kill leaderboard and `/fgf help` lists the commands. Options are under Options > AddOns > Field Guide Forever.
 
 Field Guide needs [Questie](https://www.curseforge.com/wow/addons/questie) or the standalone QuestieDB addon for its creature list. Without one, the window says what to install.
 

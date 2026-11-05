@@ -5,6 +5,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Rare creatures and shinies stand out on the target frame and nameplates.** A silver, gold or shiny creature adds a tier-coloured glow and portrait badge to the target frame, and a matching border and native mark beside its nameplate; shiny creatures pulse. Copper creatures look exactly as before. `/fg preview` cycles all three tiers through every creature for the session without recording anything rare. Thanks to cjber for the idea (#123, #124).
 - **Suite tooling stays in step with Forever Core.** The vendored shared-file check knows about the new tracker header menu spec. Nothing a player sees changes.
 
 ## [0.3.30] - 2026-11-05

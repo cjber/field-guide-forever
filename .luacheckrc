@@ -74,6 +74,7 @@ read_globals = {
 	"InterfaceOptions_AddCategory",
 	"MenuUtil",
 	"Settings",
+	"TargetFramePortrait",
 	"UIParent",
 	"UISpecialFrames",
 	"UnitClass",

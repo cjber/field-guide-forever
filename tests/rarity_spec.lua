@@ -14,6 +14,7 @@ local target = Mock.CreateFrame("Frame")
 target.TargetFrameContainer = { FrameTexture = chrome }
 target.name = target:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 target.healthbar = Mock.CreateFrame("Frame")
+target.portrait = Mock.NewRegion("Texture")
 harness.env.TargetFrame = target
 local species = { id = 1025, name = "Silver Test Creature" }
 local matchingTier = ns.Model.Tier(species.id)
@@ -38,12 +39,25 @@ else
 	local r, g, b, a = chrome:GetVertexColor()
 	assert(chrome:IsDesaturated(), "a rare tier desaturates the client chrome")
 	assert(r == color[1] and g == color[2] and b == color[3] and a == 1, "the tier colour is applied to the chrome")
-	assert(target.FGFRarityMarker:GetText() == "◆", "a tier gem appears beside a known creature name")
+	assert(
+		target.FGFRarityMarker:GetAtlas() == "nameplates-icon-elite-silver",
+		"a silver mark appears beside a known creature name"
+	)
+	assert(target.FGFRarityBadge:GetAtlas() == "Rare-Elite-Star", "a star badge marks the target portrait")
+	assert(target.FGFRarityRing:IsShown(), "the target portrait carries a tier ring")
+	assert(target.FGFRarityBarGlow.center:IsShown(), "the target bars carry a tier glow")
 	assert(target.FGFRarityMarker:GetAlpha() == 1, "a new local sighting briefly highlights its gem")
 	harness:RunTimers()
 	assert(target.FGFRarityMarker:GetAlpha() == 0.72, "the discovery highlight settles to a quiet accent")
-	local accentR, accentG, accentB = target.FGFRarityAccent:GetVertexColor()
-	assert(accentR == color[1] and accentG == color[2] and accentB == color[3], "the health bar receives a tier accent")
+	local ringR, ringG, ringB = target.FGFRarityRing:GetVertexColor()
+	assert(ringR == color[1] and ringG == color[2] and ringB == color[3], "the portrait ring receives the tier colour")
+	local glowR, glowG, glowB = target.FGFRarityBarGlow.center:GetVertexColor()
+	assert(glowR == color[1] and glowG == color[2] and glowB == color[3], "the bar glow receives the tier colour")
+	local badgeR, badgeG, badgeB = target.FGFRarityBadge:GetVertexColor()
+	assert(
+		badgeR == color[1] and badgeG == color[2] and badgeB == color[3],
+		"the portrait badge receives the tier colour"
+	)
 end
 
 harness.env.UnitName = function()
@@ -82,10 +96,17 @@ assert(
 	plateR == plateColor[1] and plateG == plateColor[2] and plateB == plateColor[3],
 	"the tier colour is applied to the nameplate trough"
 )
+assert(
+	unitFrame.FGFRarityMarker:GetAtlas() == "nameplates-icon-elite-silver",
+	"the nameplate carries the silver tier mark"
+)
+assert(unitFrame.FGFRarityBorder.top:IsShown(), "the nameplate carries a tier-coloured border")
 plateAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
 plateR, plateG, plateB, a = trough:GetVertexColor()
 assert(not trough:IsDesaturated(), "removing a pooled nameplate restores the trough")
+assert(not unitFrame.FGFRarityMarker:IsShown(), "removing a nameplate clears its tier mark")
+assert(not unitFrame.FGFRarityBorder.top:IsShown(), "removing a nameplate clears its tier border")
 assert(plateR == original[1] and plateG == original[2] and plateB == original[3] and a == original[4])
 
 -- Blizzard and other addons can repaint pooled textures between our events.

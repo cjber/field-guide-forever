@@ -476,6 +476,28 @@ end)
 ns.On("ENCOUNTER_END", OnEncounterEnd)
 ns.On("ENCOUNTER_START", OnEncounterStart)
 
+-- Session-only rarity demo: the UI reads this and never writes it to saved progress or to a kill record.
+local rarityPreview = false
+
+---@return boolean
+function ns.RarityPreviewActive()
+	return rarityPreview
+end
+
+local function ToggleRarityPreview()
+	rarityPreview = not rarityPreview
+	if rarityPreview then
+		local previewOn = "Rarity preview is on. Every creature shows silver, gold or shiny for this session; "
+			.. "use /fg preview again to turn it off."
+		print(L[previewOn])
+	else
+		print(L["Rarity preview is off."])
+	end
+	if ns.Rarity and ns.Rarity.Refresh then
+		ns.SafeCall("rarity preview", ns.Rarity.Refresh)
+	end
+end
+
 local function OpenGuide()
 	if ns.Window and ns.Window.Toggle then
 		ns.SafeCall("open guide", ns.Window.Toggle)
@@ -489,7 +511,13 @@ SLASH_FIELDGUIDEFOREVER3 = "/fgf"
 SlashCmdList["FIELDGUIDEFOREVER"] = function(message)
 	local command = type(message) == "string" and message:lower():match("^%s*(.-)%s*$") or ""
 	if command == "help" then
-		print(L["Open your field guide with /fieldguide or /fg. Use /fgf leaderboard to view recorded kills."])
+		local help = "Open your field guide with /fieldguide or /fg. Use /fgf leaderboard to view recorded kills, "
+			.. "or /fg preview to show every creature as rare or shiny for this session."
+		print(L[help])
+		return
+	end
+	if command == "preview" then
+		ToggleRarityPreview()
 		return
 	end
 	if command == "leaderboard" then
