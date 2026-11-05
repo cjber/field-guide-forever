@@ -7,6 +7,7 @@
 ## IconTexture: Interface\AddOns\FieldGuideForever\media\Icon
 ## X-License: GPL-3.0-or-later
 ## X-Website: https://github.com/cjber/field-guide-forever
+## X-Donate: https://ko-fi.com/cjber59408
 ## X-Curse-Project-ID: 0
 ## X-Wago-ID: 0
 ## SavedVariables: FieldGuideForeverDB
