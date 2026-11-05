@@ -168,6 +168,40 @@ local function SetNameColor(name, color)
 	end
 end
 
+-- A nameplate is recycled between units by the client, so a colour captured while it showed one creature means nothing
+-- to the next. Clearing a mark therefore drops the captured colour and asks Blizzard to paint the plate from the unit
+-- it holds now, instead of restoring a colour the previous creature owned.
+---@param frame table?
+---@param bar table?
+---@param name table?
+local function HandPlateBackToClient(frame, bar, name)
+	local updateHealthColor = _G.CompactUnitFrame_UpdateHealthColor
+	if bar then
+		local handedBack = false
+		if type(updateHealthColor) == "function" and frame then
+			-- Drop the colour Blizzard caches on the bar so its own repaint actually lands.
+			bar.r, bar.g, bar.b = nil, nil, nil
+			handedBack = pcall(updateHealthColor, frame)
+		end
+		if not handedBack then
+			SetBarColor(bar, nil)
+		end
+		bar.FGFRarityOriginalColor = nil
+	end
+	local updateName = _G.CompactUnitFrame_UpdateName
+	if name then
+		local handedBack = false
+		if type(updateName) == "function" and frame then
+			name.r, name.g, name.b = nil, nil, nil
+			handedBack = pcall(updateName, frame)
+		end
+		if not handedBack then
+			SetNameColor(name, nil)
+		end
+		name.FGFRarityOriginalTextColor = nil
+	end
+end
+
 ---@param owner table
 ---@param layers { pad: number, alpha: number }[]
 ---@return table?
@@ -471,8 +505,12 @@ local function UpdatePlate(plate, unit)
 	local species = ns.FindSpecies(unitName, ns.CurrentZone())
 	local tier = TierFor(unit, species)
 	local color = Rarity.COLORS[tier]
-	SetBarColor(healthBar, color)
-	SetNameColor(name, color)
+	if color then
+		SetBarColor(healthBar, color)
+		SetNameColor(name, color)
+	else
+		HandPlateBackToClient(frame, healthBar, name)
+	end
 	local entry = species and ns.Model.Specimen(ns.GetCharacterState(false), species.id)
 	local discovery = species
 		and entry
@@ -527,14 +565,12 @@ events:SetScript("OnEvent", function(_, event, unit)
 			local frame = plate and plate.UnitFrame
 			local bar = frame and frame.healthBar
 			if frame and bar then
-				SetBarColor(bar, nil)
 				local name = frame.name or frame.Name
-				if type(name) == "table" then
-					SetNameColor(name, nil)
-					name.FGFRarityOriginalTextColor = nil
+				if type(name) ~= "table" then
+					name = nil
 				end
-				bar.FGFRarityOriginalColor = nil
-				UpdateAccent(frame, type(name) == "table" and name or nil, bar, "copper", false)
+				HandPlateBackToClient(frame, bar, name)
+				UpdateAccent(frame, name, bar, "copper", false)
 			end
 		end
 	end

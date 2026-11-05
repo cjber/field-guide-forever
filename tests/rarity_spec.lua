@@ -175,7 +175,43 @@ AssertTextColour(unitFrame.name, plateNameColour, "removing a nameplate restores
 assert(not unitFrame.FGFRarityMarker:IsShown(), "removing a nameplate clears its tier mark")
 assert(not unitFrame.FGFRarityBarGlow[1].textures.center:IsShown(), "removing a nameplate clears its aura")
 
--- A pooled plate comes back with a new client baseline; the next restore uses that, not the old creature's.
+-- A recycled plate is handed back to the client: Blizzard repaints it from the unit it holds now, so a friendly
+-- creature never inherits the red a hostile one left behind (#134).
+local clientReaction = { 0.2, 0.8, 0.2, 1 }
+local healthRepaints = 0
+harness.env.CompactUnitFrame_UpdateHealthColor = function(plateFrame)
+	healthRepaints = healthRepaints + 1
+	local bar = plateFrame and plateFrame.healthBar
+	if bar then
+		bar:SetStatusBarColor(unpack(clientReaction))
+	end
+end
+harness.env.CompactUnitFrame_UpdateName = function() end
+
+unitFrame.healthBar.FGFRarityOriginalColor = nil
+unitFrame.healthBar:SetStatusBarColor(unpack(plateColour))
+harness.env.UnitName = function(unit)
+	return unit == "nameplate1" and silver.name or "Tester"
+end
+plateAttached = true
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
+AssertBarColour(unitFrame.healthBar, silverColour, "a recycled hostile plate takes the tier colour again")
+local repaintsBefore = healthRepaints
+harness.env.UnitName = function()
+	return "Unmarked Friendly Guard"
+end
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
+assert(healthRepaints == repaintsBefore + 1, "clearing a mark hands the plate back to Blizzard")
+AssertBarColour(unitFrame.healthBar, clientReaction, "a friendly creature never inherits the hostile plate's red")
+assert(
+	rawget(unitFrame.healthBar, "FGFRarityOriginalColor") == nil,
+	"the stale captured colour is dropped, not restored"
+)
+
+-- Without Blizzard's repaint available (an older client, or this mock), a cleared plate falls back to the colour it
+-- carried before the addon painted it, and a pooled plate uses its new baseline rather than the old creature's.
+harness.env.CompactUnitFrame_UpdateHealthColor = nil
+harness.env.CompactUnitFrame_UpdateName = nil
 local nextPlateColour = { 0.2, 0.3, 0.4, 1 }
 local nextPlateNameColour = { 0.5, 0.6, 0.7, 1 }
 unitFrame.healthBar:SetStatusBarColor(unpack(nextPlateColour))
