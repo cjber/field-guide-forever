@@ -14,6 +14,7 @@ local target = Mock.CreateFrame("Frame")
 target.TargetFrameContainer = { FrameTexture = chrome }
 target.name = target:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 target.healthbar = Mock.CreateFrame("Frame")
+target.manabar = Mock.CreateFrame("Frame")
 target.portrait = Mock.NewRegion("Texture")
 harness.env.TargetFrame = target
 local species = { id = 1025, name = "Silver Test Creature" }
@@ -44,8 +45,12 @@ else
 		"a silver mark appears beside a known creature name"
 	)
 	assert(target.FGFRarityBadge:GetAtlas() == "Rare-Elite-Star", "a star badge marks the target portrait")
+	assert(target.FGFRarityBadge:GetWidth() == 26, "the portrait badge is large enough to notice")
 	assert(target.FGFRarityRing:IsShown(), "the target portrait carries a tier ring")
+	assert(target.FGFRarityRing:GetWidth() == 76, "the portrait ring is bold")
 	assert(target.FGFRarityBarGlow.center:IsShown(), "the target bars carry a tier glow")
+	assert(target.healthbar.FGFRarityTint:IsShown(), "the health bar background takes the tier tint")
+	assert(target.manabar.FGFRarityTint:IsShown(), "the power bar background takes the tier tint")
 	assert(target.FGFRarityMarker:GetAlpha() == 1, "a new local sighting briefly highlights its gem")
 	harness:RunTimers()
 	assert(target.FGFRarityMarker:GetAlpha() == 0.72, "the discovery highlight settles to a quiet accent")
@@ -53,6 +58,11 @@ else
 	assert(ringR == color[1] and ringG == color[2] and ringB == color[3], "the portrait ring receives the tier colour")
 	local glowR, glowG, glowB = target.FGFRarityBarGlow.center:GetVertexColor()
 	assert(glowR == color[1] and glowG == color[2] and glowB == color[3], "the bar glow receives the tier colour")
+	local tintR, tintG, tintB, tintA = target.healthbar.FGFRarityTint:GetVertexColor()
+	assert(
+		tintR == color[1] and tintG == color[2] and tintB == color[3] and tintA == 0.3,
+		"the bar background receives a subtle tier tint"
+	)
 	local badgeR, badgeG, badgeB = target.FGFRarityBadge:GetVertexColor()
 	assert(
 		badgeR == color[1] and badgeG == color[2] and badgeB == color[3],

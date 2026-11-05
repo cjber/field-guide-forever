@@ -44,8 +44,10 @@ TARGET_BAR_GLOW_LEFT_WIDTH = 35
 TARGET_BAR_GLOW_RIGHT_WIDTH = 34
 TARGET_BAR_GLOW_PAD = 3
 TARGET_RING = "Portrait-Frame-Small"
-TARGET_RING_SIZE = 64
+TARGET_RING_SIZE = 76
 TARGET_BADGE = "Rare-Elite-Star"
+TARGET_BADGE_SIZE = 26
+BAR_TINT_ALPHA = {"SILVER": 0.3, "GOLD": 0.3, "SHINY": 0.45}
 PLATE_MARKS = {
     "SILVER": "nameplates-icon-elite-silver",
     "GOLD": "nameplates-icon-elite-gold",
@@ -140,6 +142,13 @@ def bar_glow(canvas, ui, x, y, colour):
     )
 
 
+def bar_tint(canvas, bounds, colour, alpha):
+    """The tier tint behind a bar's fill, so its empty background reads as the tier rather than the client's dark
+    trough."""
+    left, top, right, bottom = bounds
+    canvas.fill(left, top, right - left, bottom - top, (*colour, alpha))
+
+
 def portrait_ring(canvas, ui, x, y, colour):
     """The client's portrait-frame ring, tinted to the tier and scaled uniformly around the portrait."""
     glow_piece(
@@ -183,6 +192,10 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False):
     # Draw the StatusBars and portrait before the chrome; drawing the BLP twice thickens its semi-transparent edges.
     health_bounds = tuple(v + (x if i % 2 == 0 else y) for i, v in enumerate(HEALTH_WINDOW))
     power_bounds = tuple(v + (x if i % 2 == 0 else y) for i, v in enumerate(POWER_WINDOW))
+    if colour:
+        alpha = BAR_TINT_ALPHA.get(tier[0], 0.3)
+        bar_tint(canvas, health_bounds, colour, alpha)
+        bar_tint(canvas, power_bounds, colour, alpha)
     status_bar(canvas, bar_texture, health_bounds, 0.86, wowmock.rgb("3f7a34"))
     status_bar(canvas, bar_texture, power_bounds, 0.62, wowmock.rgb("2f5a9e"))
 
@@ -198,7 +211,7 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False):
         portrait_ring(canvas, ui, x, y, colour)
         centre_x = x + PORTRAIT_CENTER[0]
         centre_y = y + PORTRAIT_CENTER[1]
-        mark(canvas, ui, TARGET_BADGE, centre_x + 22, centre_y - 22, 18, colour)
+        mark(canvas, ui, TARGET_BADGE, centre_x + 23, centre_y - 23, TARGET_BADGE_SIZE, colour)
     text(canvas, x + 32, y + 8, name, "GameFontNormalSmall", TEXT, justify="CENTER", width=111)
     text(
         canvas,

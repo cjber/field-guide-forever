@@ -17,9 +17,10 @@ local BAR_GLOW_ALPHA = 0.8
 local BAR_GLOW_PAD = 3
 local BAR_GLOW_LEFT_WIDTH = 35
 local BAR_GLOW_RIGHT_WIDTH = 34
-local TARGET_RING_ALPHA = 0.85
-local TARGET_RING_SIZE = 64
-local TARGET_BADGE_SIZE = 18
+local BAR_TINT_ALPHA = { silver = 0.3, gold = 0.3, shiny = 0.45 }
+local TARGET_RING_ALPHA = 1
+local TARGET_RING_SIZE = 76
+local TARGET_BADGE_SIZE = 26
 local WHITE = "Interface\\Buttons\\WHITE8X8"
 local TARGET_BAR_GLOW_LEFT = "UI-Frame-Bar-GlowLeft"
 local TARGET_BAR_GLOW_CENTER = "UI-Frame-Bar-GlowCenter"
@@ -233,7 +234,50 @@ end
 ---@param target table?
 ---@return table?
 local function TargetPowerBar(target)
-	return target and (target.manabar or target.ManaBar or target.powerbar or target.PowerBar)
+	if not target then
+		return nil
+	end
+	for _, key in ipairs({ "manabar", "ManaBar", "powerbar", "PowerBar" }) do
+		local bar = target[key]
+		if type(bar) == "table" then
+			return bar
+		end
+	end
+end
+
+-- The bar's own background, behind the StatusBar fill, so the empty part of each bar reads as the tier while the
+-- filled part keeps the client's health and power colours.
+---@param bar table
+---@return table?
+local function BarTint(bar)
+	local tint = bar.FGFRarityTint
+	if type(tint) == "table" then
+		return tint
+	end
+	if not bar.CreateTexture then
+		return nil
+	end
+	tint = bar:CreateTexture(nil, "BACKGROUND", nil, 1)
+	tint:SetTexture(WHITE)
+	tint:SetAllPoints(bar)
+	bar.FGFRarityTint = tint
+	return tint
+end
+
+---@param bar table?
+---@param color number[]?
+---@param alpha number
+local function PaintBarTint(bar, color, alpha)
+	local tint = type(bar) == "table" and BarTint(bar) or nil
+	if not tint then
+		return
+	end
+	if color then
+		tint:SetVertexColor(color[1], color[2], color[3], alpha)
+		tint:Show()
+	else
+		tint:Hide()
+	end
 end
 
 ---@param glow table
@@ -321,9 +365,14 @@ local function UpdateTargetMark(target, tier, discovery)
 		return
 	end
 	local color = Rarity.COLORS[tier]
+	local tintAlpha = BAR_TINT_ALPHA[tier] or 0.3
 	local portrait = TargetPortrait(target)
 	local healthBar = target.healthbar or target.HealthBar
-	local bottomBar = TargetPowerBar(target) or healthBar
+	if type(healthBar) ~= "table" then
+		healthBar = nil
+	end
+	local powerBar = TargetPowerBar(target)
+	local bottomBar = powerBar or healthBar
 	local barGlow = TargetBarGlow(target)
 	local ring = target.FGFRarityRing
 	if type(ring) == "function" then
@@ -338,7 +387,7 @@ local function UpdateTargetMark(target, tier, discovery)
 		if portrait then
 			ring:SetPoint("CENTER", portrait, "CENTER", 0, 0)
 		else
-			ring:SetPoint("CENTER", target, "TOPRIGHT", -28, -28)
+			ring:SetPoint("CENTER", target, "TOPRIGHT", -34, -34)
 		end
 		target.FGFRarityRing = ring
 	end
@@ -352,13 +401,13 @@ local function UpdateTargetMark(target, tier, discovery)
 		badge:SetBlendMode("ADD")
 		badge:SetSize(TARGET_BADGE_SIZE, TARGET_BADGE_SIZE)
 		if portrait then
-			badge:SetPoint("CENTER", portrait, "TOPRIGHT", -2, -2)
+			badge:SetPoint("CENTER", portrait, "TOPRIGHT", -5, -5)
 		else
-			badge:SetPoint("CENTER", target, "TOPRIGHT", -16, -16)
+			badge:SetPoint("CENTER", target, "TOPRIGHT", -20, -20)
 		end
 		target.FGFRarityBadge = badge
 	end
-	if color and healthBar and barGlow then
+	if color and healthBar and bottomBar and barGlow then
 		AnchorBarGlow(barGlow, healthBar, bottomBar)
 		for _, texture in pairs(barGlow) do
 			texture:SetVertexColor(color[1], color[2], color[3], 1)
@@ -370,6 +419,8 @@ local function UpdateTargetMark(target, tier, discovery)
 			texture:Hide()
 		end
 	end
+	PaintBarTint(healthBar, color, tintAlpha)
+	PaintBarTint(powerBar, color, tintAlpha)
 	if color and portrait then
 		ring:SetVertexColor(color[1], color[2], color[3], 1)
 		ring:SetAlpha(TARGET_RING_ALPHA)
