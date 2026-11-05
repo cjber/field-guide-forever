@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.33] - 2026-11-05
+
 - The discovery toasts now play the achievement chime instead of loot fanfares. Thanks to cjber for the report (#130).
 
 ## [0.3.32] - 2026-11-05
