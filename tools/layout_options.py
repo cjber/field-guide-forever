@@ -181,7 +181,6 @@ def panes(canvas, ui, zone, species, tab, icons, box, px, py, compact=False):
             mk.marker(canvas, px(list_x + list_w - 12), y + 32, 11, GOLD)
         elif complete:
             canvas.draw(ui.atlas("common-icon-checkmark"), px(list_x + list_w - 14), y + 27, 11, 11, GREEN)
-        mk.bar(canvas, px(list_x + 6), y + 49, list_w - 12, 3, state["count"] / mk.MASTERED_AT, GOLD)
 
     # ---------------- the entry
     state = mk.progress(species)
@@ -269,7 +268,7 @@ def panes(canvas, ui, zone, species, tab, icons, box, px, py, compact=False):
         TEXT,
         width=170,
     )
-    mk.bar(canvas, px(detail_x + inner + 10), py(y + 76), card_w - 20, 4, count / mk.MASTERED_AT, GOLD)
+    mk.status_bar(canvas, px(detail_x + inner + 10), py(y + 76), card_w - 20, 4, count / mk.MASTERED_AT)
 
     # The drawer's compact column omits this catalogue summary.
     if not compact:
@@ -374,7 +373,7 @@ def panes(canvas, ui, zone, species, tab, icons, box, px, py, compact=False):
                 canvas,
                 px(detail_x + inner + card_w - 10),
                 py(ly),
-                "UNLOCKED" if unlocked else f"Locked \u00b7 {tier}",
+                "Unlocked" if unlocked else f"Unlocks at {tier}",
                 "GameFontDisableSmall",
                 GREEN if unlocked else MUTED,
                 width=110,
@@ -395,7 +394,7 @@ def panes(canvas, ui, zone, species, tab, icons, box, px, py, compact=False):
                 canvas,
                 px(col_x + half - 14),
                 py(ly),
-                "UNLOCKED" if unlocked else f"Locked \u00b7 {tier}",
+                "Unlocked" if unlocked else f"Unlocks at {tier}",
                 "GameFontDisableSmall",
                 GREEN if unlocked else MUTED,
                 width=92,
@@ -440,7 +439,7 @@ def panes(canvas, ui, zone, species, tab, icons, box, px, py, compact=False):
 def bottom_bar(canvas, ui, zone, catalogued, px, py, x, y, w, h):
     """Zone completion and the two actions, on one baseline, buttons inset the same on each side."""
     mk.card(canvas, px(x), py(y), w, h)
-    label = "ZONE COMPLETION"
+    label = "Zone completion"
     mk.text(canvas, px(x + 14), py(y + 10), label, "GameFontDisableSmall", MUTED)
     fraction = catalogued / len(zone["species"])
     percent_x = x + 14 + canvas.text_width(label, FONTS["GameFontDisableSmall"]) + 8
@@ -454,7 +453,7 @@ def bottom_bar(canvas, ui, zone, catalogued, px, py, x, y, w, h):
         MUTED,
         width=140,
     )
-    mk.bar(canvas, px(x + 14), py(y + 32), 320, 10, fraction, GREEN)
+    mk.status_bar(canvas, px(x + 14), py(y + 32), 320, 12, fraction)
     ui_panel_button(canvas, px(x + w - 140 - 120), py(y + 16), 120, 26, "Open Journal")
     ui_panel_button(canvas, px(x + w - 12 - 120), py(y + 16), 120, 26, "Track Species")
 
