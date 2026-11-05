@@ -42,6 +42,16 @@ ForeverMicroButtons = nil
 ---@field Name? FontString
 ---@field healthbar? StatusBar
 ---@field HealthBar? StatusBar
+---@field manabar? StatusBar
+---@field ManaBar? StatusBar
+---@field powerbar? StatusBar
+---@field PowerBar? StatusBar
+---@field portrait? Texture
+---@field Portrait? Texture
+
+-- TargetFrame.xml: the classic target frame's portrait texture, drawn inside the frame chrome.
+---@type Texture?
+TargetFramePortrait = nil
 
 -- Blizzard_SharedXML/Mainline/SharedUIPanelTemplates.lua: a side tab's icon fills the tab, at `extent` (50 by default).
 ---@param fillToInterior boolean

@@ -317,6 +317,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field On fun(event: string, fn: function): boolean
 ---@field Readable fun(value: any): any the value, or nil when the client keeps it secret
 ---@field Usable fun(frame: Frame?): boolean false for nil or a forbidden frame
+---@field RarityPreviewActive fun(): boolean true while /fg preview marks every creature
 ---@field OpenGuide fun()
 
 ---@class FGGlobal

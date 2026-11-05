@@ -33,7 +33,7 @@ Records keep the date you first saw a creature, first killed one and first found
 - **Research ranks**: kills move a species through Discovered (1), Observed (3), Studied (6) and Mastered (10). The kill count keeps going after that.
 - **Zone completion**: the share of a zone's species you have recorded. It counts recorded species, not mastered ones, so the bar moves with every new creature.
 - **Rares and shinies**: a rare variant is confirmed after three sightings, and every recorded kill has a 1 in 500 chance of a shiny.
-- **Rarity colours**: some species are silver, gold or shiny, the same for every player. Your target frame and their nameplates take that colour.
+- **Rarity marks**: some species are silver, gold or shiny, the same for every player. A rare target frame gets a soft tier-coloured aura, a tier-coloured health bar and name, and a RARE or SHINY tag; its nameplate takes the tier colour, a soft glow and a small mark. Shiny creatures pulse gently. `/fg preview` shows all three for this session.
 - **Records**: first sighting and first kill for each creature, kept per character, and a sighting log for the current session.
 - **Tracking**: mark the species you are working on.
 - **Discoveries**: a first kill is announced at the top of the screen and tagged New in the journal. Rare, shiny, mastery and zone milestones get the game's achievement toast; click one to open the journal there. Both can be turned off in the options.
@@ -53,6 +53,7 @@ Type `/fg`, press Shift-F, or click the Field Guide button in the micro menu. Op
 | Command | What it does |
 |---|---|
 | `/fg`, `/fieldguide` | Open or close the journal |
+| `/fg preview` | Show every creature as silver, gold or shiny for this session; run it again to turn it off |
 | `/fgf leaderboard` | Print the kill leaderboard: you, plus the top ten guild and group members who share |
 | `/fgf help` | List the commands |
 

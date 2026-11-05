@@ -374,6 +374,20 @@ function methods:GetAlpha()
 	return self._alpha
 end
 
+function methods.SetBlendMode() end
+
+function methods.SetFromAlpha() end
+
+function methods.SetToAlpha() end
+
+function methods.SetDuration() end
+
+function methods.SetOrder() end
+
+function methods.SetSmoothing() end
+
+function methods.SetStartDelay() end
+
 function methods:SetScale(scale)
 	self._scale = scale
 end
@@ -438,10 +452,24 @@ function methods.SetWordWrap() end
 
 function methods.SetSpacing() end
 
-function methods.SetTextColor() end
+function methods:SetTextColor(r, g, b, a)
+	self._textColor = { r, g, b, a or 1 }
+end
+
+function methods:GetTextColor()
+	return unpack(self._textColor or { 1, 1, 1, 1 })
+end
 
 function methods:SetVertexColor(r, g, b, a)
 	self._vertexColor = { r, g, b, a }
+end
+
+function methods:SetStatusBarColor(r, g, b, a)
+	self._statusBarColor = { r, g, b, a or 1 }
+end
+
+function methods:GetStatusBarColor()
+	return unpack(self._statusBarColor or { 1, 1, 1, 1 })
 end
 
 function methods:GetVertexColor()
