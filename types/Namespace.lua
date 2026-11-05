@@ -173,6 +173,8 @@ function FGSightingLog.List() end
 ---@field Marks table<FGVariantKind, FGVariantMark>
 ---@field New FontString
 ---@field NewGlow Texture
+---@field index? integer
+---@field iconSpecies? integer
 ---@field species? FGSpecies
 ---@field entry? FGListEntry
 
@@ -203,18 +205,20 @@ function FGSightingLog.List() end
 ---@field families table<integer, string> CreatureFamily ID -> name
 ---@field portraits table<integer, integer> CreatureDisplayInfo ID -> portrait texture file ID
 
--- Data/CreatureIcons.lua: per-NPC creature type, family and model icon, packed into one number each.
+-- Data/CreatureIcons.lua: per-NPC creature type, family, model icon and display ID, packed into one number each.
 ---@class FGCreatureInfo
 ---@field icons table<integer, string> icon index -> icon path
 ---@field types table<integer, string> creature type ID -> name
----@field entries table<integer, integer> NPC ID -> packed icon index, type ID and family ID
+---@field entries table<integer, integer> NPC ID -> packed display ID, icon index, type ID and family ID
 local FGCreatureInfo = {}
 
--- The creature type ID, family ID and model icon path for an NPC, or nil for an NPC the table does not list.
+-- The creature type ID, family ID, model icon path and client display ID for an NPC, or nil for an NPC the table
+-- does not list.
 ---@param npcID number?
 ---@return integer? typeID
 ---@return integer? familyID
 ---@return string? icon
+---@return integer? displayID
 function FGCreatureInfo.Get(npcID) end
 
 -- Where Integrations/QuestieDB.lua has got with the catalogue.

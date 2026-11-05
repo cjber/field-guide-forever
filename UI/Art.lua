@@ -65,7 +65,7 @@ Art.FAMILY_ICONS = {
 	Elemental = "Interface\\Icons\\Spell_Nature_Lightning",
 	Giant = "Interface\\Icons\\Ability_Warrior_SavageBlow",
 	Mechanical = "Interface\\Icons\\INV_Misc_Gear_01",
-	Critter = "Interface\\Icons\\Ability_Hunter_BeastTaming",
+	Critter = "Interface\\Icons\\pet_type_critter",
 	Demon = "Interface\\Icons\\Spell_Shadow_Metamorphosis",
 	Aberration = "Interface\\Icons\\Ability_Creature_Poison_01",
 }
@@ -93,6 +93,255 @@ Art.GENERIC_CREATURE_ICON = "Interface\\Icons\\Ability_Hunter_BeastTaming"
 -- matched against the creature's name, in order, and the first hit wins; anything unmatched falls back to its
 -- family icon. Every path here is art this client actually ships (checked against the pinned build's listfile).
 Art.SPECIES_ICONS = {
+	-- Critters and plants read as themselves even when the model lookup misses them. Word boundaries keep a name
+	-- such as Yowler from borrowing an owl.
+	{
+		"Interface\\Icons\\inv_babydeer",
+		"any",
+		{
+			"deer",
+			"fawn",
+			"stag",
+			"doe",
+			"gazelle",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_squirrelardenweald",
+		"any",
+		{
+			"squirrel",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_toad_green",
+		"any",
+		{
+			"toad",
+			"frog",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_rabbit",
+		"any",
+		{
+			"rabbit",
+			"hare",
+			"bunny",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_mouse",
+		"any",
+		{
+			"mouse",
+			"rat",
+			"vole",
+			"shrew",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_skunk",
+		"any",
+		{
+			"skunk",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_raccoon",
+		"any",
+		{
+			"raccoon",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_otter",
+		"any",
+		{
+			"otter",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_beaver",
+		"any",
+		{
+			"beaver",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_porcupine",
+		"any",
+		{
+			"porcupine",
+			"quillrat",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_prairiedog",
+		"any",
+		{
+			"prairie dog",
+			"prairiedog",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_wisp_purple",
+		"any",
+		{
+			"wisp",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_ancientprotector",
+		"any",
+		{
+			"treant",
+			"ancient of",
+			"ancient protector",
+			"keeper of the grove",
+			"grove keeper",
+			"protector of the grove",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_duck_white",
+		"any",
+		{
+			"duck",
+			"goose",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_seagullpet_01",
+		"any",
+		{
+			"seagull",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_babycrane",
+		"any",
+		{
+			"crane",
+			"heron",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_pet_peacock_blue",
+		"any",
+		{
+			"peacock",
+		},
+	},
+	-- The races the model stem table cannot name fall back to their own head, not a shared humanoid glyph.
+	{
+		"Interface\\Icons\\inv_misc_head_dwarf_01",
+		"people",
+		{
+			"dwarf",
+			"ironforge",
+			"dark iron",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_gnome_01",
+		"people",
+		{
+			"gnome",
+			"gnomish",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_elf_01",
+		"people",
+		{
+			"night elf",
+			"nightelf",
+			"kaldorei",
+			"blood elf",
+			"highelf",
+			"high elf",
+			"sin'dorei",
+			"quel'dorei",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_orc_01",
+		"people",
+		{
+			"orc",
+			"warsong",
+			"frostwolf",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_troll_01",
+		"people",
+		{
+			"troll",
+			"darkspear",
+			"amani",
+			"gurubashi",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_tauren_01",
+		"people",
+		{
+			"tauren",
+			"grimtotem",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_head_undead_01",
+		"people",
+		{
+			"undead",
+			"scourge",
+			"forsaken",
+			"skeleton",
+			"zombie",
+			"banshee",
+			"lich",
+		},
+	},
+	{
+		"Interface\\Icons\\achievement_goblinhead",
+		"people",
+		{
+			"goblin",
+			"steamwheedle",
+			"bilgewater",
+		},
+	},
+	{
+		"Interface\\Icons\\inv_misc_nagamale",
+		"any",
+		{
+			"naga",
+			"siren",
+			"lobstrok",
+		},
+	},
+	{
+		"Interface\\Icons\\spell_shadow_metamorphosis",
+		"any",
+		{
+			"satyr",
+			"felguard",
+			"succubus",
+			"doomguard",
+			"voidwalker",
+			"dreadlord",
+		},
+	},
+	{
+		"Interface\\Icons\\hunter_pvp_direbeastbasilisk",
+		"beast",
+		{
+			"basilisk",
+		},
+	},
 	{
 		"Interface\\Icons\\ability_hunter_pet_cat",
 		"beast",
@@ -432,6 +681,26 @@ function Art.Icon(texture, file, size)
 	texture:SetSize(size, size)
 end
 
+-- A whole word, so "Yowler" is not an owl and "Combat" is not a bat. Apostrophes and digits end a word.
+---@param haystack string
+---@param word string
+---@return boolean
+local function HasWord(haystack, word)
+	local start = 1
+	while true do
+		local first = haystack:find(word, start, true)
+		if not first then
+			return false
+		end
+		local before = first > 1 and haystack:sub(first - 1, first - 1) or ""
+		local after = haystack:sub(first + #word, first + #word)
+		if not before:match("%a") and not after:match("%a") then
+			return true
+		end
+		start = first + 1
+	end
+end
+
 ---The icon a species shows: its generated model icon, name refinement, then family and creature-type art.
 ---@param name string
 ---@param npcID integer
@@ -445,22 +714,36 @@ function Art.SpeciesIcon(name, npcID)
 	local family = familyID and ns.ClientData.families[familyID]
 	local creatureType = typeID and ns.CreatureInfo.types[typeID]
 	local side = "people"
-	if creatureType == "Beast" or (familyID and familyID > 0) then
+	if creatureType == "Beast" or creatureType == "Critter" or (familyID and familyID > 0) then
 		side = "beast"
 	end
 	for _, rule in ipairs(Art.SPECIES_ICONS) do
 		if rule[2] == "any" or rule[2] == side then
 			for _, keyword in ipairs(rule[3]) do
-				if needle:find(keyword, 1, true) then
+				if HasWord(needle, keyword) then
 					return rule[1]
 				end
 			end
 		end
 	end
-	if family then
-		return Art.CREATURE_FAMILY_ICONS[family] or Art.FAMILY_ICONS[creatureType] or Art.GENERIC_CREATURE_ICON
+	return family and Art.CREATURE_FAMILY_ICONS[family] or Art.FAMILY_ICONS[creatureType] or Art.GENERIC_CREATURE_ICON
+end
+
+-- A row's creature shows its real face when the catalogue knows a client display ID, and the species fallback art
+-- when it does not. One call per recycled row, never from OnUpdate.
+---@param texture Texture
+---@param name string
+---@param npcID integer
+---@param size number
+function Art.CreatureIcon(texture, name, npcID, size)
+	local _, _, _, displayID = ns.CreatureInfo.Get(npcID)
+	texture:SetTexCoord(0, 1, 0, 1)
+	texture:SetSize(size, size)
+	if displayID and SetPortraitTextureFromCreatureDisplayID then
+		SetPortraitTextureFromCreatureDisplayID(texture, displayID)
+		return
 	end
-	return Art.FAMILY_ICONS[creatureType] or Art.GENERIC_CREATURE_ICON
+	texture:SetTexture(Art.SpeciesIcon(name, npcID))
 end
 
 ---@param texture Texture

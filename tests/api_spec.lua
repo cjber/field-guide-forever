@@ -154,6 +154,8 @@ assert(research:find("^" .. rare.count .. " / "), "the research count is the spe
 assert(detail.location.template == "InsetFrameTemplate", "zone artwork has its own native border")
 assert(detail.name:GetParent() == detail.content, "detail labels render above the content background")
 assert(detail.model.creatureID == 1019, "selection loads the selected NPC model")
+local _, _, _, dishuDisplay = ns.CreatureInfo.Get(1019)
+assert(detail.model.creatureDisplayID == dishuDisplay, "the model also gets the NPC's client display ID")
 assert(detail.model:GetParent() == cards.common, "the model lives in the common card")
 local loads = detail.model.creatureLoads
 detail.Show(ns.SpeciesById[1019], character, ns.SpeciesZone[1019])

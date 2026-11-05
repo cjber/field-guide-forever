@@ -11,6 +11,261 @@
     "y": 26
   },
   "scene_layouts": {
+    "creature-icons.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 229,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 rares",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 55,
+          "name": "tab plate 3 shiny",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 170
+        },
+        {
+          "h": 55,
+          "name": "tab plate 4 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 228
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 12,
+          "name": "Darnassus totals",
+          "role": "header",
+          "w": 178.5,
+          "x": 783.5,
+          "y": 56
+        },
+        {
+          "h": 12,
+          "name": "All zones totals",
+          "role": "header",
+          "w": 205.5,
+          "x": 756.5,
+          "y": 74
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
+          "h": 219,
+          "name": "Common card",
+          "role": "card",
+          "w": 164,
+          "x": 411.0,
+          "y": 194
+        },
+        {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
+          "h": 219,
+          "name": "Rare card",
+          "role": "card",
+          "w": 164,
+          "x": 595.0,
+          "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
+        },
+        {
+          "h": 219,
+          "name": "Shiny card",
+          "role": "card",
+          "w": 164,
+          "x": 779.0,
+          "y": 194
+        },
+        {
+          "h": 52,
+          "name": "Research strip",
+          "role": "card",
+          "w": 554,
+          "x": 400,
+          "y": 430
+        },
+        {
+          "h": 12,
+          "name": "Research bar",
+          "role": "progress",
+          "w": 534,
+          "x": 410,
+          "y": 460
+        },
+        {
+          "h": 102,
+          "name": "Records",
+          "role": "content",
+          "w": 350,
+          "x": 400,
+          "y": 500
+        },
+        {
+          "h": 22,
+          "name": "Open map",
+          "role": "button",
+          "w": 98,
+          "x": 856,
+          "y": 610
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 12,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 686
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
     "field-guide.png": {
       "canvas": {
         "height": 752,
@@ -105,6 +360,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -113,12 +404,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "Rare title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Rare status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -557,6 +884,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -565,12 +928,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "Rare title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Rare status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -748,6 +1147,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -756,12 +1191,48 @@
           "y": 194
         },
         {
+          "h": 16,
+          "name": "Rare title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Rare status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -939,6 +1410,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -947,12 +1454,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -1265,6 +1808,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -1273,12 +1852,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 16,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -1456,6 +2071,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -1464,12 +2115,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 16,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -1647,6 +2334,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -1655,12 +2378,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -1838,6 +2597,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -1846,12 +2641,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -2029,6 +2860,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -2037,12 +2904,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 16,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -2220,6 +3123,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -2228,12 +3167,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -2411,6 +3386,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -2419,12 +3430,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -2594,6 +3641,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -2602,12 +3685,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -2777,6 +3896,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -2785,12 +3940,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -2968,6 +4159,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -2976,12 +4203,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -3159,6 +4422,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -3167,12 +4466,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -3350,6 +4685,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -3358,12 +4729,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -3533,6 +4940,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -3541,12 +4984,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -3716,6 +5195,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -3724,12 +5239,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 16,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -3899,6 +5450,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -3907,12 +5494,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -4082,6 +5705,42 @@
           "y": 130
         },
         {
+          "h": 20,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 144
+        },
+        {
+          "h": 14,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 554,
+          "x": 400,
+          "y": 170
+        },
+        {
+          "h": 16,
+          "name": "Common title",
+          "parent": "Common card",
+          "role": "content",
+          "w": 164,
+          "x": 411.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Common status",
+          "parent": "Common card",
+          "role": "content",
+          "w": 148,
+          "x": 419.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Common card",
           "role": "card",
@@ -4090,12 +5749,48 @@
           "y": 194
         },
         {
+          "h": 12,
+          "name": "No rare form title",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 164,
+          "x": 595.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "No rare form status",
+          "parent": "Rare card",
+          "role": "content",
+          "w": 148,
+          "x": 603.0,
+          "y": 364
+        },
+        {
           "h": 219,
           "name": "Rare card",
           "role": "card",
           "w": 164,
           "x": 595.0,
           "y": 194
+        },
+        {
+          "h": 12,
+          "name": "Shiny title",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 164,
+          "x": 779.0,
+          "y": 338
+        },
+        {
+          "h": 10,
+          "name": "Shiny status",
+          "parent": "Shiny card",
+          "role": "content",
+          "w": 148,
+          "x": 787.0,
+          "y": 364
         },
         {
           "h": 219,
@@ -4166,6 +5861,7 @@
   },
   "scenes": [
     "field-guide.png",
+    "creature-icons.png",
     "rares.png",
     "shiny.png",
     "zone-0001.png",
@@ -4272,6 +5968,42 @@
       "y": 130
     },
     {
+      "h": 20,
+      "name": "Detail name",
+      "parent": "Detail pane",
+      "role": "content",
+      "w": 554,
+      "x": 400,
+      "y": 144
+    },
+    {
+      "h": 14,
+      "name": "Detail subtitle",
+      "parent": "Detail pane",
+      "role": "content",
+      "w": 554,
+      "x": 400,
+      "y": 170
+    },
+    {
+      "h": 16,
+      "name": "Common title",
+      "parent": "Common card",
+      "role": "content",
+      "w": 164,
+      "x": 411.0,
+      "y": 338
+    },
+    {
+      "h": 10,
+      "name": "Common status",
+      "parent": "Common card",
+      "role": "content",
+      "w": 148,
+      "x": 419.0,
+      "y": 364
+    },
+    {
       "h": 219,
       "name": "Common card",
       "role": "card",
@@ -4280,12 +6012,48 @@
       "y": 194
     },
     {
+      "h": 12,
+      "name": "No rare form title",
+      "parent": "Rare card",
+      "role": "content",
+      "w": 164,
+      "x": 595.0,
+      "y": 338
+    },
+    {
+      "h": 10,
+      "name": "No rare form status",
+      "parent": "Rare card",
+      "role": "content",
+      "w": 148,
+      "x": 603.0,
+      "y": 364
+    },
+    {
       "h": 219,
       "name": "Rare card",
       "role": "card",
       "w": 164,
       "x": 595.0,
       "y": 194
+    },
+    {
+      "h": 12,
+      "name": "Shiny title",
+      "parent": "Shiny card",
+      "role": "content",
+      "w": 164,
+      "x": 779.0,
+      "y": 338
+    },
+    {
+      "h": 10,
+      "name": "Shiny status",
+      "parent": "Shiny card",
+      "role": "content",
+      "w": 148,
+      "x": 787.0,
+      "y": 364
     },
     {
       "h": 219,

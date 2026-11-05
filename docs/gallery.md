@@ -10,6 +10,8 @@ Every scene `tools/mockups.py` renders. Written by that script; do not edit by h
 
 ![Creatures journal](screenshots/field-guide.png)
 
+![Creature list icons in Darnassus](screenshots/creature-icons.png)
+
 ![Rares page](screenshots/rares.png)
 
 ![Personal rare record](screenshots/rare-record.png)
