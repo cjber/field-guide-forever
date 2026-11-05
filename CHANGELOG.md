@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.25] - 2026-11-05
+
 - **No more "C stack overflow" errors from the micro-menu button.** It hooked the game's micro-menu update again on every refresh, so errors piled up and the frame rate dropped. It now hooks once.
 
 ## [0.3.24] - 2026-11-04
