@@ -9,6 +9,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 - **Pressing the micro-menu button no longer logs an error.** Every press logged "attempt to concatenate field 'textureName'" in Blizzard's micro menu code.
 - **A creature tooltip keeps a minimum width.** A short name such as "Rat" no longer squeezes the tooltip so the zone and variant lines under it wrap.
 
+## [0.3.29] - 2026-11-05
+
+- **The Forever addons settings page ends with a Ko-fi link.** If the addons help you, its Copy link button shows the address, ready to paste into your browser. Nothing is locked behind it, and it shows nowhere else.
+
 ## [0.3.28] - 2026-11-05
 
 - **The zone picker scrolls.** Choose a zone lists 20 zones at a time and scrolls the rest, so every zone stays reachable on any screen.
