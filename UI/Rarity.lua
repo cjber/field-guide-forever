@@ -12,19 +12,12 @@ Rarity.COLORS = {
 }
 
 local PLATE_ACCENT_ALPHA = 0.72
-local PLATE_BORDER_SIZE = 2
-local BAR_GLOW_ALPHA = 0.8
-local BAR_GLOW_PAD = 3
+local WHITE = "Interface\\Buttons\\WHITE8X8"
+local BAR_GLOW_LEFT = "UI-Frame-Bar-GlowLeft"
+local BAR_GLOW_CENTER = "UI-Frame-Bar-GlowCenter"
+local BAR_GLOW_RIGHT = "UI-Frame-Bar-GlowRight"
 local BAR_GLOW_LEFT_WIDTH = 35
 local BAR_GLOW_RIGHT_WIDTH = 34
-local BAR_TINT_ALPHA = { silver = 0.3, gold = 0.3, shiny = 0.45 }
-local TARGET_RING_ALPHA = 1
-local TARGET_RING_SIZE = 76
-local TARGET_BADGE_SIZE = 26
-local WHITE = "Interface\\Buttons\\WHITE8X8"
-local TARGET_BAR_GLOW_LEFT = "UI-Frame-Bar-GlowLeft"
-local TARGET_BAR_GLOW_CENTER = "UI-Frame-Bar-GlowCenter"
-local TARGET_BAR_GLOW_RIGHT = "UI-Frame-Bar-GlowRight"
 local TARGET_RING = "Portrait-Frame-Small"
 local TARGET_BADGE = "Rare-Elite-Star"
 local PLATE_MARKS = {
@@ -32,11 +25,29 @@ local PLATE_MARKS = {
 	gold = "nameplates-icon-elite-gold",
 	shiny = TARGET_BADGE,
 }
+local PLATE_GLOW_LAYERS = {
+	{ pad = 9, alpha = 0.22 },
+	{ pad = 4, alpha = 0.55 },
+	{ pad = 1, alpha = 1 },
+}
+local TARGET_GLOW_LAYERS = {
+	{ pad = 9, alpha = 0.12 },
+	{ pad = 5, alpha = 0.28 },
+	{ pad = 2, alpha = 0.9 },
+}
+local TARGET_PORTRAIT_GLOW_LAYERS = {
+	{ size = 96, alpha = 0.12 },
+	{ size = 88, alpha = 0.28 },
+	{ size = 80, alpha = 0.6 },
+	{ size = 74, alpha = 1 },
+}
+local TAG_HEIGHT = 15
+local TAG_PAD = 4
+local TAG_TEXT = { 0.05, 0.06, 0.07 }
+local TARGET_TAGS = { silver = "RARE", gold = "RARE", shiny = "SHINY" }
 local PREVIEW_TIERS = { "silver", "gold", "shiny" }
 local discoveredThisSession = {}
 
----@type table<table, { desaturated: boolean, r: number, g: number, b: number, a: number, painted: number[] }>
-local originals = {}
 ---@type table<string, table>
 local platesByUnit = {}
 
@@ -44,6 +55,7 @@ local platesByUnit = {}
 local previewTiers = {}
 local previewNext = 0
 local previewWasActive = false
+local targetPending = false
 
 ---@param species FGSpecies?
 ---@return string
@@ -87,86 +99,275 @@ local function TierFor(unit, species)
 	return tier
 end
 
----@param texture table?
-local function Restore(texture)
-	local original = texture and originals[texture]
-	if not texture or not original then
-		return
+---@return boolean
+local function InCombat()
+	return InCombatLockdown and InCombatLockdown() or false
+end
+
+---@param target table?
+---@return table?
+local function TargetPortrait(target)
+	return target and (target.portrait or target.Portrait) or TargetFramePortrait
+end
+
+---@param target table?
+---@return table?
+local function TargetPowerBar(target)
+	if not target then
+		return nil
 	end
-	originals[texture] = nil
-	local r, g, b, a = texture:GetVertexColor()
-	local painted = original.painted
-	-- Each property may have another writer. Undo only the values we still own.
-	if texture:IsDesaturated() then
-		texture:SetDesaturated(original.desaturated)
-	end
-	if r == painted[1] and g == painted[2] and b == painted[3] and a == painted[4] then
-		texture:SetVertexColor(original.r, original.g, original.b, original.a)
+	for _, key in ipairs({ "manabar", "ManaBar", "powerbar", "PowerBar" }) do
+		local bar = target[key]
+		if type(bar) == "table" then
+			return bar
+		end
 	end
 end
 
----@param texture table?
----@param tier string
-local function Paint(texture, tier)
-	if not texture or not texture.GetVertexColor then
+---@param bar table?
+---@param color number[]?
+local function SetBarColor(bar, color)
+	if not bar or not bar.SetStatusBarColor then
 		return
 	end
-	Restore(texture)
-	local color = Rarity.COLORS[tier]
+	local original = bar.FGFRarityOriginalColor
+	if type(original) ~= "table" then
+		original = nil
+	end
+	if not original and bar.GetStatusBarColor then
+		local r, g, b, a = bar:GetStatusBarColor()
+		original = { r or 1, g or 1, b or 1, a or 1 }
+		bar.FGFRarityOriginalColor = original
+	end
 	if color then
-		local r, g, b, a = texture:GetVertexColor()
-		local original = {
-			desaturated = texture.IsDesaturated and texture:IsDesaturated() or false,
-			r = r or 1,
-			g = g or 1,
-			b = b or 1,
-			a = a or 1,
-			painted = {},
-		}
-		texture:SetDesaturated(true)
-		texture:SetVertexColor(color[1], color[2], color[3], 1)
-		-- Read back the engine's colour precision before comparing it on cleanup.
-		original.painted = { texture:GetVertexColor() } -- multi-value: retain the four colour channels
-		originals[texture] = original
+		bar:SetStatusBarColor(color[1], color[2], color[3], 1)
+	elseif original then
+		bar:SetStatusBarColor(original[1], original[2], original[3], original[4])
+	end
+end
+
+---@param name table?
+---@param color number[]?
+local function SetNameColor(name, color)
+	if not name or not name.SetTextColor then
+		return
+	end
+	local original = name.FGFRarityOriginalTextColor
+	if type(original) ~= "table" then
+		original = nil
+	end
+	if not original and name.GetTextColor then
+		local r, g, b, a = name:GetTextColor()
+		original = { r or 1, g or 1, b or 1, a or 1 }
+		name.FGFRarityOriginalTextColor = original
+	end
+	if color then
+		name:SetTextColor(color[1], color[2], color[3], 1)
+	elseif original then
+		name:SetTextColor(original[1], original[2], original[3], original[4])
 	end
 end
 
 ---@param owner table
----@param healthBar table
+---@param layers { pad: number, alpha: number }[]
 ---@return table?
-local function PlateBorder(owner, healthBar)
-	local border = owner.FGFRarityBorder
-	if type(border) == "table" then
-		return border
+local function CreateBarGlow(owner, layers)
+	local glow = owner.FGFRarityBarGlow
+	if type(glow) == "table" then
+		return glow
 	end
 	if not owner.CreateTexture then
 		return nil
 	end
-	border = {}
-	local function Edge()
-		local texture = owner:CreateTexture(nil, "OVERLAY")
-		texture:SetTexture(WHITE)
-		return texture
+	glow = {}
+	for index, layer in ipairs(layers) do
+		local textures = {}
+		for _, piece in ipairs({
+			{ "left", BAR_GLOW_LEFT },
+			{ "center", BAR_GLOW_CENTER },
+			{ "right", BAR_GLOW_RIGHT },
+		}) do
+			local texture = owner:CreateTexture(nil, "OVERLAY")
+			texture:SetAtlas(piece[2])
+			texture:SetBlendMode("ADD")
+			texture:SetDesaturated(true)
+			textures[piece[1]] = texture
+		end
+		glow[index] = { pad = layer.pad, alpha = layer.alpha, textures = textures }
 	end
-	local top = Edge()
-	top:SetPoint("TOPLEFT", healthBar, "TOPLEFT", 0, 0)
-	top:SetPoint("TOPRIGHT", healthBar, "TOPRIGHT", 0, 0)
-	top:SetHeight(PLATE_BORDER_SIZE)
-	local bottom = Edge()
-	bottom:SetPoint("BOTTOMLEFT", healthBar, "BOTTOMLEFT", 0, 0)
-	bottom:SetPoint("BOTTOMRIGHT", healthBar, "BOTTOMRIGHT", 0, 0)
-	bottom:SetHeight(PLATE_BORDER_SIZE)
-	local left = Edge()
-	left:SetPoint("TOPLEFT", healthBar, "TOPLEFT", 0, 0)
-	left:SetPoint("BOTTOMLEFT", healthBar, "BOTTOMLEFT", 0, 0)
-	left:SetWidth(PLATE_BORDER_SIZE)
-	local right = Edge()
-	right:SetPoint("TOPRIGHT", healthBar, "TOPRIGHT", 0, 0)
-	right:SetPoint("BOTTOMRIGHT", healthBar, "BOTTOMRIGHT", 0, 0)
-	right:SetWidth(PLATE_BORDER_SIZE)
-	border.top, border.bottom, border.left, border.right = top, bottom, left, right
-	owner.FGFRarityBorder = border
-	return border
+	owner.FGFRarityBarGlow = glow
+	return glow
+end
+
+---@param glow table
+---@param healthBar table
+---@param bottomBar table
+local function AnchorBarGlow(glow, healthBar, bottomBar)
+	for _, layer in ipairs(glow) do
+		local pad = layer.pad
+		local left, center, right = layer.textures.left, layer.textures.center, layer.textures.right
+		left:ClearAllPoints()
+		left:SetPoint("TOPLEFT", healthBar, "TOPLEFT", -pad, pad)
+		left:SetPoint("BOTTOMLEFT", bottomBar, "BOTTOMLEFT", -pad, -pad)
+		left:SetWidth(BAR_GLOW_LEFT_WIDTH)
+		right:ClearAllPoints()
+		right:SetPoint("TOPRIGHT", healthBar, "TOPRIGHT", pad, pad)
+		right:SetPoint("BOTTOMRIGHT", bottomBar, "BOTTOMRIGHT", pad, -pad)
+		right:SetWidth(BAR_GLOW_RIGHT_WIDTH)
+		center:ClearAllPoints()
+		center:SetPoint("TOPLEFT", left, "TOPRIGHT", 0, 0)
+		center:SetPoint("BOTTOMRIGHT", right, "BOTTOMLEFT", 0, 0)
+	end
+end
+
+---@param glow table?
+---@param color number[]?
+local function PaintBarGlow(glow, color)
+	if type(glow) ~= "table" then
+		return
+	end
+	for _, layer in ipairs(glow) do
+		for _, texture in pairs(layer.textures) do
+			if color then
+				texture:SetVertexColor(color[1], color[2], color[3], 1)
+				texture:SetAlpha(layer.alpha)
+				texture:Show()
+			else
+				texture:Hide()
+			end
+		end
+	end
+end
+
+---@param target table
+---@param portrait table?
+---@return table?
+local function CreatePortraitGlow(target, portrait)
+	local glow = target.FGFRarityPortraitGlow
+	if type(glow) == "table" then
+		return glow
+	end
+	if not portrait or not target.CreateTexture then
+		return nil
+	end
+	glow = {}
+	for index, layer in ipairs(TARGET_PORTRAIT_GLOW_LAYERS) do
+		local texture = target:CreateTexture(nil, "OVERLAY")
+		texture:SetAtlas(TARGET_RING)
+		texture:SetBlendMode("ADD")
+		texture:SetDesaturated(true)
+		texture:SetSize(layer.size, layer.size)
+		texture:SetPoint("CENTER", portrait, "CENTER", 0, 0)
+		glow[index] = { texture = texture, alpha = layer.alpha }
+	end
+	target.FGFRarityPortraitGlow = glow
+	return glow
+end
+
+---@param layer table
+local function StopPulse(layer)
+	local pulse = layer.pulse
+	if type(pulse) == "table" then
+		pulse:Stop()
+	end
+	layer.texture:SetAlpha(layer.alpha)
+end
+
+---@param layer table
+local function StartPulse(layer)
+	local texture = layer.texture
+	if not texture.CreateAnimationGroup then
+		texture:SetAlpha(layer.alpha)
+		return
+	end
+	local pulse = layer.pulse
+	if type(pulse) ~= "table" then
+		pulse = texture:CreateAnimationGroup()
+		pulse:SetLooping("REPEAT")
+		local fadeIn = pulse:CreateAnimation("Alpha")
+		fadeIn:SetFromAlpha(layer.alpha * 0.55)
+		fadeIn:SetToAlpha(layer.alpha)
+		fadeIn:SetDuration(1.2)
+		fadeIn:SetOrder(1)
+		local fadeOut = pulse:CreateAnimation("Alpha")
+		fadeOut:SetFromAlpha(layer.alpha)
+		fadeOut:SetToAlpha(layer.alpha * 0.55)
+		fadeOut:SetDuration(1.2)
+		fadeOut:SetOrder(2)
+		layer.pulse = pulse
+	end
+	texture:SetAlpha(layer.alpha)
+	pulse:Play()
+end
+
+---@param glow table?
+---@param color number[]?
+---@param tier string
+local function PaintPortraitGlow(glow, color, tier)
+	if type(glow) ~= "table" then
+		return
+	end
+	for _, layer in ipairs(glow) do
+		if color then
+			layer.texture:SetVertexColor(color[1], color[2], color[3], 1)
+			layer.texture:SetAlpha(layer.alpha)
+			layer.texture:Show()
+			if tier == "shiny" then
+				StartPulse(layer)
+			else
+				StopPulse(layer)
+			end
+		else
+			StopPulse(layer)
+			layer.texture:Hide()
+		end
+	end
+end
+
+---@param target table?
+---@param name table?
+---@return table?
+local function TargetTag(target, name)
+	if not target or not name then
+		return nil
+	end
+	local tag = target.FGFRarityTag
+	if type(tag) == "table" then
+		return tag
+	end
+	if not target.CreateFrame then
+		return nil
+	end
+	tag = CreateFrame("Frame", nil, target)
+	tag.plate = tag:CreateTexture(nil, "BACKGROUND")
+	tag.plate:SetTexture(WHITE)
+	tag.plate:SetAllPoints(tag)
+	tag.text = tag:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	tag.text:SetPoint("CENTER", tag, "CENTER", 0, 0)
+	tag.text:SetTextColor(TAG_TEXT[1], TAG_TEXT[2], TAG_TEXT[3], 1)
+	tag:SetPoint("BOTTOM", name, "TOP", 0, 2)
+	tag:Hide()
+	target.FGFRarityTag = tag
+	return tag
+end
+
+---@param target table?
+---@param name table?
+---@param color number[]?
+---@param label string?
+local function PaintTag(target, name, color, label)
+	local tag = TargetTag(target, name)
+	if not tag then
+		return
+	end
+	if color and label then
+		tag.text:SetText(ns.L[label])
+		tag.plate:SetVertexColor(color[1], color[2], color[3], 1)
+		tag:SetSize(math.max(24, tag.text:GetStringWidth() + TAG_PAD * 2), TAG_HEIGHT)
+		tag:Show()
+	else
+		tag:Hide()
+	end
 end
 
 ---@param owner table?
@@ -174,8 +375,7 @@ end
 ---@param healthBar table?
 ---@param tier string
 ---@param discovery boolean?
----@param border boolean?
-local function UpdateAccent(owner, name, healthBar, tier, discovery, border)
+local function UpdateAccent(owner, name, healthBar, tier, discovery)
 	if not owner then
 		return
 	end
@@ -212,268 +412,53 @@ local function UpdateAccent(owner, name, healthBar, tier, discovery, border)
 			marker:Hide()
 		end
 	end
-	local edges = border and healthBar and PlateBorder(owner, healthBar) or owner.FGFRarityBorder
-	if type(edges) == "table" then
-		for _, texture in pairs(edges) do
-			if color then
-				texture:SetVertexColor(color[1], color[2], color[3], 0.9)
-				texture:Show()
-			else
-				texture:Hide()
-			end
-		end
-	end
-end
-
----@param target table?
----@return table?
-local function TargetPortrait(target)
-	return target and (target.portrait or target.Portrait) or TargetFramePortrait
-end
-
----@param target table?
----@return table?
-local function TargetPowerBar(target)
-	if not target then
-		return nil
-	end
-	for _, key in ipairs({ "manabar", "ManaBar", "powerbar", "PowerBar" }) do
-		local bar = target[key]
-		if type(bar) == "table" then
-			return bar
-		end
-	end
-end
-
--- The bar's own background, behind the StatusBar fill, so the empty part of each bar reads as the tier while the
--- filled part keeps the client's health and power colours.
----@param bar table
----@return table?
-local function BarTint(bar)
-	local tint = bar.FGFRarityTint
-	if type(tint) == "table" then
-		return tint
-	end
-	if not bar.CreateTexture then
-		return nil
-	end
-	tint = bar:CreateTexture(nil, "BACKGROUND", nil, 1)
-	tint:SetTexture(WHITE)
-	tint:SetAllPoints(bar)
-	bar.FGFRarityTint = tint
-	return tint
-end
-
----@param bar table?
----@param color number[]?
----@param alpha number
-local function PaintBarTint(bar, color, alpha)
-	local tint = type(bar) == "table" and BarTint(bar) or nil
-	if not tint then
-		return
-	end
-	if color then
-		tint:SetVertexColor(color[1], color[2], color[3], alpha)
-		tint:Show()
-	else
-		tint:Hide()
-	end
-end
-
----@param glow table
-local function StopShinyPulse(glow)
-	local pulse = glow.FGFRarityPulse
-	if type(pulse) == "table" then
-		pulse:Stop()
-	end
-	glow:SetAlpha(TARGET_RING_ALPHA)
-end
-
----@param glow table
-local function StartShinyPulse(glow)
-	if not glow.CreateAnimationGroup then
-		return
-	end
-	local pulse = glow.FGFRarityPulse
-	if type(pulse) ~= "table" then
-		pulse = glow:CreateAnimationGroup()
-		pulse:SetLooping("REPEAT")
-		local fadeIn = pulse:CreateAnimation("Alpha")
-		fadeIn:SetFromAlpha(0.35)
-		fadeIn:SetToAlpha(1)
-		fadeIn:SetDuration(0.8)
-		fadeIn:SetOrder(1)
-		local fadeOut = pulse:CreateAnimation("Alpha")
-		fadeOut:SetFromAlpha(1)
-		fadeOut:SetToAlpha(0.35)
-		fadeOut:SetDuration(0.8)
-		fadeOut:SetOrder(2)
-		glow.FGFRarityPulse = pulse
-	end
-	glow:SetAlpha(1)
-	pulse:Play()
-end
-
----@param target table
----@return table?
-local function TargetBarGlow(target)
-	local glow = target.FGFRarityBarGlow
+	local glow = CreateBarGlow(owner, PLATE_GLOW_LAYERS)
 	if type(glow) == "table" then
-		return glow
+		if color and healthBar then
+			AnchorBarGlow(glow, healthBar, healthBar)
+			PaintBarGlow(glow, color)
+		else
+			PaintBarGlow(glow, nil)
+		end
 	end
-	if not target.CreateTexture then
-		return nil
-	end
-	glow = {}
-	for key, atlas in pairs({
-		left = TARGET_BAR_GLOW_LEFT,
-		center = TARGET_BAR_GLOW_CENTER,
-		right = TARGET_BAR_GLOW_RIGHT,
-	}) do
-		local texture = target:CreateTexture(nil, "BACKGROUND", nil, -8)
-		texture:SetAtlas(atlas)
-		texture:SetBlendMode("ADD")
-		texture:SetDesaturated(true)
-		glow[key] = texture
-	end
-	target.FGFRarityBarGlow = glow
-	return glow
 end
 
----@param glow table
----@param healthBar table
----@param bottomBar table
-local function AnchorBarGlow(glow, healthBar, bottomBar)
-	glow.left:ClearAllPoints()
-	glow.left:SetPoint("TOPLEFT", healthBar, "TOPLEFT", -BAR_GLOW_PAD, BAR_GLOW_PAD)
-	glow.left:SetPoint("BOTTOMLEFT", bottomBar, "BOTTOMLEFT", -BAR_GLOW_PAD, -BAR_GLOW_PAD)
-	glow.left:SetWidth(BAR_GLOW_LEFT_WIDTH)
-	glow.right:ClearAllPoints()
-	glow.right:SetPoint("TOPRIGHT", healthBar, "TOPRIGHT", BAR_GLOW_PAD, BAR_GLOW_PAD)
-	glow.right:SetPoint("BOTTOMRIGHT", bottomBar, "BOTTOMRIGHT", BAR_GLOW_PAD, -BAR_GLOW_PAD)
-	glow.right:SetWidth(BAR_GLOW_RIGHT_WIDTH)
-	glow.center:ClearAllPoints()
-	glow.center:SetPoint("TOPLEFT", glow.left, "TOPRIGHT", 0, 0)
-	glow.center:SetPoint("BOTTOMRIGHT", glow.right, "BOTTOMLEFT", 0, 0)
-end
-
----@param target table?
----@param tier string
----@param discovery boolean?
-local function UpdateTargetMark(target, tier, discovery)
-	if not target or not target.CreateTexture then
+local function UpdateTarget()
+	if InCombat() then
+		targetPending = true
 		return
 	end
+	local zone = ns.CurrentZone()
+	local unitName = ns.Readable(UnitName("target"))
+	local species = ns.FindSpecies(unitName, zone)
+	local tier = TierFor("target", species)
 	local color = Rarity.COLORS[tier]
-	local tintAlpha = BAR_TINT_ALPHA[tier] or 0.3
-	local portrait = TargetPortrait(target)
-	local healthBar = target.healthbar or target.HealthBar
+	local target = _G.TargetFrame
+	local name = target and (target.name or target.Name)
+	if type(name) ~= "table" then
+		name = nil
+	end
+	local healthBar = target and (target.healthbar or target.HealthBar)
 	if type(healthBar) ~= "table" then
 		healthBar = nil
 	end
 	local powerBar = TargetPowerBar(target)
-	local bottomBar = powerBar or healthBar
-	local barGlow = TargetBarGlow(target)
-	local ring = target.FGFRarityRing
-	if type(ring) == "function" then
-		ring = nil
-	end
-	if not ring then
-		ring = target:CreateTexture(nil, "OVERLAY")
-		ring:SetAtlas(TARGET_RING)
-		ring:SetBlendMode("ADD")
-		ring:SetDesaturated(true)
-		ring:SetSize(TARGET_RING_SIZE, TARGET_RING_SIZE)
-		if portrait then
-			ring:SetPoint("CENTER", portrait, "CENTER", 0, 0)
-		else
-			ring:SetPoint("CENTER", target, "TOPRIGHT", -34, -34)
-		end
-		target.FGFRarityRing = ring
-	end
-	local badge = target.FGFRarityBadge
-	if type(badge) == "function" then
-		badge = nil
-	end
-	if not badge then
-		badge = target:CreateTexture(nil, "OVERLAY")
-		badge:SetAtlas(TARGET_BADGE)
-		badge:SetBlendMode("ADD")
-		badge:SetSize(TARGET_BADGE_SIZE, TARGET_BADGE_SIZE)
-		if portrait then
-			badge:SetPoint("CENTER", portrait, "TOPRIGHT", -5, -5)
-		else
-			badge:SetPoint("CENTER", target, "TOPRIGHT", -20, -20)
-		end
-		target.FGFRarityBadge = badge
-	end
-	if color and healthBar and bottomBar and barGlow then
-		AnchorBarGlow(barGlow, healthBar, bottomBar)
-		for _, texture in pairs(barGlow) do
-			texture:SetVertexColor(color[1], color[2], color[3], 1)
-			texture:SetAlpha(BAR_GLOW_ALPHA)
-			texture:Show()
-		end
-	elseif barGlow then
-		for _, texture in pairs(barGlow) do
-			texture:Hide()
-		end
-	end
-	PaintBarTint(healthBar, color, tintAlpha)
-	PaintBarTint(powerBar, color, tintAlpha)
-	if color and portrait then
-		ring:SetVertexColor(color[1], color[2], color[3], 1)
-		ring:SetAlpha(TARGET_RING_ALPHA)
-		ring:Show()
-		if tier == "shiny" then
-			StartShinyPulse(ring)
-		else
-			StopShinyPulse(ring)
-		end
-	else
-		StopShinyPulse(ring)
-		ring:Hide()
-	end
-	if color then
-		badge:SetVertexColor(color[1], color[2], color[3], 1)
-		badge:SetAlpha(discovery and 1 or 0.9)
-		badge:Show()
-	else
-		badge:Hide()
-	end
-end
+	local portrait = TargetPortrait(target)
 
-local function TargetChrome()
-	local target = _G.TargetFrame
-	local container = target and target.TargetFrameContainer
-	return (container and container.FrameTexture) or (target and target.TargetFrameTextureFrameTexture)
-end
-
-local function UpdateTarget()
-	local zone = ns.CurrentZone()
-	local name = ns.Readable(UnitName("target"))
-	local species = ns.FindSpecies(name, zone)
-	local tier = TierFor("target", species)
-	Paint(TargetChrome(), tier)
-	local target = _G.TargetFrame
-	local entry = species and ns.Model.Specimen(ns.GetCharacterState(false), species.id)
-	local discovery = species
-		and entry
-		and entry.firstSighting
-		and not discoveredThisSession[species.id]
-		and entry.firstSighting == (time and time() or 0)
-	if species and discovery then
-		discoveredThisSession[species.id] = true
+	SetBarColor(healthBar, color)
+	SetNameColor(name, color)
+	local glow = target and CreateBarGlow(target, TARGET_GLOW_LAYERS)
+	if type(glow) == "table" then
+		if color and healthBar then
+			AnchorBarGlow(glow, healthBar, powerBar or healthBar)
+			PaintBarGlow(glow, color)
+		else
+			PaintBarGlow(glow, nil)
+		end
 	end
-	UpdateAccent(
-		target,
-		target and (target.name or target.Name),
-		target and (target.healthbar or target.HealthBar),
-		tier,
-		discovery,
-		false
-	)
-	UpdateTargetMark(target, tier, discovery)
+	local portraitGlow = target and CreatePortraitGlow(target, portrait)
+	PaintPortraitGlow(portraitGlow, color, tier)
+	PaintTag(target, name, color, TARGET_TAGS[tier])
 end
 
 ---@param plate table
@@ -481,11 +466,13 @@ end
 local function UpdatePlate(plate, unit)
 	local frame = plate and plate.UnitFrame
 	local healthBar = frame and frame.healthBar
-	local trough = healthBar and healthBar.bgTexture
-	local name = ns.Readable(UnitName(unit))
-	local species = ns.FindSpecies(name, ns.CurrentZone())
+	local name = frame and (frame.name or frame.Name)
+	local unitName = ns.Readable(UnitName(unit))
+	local species = ns.FindSpecies(unitName, ns.CurrentZone())
 	local tier = TierFor(unit, species)
-	Paint(trough, tier)
+	local color = Rarity.COLORS[tier]
+	SetBarColor(healthBar, color)
+	SetNameColor(name, color)
 	local entry = species and ns.Model.Specimen(ns.GetCharacterState(false), species.id)
 	local discovery = species
 		and entry
@@ -495,7 +482,7 @@ local function UpdatePlate(plate, unit)
 	if species and discovery then
 		discoveredThisSession[species.id] = true
 	end
-	UpdateAccent(frame, frame and (frame.name or frame.Name), healthBar, tier, discovery, true)
+	UpdateAccent(frame, name, healthBar, tier, discovery)
 end
 
 -- Redraw every visible mark after the preview toggles, so the change is immediate rather than waiting for the next
@@ -512,11 +499,17 @@ end
 
 local events = CreateFrame("Frame")
 events:RegisterEvent("PLAYER_TARGET_CHANGED")
+events:RegisterEvent("PLAYER_REGEN_ENABLED")
 events:RegisterEvent("NAME_PLATE_UNIT_ADDED")
 events:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
 events:SetScript("OnEvent", function(_, event, unit)
 	if event == "PLAYER_TARGET_CHANGED" then
 		UpdateTarget()
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		if targetPending then
+			targetPending = false
+			UpdateTarget()
+		end
 	elseif not C_NamePlate or not C_NamePlate.GetNamePlateForUnit then
 		return
 	else
@@ -534,8 +527,14 @@ events:SetScript("OnEvent", function(_, event, unit)
 			local frame = plate and plate.UnitFrame
 			local bar = frame and frame.healthBar
 			if frame and bar then
-				Restore(bar.bgTexture)
-				UpdateAccent(frame, frame.name or frame.Name, bar, "copper", false, true)
+				SetBarColor(bar, nil)
+				local name = frame.name or frame.Name
+				if type(name) == "table" then
+					SetNameColor(name, nil)
+					name.FGFRarityOriginalTextColor = nil
+				end
+				bar.FGFRarityOriginalColor = nil
+				UpdateAccent(frame, type(name) == "table" and name or nil, bar, "copper", false)
 			end
 		end
 	end

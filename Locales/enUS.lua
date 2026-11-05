@@ -84,6 +84,7 @@ local L = {
 	["Kill"] = "Kill",
 	["Rare"] = "Rare",
 	["Shiny"] = "Shiny",
+	["RARE"] = "RARE",
 	["Rare species"] = "Rare species",
 	["Shiny seen"] = "Shiny seen",
 	["★ Rare variant known"] = "★ Rare variant known",

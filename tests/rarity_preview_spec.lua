@@ -24,7 +24,9 @@ chrome:SetVertexColor(1, 1, 1, 1)
 local target = Mock.CreateFrame("Frame")
 target.TargetFrameContainer = { FrameTexture = chrome }
 target.name = target:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+target.name:SetTextColor(1, 1, 1, 1)
 target.healthbar = Mock.CreateFrame("Frame")
+target.healthbar:SetStatusBarColor(0.2, 0.6, 0.2, 1)
 target.portrait = Mock.NewRegion("Texture")
 harness.env.TargetFrame = target
 
@@ -76,34 +78,39 @@ assert(not ns.RarityPreviewActive(), "the slash command turns the preview off")
 Mock.units.target = "Silver Test Creature"
 Mock.guids.target = "Creature-0-1-0-1-1025-0000000002"
 slash("preview")
-local seen = { [target.FGFRarityMarker:GetAtlas()] = true }
-assert(target.FGFRarityMarker:IsShown(), "the preview marks the target")
-assert(target.FGFRarityRing:IsShown() and target.FGFRarityBadge:IsShown(), "the preview marks the target portrait")
-assert(target.FGFRarityBarGlow.center:IsShown(), "the preview marks the target bars")
+local silverColour = ns.Rarity.COLORS.silver
+local goldColour = ns.Rarity.COLORS.gold
+local shinyColour = ns.Rarity.COLORS.shiny
+local function AssertBar(colour, label)
+	local r, g, b = target.healthbar:GetStatusBarColor()
+	assert(r == colour[1] and g == colour[2] and b == colour[3], label)
+end
+AssertBar(silverColour, "the preview paints the target health bar silver")
+assert(target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() == "RARE", "silver previews RARE")
+assert(target.FGFRarityBarGlow[1].textures.center:IsShown(), "the preview marks the target bars")
+assert(target.FGFRarityPortraitGlow[1].texture:IsShown(), "the preview marks the target portrait")
 
 local function targetCreature(name, guid)
 	Mock.units.target = name
 	Mock.guids.target = guid
 	Mock.Fire("PLAYER_TARGET_CHANGED")
-	seen[target.FGFRarityMarker:GetAtlas()] = true
 end
 targetCreature("Gold Test Creature", "Creature-0-1-0-1-1100-0000000001")
-assert(target.FGFRarityMarker:GetAtlas() == "nameplates-icon-elite-gold", "the gold preview tier uses the gold mark")
+AssertBar(goldColour, "the preview paints the target health bar gold")
+assert(target.FGFRarityTag.text:GetText() == "RARE", "gold previews RARE")
 targetCreature("Shiny Test Creature", "Creature-0-1-0-1-2000-0000000001")
-assert(target.FGFRarityMarker:GetAtlas() == "Rare-Elite-Star", "the shiny preview tier uses the star")
-assert(target.FGFRarityRing.FGFRarityPulse:IsPlaying(), "a shiny target pulses its portrait ring")
-assert(seen["nameplates-icon-elite-silver"], "silver appears in the preview rotation")
-assert(seen["nameplates-icon-elite-gold"], "gold appears in the preview rotation")
-assert(seen["Rare-Elite-Star"], "shiny appears in the preview rotation")
+AssertBar(shinyColour, "the preview paints the target health bar cyan")
+assert(target.FGFRarityTag.text:GetText() == "SHINY", "shiny previews SHINY")
+assert(target.FGFRarityPortraitGlow[1].pulse:IsPlaying(), "a shiny target pulses its portrait aura")
 
 -- Nameplates take the preview tier and give it back on removal and when preview turns off.
-local trough = Mock.NewRegion("Texture")
-trough:SetVertexColor(1, 1, 1, 1)
+local plateColour = { 0.64, 0.2, 0.17, 1 }
+local plateNameColour = { 1, 1, 1, 1 }
 local unitFrame = Mock.CreateFrame("Frame")
 unitFrame.name = unitFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+unitFrame.name:SetTextColor(unpack(plateNameColour))
 unitFrame.healthBar = Mock.CreateFrame("Frame")
-unitFrame.healthBar.bgTexture = trough
-unitFrame.healthBar.background, unitFrame.healthBar.Background = false, false
+unitFrame.healthBar:SetStatusBarColor(unpack(plateColour))
 local plate = { UnitFrame = unitFrame }
 local plateAttached = true
 harness.env.C_NamePlate = {
@@ -115,21 +122,36 @@ Mock.units.nameplate1 = "Copper Test Creature"
 Mock.guids.nameplate1 = "Creature-0-1-0-1-1001-0000000001"
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 assert(unitFrame.FGFRarityMarker:IsShown(), "a nameplate shows the preview tier mark")
-assert(unitFrame.FGFRarityBorder.top:IsShown(), "a nameplate shows the preview tier border")
-assert(trough:IsDesaturated(), "a nameplate takes the preview tier colour")
+assert(unitFrame.FGFRarityBarGlow[1].textures.center:IsShown(), "a nameplate shows the preview tier aura")
+local previewR, previewG, previewB = unitFrame.healthBar:GetStatusBarColor()
+assert(
+	previewR ~= plateColour[1] or previewG ~= plateColour[2] or previewB ~= plateColour[3],
+	"a nameplate fill takes the preview tier colour"
+)
 
 plateAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
+local restoredR, restoredG, restoredB = unitFrame.healthBar:GetStatusBarColor()
+assert(
+	restoredR == plateColour[1] and restoredG == plateColour[2] and restoredB == plateColour[3],
+	"removing a nameplate restores its fill"
+)
 assert(not unitFrame.FGFRarityMarker:IsShown(), "removing a nameplate clears its preview mark")
-assert(not unitFrame.FGFRarityBorder.top:IsShown(), "removing a nameplate clears its preview border")
-assert(not trough:IsDesaturated(), "removing a nameplate restores its trough")
+assert(not unitFrame.FGFRarityBarGlow[1].textures.center:IsShown(), "removing a nameplate clears its aura")
 
 plateAttached = true
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 slash("preview")
 assert(not ns.RarityPreviewActive(), "preview turns off again")
+local offR, offG, offB = unitFrame.healthBar:GetStatusBarColor()
+assert(
+	offR == plateColour[1] and offG == plateColour[2] and offB == plateColour[3],
+	"a copper nameplate keeps the client fill once preview is off"
+)
 assert(not unitFrame.FGFRarityMarker:IsShown(), "a copper nameplate keeps no mark once preview is off")
-assert(not unitFrame.FGFRarityBorder.top:IsShown(), "a copper nameplate keeps no border once preview is off")
-assert(not trough:IsDesaturated(), "a copper nameplate keeps the client trough once preview is off")
+assert(
+	not unitFrame.FGFRarityBarGlow[1].textures.center:IsShown(),
+	"a copper nameplate keeps no aura once preview is off"
+)
 
 print("rarity preview: ok")
