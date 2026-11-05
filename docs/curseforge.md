@@ -1,5 +1,7 @@
 Field Guide Forever keeps a journal of the creatures you kill in Azeroth, zone by zone. It is cosmetic only: it never grants power, changes combat or calls a protected function.
 
+Free, with nothing locked behind it. If you enjoy it, you can [buy me a coffee on Ko-fi](https://ko-fi.com/cjber).
+
 ![The Field Guide stepping through creatures, instances, rares and shinies in several zones](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/demo.gif)
 
 Every catalogued zone has its own page of creatures, with your kills and research rank for each.
@@ -57,7 +59,5 @@ Each one works on its own, and they work together when you install more than one
 <!-- forever-family:end -->
 
 Source code: [github.com/cjber/field-guide-forever](https://github.com/cjber/field-guide-forever). Licence: GPL-3.0-or-later.
-
-The addon is free. If you enjoy it, you can [buy me a coffee on Ko-fi](https://ko-fi.com/cjber59408).
 
 Built with AI assistance.
