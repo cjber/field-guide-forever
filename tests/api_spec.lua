@@ -135,29 +135,26 @@ end
 local rare = API.Specimen(1019)
 assert(rare and rare.rareCount == ns.Model.RARE_TARGET and rare.rare, "rare sightings reach the variant target")
 
--- The detail page reads the character's state: a known rare variant and the tracked species show as badges.
+-- The detail page leads with the three collectible cards, read from the character's state.
 ns.Detail.Create(harness.env.CreateFrame("Frame"))
 local character = ns.GetCharacterState(false)
-character.tracked = 1019
-ns.Detail.Show(ns.SpeciesById[1019], character, ns.SpeciesZone[1019])
-local badges = {}
-for _, badge in ipairs(ns.Detail.badges) do
-	if badge.frame:IsShown() then
-		badges[#badges + 1] = badge.text:GetText()
-	end
-end
-assert(table.concat(badges, ",") == "Common,Rare variant known,Tracked", table.concat(badges, ","))
+local detail = ns.Detail
+detail.Show(ns.SpeciesById[1019], character, ns.SpeciesZone[1019])
+local cards = detail.cards
+assert(cards.rare.Title:GetText() == "Rare" and cards.rare.Status:GetText() == "Collected", "Dishu's rare is collected")
+assert(cards.rare.IconBorder.atlas == "loottoast-itemborder-blue", "rare reads by its blue quality border")
+assert(cards.rare.Border.atlas == "transmog-wardrobe-border-collected", "a collected form uses the collected card")
+assert(not cards.rare.Unknown:IsShown(), "a collected form shows the creature, not a question mark")
+assert(cards.shiny.Status:GetText() == "1 in 500 per kill", "a missing shiny says how to get one")
+assert(cards.shiny.Unknown:IsShown() and not cards.shiny.Glow:IsShown(), "a missing shiny is a silhouette")
+assert(cards.shiny.Border.atlas == "transmog-wardrobe-border-uncollected")
 local research = ns.Detail.specimenCount:GetText()
 assert(research:find("^" .. rare.count .. " / "), "the research count is the species' own: " .. research)
-character.tracked = nil
 
-local detail = ns.Detail
-assert(detail.tabs[1].template == "PanelTopTabButtonTemplate", "detail tabs use the native upper-edge control")
-local point, owner, edge = detail.tabs[1]:GetPoint()
-assert(point == "BOTTOMLEFT" and owner == detail.content and edge == "TOPLEFT", "tabs join the content edge")
 assert(detail.location.template == "InsetFrameTemplate", "zone artwork has its own native border")
 assert(detail.name:GetParent() == detail.content, "detail labels render above the content background")
 assert(detail.model.creatureID == 1019, "selection loads the selected NPC model")
+assert(detail.model:GetParent() == cards.common, "the model lives in the common card")
 local loads = detail.model.creatureLoads
 detail.Show(ns.SpeciesById[1019], character, ns.SpeciesZone[1019])
 assert(detail.model.creatureLoads == loads, "progress refresh does not reload the same model")
@@ -165,19 +162,20 @@ assert(detail.portrait:IsShown(), "icon stays visible until a model actually loa
 detail.model.modelFileID = 12345
 detail.model:GetScript("OnModelLoaded")(detail.model)
 assert(not detail.portrait:IsShown(), "a loaded model replaces the fallback")
-detail.SetPage(3)
-assert(detail.pages[3]:IsShown() and not detail.pages[1]:IsShown(), "records replace overview in fixed bounds")
-assert(detail.model:IsShown(), "switching secondary tabs preserves the model")
+detail.Show(ns.SpeciesById[1019], character, ns.SpeciesZone[1019])
+assert(not detail.portrait:IsShown(), "a refresh keeps a loaded model in front")
+assert(detail.recordsTitle:IsShown() and detail.sightingText:GetText():find("Personal first sighting"), "records show")
 detail.Show(nil, nil, nil)
 assert(detail.model.creatureID == nil and not detail.model:IsShown(), "empty selection clears a stale model")
 assert(
-	not detail.researchCard:IsShown() and not detail.mapButton:IsEnabled(),
-	"empty selection clears old progress and map"
+	not detail.researchCard:IsShown() and not detail.mapButton:IsEnabled() and not cards.common:IsShown(),
+	"empty selection clears old progress, cards and map"
 )
 detail.Show(ns.SpeciesById[1001], character, ns.SpeciesZone[1001])
 assert(detail.model.creatureID == 1001 and detail.portrait:IsShown(), "new selection restores fallback while loading")
-assert(detail.pages[3]:IsShown(), "selection preserves the chosen secondary tab")
-detail.SetPage(1)
+-- Plainstrider can never be rare: its rare slot is a muted placeholder, never shown as missing.
+assert(cards.rare.Title:GetText() == "No rare form" and not cards.rare.Icon:IsShown(), cards.rare.Title:GetText())
+assert(not cards.rare.Unknown:IsShown(), "no question mark on a form the species does not have")
 local originalAreaMaps = ns.QuestieDB.AreaMaps
 ns.QuestieDB.AreaMaps = function()
 	return { [17] = 1413, [38] = 1432 }, { [17] = 999 }
@@ -187,14 +185,6 @@ assert(detail.locationArt._texture == ns.Art.LOCATION_ART[17], "the location use
 assert(detail.mapButton:IsEnabled(), "a resolved map enables navigation")
 detail.mapButton:GetScript("OnClick")()
 assert(harness.Mock.openedMap == 999, "map navigation respects QuestieDB overrides")
-detail.Show(ns.SpeciesById[1001], character, { id = 38, name = "Loch Modan", species = {} })
-assert(
-	detail.model:GetHeight() == 180 and detail.mapButton:IsShown(),
-	"art-free entries reserve a row below the model for navigation"
-)
-local _, _, _, _, mapY = detail.mapButton:GetPoint()
-local _, _, _, _, portraitY = detail.portrait:GetPoint()
-assert(-mapY >= -portraitY + 96 + 8, "map navigation clears the portrait")
 ns.QuestieDB.AreaMaps = function()
 	return { [17] = 1413 }, { [17] = 0 }
 end
@@ -206,8 +196,14 @@ assert(
 	not detail.locationArt:IsShown() and not detail.location:IsShown(),
 	"missing art leaves no stale picture or frame"
 )
-assert(detail.model:GetWidth() == 554, "the model expands when no matching zone art is available")
 assert(not detail.mapButton:IsEnabled(), "an unresolved location disables old map navigation")
+
+-- Collection totals leave out species with no rare form.
+local totals = ns.Model.VariantTotals(character, { ns.SpeciesById[1001], ns.SpeciesById[1019] })
+assert(
+	totals.rare == 1 and totals.rareTotal == 1 and totals.shinyTotal == 2,
+	"a species with no rare form adds no rare"
+)
 
 ns.Model.SetRandom(function()
 	return 0

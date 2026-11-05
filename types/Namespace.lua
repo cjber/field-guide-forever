@@ -155,6 +155,14 @@ function FGSightingLog.Clear() end
 function FGSightingLog.List() end
 
 -- A row of the creature list (UI/List.lua) and the widgets it is drawn with.
+---@alias FGVariantKind "common"|"rare"|"shiny"
+
+-- A collectible form's mark (Art.CreateVariantMark): the species icon framed in its quality border, or the shiny star.
+---@class FGVariantMark : Frame
+---@field Icon Texture
+---@field Border Texture
+---@field Star Texture
+
 ---@class FGListRow : Button
 ---@field Background Texture
 ---@field Selected Texture
@@ -162,8 +170,7 @@ function FGSightingLog.List() end
 ---@field Icon Texture
 ---@field Name FontString
 ---@field Sub FontString
----@field Counter FontString
----@field Glyph FontString
+---@field Marks table<FGVariantKind, FGVariantMark>
 ---@field New FontString
 ---@field NewGlow Texture
 ---@field species? FGSpecies

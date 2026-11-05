@@ -47,6 +47,8 @@ local filters = {
 	{ key = "mastered", text = "Mastered" },
 	{ key = "rare", text = "Rare species" },
 	{ key = "shiny", text = "Shiny seen" },
+	{ key = "missingShiny", text = "Missing shiny" },
+	{ key = "missingRare", text = "Missing rare" },
 }
 
 ---@return FGZone
@@ -137,6 +139,21 @@ local function BuildSearch(parent)
 	filterButton:SetScript("OnClick", function()
 		Window.ToggleFilterMenu()
 	end)
+
+	-- What is collected: this zone on the first line, every zone on the second.
+	Window.totals = {}
+	for index, labelKey in ipairs({ "zone", "all" }) do
+		local values = Art.Text(parent, index == 1 and "GameFontHighlightSmall" or "GameFontDisableSmall", "text")
+		values:SetPoint("TOPRIGHT", -24, -30 - (index - 1) * 18)
+		values:SetJustifyH("RIGHT")
+		local label = Art.Text(parent, index == 1 and "GameFontNormalSmall" or "GameFontDisableSmall", "gold")
+		label:SetPoint("RIGHT", values, "LEFT", -10, 0)
+		if index == 2 then
+			label:SetTextColor(Art.RGBA("muted", 1))
+			label:SetText(L["All zones"])
+		end
+		Window.totals[labelKey] = { label = label, values = values }
+	end
 
 	local divider = Art.Line(parent, "border", 0.4)
 	divider:SetPoint("TOPLEFT", 18, -94)
@@ -240,6 +257,13 @@ local function MatchesFilter(species)
 		return false
 	elseif filter == "shiny" and (not entry or entry.shiny < ns.Model.SHINY_TARGET) then
 		return false
+	elseif filter == "missingShiny" and entry and entry.shiny >= ns.Model.SHINY_TARGET then
+		return false
+	elseif
+		filter == "missingRare"
+		and (not ns.Model.HasRareForm(state, species) or (entry and entry.rare >= ns.Model.RARE_TARGET))
+	then
+		return false
 	end
 	if query ~= "" then
 		local needle = query:lower()
@@ -299,6 +323,24 @@ local function UpdateProgress()
 	Window.progressText:SetText(string.format(L["%d%%"], percent))
 	Window.progressCount:SetText(string.format(L["%d of %d species"], progress.catalogued, progress.total))
 	Window.progressBar:SetValue(progress.fraction)
+
+	local everywhere = {}
+	for _, species in pairs(ns.SpeciesById or {}) do
+		everywhere[#everywhere + 1] = species
+	end
+	for key, list in pairs({ zone = zone.species, all = everywhere }) do
+		local totals = ns.Model.VariantTotals(state, list)
+		Window.totals[key].values:SetText(
+			string.format(
+				L["Rare %d / %d · Shiny %d / %d"],
+				totals.rare,
+				totals.rareTotal,
+				totals.shiny,
+				totals.shinyTotal
+			)
+		)
+	end
+	Window.totals.zone.label:SetText(L[zone.name])
 end
 
 local function UpdateTrackButton()

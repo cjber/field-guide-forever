@@ -34,7 +34,7 @@ function Tooltip.Show(owner, entry)
 	local known = L["Known"]
 	local locked = L["Locked"]
 	GameTooltip:AddLine(("%s: %s"):format(L["Common"], variants.common.known and known or locked), tr, tg, tb, true)
-	if species.rare then
+	if ns.Model.HasRareForm(ns.GetCharacterState(false), species) then
 		GameTooltip:AddLine(
 			string.format(L["%s: %s"], L["Rare variant"], variants.rare.known and known or locked),
 			tr,

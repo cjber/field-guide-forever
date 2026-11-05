@@ -295,7 +295,7 @@ def panes(canvas, ui, zone, species, tab, icons, box, px, py, compact=False):
         ),
         (
             "Shiny variant",
-            "Known" if state["shiny"] else f"{state['shiny']} / {mk.SHINY_TARGET}",
+            "Known" if state["shiny"] else f"{state['shiny']} / 1",
             bool(state["shiny"]),
             GOLD,
         ),
