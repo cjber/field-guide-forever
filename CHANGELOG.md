@@ -5,9 +5,12 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.30] - 2026-11-05
+
 - **The Field Guide micro-menu button stays inside the micro menu.** Blizzard's buttons slid aside past the menu's own edge, so the row ran over the action bar beside it. The menu now grows by the addon buttons, and the action bar and bags beside it move aside, as they do for Blizzard's own buttons.
 - **Pressing the micro-menu button no longer logs an error.** Every press logged "attempt to concatenate field 'textureName'" in Blizzard's micro menu code.
 - **A creature tooltip keeps a minimum width.** A short name such as "Rat" no longer squeezes the tooltip so the zone and variant lines under it wrap.
+
 ## [0.3.29] - 2026-11-05
 
 - **The Forever addons settings page ends with a Ko-fi link.** If the addons help you, its Copy link button shows the address, ready to paste into your browser. Nothing is locked behind it, and it shows nowhere else.
