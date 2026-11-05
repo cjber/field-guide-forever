@@ -7,6 +7,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 - **The creature list shows each creature's real face.** A row now draws the creature's client portrait from its display ID, so a deer, squirrel, toad or treant no longer borrows a shared paw or humanoid head. When the catalogue has no display ID, a much larger keyword and family map over the client's modern icons shows the right animal instead. Only the rows on screen are kept, so scrolling stays cheap.
 - **The detail header and cards have room to breathe.** The subtitle no longer crowds the portrait cards, and a two-line card status such as "Only rare creatures have one" keeps a clear gap from the card's bottom edge.
+- **The micro-menu button's tooltip keeps a minimum width.** Its short two-word title no longer squeezes the binding and description under it into a narrow column, and the creature and micro-menu tooltips now take that width from the same place.
 - **Suite tooling stays in step with Forever Core.** The vendored shared-file check knows about the new tracker header menu spec. Nothing a player sees changes.
 
 ## [0.3.30] - 2026-11-05
