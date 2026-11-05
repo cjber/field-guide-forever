@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **The zone picker scrolls.** Choose a zone lists 20 zones at a time and scrolls the rest, so every zone stays reachable on any screen.
+
 ## [0.3.27] - 2026-11-05
 
 - **Each creature's entry shows its three forms as collectible cards.** Common, Rare and Shiny sit side by side like the Appearances tab: a collected form shows the creature in a white, blue or gold quality border, a missing one is a dark silhouette with what it takes to collect it. A creature that never comes as a rare shows a muted "No rare form" card that never counts as missing. Every list row marks the three forms, the header counts rares and shinies in this zone and across all zones, and the filter gains "Missing shiny" and "Missing rare". The Overview, Variants and Records tabs are gone: records sit under the cards.
