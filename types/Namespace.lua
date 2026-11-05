@@ -77,12 +77,15 @@
 ---@field species table<integer, FGSpeciesState>
 ---@field encounters table<string, FGEncounterState>
 ---@field tracked? integer the NPC ID the journal tracks
+---@field unseen? table<integer, true> species recorded since the journal last showed them, tagged New in the list
 
 ---@class FGOptions
 ---@field showUndiscovered? boolean
 ---@field showSightingLog? boolean
 ---@field statsShare? boolean
 ---@field microButton? boolean
+---@field discoveryText? boolean announce a first kill in the explored-area line
+---@field milestoneToasts? boolean show the achievement toast for rare, shiny, mastery and zone milestones
 
 ---@class FGWindowPosition
 ---@field point? FramePoint
@@ -172,6 +175,8 @@ function FGSightingLog.List() end
 ---@field Sub FontString
 ---@field Counter FontString
 ---@field Glyph FontString
+---@field New FontString
+---@field NewGlow Texture
 ---@field Bar FGBar
 ---@field Fill Texture
 ---@field species? FGSpecies
@@ -250,6 +255,20 @@ function FGCreatureInfo.Get(npcID) end
 ---@field SetShown fun(button: Frame?, shown: boolean)
 ---@field Refresh fun()
 
+-- What Model.Record reports about one kill.
+---@class FGRecordResult
+---@field count integer
+---@field kills integer
+---@field rank integer
+---@field previousRank integer
+---@field shiny boolean
+---@field rare boolean
+---@field newlyDiscovered boolean
+---@field firstKill boolean
+---@field firstRare boolean
+---@field rareKnown boolean
+---@field shinyKnown boolean
+
 ---@class FGNamespace
 ---@field L table<string, string> English phrases are the keys; an untranslated key reads as itself
 ---@field ClientData FGClientData
@@ -280,6 +299,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field Detail FGDetail
 ---@field InstancesView FGInstancesView
 ---@field Window FGWindow
+---@field Discovery FGDiscovery
 ---@field SafeCall fun(context: string, fn: function, ...: any): ok: boolean, result: any
 ---@field GetErrors fun(): FGError[]
 ---@field ClearErrors fun()
@@ -292,6 +312,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field GetCharacterState fun(create?: boolean): FGState?
 ---@field Initialize fun()
 ---@field OnProgress fun(fn: fun())
+---@field OnRecord fun(fn: fun(species: FGSpecies, zone: FGZone, result: FGRecordResult))
 ---@field FireProgress fun()
 ---@field RecordKill fun(name: string?, npcId: integer?): table?
 ---@field RecordSighting fun(unit: string): boolean

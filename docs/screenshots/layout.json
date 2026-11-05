@@ -942,19 +942,19 @@
     },
     "settings.png": {
       "canvas": {
-        "height": 220,
+        "height": 276,
         "scale": 2,
         "width": 620
       },
       "frame": {
-        "h": 220,
+        "h": 276,
         "w": 620,
         "x": 0,
         "y": 0
       },
       "widgets": [
         {
-          "h": 196,
+          "h": 252,
           "name": "Settings content",
           "role": "pane",
           "w": 596,
@@ -1013,7 +1013,7 @@
           "h": 16,
           "name": "Settings label 3",
           "role": "content",
-          "w": 279.0,
+          "w": 206.0,
           "x": 46,
           "y": 110
         },
@@ -1029,9 +1029,41 @@
           "h": 16,
           "name": "Settings label 4",
           "role": "content",
-          "w": 232.5,
+          "w": 126.5,
           "x": 46,
           "y": 138
+        },
+        {
+          "h": 26,
+          "name": "Settings checkbox 5",
+          "role": "content",
+          "w": 26,
+          "x": 16,
+          "y": 160
+        },
+        {
+          "h": 16,
+          "name": "Settings label 5",
+          "role": "content",
+          "w": 279.0,
+          "x": 46,
+          "y": 166
+        },
+        {
+          "h": 26,
+          "name": "Settings checkbox 6",
+          "role": "content",
+          "w": 26,
+          "x": 16,
+          "y": 188
+        },
+        {
+          "h": 16,
+          "name": "Settings label 6",
+          "role": "content",
+          "w": 232.5,
+          "x": 46,
+          "y": 194
         },
         {
           "h": 16,
@@ -1039,7 +1071,7 @@
           "role": "content",
           "w": 560,
           "x": 36,
-          "y": 166
+          "y": 222
         }
       ]
     },

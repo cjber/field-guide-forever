@@ -37,6 +37,7 @@ SOURCES = (
     "Core/Settings.lua",
     "UI/SettingsPage.lua",
     "UI/Rarity.lua",
+    "UI/Discovery.lua",
     "Locales/enUS.lua",
     "UI/Art.lua",
     "UI/Detail.lua",
@@ -46,6 +47,7 @@ SOURCES = (
     "tools/ui_art.py",
     "tools/mockups.py",
     "tools/rarity.py",
+    "tools/discovery.py",
     "tools/micro_menu_render.py",
 )
 RARITY_GEOMETRY = {

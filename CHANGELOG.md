@@ -6,6 +6,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 ## [Unreleased]
 
 - **Field Guide has its own icon in the addon list.** The client's book icon gives way to the Forever family's gold frame around an open journal with a paw print, the same art as the store logo.
+- **A new creature now shows on screen when you kill it.** The first kill of a species is announced at the top of the screen in the line the game uses for a newly explored area, with a page-turn sound; the creature is tagged New in the journal and the Field Guide micro button pulses until you open it. The big moments, a rare's first kill, a shiny, a mastered species and a zone with every creature recorded, get the game's own achievement toast; left-click one to open the journal on that creature. A big pull shows at most three toasts. Two new options turn the line and the toasts off. Thanks to cjber for the idea.
 
 ## [0.3.25] - 2026-11-05
 

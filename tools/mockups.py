@@ -1144,17 +1144,19 @@ def main():
     filtered.composite(filter_menu.image, filtered.px(312), filtered.px(110))
     filtered.save(OUT / "search-filter.png")
     # Core/Settings.lua registers this content in the client's Settings canvas, not a journal popup.
-    settings = ui.canvas(620, 220)
+    settings = ui.canvas(620, 276)
     LAYOUT["widgets"] = []
     LAYOUT["canvas"] = {"width": settings.width, "height": settings.height, "scale": ui.scale}
-    LAYOUT["frame"] = {"x": 0, "y": 0, "w": 620, "h": 220}
-    note("Settings content", "pane", 12, 12, 596, 196)
+    LAYOUT["frame"] = {"x": 0, "y": 0, "w": 620, "h": 276}
+    note("Settings content", "pane", 12, 12, 596, 252)
     note("Settings title", "content", 16, 16, 380, 20)
-    settings.fill(0, 0, 620, 220, wowmock.rgb("0d0f12"))
+    settings.fill(0, 0, 620, 276, wowmock.rgb("0d0f12"))
     text(settings, 16, 16, "Field Guide Forever options", "GameFontNormalLarge", GOLD)
     labels = [
         "Show undiscovered species",
         "Show the sighting log",
+        "Announce newly recorded creatures",
+        "Show milestone toasts",
         "Share progress with guild and group addon users",
         "Show the Field Guide micro menu button",
     ]
@@ -1167,8 +1169,8 @@ def main():
         settings.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), 16, y, 26, 26)
         settings.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), 16, y, 26, 26)
         text(settings, 46, y + 6, label, "GameFontNormal", GOLD)
-    text(settings, 36, 166, "Both buttons can also be bound in Key Bindings > AddOns.", "GameFontDisableSmall", MUTED)
-    note("Settings binding note", "content", 36, 166, 560, 16)
+    text(settings, 36, 222, "Both buttons can also be bound in Key Bindings > AddOns.", "GameFontDisableSmall", MUTED)
+    note("Settings binding note", "content", 36, 222, 560, 16)
     save(settings, "settings.png")
     save(render(barrens, prowler, "CREATURES", 2), "sighting-log.png")
     save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")
@@ -1191,6 +1193,7 @@ def main():
     save(chat, "leaderboard.png")
     render_micro_menu_scenes()
     subprocess.run([sys.executable, str(ROOT / "tools" / "rarity.py")], check=True)
+    subprocess.run([sys.executable, str(ROOT / "tools" / "discovery.py")], check=True)
 
     def write_gallery():
         features = [
@@ -1202,6 +1205,12 @@ def main():
             ("shiny-record.png", "Personal shiny record"),
             ("search-filter.png", "Search and status filter"),
             ("tracking.png", "Tracked species"),
+            ("discovery-new-creature.png", "A first kill, announced like an explored area"),
+            ("discovery-new-tag.png", "New tag in the journal"),
+            ("discovery-toast-rare.png", "Rare milestone toast"),
+            ("discovery-toast-shiny.png", "Shiny milestone toast"),
+            ("discovery-toast-mastered.png", "Mastery milestone toast"),
+            ("discovery-toast-zone.png", "Zone milestone toast"),
             ("settings.png", "Settings canvas content"),
             ("micro-menu-field-guide.png", "Field Guide micro menu button"),
             ("micro-menu-options.png", "Micro menu button settings"),
