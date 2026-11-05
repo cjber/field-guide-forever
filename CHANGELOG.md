@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.29] - 2026-11-05
+
+- **The Forever addons settings page ends with a Ko-fi link.** If the addons help you, its Copy link button shows the address, ready to paste into your browser. Nothing is locked behind it, and it shows nowhere else.
+
 ## [0.3.28] - 2026-11-05
 
 - **The zone picker scrolls.** Choose a zone lists 20 zones at a time and scrolls the rest, so every zone stays reachable on any screen.
