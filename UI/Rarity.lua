@@ -124,25 +124,32 @@ local function TargetPowerBar(target)
 	end
 end
 
+-- The original colour is captured only when the addon first paints, and dropped as soon as it paints back. A bar or
+-- name nothing ever painted is therefore left exactly as the client drew it.
 ---@param bar table?
 ---@param color number[]?
 local function SetBarColor(bar, color)
 	if not bar or not bar.SetStatusBarColor then
 		return
 	end
-	local original = bar.FGFRarityOriginalColor
-	if type(original) ~= "table" then
-		original = nil
-	end
-	if not original and bar.GetStatusBarColor then
-		local r, g, b, a = bar:GetStatusBarColor()
-		original = { r or 1, g or 1, b or 1, a or 1 }
-		bar.FGFRarityOriginalColor = original
-	end
 	if color then
+		if bar.FGFRarityPainted ~= true then
+			local original
+			if bar.GetStatusBarColor then
+				local r, g, b, a = bar:GetStatusBarColor()
+				original = { r or 1, g or 1, b or 1, a or 1 }
+			end
+			bar.FGFRarityOriginalColor = original
+			bar.FGFRarityPainted = true
+		end
 		bar:SetStatusBarColor(color[1], color[2], color[3], 1)
-	elseif original then
-		bar:SetStatusBarColor(original[1], original[2], original[3], original[4])
+	elseif bar.FGFRarityPainted == true then
+		local original = bar.FGFRarityOriginalColor
+		if type(original) == "table" then
+			bar:SetStatusBarColor(original[1], original[2], original[3], original[4])
+		end
+		bar.FGFRarityOriginalColor = nil
+		bar.FGFRarityPainted = nil
 	end
 end
 
@@ -152,18 +159,57 @@ local function SetNameColor(name, color)
 	if not name or not name.SetTextColor then
 		return
 	end
-	local original = name.FGFRarityOriginalTextColor
-	if type(original) ~= "table" then
-		original = nil
-	end
-	if not original and name.GetTextColor then
-		local r, g, b, a = name:GetTextColor()
-		original = { r or 1, g or 1, b or 1, a or 1 }
-		name.FGFRarityOriginalTextColor = original
-	end
 	if color then
+		if name.FGFRarityTextPainted ~= true then
+			local original
+			if name.GetTextColor then
+				local r, g, b, a = name:GetTextColor()
+				original = { r or 1, g or 1, b or 1, a or 1 }
+			end
+			name.FGFRarityOriginalTextColor = original
+			name.FGFRarityTextPainted = true
+		end
 		name:SetTextColor(color[1], color[2], color[3], 1)
-	elseif original then
+	elseif name.FGFRarityTextPainted == true then
+		local original = name.FGFRarityOriginalTextColor
+		if type(original) == "table" then
+			name:SetTextColor(original[1], original[2], original[3], original[4])
+		end
+		name.FGFRarityOriginalTextColor = nil
+		name.FGFRarityTextPainted = nil
+	end
+end
+
+-- Nameplates are recycled between units, and Blizzard's compact unit frame remembers the last health colour it painted
+-- in healthBar.r/g/b, skipping a repaint while that colour is unchanged. So a plate must not put back a colour it
+-- captured for an earlier unit: clearing that memory and asking Blizzard to update the frame paints the new unit's
+-- reaction colour instead.
+---@param frame table?
+---@param bar table?
+local function ReleasePlateBar(frame, bar)
+	if not bar then
+		return
+	end
+	bar.FGFRarityOriginalColor = nil
+	bar.FGFRarityPainted = nil
+	bar.r, bar.g, bar.b = nil, nil, nil
+	if frame and CompactUnitFrame_UpdateHealthColor then
+		CompactUnitFrame_UpdateHealthColor(frame)
+	end
+end
+
+---@param frame table?
+---@param name table?
+local function ReleasePlateName(frame, name)
+	if type(name) ~= "table" then
+		return
+	end
+	local original = name.FGFRarityOriginalTextColor
+	name.FGFRarityOriginalTextColor = nil
+	name.FGFRarityTextPainted = nil
+	if frame and CompactUnitFrame_UpdateName then
+		CompactUnitFrame_UpdateName(frame)
+	elseif type(original) == "table" then
 		name:SetTextColor(original[1], original[2], original[3], original[4])
 	end
 end
@@ -471,8 +517,13 @@ local function UpdatePlate(plate, unit)
 	local species = ns.FindSpecies(unitName, ns.CurrentZone())
 	local tier = TierFor(unit, species)
 	local color = Rarity.COLORS[tier]
-	SetBarColor(healthBar, color)
-	SetNameColor(name, color)
+	if color then
+		SetBarColor(healthBar, color)
+		SetNameColor(name, color)
+	else
+		ReleasePlateBar(frame, healthBar)
+		ReleasePlateName(frame, name)
+	end
 	local entry = species and ns.Model.Specimen(ns.GetCharacterState(false), species.id)
 	local discovery = species
 		and entry
@@ -525,15 +576,11 @@ events:SetScript("OnEvent", function(_, event, unit)
 				plate = C_NamePlate.GetNamePlateForUnit(unit) --[[@as table?]]
 			end
 			local frame = plate and plate.UnitFrame
-			local bar = frame and frame.healthBar
-			if frame and bar then
-				SetBarColor(bar, nil)
+			if frame then
+				local bar = frame.healthBar
 				local name = frame.name or frame.Name
-				if type(name) == "table" then
-					SetNameColor(name, nil)
-					name.FGFRarityOriginalTextColor = nil
-				end
-				bar.FGFRarityOriginalColor = nil
+				ReleasePlateBar(frame, bar)
+				ReleasePlateName(frame, name)
 				UpdateAccent(frame, type(name) == "table" and name or nil, bar, "copper", false)
 			end
 		end

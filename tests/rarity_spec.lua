@@ -134,13 +134,15 @@ local shinyColour = ns.Rarity.COLORS.shiny
 AssertBarColour(target.healthbar, shinyColour, "the shiny fill applies after combat")
 assert(target.FGFRarityTag.text:GetText() == "SHINY", "shiny reads SHINY")
 
-local plateColour = { 0.64, 0.2, 0.17, 1 }
-local plateNameColour = { 1, 1, 1, 1 }
+-- A nameplate is recycled between units. Its original colour is captured only when the addon paints a tier, and a clear
+-- hands the bar and name back to Blizzard instead of restoring a colour remembered from the previous unit.
+local plateReaction = { 0.64, 0.2, 0.17, 1 }
 local unitFrame = Mock.CreateFrame("Frame")
 unitFrame.name = unitFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-unitFrame.name:SetTextColor(unpack(plateNameColour))
+unitFrame.name:SetTextColor(unpack(plateReaction))
 unitFrame.healthBar = Mock.CreateFrame("Frame")
-unitFrame.healthBar:SetStatusBarColor(unpack(plateColour))
+unitFrame.healthBar:SetStatusBarColor(unpack(plateReaction))
+unitFrame.reactionColor = plateReaction
 local plate = { UnitFrame = unitFrame }
 local plateAttached = true
 harness.env.C_NamePlate = {
@@ -168,26 +170,66 @@ AssertBarColour(unitFrame.healthBar, goldColour, "the nameplate fill follows a t
 AssertTextColour(unitFrame.name, goldColour, "the nameplate name follows a tier change")
 assert(unitFrame.FGFRarityMarker:GetAtlas() == "nameplates-icon-elite-gold", "the nameplate mark follows a tier change")
 
+-- Clearing a tier gives the bar and name back to Blizzard, so the plate takes the current unit's reaction colour.
 plateAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
-AssertBarColour(unitFrame.healthBar, plateColour, "removing a nameplate restores its fill")
-AssertTextColour(unitFrame.name, plateNameColour, "removing a nameplate restores its name colour")
+AssertBarColour(unitFrame.healthBar, plateReaction, "removing a tiered nameplate returns the reaction fill")
+AssertTextColour(unitFrame.name, plateReaction, "removing a tiered nameplate returns the reaction name colour")
 assert(not unitFrame.FGFRarityMarker:IsShown(), "removing a nameplate clears its tier mark")
 assert(not unitFrame.FGFRarityBarGlow[1].textures.center:IsShown(), "removing a nameplate clears its aura")
+assert(rawget(unitFrame.healthBar, "FGFRarityOriginalColor") == nil, "removing a nameplate drops its stored bar colour")
+assert(rawget(unitFrame.healthBar, "FGFRarityPainted") ~= true, "removing a nameplate drops its painted mark")
+assert(rawget(unitFrame.name, "FGFRarityOriginalTextColor") == nil, "removing a nameplate drops its stored name colour")
+assert(rawget(unitFrame.name, "FGFRarityTextPainted") ~= true, "removing a nameplate drops its painted text mark")
 
--- A pooled plate comes back with a new client baseline; the next restore uses that, not the old creature's.
-local nextPlateColour = { 0.2, 0.3, 0.4, 1 }
-local nextPlateNameColour = { 0.5, 0.6, 0.7, 1 }
-unitFrame.healthBar:SetStatusBarColor(unpack(nextPlateColour))
-unitFrame.name:SetTextColor(unpack(nextPlateNameColour))
+-- The reported bug: a plate first used by a hostile unit, removed, then reused for a friendly untiered unit must end
+-- green from Blizzard's repaint, not the hostile red the addon remembered.
+local friendlyReaction = { 0.2, 0.7, 0.2, 1 }
+unitFrame.reactionColor = friendlyReaction
 plateAttached = true
-harness.env.UnitName = function(unit)
-	return unit == "nameplate1" and silver.name or "Tester"
+harness.env.UnitName = function()
+	return "Sentinel Kyra Starsong"
 end
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
+AssertBarColour(unitFrame.healthBar, friendlyReaction, "a recycled nameplate takes the friendly reaction fill")
+AssertTextColour(unitFrame.name, friendlyReaction, "a recycled nameplate takes the friendly reaction name colour")
+assert(rawget(unitFrame.healthBar, "FGFRarityOriginalColor") == nil, "an untiered nameplate stores no bar colour")
+assert(rawget(unitFrame.healthBar, "FGFRarityPainted") ~= true, "an untiered nameplate is not marked painted")
+
+-- A tiered unit still paints on the recycled plate, and clearing it again returns the reaction colour.
+harness.env.UnitName = function(unit)
+	return unit == "nameplate1" and shiny.name or "Tester"
+end
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
+AssertBarColour(unitFrame.healthBar, shinyColour, "a tiered unit paints the tier colour on a recycled plate")
+AssertTextColour(unitFrame.name, shinyColour, "a tiered unit paints the tier name colour on a recycled plate")
 plateAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
-AssertBarColour(unitFrame.healthBar, nextPlateColour, "a reused nameplate restores its new fill baseline")
-AssertTextColour(unitFrame.name, nextPlateNameColour, "a reused nameplate restores its new name colour")
+AssertBarColour(unitFrame.healthBar, friendlyReaction, "clearing a tier mark returns the reaction fill")
+AssertTextColour(unitFrame.name, friendlyReaction, "clearing a tier name returns the reaction name colour")
+
+-- A plate the addon never painted keeps the colour the client gave it when its unit has no tier.
+local freshFrame = Mock.CreateFrame("Frame")
+freshFrame.name = freshFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+freshFrame.name:SetTextColor(unpack(friendlyReaction))
+freshFrame.healthBar = Mock.CreateFrame("Frame")
+freshFrame.healthBar:SetStatusBarColor(unpack(friendlyReaction))
+freshFrame.reactionColor = friendlyReaction
+local freshPlate = { UnitFrame = freshFrame }
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return freshPlate
+	end,
+}
+harness.env.UnitName = function()
+	return "Sentinel Kyra Starsong"
+end
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate2")
+AssertBarColour(freshFrame.healthBar, friendlyReaction, "an untiered plate keeps the client's health colour")
+AssertTextColour(freshFrame.name, friendlyReaction, "an untiered plate keeps the client's name colour")
+assert(rawget(freshFrame.healthBar, "FGFRarityOriginalColor") == nil, "an untiered plate stores no bar colour")
+assert(rawget(freshFrame.healthBar, "FGFRarityPainted") ~= true, "an untiered plate is not marked painted")
+assert(not freshFrame.FGFRarityMarker:IsShown(), "an untiered plate shows no tier mark")
+assert(not freshFrame.FGFRarityBarGlow[1].textures.center:IsShown(), "an untiered plate shows no aura")
 
 print("rarity: ok")

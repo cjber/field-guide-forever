@@ -111,6 +111,7 @@ unitFrame.name = unitFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 unitFrame.name:SetTextColor(unpack(plateNameColour))
 unitFrame.healthBar = Mock.CreateFrame("Frame")
 unitFrame.healthBar:SetStatusBarColor(unpack(plateColour))
+unitFrame.reactionColor = plateColour
 local plate = { UnitFrame = unitFrame }
 local plateAttached = true
 harness.env.C_NamePlate = {
