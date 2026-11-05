@@ -87,11 +87,6 @@
 ---@field discoveryText? boolean announce a first kill in the explored-area line
 ---@field milestoneToasts? boolean show the achievement toast for rare, shiny, mastery and zone milestones
 
----@class FGWindowPosition
----@field point? FramePoint
----@field x? number
----@field y? number
-
 -- One shared figure a peer reported: the value and the time() it was recorded.
 ---@class FGStatRecord
 ---@field value number
@@ -101,7 +96,6 @@
 ---@class FGDB
 ---@field version integer
 ---@field chars table<string, FGState> keyed by "Name-Realm"
----@field window FGWindowPosition
 ---@field options FGOptions
 ---@field sharedStats? table<string, table<string, table<string, table<string, FGStatRecord>>>> peer -> addon -> subject -> metric
 ---@field peerStats table<string, table<string, table>> character -> source -> Core protocol store
@@ -160,11 +154,6 @@ function FGSightingLog.Clear() end
 ---@return FGSightingLog
 function FGSightingLog.List() end
 
--- A bar Art.Bar draws: a frame with native background art and a sized fill texture.
----@class FGBar : Frame
----@field Fill Texture
----@field SetProgress fun(self: FGBar, fraction: number)
-
 -- A row of the creature list (UI/List.lua) and the widgets it is drawn with.
 ---@class FGListRow : Button
 ---@field Background Texture
@@ -177,8 +166,6 @@ function FGSightingLog.List() end
 ---@field Glyph FontString
 ---@field New FontString
 ---@field NewGlow Texture
----@field Bar FGBar
----@field Fill Texture
 ---@field species? FGSpecies
 ---@field entry? FGListEntry
 

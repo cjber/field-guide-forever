@@ -193,8 +193,8 @@ assert(
 	"art-free entries reserve a row below the model for navigation"
 )
 local _, _, _, _, mapY = detail.mapButton:GetPoint()
-local _, _, _, _, noticeY = detail.modelNotice:GetPoint()
-assert(-mapY >= -noticeY + detail.modelNotice:GetHeight() + 8, "map navigation clears the fallback caption")
+local _, _, _, _, portraitY = detail.portrait:GetPoint()
+assert(-mapY >= -portraitY + 96 + 8, "map navigation clears the portrait")
 ns.QuestieDB.AreaMaps = function()
 	return { [17] = 1413 }, { [17] = 0 }
 end

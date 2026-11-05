@@ -10,6 +10,19 @@ ns.Window = Window
 local WIDTH, HEIGHT = 960, 700
 local LEFT_WIDTH = 330
 local PANEL_HEIGHT = 514
+local FRAME_NAME = "FieldGuideForeverFrame"
+
+-- A UI panel like the Adventure Guide: the game places it on the left, slides it beside other panels, and closes it
+-- with Escape or when another left panel opens. Registered at load, before anything can show it. The special frames
+-- entry closes it with Escape when it was opened in combat, outside the manager.
+-- Blizzard reads UIPanelWindows only by a frame's name and never walks it, so the addon's entry taints nothing else.
+local PANEL = { area = "left", pushable = 0, whileDead = 1, width = WIDTH }
+if type(UIPanelWindows) == "table" then
+	UIPanelWindows[FRAME_NAME] = PANEL -- taint-ok: an entry read only for this addon's own frame
+end
+if type(UISpecialFrames) == "table" then
+	table.insert(UISpecialFrames, FRAME_NAME)
+end
 
 ---@type FGWindowFrame?
 local frame
@@ -68,15 +81,6 @@ local function BuildHeader(parent)
 	if parent.TitleContainer and parent.TitleContainer.TitleText then
 		parent.TitleContainer.TitleText:SetText(L["Field Guide"])
 	end
-	if parent.CloseButton then
-		parent.CloseButton:SetScript("OnClick", function()
-			Window.Hide()
-		end)
-	end
-
-	local subtitle = Art.Text(parent, "GameFontDisableSmall", "muted")
-	subtitle:SetPoint("TOP", 0, -28)
-	subtitle:SetText(L["Azeroth field journal"])
 
 	Window.tabButtons = {}
 	for index, info in ipairs(tabs) do
@@ -143,7 +147,8 @@ end
 local function BuildBreadcrumb(parent)
 	local breadcrumb = CreateFrame("Button", nil, parent)
 	breadcrumb:SetSize(390, 20)
-	breadcrumb:SetPoint("TOPLEFT", 24, -44)
+	-- Beside the portrait, where the Adventure Guide puts its navigation bar.
+	breadcrumb:SetPoint("TOPLEFT", 64, -32)
 	breadcrumb:SetScript("OnClick", function()
 		Window.ToggleZoneMenu()
 	end)
@@ -164,9 +169,9 @@ local function BuildBottom(parent)
 	bar:SetSize(924, 58)
 	Window.bottomBar = bar
 
-	local label = Art.Text(bar, "GameFontDisableSmall", "muted")
+	local label = Art.Text(bar, "GameFontNormal", "gold")
 	label:SetPoint("TOPLEFT", 14, -10)
-	label:SetText(L["ZONE COMPLETION"])
+	label:SetText(L["Zone completion"])
 
 	Window.progressText = Art.Text(bar, "GameFontNormal", "gold")
 	Window.progressText:SetPoint("TOPLEFT", label, "TOPRIGHT", 8, 0)
@@ -176,9 +181,8 @@ local function BuildBottom(parent)
 	Window.progressCount:SetWidth(140)
 	Window.progressCount:SetJustifyH("RIGHT")
 
-	local progress = Art.Bar(bar, 320, 10, "complete")
-	progress:SetPoint("TOPLEFT", 14, -28)
-	Window.progressFill = progress.Fill
+	Window.progressBar = Art.StatusBar(bar, 320, 12, 1)
+	Window.progressBar:SetPoint("TOPLEFT", 14, -30)
 
 	Window.openButton = MakeButton(bar, L["Open Journal"], 120, false)
 	Window.openButton:SetPoint("TOPRIGHT", -140, -16)
@@ -294,8 +298,7 @@ local function UpdateProgress()
 	local percent = math.floor(progress.fraction * 100 + 0.5)
 	Window.progressText:SetText(string.format(L["%d%%"], percent))
 	Window.progressCount:SetText(string.format(L["%d of %d species"], progress.catalogued, progress.total))
-	Window.progressFill:SetShown(progress.fraction > 0)
-	Window.progressFill:SetWidth(318 * progress.fraction)
+	Window.progressBar:SetValue(progress.fraction)
 end
 
 local function UpdateTrackButton()
@@ -472,16 +475,6 @@ function Window.FollowPlayerZone()
 	end
 end
 
-local function SavePosition()
-	if not frame or not ns.db then
-		return
-	end
-	local point, _, _, x, y = frame:GetPoint(1)
-	if point then
-		ns.db.window = { point = point, x = x or 0, y = y or 0 }
-	end
-end
-
 ---@return FGWindowFrame
 local function Create()
 	if frame then
@@ -489,31 +482,13 @@ local function Create()
 	end
 	-- PortraitFrameTemplate supplies the metal NineSlice, the circular portrait bezel, the title and the close
 	-- button, so the journal sits in the client's own window rather than an addon-drawn rectangle.
-	local created = CreateFrame("Frame", "FieldGuideForeverFrame", UIParent, "PortraitFrameTemplate,BackdropTemplate")
+	local created = CreateFrame("Frame", FRAME_NAME, UIParent, "PortraitFrameTemplate,BackdropTemplate")
 	frame = created --[[@as FGWindowFrame]]
 	Window.frame = frame
 	frame:SetSize(WIDTH, HEIGHT)
-	frame:SetFrameStrata("DIALOG")
 	frame:SetToplevel(true)
-	frame:SetClampedToScreen(true)
-	frame:SetMovable(true)
 	frame:EnableMouse(true)
-	frame:RegisterForDrag("LeftButton")
 	frame:Hide()
-	local position = ns.db and ns.db.window
-	if position and position.point then
-		frame:SetPoint(position.point, UIParent, position.point, position.x or 0, position.y or 0)
-	else
-		frame:SetPoint("CENTER")
-	end
-
-	frame:SetScript("OnDragStart", function(self)
-		self:StartMoving()
-	end)
-	frame:SetScript("OnDragStop", function(self)
-		self:StopMovingOrSizing()
-		SavePosition()
-	end)
 
 	BuildHeader(frame)
 	BuildBreadcrumb(frame)
@@ -540,31 +515,38 @@ local function Create()
 	Window.creaturePanels = { left, right }
 	Window.instances = ns.InstancesView.Create(frame)
 
-	if type(UISpecialFrames) == "table" then
-		local found = false
-		for _, name in ipairs(UISpecialFrames) do
-			if name == "FieldGuideForeverFrame" then
-				found = true
-				break
-			end
-		end
-		if not found then
-			table.insert(UISpecialFrames, "FieldGuideForeverFrame")
-		end
-	end
-
 	Window.FollowPlayerZone()
 	return frame
 end
 
+-- The panel manager refuses addon calls in combat. Then the journal opens where the manager puts a left panel, but
+-- outside it; the manager drops a frame hidden behind its back from its slots on its own.
+local function ShowInCombat(panel)
+	panel:ClearAllPoints()
+	panel:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 16, -116)
+	panel:Show()
+end
+
 function Window.Show()
-	Create():Show()
+	local panel = Create()
+	if not panel:IsShown() then
+		if InCombatLockdown() then
+			ShowInCombat(panel)
+		else
+			ShowUIPanel(panel)
+		end
+	end
 	Window.Refresh()
 end
 
 function Window.Hide()
-	if frame then
+	if not frame or not frame:IsShown() then
+		return
+	end
+	if InCombatLockdown() then
 		frame:Hide()
+	else
+		HideUIPanel(frame)
 	end
 end
 

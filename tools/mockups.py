@@ -553,11 +553,13 @@ def progress(species):
     }
 
 
-def bar(canvas, x, y, w, h, fraction, colour):
+def status_bar(canvas, x, y, w, h, fraction):
+    """Art.StatusBar: the Professions skill bar, gold UI-StatusBar fill inside the client's progress frame."""
     canvas.draw(canvas.ui.atlas("Profession-ProgressBar-BG"), x, y, w, h)
-    filled = max(0, min(w - 2, (w - 2) * fraction))
+    filled = w * max(0, min(1, fraction))
     if filled:
-        canvas.fill(x + 1, y + 1, filled, h - 2, colour)
+        canvas.draw(canvas.ui.texture("interface/targetingframe/ui-statusbar.blp"), x, y, filled, h, GOLD)
+    canvas.draw(canvas.ui.atlas("Profession-ProgressBar-frame"), x, y, w, h)
 
 
 def card(canvas, x, y, w, h, border=None):
@@ -645,16 +647,6 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
     if unavailable:
         note("Catalogue body", "pane", px(18), py(104), 924, 514)
         note("Catalogue notice", "content", px(140), py(344), 680, 60)
-        text(
-            canvas,
-            px(58),
-            py(28),
-            "Azeroth field journal",
-            "GameFontDisableSmall",
-            MUTED,
-            justify="CENTER",
-            width=W - 82,
-        )
         card(canvas, px(18), py(104), 924, 514)
         text(
             canvas,
@@ -674,16 +666,6 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
         tab_x, tab_y = strip_x, strip_y + tab_index * 58
         side_tab(canvas, tab_x, tab_y, TAB_ICON_PATHS[tab_index], selected=tab_index == index)
         note(f"tab plate {tab_index + 1} {tooltip.lower()}", "tabs", tab_x, tab_y, 55, 55)
-    text(
-        canvas,
-        px(58),
-        py(28),
-        "Azeroth field journal",
-        "GameFontDisableSmall",
-        MUTED,
-        justify="CENTER",
-        width=W - 58 - 24,
-    )
 
     card(canvas, px(18), py(104), 924, 514)
 
@@ -723,11 +705,11 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
         return canvas
 
     breadcrumb = f"{zone['continent']} > {zone['name']}"
-    text(canvas, px(24), py(44), breadcrumb, "GameFontNormal", TEXT)
+    text(canvas, px(64), py(32), breadcrumb, "GameFontNormal", TEXT)
     canvas.draw(
         ui.atlas("common-dropdown-c-button-hover-arrow"),
-        px(28) + canvas.text_width(breadcrumb, FONTS["GameFontNormal"]),
-        py(46),
+        px(68) + canvas.text_width(breadcrumb, FONTS["GameFontNormal"]),
+        py(34),
         12,
         5,
     )
@@ -786,7 +768,6 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
             marker(canvas, px(290), y + 28.5, 11, GOLD)
         elif complete:
             canvas.draw(ui.atlas("common-icon-checkmark"), px(288), y + 23, 11, 11, GREEN)
-        bar(canvas, px(28), y + 40, 280, 3, state["count"] / MASTERED_AT, GOLD)
 
     canvas.image.paste(below_list, (0, list_bottom))
 
@@ -838,23 +819,12 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
         )
     else:
         portrait_x = 140 if art_file else 243
-        model_width = 348 if art_file else 554
         portrait = ui.canvas(canvas.width, canvas.height)
         portrait.draw(icons[species["id"]], rx + portrait_x, ry + 144, 96, 96)
         portrait.mask(
             ui.texture("interface/characterframe/tempportraitalphamask.blp"), rx + portrait_x, ry + 144, 96, 96
         )
         canvas.paste(portrait, 0, 0)
-        text(
-            canvas,
-            rx + 14,
-            ry + 258,
-            "Creature portrait",
-            "GameFontDisableSmall",
-            MUTED,
-            width=model_width,
-            justify="CENTER",
-        )
     if art_file:
         text(canvas, rx + 378, ry + 250, zone["name"], "GameFontNormal", GOLD, width=190)
     if map_id > 0:
@@ -884,17 +854,7 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
         TEXT,
         width=350,
     )
-    canvas.draw(ui.atlas("Profession-ProgressBar-BG"), rx + 24, ry + 360, 534, 12)
-    if count:
-        canvas.draw(
-            ui.texture("interface/targetingframe/ui-statusbar.blp"),
-            rx + 24,
-            ry + 360,
-            534 * min(1, count / MASTERED_AT),
-            12,
-            GOLD,
-        )
-    canvas.draw(ui.atlas("Profession-ProgressBar-frame"), rx + 24, ry + 360, 534, 12)
+    status_bar(canvas, rx + 24, ry + 360, 534, 12, count / MASTERED_AT)
     note("Research strip", "card", rx + 14, ry + 330, 554, 52)
     note("Research bar", "progress", rx + 24, ry + 360, 534, 12)
     # PanelTopTabButtonTemplate, with the native top-facing art and 104-wide buttons.
@@ -929,7 +889,7 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
             zip(("Field sketch", "Ink study", "Brass plate", "Gilded entry"), PIPS, strict=True)
         ):
             x, y = rx + 14 + index % 2 * 277, ry + 400 + index // 2 * 24
-            status = "UNLOCKED" if rank >= index + 1 else f"Locked · {tier}"
+            status = "Unlocked" if rank >= index + 1 else f"Unlocks at {tier}"
             text(canvas, x, y, f"{label}: {status}", "GameFontDisableSmall", TEXT, width=265)
     elif detail_page == 1:
         for index, (name, known, value, target) in enumerate(
@@ -975,10 +935,10 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
     card(canvas, px(BAR_X), by, BAR_W, BAR_H)
     note("bottom bar", "bar", px(BAR_X), by, BAR_W, BAR_H)
     button_y = by + BUTTON_TOP
-    label = "ZONE COMPLETION"
-    text(canvas, px(BAR_X + 14), by + 10, label, "GameFontDisableSmall", MUTED)
+    label = "Zone completion"
+    text(canvas, px(BAR_X + 14), by + 10, label, "GameFontNormal", GOLD)
     fraction = catalogued / len(zone["species"])
-    percent_x = BAR_X + 14 + canvas.text_width(label, FONTS["GameFontDisableSmall"]) + 8
+    percent_x = BAR_X + 14 + canvas.text_width(label, FONTS["GameFontNormal"]) + 8
     text(canvas, px(percent_x), by + 10, f"{round(fraction * 100)}%", "GameFontNormal", GOLD)
     right(
         canvas,
@@ -989,8 +949,8 @@ def window(ui, zone, species, tab, icons, sigil, detail_page=0, tracked=False, u
         MUTED,
         width=140,
     )
-    bar(canvas, px(BAR_X + 14), by + 28, 320, 10, fraction, GREEN)
-    note("Bottom progress", "progress", px(BAR_X + 14), by + 28, 320, 10)
+    status_bar(canvas, px(BAR_X + 14), by + 30, 320, 12, fraction)
+    note("Bottom progress", "progress", px(BAR_X + 14), by + 30, 320, 12)
     ui_panel_button(canvas, px(OPEN_X), button_y, OPEN_W, BUTTON_H, "Open Journal")
     note("Open Journal", "button", px(OPEN_X), button_y, OPEN_W, BUTTON_H)
     ui_panel_button(canvas, px(TRACK_X), button_y, TRACK_W, BUTTON_H, "Tracking" if tracked else "Track Species")

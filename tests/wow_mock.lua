@@ -497,6 +497,12 @@ function methods.GetChildren()
 	return {}
 end
 
+function methods:GetFontString()
+	local label = rawget(self, "_fontString") or NewRegion("FontString", nil, self)
+	self._fontString = label
+	return label
+end
+
 function methods.ClearFocus() end
 
 function methods.SetFocus() end
@@ -722,6 +728,7 @@ function Mock.Harness(opts)
 		GameFontNormalLarge = {},
 		GameFontDisableSmall = {},
 		UISpecialFrames = {},
+		UIPanelWindows = {},
 		SlashCmdList = {},
 		InterfaceOptions_AddCategory = function() end,
 		-- The modern settings API, as Interface 16001 offers it: one canvas category registered by name.
@@ -768,6 +775,11 @@ function Mock.Harness(opts)
 			created.Icon.Overlay = NewRegion("Texture", nil, created.Icon)
 			created.Shield = NewRegion("Frame", nil, created)
 		end
+		if template and template:find("PortraitFrameTemplate", 1, true) then
+			created.PortraitContainer = { portrait = NewRegion("Texture", nil, created) }
+			created.TitleContainer = { TitleText = NewRegion("FontString", nil, created) }
+			created.CloseButton = Mock.CreateFrame("Button", nil, created, "UIPanelCloseButton")
+		end
 		if template == "MainMenuBarMicroButton" then
 			created.FlashBorder = NewRegion("Texture", nil, created)
 			created.FlashBorder:Hide()
@@ -797,6 +809,43 @@ function Mock.Harness(opts)
 		end,
 	}
 	env.UIParent = env.CreateFrame("Frame", "UIParent")
+	-- The panel manager as an addon sees it: it refuses addon calls in combat, and a registered panel is shown or
+	-- hidden by the manager, which remembers it in a slot.
+	Mock.panelCalls = {}
+	env.ShowUIPanel = function(panel)
+		Mock.panelCalls[#Mock.panelCalls + 1] = "show"
+		if env.InCombatLockdown() then
+			Mock.blocked = (Mock.blocked or 0) + 1
+			return
+		end
+		Mock.panelSlot = env.UIPanelWindows[panel:GetName()] and panel or nil
+		panel:Show()
+	end
+	env.HideUIPanel = function(panel)
+		Mock.panelCalls[#Mock.panelCalls + 1] = "hide"
+		if env.InCombatLockdown() then
+			Mock.blocked = (Mock.blocked or 0) + 1
+			return
+		end
+		Mock.panelSlot = nil
+		panel:Hide()
+	end
+	-- Escape: the manager closes its panels, then every special frame that is shown.
+	env.CloseAllWindows = function()
+		local found = false
+		if Mock.panelSlot and Mock.panelSlot:IsShown() then
+			Mock.panelSlot:Hide()
+			Mock.panelSlot, found = nil, true
+		end
+		for _, name in ipairs(env.UISpecialFrames) do
+			local special = env[name]
+			if special and special:IsShown() then
+				special:Hide()
+				found = true
+			end
+		end
+		return found
+	end
 	env.DEFAULT_CHAT_FRAME = { AddMessage = function() end }
 	env.GameTooltip = env.CreateFrame("Frame", "GameTooltip")
 	env.GameTooltip.SetOwner = function() end
@@ -815,6 +864,8 @@ function Mock.Harness(opts)
 		end,
 	}
 	env.MicroMenu = env.CreateFrame("Frame", "MicroMenu")
+	env.MicroMenu.childXPadding, env.MicroMenu.isHorizontal, env.MicroMenu.layoutFramesGoingRight = -5, true, true
+	env.MicroMenu.stride = 12
 	env.MainMenuMicroButton = env.CreateFrame("Button", "MainMenuMicroButton", env.MicroMenu)
 	env.CollectionsMicroButton = env.CreateFrame("Button", "CollectionsMicroButton", env.MicroMenu)
 	env.AdventureGuideMicroButton = env.CreateFrame("Button", "AdventureGuideMicroButton", env.MicroMenu)
