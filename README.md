@@ -6,7 +6,7 @@
 A cosmetic journal of the creatures you kill in WoW: Forever, zone by zone.<br>
 <a href="https://github.com/cjber/field-guide-forever/actions/workflows/ci.yml"><img src="https://github.com/cjber/field-guide-forever/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 <a href="https://github.com/cjber/field-guide-forever/releases/latest"><img src="https://img.shields.io/github/v/release/cjber/field-guide-forever" alt="Latest release"></a>
-<a href="https://ko-fi.com/cjber59408"><img src="https://img.shields.io/badge/Ko--fi-tip-ff5e5b?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
+<a href="https://ko-fi.com/cjber"><img src="https://img.shields.io/badge/Ko--fi-tip-ff5e5b?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
 </p>
 
 Field Guide Forever keeps a journal of the creatures you kill in Azeroth, zone by zone. It is cosmetic only: it never grants power, changes combat or calls a protected function.
@@ -132,7 +132,7 @@ repository's [AGENTS.md](AGENTS.md). Report security problems privately, as
 
 ## Support
 
-The addon is free and stays GPL-3.0. If you enjoy it, you can [buy me a coffee on Ko-fi](https://ko-fi.com/cjber59408);
+The addon is free and stays GPL-3.0. If you enjoy it, you can [buy me a coffee on Ko-fi](https://ko-fi.com/cjber);
 nothing is locked behind it and there is no paid version.
 
 ## Credits
