@@ -10,6 +10,22 @@ ns.List = List
 local ROW_HEIGHT = 46
 local ROW_WIDTH = 304
 local BAR_WIDTH = 280
+local NAME_WIDTH = 152
+-- A tagged name gives up room for the tag, so NEW never runs under the kill count.
+local TAGGED_NAME_WIDTH = 110
+
+-- The mount journal's New tag (Blizzard_MountCollection.xml): NEW after the name's text, over collections-newglow.
+---@param row FGListRow
+---@param shown boolean
+local function SetNew(row, shown)
+	row.Name:SetWidth(shown and TAGGED_NAME_WIDTH or NAME_WIDTH)
+	row.New:SetShown(shown)
+	row.NewGlow:SetShown(shown)
+	if shown then
+		row.New:ClearAllPoints()
+		row.New:SetPoint("LEFT", row.Name, "LEFT", math.min(row.Name:GetStringWidth(), TAGGED_NAME_WIDTH) + 8, 0)
+	end
+end
 
 ---@param row FGListRow
 ---@param entry FGListEntry
@@ -49,6 +65,7 @@ local function UpdateRow(row, entry, selectedId)
 	else
 		row.Name:SetTextColor(Art.RGBA("text", 1))
 	end
+	SetNew(row, character ~= nil and character.unseen ~= nil and character.unseen[species.id] == true)
 	row.species = species
 	row.entry = entry
 end
@@ -78,9 +95,21 @@ local function CreateRow(index)
 
 	row.Name = Art.Text(row, "GameFontNormal", "text")
 	row.Name:SetPoint("TOPLEFT", 52, -5)
-	row.Name:SetWidth(152)
+	row.Name:SetWidth(NAME_WIDTH)
 	row.Name:SetWordWrap(false)
 	row.Name:SetMaxLines(1)
+
+	row.New = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	row.New:SetText(L["NEW"])
+	if NEW_FEATURE_SHADOW_COLOR then
+		row.New:SetShadowColor(NEW_FEATURE_SHADOW_COLOR:GetRGBA())
+	end
+	row.New:Hide()
+	row.NewGlow = row:CreateTexture(nil, "OVERLAY")
+	row.NewGlow:SetAtlas("collections-newglow")
+	row.NewGlow:SetPoint("TOPLEFT", row.New, "TOPLEFT", -20, 10)
+	row.NewGlow:SetPoint("BOTTOMRIGHT", row.New, "BOTTOMRIGHT", 20, -10)
+	row.NewGlow:Hide()
 
 	row.Sub = Art.Text(row, "GameFontDisableSmall", "muted")
 	row.Sub:SetPoint("TOPLEFT", 52, -23)
@@ -172,6 +201,16 @@ function List.SetSelected(selectedId)
 	for _, row in ipairs(List.rows or {}) do
 		if row.species then
 			row.Selected:SetShown(row.species.id == selectedId)
+		end
+	end
+end
+
+-- A species the journal has now shown loses its tag at once, without waiting for the next refresh.
+---@param speciesId integer
+function List.ClearNew(speciesId)
+	for _, row in ipairs(List.rows or {}) do
+		if row.species and row.species.id == speciesId then
+			SetNew(row, false)
 		end
 	end
 end

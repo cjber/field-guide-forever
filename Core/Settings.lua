@@ -36,6 +36,22 @@ local function BuildPanel(panel, page)
 		end
 	end)
 
+	page.AddCheck(panel, L["Announce newly recorded creatures"], function()
+		return ns.db and ns.db.options.discoveryText ~= false
+	end, function(checked)
+		if ns.db then
+			ns.db.options.discoveryText = checked
+		end
+	end, L["A first kill shows one line at the top of the screen, where an explored area is announced."])
+
+	page.AddCheck(panel, L["Show milestone toasts"], function()
+		return ns.db and ns.db.options.milestoneToasts ~= false
+	end, function(checked)
+		if ns.db then
+			ns.db.options.milestoneToasts = checked
+		end
+	end, L["Rare, shiny, mastery and zone milestones show an achievement toast. Click it to open the journal."])
+
 	page.AddCheck(panel, L["Share progress with guild and group addon users"], function()
 		return ns.db and ns.db.options.statsShare ~= false
 	end, function(checked)

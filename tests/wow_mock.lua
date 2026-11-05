@@ -138,12 +138,57 @@ function methods:GetModelFileID()
 	return rawget(self, "modelFileID")
 end
 
+function methods:SetAtlas(atlas)
+	self.atlas = atlas
+end
+
+function methods:GetAtlas()
+	return rawget(self, "atlas")
+end
+
+function methods:SetShadowColor(r, g, b, a)
+	self.shadowColor = { r, g, b, a }
+end
+
+-- An animation group plays until stopped; its animations only record what they were given.
+function methods:CreateAnimationGroup()
+	local group = NewRegion("AnimationGroup", nil, self)
+	group.animations = {}
+	group.playing = false
+	function group.Play(selfGroup)
+		selfGroup.playing = true
+	end
+	function group.Stop(selfGroup)
+		selfGroup.playing = false
+	end
+	function group.IsPlaying(selfGroup)
+		return selfGroup.playing
+	end
+	function group.SetLooping(selfGroup, looping)
+		selfGroup.looping = looping
+	end
+	function group.CreateAnimation(selfGroup, kind)
+		local animation = NewRegion(kind, nil, selfGroup)
+		selfGroup.animations[#selfGroup.animations + 1] = animation
+		return animation
+	end
+	return group
+end
+
 function methods:GetScript(event)
 	return self._scripts[event]
 end
 
 function methods:HookScript(event, fn)
-	self._scripts[event] = self._scripts[event] or fn
+	local original = self._scripts[event]
+	if not original then
+		self._scripts[event] = fn
+		return
+	end
+	self._scripts[event] = function(...)
+		original(...)
+		fn(...)
+	end
 end
 
 function methods:RegisterEvent(event)
@@ -463,7 +508,17 @@ end
 -- A frame's methods are all in `methods`; anything else a client frame answers with nil when it has not been set.
 -- The fields named here are data a frame carries (Forever Core's settings page keeps its row cursor in one), so they
 -- must read nil until something writes them, exactly as on the client, and never the no-op the fallback returns.
-local DATA_FIELDS = { settingsRowY = true, creatureID = true, modelFileID = true }
+local DATA_FIELDS = {
+	settingsRowY = true,
+	creatureID = true,
+	modelFileID = true,
+	id = true,
+	atlas = true,
+	shadowColor = true,
+	FlashBorder = true,
+	fgfToast = true,
+	fgfHooked = true,
+}
 setmetatable(methods, {
 	__index = function(_, key)
 		if DATA_FIELDS[key] then
@@ -697,7 +752,25 @@ function Mock.Harness(opts)
 				self.customOnMouseUpHandler = handler
 			end
 		end
+		if template == "AchievementAlertFrameTemplate" then
+			-- Mainline/AlertFrameSystems.xml:173-327: the regions the toast's set-up reaches for.
+			created.Background = NewRegion("Texture", nil, created)
+			created.Unlocked = NewRegion("FontString", nil, created)
+			created.Unlocked:SetText("Achievement Unlocked")
+			created.Name = NewRegion("FontString", nil, created)
+			created.GuildName = NewRegion("FontString", nil, created)
+			created.GuildBanner = NewRegion("Texture", nil, created)
+			created.GuildBorder = NewRegion("Texture", nil, created)
+			created.glow = NewRegion("Texture", nil, created)
+			created.shine = NewRegion("Texture", nil, created)
+			created.Icon = NewRegion("Frame", nil, created)
+			created.Icon.Texture = NewRegion("Texture", nil, created.Icon)
+			created.Icon.Overlay = NewRegion("Texture", nil, created.Icon)
+			created.Shield = NewRegion("Frame", nil, created)
+		end
 		if template == "MainMenuBarMicroButton" then
+			created.FlashBorder = NewRegion("Texture", nil, created)
+			created.FlashBorder:Hide()
 			created.alert = {
 				Hide = function(self)
 					self.hidden = true
@@ -746,14 +819,85 @@ function Mock.Harness(opts)
 	env.CollectionsMicroButton = env.CreateFrame("Button", "CollectionsMicroButton", env.MicroMenu)
 	env.AdventureGuideMicroButton = env.CreateFrame("Button", "AdventureGuideMicroButton", env.MicroMenu)
 	env.UpdateMicroButtons = function() end
-	env.hooksecurefunc = function(name, callback)
-		local original = env[name]
-		env[name] = function(...)
+	-- hooksecurefunc([table,] name, callback): the hook runs after the original and its return is ignored.
+	env.hooksecurefunc = function(target, name, callback)
+		if callback == nil then
+			target, name, callback = env, target, name
+		end
+		local original = target[name]
+		target[name] = function(...)
 			local result = { original(...) }
 			callback(...)
 			return unpack(result)
 		end
 	end
+	env.SOUNDKIT = {
+		IG_ABILITY_PAGE_TURN = 836,
+		UI_EPICLOOT_TOAST = 31578,
+		UI_LEGENDARY_LOOT_TOAST = 63971,
+		UI_RAID_LOOT_TOAST_LESSER_ITEM_WON = 31579,
+	}
+	Mock.sounds = {}
+	env.PlaySound = function(kit)
+		Mock.sounds[#Mock.sounds + 1] = kit
+	end
+	-- Blizzard_UIErrorsFrame: Mock.messages holds every line added, with its colour.
+	Mock.messages = {}
+	env.UIErrorsFrame = {
+		AddMessage = function(_, text, r, g, b)
+			Mock.messages[#Mock.messages + 1] = { text = text, r = r, g = g, b = b }
+		end,
+	}
+	env.NEW_FEATURE_SHADOW_COLOR = {
+		GetRGBA = function()
+			return 0.32, 0.5, 1, 1
+		end,
+	}
+	-- Mainline/AlertFrames.lua:91-256: a queued subsystem shows up to maxAlerts toasts of its template, each from its
+	-- own pool and filled by its setUp, and queues up to maxQueue more; a toast's hide frees its place for the next.
+	-- Mock.alerts holds every toast shown, in order. AlertFrame_OnClick dismisses on a right click.
+	Mock.alerts = {}
+	env.AlertFrame = env.CreateFrame("Frame", "AlertFrame", env.UIParent)
+	function env.AlertFrame.AddQueuedAlertFrameSubSystem(_, template, setUp, maxAlerts, maxQueue)
+		local system, free, shown, queued = {}, {}, 0, {}
+		local function Show(...)
+			local frame = table.remove(free)
+			if not frame then
+				frame = env.CreateFrame("Button", nil, env.UIParent, template)
+				frame:SetScript("OnClick", function(self, button)
+					if button == "RightButton" then
+						self:Hide()
+					end
+				end)
+				local hide = frame.Hide
+				frame.Hide = function(self)
+					hide(self)
+					shown = shown - 1
+					free[#free + 1] = self
+					local waiting = table.remove(queued, 1)
+					if waiting then
+						Show(unpack(waiting, 1, waiting.n))
+					end
+				end
+			end
+			setUp(frame, ...)
+			shown = shown + 1
+			Mock.alerts[#Mock.alerts + 1] = frame
+			frame:Show()
+		end
+		function system.AddAlert(_, ...)
+			if shown < (maxAlerts or 2) then
+				Show(...)
+			elseif #queued < (maxQueue or 6) then
+				queued[#queued + 1] = { n = select("#", ...), ... }
+			else
+				return false
+			end
+			return true
+		end
+		return system
+	end
+	env.AchievementAlertSystem = {}
 
 	local ns = opts.ns or {}
 	local root = Mock.Root()

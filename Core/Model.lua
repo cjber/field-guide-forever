@@ -134,8 +134,8 @@ end
 ---@param state FGState
 ---@param speciesId integer
 ---@param opts? { rare?: boolean, species?: FGSpecies, time?: number, zone?: string, random?: fun(...: any): number }
----@return { count: integer, rank: integer, shiny: boolean, rare: boolean, newlyDiscovered: boolean,
---- rareKnown: boolean, shinyKnown: boolean }
+---@return { count: integer, rank: integer, previousRank: integer, shiny: boolean, rare: boolean,
+--- newlyDiscovered: boolean, firstRare: boolean, rareKnown: boolean, shinyKnown: boolean }
 function Model.Record(state, speciesId, opts)
 	if type(opts) == "boolean" then
 		opts = { rare = opts }
@@ -143,6 +143,7 @@ function Model.Record(state, speciesId, opts)
 	opts = opts or {}
 	local entry = Entry(state, speciesId)
 	local newlyDiscovered = entry.count == 0
+	local previousRank = Model.Rank(entry.count)
 	entry.count = math.min(entry.count + 1, Model.MASTERED_AT)
 	entry.kills = entry.kills + 1
 	local recordedAt = tonumber(opts.time) or 0
@@ -184,10 +185,12 @@ function Model.Record(state, speciesId, opts)
 		count = entry.count,
 		kills = entry.kills,
 		rank = Model.Rank(entry.count),
+		previousRank = previousRank,
 		shiny = shiny,
 		rare = isRare == true,
 		newlyDiscovered = newlyDiscovered,
 		firstKill = entry.kills == 1,
+		firstRare = isRare == true and entry.rareKills == 1,
 		rareKnown = entry.rare >= Model.RARE_TARGET,
 		shinyKnown = entry.shiny >= Model.SHINY_TARGET,
 	}

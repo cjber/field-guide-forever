@@ -36,6 +36,7 @@ Records keep the date you first saw a creature, first killed one and first found
 - **Rarity colours**: some species are silver, gold or shiny, the same for every player. Your target frame and their nameplates take that colour.
 - **Records**: first sighting and first kill for each creature, kept per character, and a sighting log for the current session.
 - **Tracking**: mark the species you are working on.
+- **Discoveries**: a first kill is announced at the top of the screen and tagged New in the journal. Rare, shiny, mastery and zone milestones get the game's achievement toast; click one to open the journal there. Both can be turned off in the options.
 - **Instances**: bosses the game reports when an encounter ends, with first clears, attempts and kills by difficulty. It is a personal record, not a verified world-first board.
 - **Sharing**: totals and first records are exchanged with guild and group members who run the addon. `/fgf leaderboard` ranks kills, with peer totals marked as reported. Turn sharing off in the options; local tracking carries on.
 

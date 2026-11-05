@@ -8,6 +8,8 @@ ns.Instances = ns.Instances or {}
 ns.SCHEMA = 3
 ---@type fun()[]
 local progressCallbacks = {}
+---@type fun(species: FGSpecies, zone: FGZone, result: FGRecordResult)[]
+local recordCallbacks = {}
 
 -- The catalogue's lookup tables are built once. Core only reads them after this, and the UI reads the same tables
 -- so a zone shown in the breadcrumb and a zone matched from GetZoneText() are always the same object.
@@ -186,6 +188,13 @@ local function NormalizeState(state)
 	if tracked and tracked > 0 and tracked % 1 == 0 then
 		clean.tracked = tracked
 	end
+	for id, flag in pairs(type(state.unseen) == "table" and state.unseen or {}) do
+		local numericId = tonumber(id)
+		if flag == true and numericId and clean.species[numericId] then
+			clean.unseen = clean.unseen or {}
+			clean.unseen[numericId] = true
+		end
+	end
 	return clean
 end
 
@@ -261,6 +270,12 @@ function ns.Initialize()
 	if db.options.microButton == nil then
 		db.options.microButton = true
 	end
+	if db.options.milestoneToasts == nil then
+		db.options.milestoneToasts = true
+	end
+	if db.options.discoveryText == nil then
+		db.options.discoveryText = true
+	end
 	ns.db = db
 	ns.ready = true
 	ns.GetCharacterState(true)
@@ -284,6 +299,13 @@ function ns.FireProgress()
 	end
 end
 
+-- Told of every recorded kill, with what it changed. A listener only notes it and schedules its own work, as the
+-- progress listeners do: this runs inside the kill handler, which can be in combat.
+---@param fn fun(species: FGSpecies, zone: FGZone, result: FGRecordResult)
+function ns.OnRecord(fn)
+	recordCallbacks[#recordCallbacks + 1] = fn
+end
+
 -- A kill names its creature by NPC id when the client let us read the unit's GUID, else by name. Either way the
 -- creature must belong to the zone the player is in, as every catalogue lookup does.
 ---@param name string?
@@ -304,6 +326,10 @@ function ns.RecordKill(name, npcId)
 	end
 	local timestamp = GetServerTime()
 	local result = ns.Model.Record(state, species.id, { species = species, time = timestamp, zone = zone.name })
+	if result.newlyDiscovered then
+		state.unseen = state.unseen or {}
+		state.unseen[species.id] = true
+	end
 	local kind = "kill"
 	if result.shiny then
 		kind = "shiny"
@@ -317,6 +343,9 @@ function ns.RecordKill(name, npcId)
 		kind = kind,
 	})
 	ns.FireProgress()
+	for _, fn in ipairs(recordCallbacks) do
+		ns.SafeCall("record", fn, species, zone, result)
+	end
 	return result
 end
 

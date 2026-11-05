@@ -22,6 +22,18 @@ Every scene `tools/mockups.py` renders. Written by that script; do not edit by h
 
 ![Tracked species](screenshots/tracking.png)
 
+![A first kill, announced like an explored area](screenshots/discovery-new-creature.png)
+
+![New tag in the journal](screenshots/discovery-new-tag.png)
+
+![Rare milestone toast](screenshots/discovery-toast-rare.png)
+
+![Shiny milestone toast](screenshots/discovery-toast-shiny.png)
+
+![Mastery milestone toast](screenshots/discovery-toast-mastered.png)
+
+![Zone milestone toast](screenshots/discovery-toast-zone.png)
+
 ![Settings canvas content](screenshots/settings.png)
 
 ![Field Guide micro menu button](screenshots/micro-menu-field-guide.png)
