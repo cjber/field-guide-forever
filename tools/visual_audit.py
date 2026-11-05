@@ -120,6 +120,22 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
                 else f"{x1 - x0:g}x{y1 - y0:g} at ({x0:g}, {y0:g}) leaves the frame"
             )
             findings.append(f"{widget['name']}: {detail}")
+    by_name = {w["name"]: w for w in widgets}
+    for widget in widgets:
+        parent_name = widget.get("parent")
+        if not parent_name:
+            continue
+        parent = by_name.get(parent_name)
+        if not parent:
+            findings.append(f"{widget['name']}: parent {parent_name} is not in the manifest")
+            continue
+        if (
+            widget["x"] < parent["x"]
+            or widget["y"] < parent["y"]
+            or widget["x"] + widget["w"] > parent["x"] + parent["w"]
+            or widget["y"] + widget["h"] > parent["y"] + parent["h"]
+        ):
+            findings.append(f"{widget['name']}: leaves {parent_name}")
     containers = [w for w in widgets if w["role"] == "bar"]
     for widget in widgets:
         for bar in containers:

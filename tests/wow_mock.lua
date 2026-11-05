@@ -124,8 +124,9 @@ function methods:SetScript(event, fn)
 	self._scripts[event] = fn
 end
 
-function methods:SetCreature(id)
+function methods:SetCreature(id, displayID)
 	self.creatureID = id
+	self.creatureDisplayID = displayID
 	self.creatureLoads = (rawget(self, "creatureLoads") or 0) + 1
 end
 
@@ -700,6 +701,9 @@ function Mock.Harness(opts)
 		end,
 		GetBuildInfo = function()
 			return "1.15.0", "16001"
+		end,
+		SetPortraitTextureFromCreatureDisplayID = function(texture, displayID)
+			texture.portraitDisplayID = displayID
 		end,
 		C_Timer = {
 			After = function(_, fn)
