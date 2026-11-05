@@ -1,8 +1,8 @@
 """Rarity mockups: the target frame and the nameplate at every collection tier.
 
-Design C: the client frame keeps its own chrome. A silver, gold or shiny creature adds a soft tier-coloured aura
-around the bars and portrait, paints the health bar and name in the tier colour, and puts a RARE or SHINY tag above
-the name. Nameplates take the tier colour in their health fill and name, with a soft glow and the existing mark.
+Design C: the client frame keeps its own chrome and the game's own reaction colours. A silver, gold or shiny creature
+adds a soft tier-coloured aura around the bars and portrait, plus a RARE or SHINY tag above the target name;
+nameplates take a soft tier glow and the existing mark. The health bar fill and name text are never recoloured.
 COMMON is the untouched client frame.
 
 Every pixel that is not the addon's own layout comes from the pinned WoW: Forever build through
@@ -33,9 +33,9 @@ OUT = ROOT / "docs" / "screenshots"
 # change at all; the whole promise of the feature is that a common creature looks exactly as it always did.
 TIERS = (
     ("COMMON", "1 in 1", None, "the client's frame, untouched"),
-    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver aura, health bar and RARE tag"),
-    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "gold aura, health bar and RARE tag"),
-    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "cyan aura, health bar and SHINY tag"),
+    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver aura and RARE tag"),
+    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "gold aura and RARE tag"),
+    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "cyan aura and SHINY tag"),
 )
 BAR_GLOW_LEFT = "UI-Frame-Bar-GlowLeft"
 BAR_GLOW_CENTER = "UI-Frame-Bar-GlowCenter"
@@ -188,7 +188,7 @@ def status_bar(canvas, texture, bounds, fraction, colour):
 
 
 def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False):
-    """Compose the measured client target frame with design C's aura, tier-coloured health and tag."""
+    """Compose the measured client target frame with design C's aura, tier tag and the client's health colours."""
     label, _, colour, _ = tier
     stem = "targetframeelite" if elite else "targetframe"
     frame = ui.texture(f"interface/targetingframe/{stem}.blp")
@@ -215,12 +215,12 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False):
             colour,
             TARGET_GLOW_LAYERS,
         )
-    status_bar(canvas, bar_texture, health_bounds, 0.86, colour or wowmock.rgb("3f7a34"))
+    status_bar(canvas, bar_texture, health_bounds, 0.86, wowmock.rgb("3f7a34"))
     status_bar(canvas, bar_texture, power_bounds, 0.62, wowmock.rgb("2f5a9e"))
     if colour:
         portrait_glow(canvas, ui, x, y, colour)
         tag(canvas, x, y, "SHINY" if label == "SHINY" else "RARE", colour)
-    text(canvas, x + 32, y + 8, name, "GameFontNormalSmall", colour or TEXT, justify="CENTER", width=111)
+    text(canvas, x + 32, y + 8, name, "GameFontNormalSmall", TEXT, justify="CENTER", width=111)
     text(
         canvas,
         x + LEVEL_CENTER[0] - 15,
@@ -234,8 +234,8 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False):
 
 
 def nameplate(ui, canvas, x, y, tier, name):
-    """One nameplate: a soft tier aura, the health fill and name in the tier colour, and the existing tier mark.
-    Copper leaves the client's red fill, white name and bronze trough untouched."""
+    """One nameplate: a soft tier aura and the existing tier mark, over the client's own reaction colours.
+    Every tier keeps the client's red fill and white name; only copper has no aura or mark."""
     label, _, colour, _ = tier
     w, h = 116, 12
     fill_texture = ui.texture("interface/targetingframe/nameplatefill.blp")
@@ -243,7 +243,7 @@ def nameplate(ui, canvas, x, y, tier, name):
         bar_glow(canvas, ui, (x, y, x + w, y + h), colour, PLATE_GLOW_LAYERS)
     trough_colour = tuple(component * 0.18 for component in BRASS)
     canvas.draw(fill_texture, x, y, w, h, trough_colour)
-    status_bar(canvas, fill_texture, (x, y, x + w, y + h), 0.9, colour or wowmock.rgb("a3342c"))
+    status_bar(canvas, fill_texture, (x, y, x + w, y + h), 0.9, wowmock.rgb("a3342c"))
     font = FONTS["GameFontNormalSmall"]
     label_width = canvas.text_width(name, font)
     atlas_name = PLATE_MARKS.get(label)
@@ -253,7 +253,7 @@ def nameplate(ui, canvas, x, y, tier, name):
     gap = 3 if atlas else 0
     group_width = label_width + gap + icon_width
     group_left = x + (w - group_width) / 2
-    text(canvas, group_left, y - 15, name, "GameFontNormalSmall", colour or TEXT)
+    text(canvas, group_left, y - 15, name, "GameFontNormalSmall", TEXT)
     if atlas:
         # The native elite marks already carry silver and gold; the shiny star takes the tier colour.
         mark_colour = colour if label == "SHINY" else wowmock.WHITE
@@ -274,9 +274,9 @@ def sheet(ui, icons, name, elite=False, plates=False):
     canvas = ui.canvas(cell_w * cols + m * 2, cell_h * rows + m * 2 + 64)
     canvas.fill(0, 0, canvas.width, canvas.height, BG)
     text(canvas, m, 18, "FIELD GUIDE  \u00b7  RARITY AT A GLANCE", "GameFontNormal", BRASS)
-    subtitle = "Normal frame with a tier aura, tier-coloured health and a RARE / SHINY tag"
+    subtitle = "Normal frame with a tier aura and a RARE / SHINY tag; the game keeps its health colours"
     if elite:
-        subtitle = "Elite frame keeps its client dragon chrome; the rarity adds the aura, health bar and tag"
+        subtitle = "Elite frame keeps its client dragon chrome; the rarity adds the aura and tag"
     text(canvas, m, 36, subtitle, "GameFontDisableSmall", MUTED)
     folk = ["Savannah Prowler", "Bristleback Boar", "Prairie Wolf", "Plainstrider"]
     glyph = ["prowler", "boar", "wolf", "strider"]

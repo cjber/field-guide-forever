@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Rarity marks no longer recolour health bars or names.** Field Guide leaves every target and nameplate health bar and name in the game's own reaction colours, and marks rarity with the glow and the RARE or SHINY tag only. A nameplate reused after a hostile rare now keeps its new unit's green, yellow or red reaction colour, and `/fg preview` off returns every plate to the game's own colour. Thanks to cjber for the report (#134).
+
 ## [0.3.33] - 2026-11-05
 
 - The discovery toasts now play the achievement chime instead of loot fanfares. Thanks to cjber for the report (#130).

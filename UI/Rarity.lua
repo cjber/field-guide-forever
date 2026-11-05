@@ -124,50 +124,6 @@ local function TargetPowerBar(target)
 	end
 end
 
----@param bar table?
----@param color number[]?
-local function SetBarColor(bar, color)
-	if not bar or not bar.SetStatusBarColor then
-		return
-	end
-	local original = bar.FGFRarityOriginalColor
-	if type(original) ~= "table" then
-		original = nil
-	end
-	if not original and bar.GetStatusBarColor then
-		local r, g, b, a = bar:GetStatusBarColor()
-		original = { r or 1, g or 1, b or 1, a or 1 }
-		bar.FGFRarityOriginalColor = original
-	end
-	if color then
-		bar:SetStatusBarColor(color[1], color[2], color[3], 1)
-	elseif original then
-		bar:SetStatusBarColor(original[1], original[2], original[3], original[4])
-	end
-end
-
----@param name table?
----@param color number[]?
-local function SetNameColor(name, color)
-	if not name or not name.SetTextColor then
-		return
-	end
-	local original = name.FGFRarityOriginalTextColor
-	if type(original) ~= "table" then
-		original = nil
-	end
-	if not original and name.GetTextColor then
-		local r, g, b, a = name:GetTextColor()
-		original = { r or 1, g or 1, b or 1, a or 1 }
-		name.FGFRarityOriginalTextColor = original
-	end
-	if color then
-		name:SetTextColor(color[1], color[2], color[3], 1)
-	elseif original then
-		name:SetTextColor(original[1], original[2], original[3], original[4])
-	end
-end
-
 ---@param owner table
 ---@param layers { pad: number, alpha: number }[]
 ---@return table?
@@ -445,8 +401,6 @@ local function UpdateTarget()
 	local powerBar = TargetPowerBar(target)
 	local portrait = TargetPortrait(target)
 
-	SetBarColor(healthBar, color)
-	SetNameColor(name, color)
 	local glow = target and CreateBarGlow(target, TARGET_GLOW_LAYERS)
 	if type(glow) == "table" then
 		if color and healthBar then
@@ -470,9 +424,6 @@ local function UpdatePlate(plate, unit)
 	local unitName = ns.Readable(UnitName(unit))
 	local species = ns.FindSpecies(unitName, ns.CurrentZone())
 	local tier = TierFor(unit, species)
-	local color = Rarity.COLORS[tier]
-	SetBarColor(healthBar, color)
-	SetNameColor(name, color)
 	local entry = species and ns.Model.Specimen(ns.GetCharacterState(false), species.id)
 	local discovery = species
 		and entry
@@ -525,15 +476,9 @@ events:SetScript("OnEvent", function(_, event, unit)
 				plate = C_NamePlate.GetNamePlateForUnit(unit) --[[@as table?]]
 			end
 			local frame = plate and plate.UnitFrame
-			local bar = frame and frame.healthBar
-			if frame and bar then
-				SetBarColor(bar, nil)
+			if frame then
+				local bar = frame.healthBar
 				local name = frame.name or frame.Name
-				if type(name) == "table" then
-					SetNameColor(name, nil)
-					name.FGFRarityOriginalTextColor = nil
-				end
-				bar.FGFRarityOriginalColor = nil
 				UpdateAccent(frame, type(name) == "table" and name or nil, bar, "copper", false)
 			end
 		end
