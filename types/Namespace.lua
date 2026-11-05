@@ -154,11 +154,6 @@ function FGSightingLog.Clear() end
 ---@return FGSightingLog
 function FGSightingLog.List() end
 
--- A bar Art.Bar draws: a frame with native background art and a sized fill texture.
----@class FGBar : Frame
----@field Fill Texture
----@field SetProgress fun(self: FGBar, fraction: number)
-
 -- A row of the creature list (UI/List.lua) and the widgets it is drawn with.
 ---@class FGListRow : Button
 ---@field Background Texture
@@ -171,8 +166,6 @@ function FGSightingLog.List() end
 ---@field Glyph FontString
 ---@field New FontString
 ---@field NewGlow Texture
----@field Bar FGBar
----@field Fill Texture
 ---@field species? FGSpecies
 ---@field entry? FGListEntry
 

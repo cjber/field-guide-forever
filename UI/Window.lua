@@ -82,10 +82,6 @@ local function BuildHeader(parent)
 		parent.TitleContainer.TitleText:SetText(L["Field Guide"])
 	end
 
-	local subtitle = Art.Text(parent, "GameFontDisableSmall", "muted")
-	subtitle:SetPoint("TOP", 0, -28)
-	subtitle:SetText(L["Azeroth field journal"])
-
 	Window.tabButtons = {}
 	for index, info in ipairs(tabs) do
 		local button = CreateFrame("Frame", nil, parent, "LargeSideTabButtonTemplate") --[[@as FGTabButton]]
@@ -151,7 +147,8 @@ end
 local function BuildBreadcrumb(parent)
 	local breadcrumb = CreateFrame("Button", nil, parent)
 	breadcrumb:SetSize(390, 20)
-	breadcrumb:SetPoint("TOPLEFT", 24, -44)
+	-- Beside the portrait, where the Adventure Guide puts its navigation bar.
+	breadcrumb:SetPoint("TOPLEFT", 64, -32)
 	breadcrumb:SetScript("OnClick", function()
 		Window.ToggleZoneMenu()
 	end)
@@ -172,9 +169,9 @@ local function BuildBottom(parent)
 	bar:SetSize(924, 58)
 	Window.bottomBar = bar
 
-	local label = Art.Text(bar, "GameFontDisableSmall", "muted")
+	local label = Art.Text(bar, "GameFontNormal", "gold")
 	label:SetPoint("TOPLEFT", 14, -10)
-	label:SetText(L["ZONE COMPLETION"])
+	label:SetText(L["Zone completion"])
 
 	Window.progressText = Art.Text(bar, "GameFontNormal", "gold")
 	Window.progressText:SetPoint("TOPLEFT", label, "TOPRIGHT", 8, 0)
@@ -184,9 +181,8 @@ local function BuildBottom(parent)
 	Window.progressCount:SetWidth(140)
 	Window.progressCount:SetJustifyH("RIGHT")
 
-	local progress = Art.Bar(bar, 320, 10, "complete")
-	progress:SetPoint("TOPLEFT", 14, -28)
-	Window.progressFill = progress.Fill
+	Window.progressBar = Art.StatusBar(bar, 320, 12, 1)
+	Window.progressBar:SetPoint("TOPLEFT", 14, -30)
 
 	Window.openButton = MakeButton(bar, L["Open Journal"], 120, false)
 	Window.openButton:SetPoint("TOPRIGHT", -140, -16)
@@ -302,8 +298,7 @@ local function UpdateProgress()
 	local percent = math.floor(progress.fraction * 100 + 0.5)
 	Window.progressText:SetText(string.format(L["%d%%"], percent))
 	Window.progressCount:SetText(string.format(L["%d of %d species"], progress.catalogued, progress.total))
-	Window.progressFill:SetShown(progress.fraction > 0)
-	Window.progressFill:SetWidth(318 * progress.fraction)
+	Window.progressBar:SetValue(progress.fraction)
 end
 
 local function UpdateTrackButton()

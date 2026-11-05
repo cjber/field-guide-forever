@@ -9,7 +9,6 @@ ns.List = List
 
 local ROW_HEIGHT = 46
 local ROW_WIDTH = 304
-local BAR_WIDTH = 280
 local NAME_WIDTH = 152
 -- A tagged name gives up room for the tag, so NEW never runs under the kill count.
 local TAGGED_NAME_WIDTH = 110
@@ -45,7 +44,6 @@ local function UpdateRow(row, entry, selectedId)
 		string.format(L["%s · Lv %s"], L[species.family], ns.Model.LevelRange(species.minLevel, species.maxLevel))
 	)
 	row.Counter:SetText(string.format(L["%d kills"], state and (state.kills or state.count) or 0))
-	row.Bar:SetProgress(count / ns.Model.MASTERED_AT)
 	row.Selected:SetShown(selectedId == species.id)
 
 	local complete = ns.Model.IsComplete(character, species.id, species)
@@ -119,10 +117,6 @@ local function CreateRow(index)
 
 	row.Glyph = Art.Text(row, "GameFontNormal", "gold")
 	row.Glyph:SetPoint("TOPRIGHT", -14, -23)
-
-	local bar = Art.Bar(row, BAR_WIDTH, 3, "gold")
-	bar:SetPoint("TOPLEFT", 10, -40)
-	row.Bar, row.Fill = bar, bar.Fill
 
 	row:SetScript("OnClick", function()
 		if List.controller and row.species then

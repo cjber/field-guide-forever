@@ -75,16 +75,10 @@ function Detail.Create(parent)
 	Detail.model:SetScript("OnModelLoaded", function(self)
 		if modelSpecies and (self:GetModelFileID() or 0) > 0 then
 			Detail.portrait:Hide()
-			Detail.modelNotice:Hide()
 		end
 	end)
 	Detail.portrait = Art.Portrait(parent, 96)
 	Detail.portrait:SetPoint("TOPLEFT", 140, -116)
-	Detail.modelNotice = Art.Text(parent, "GameFontDisableSmall", "muted")
-	Detail.modelNotice:SetPoint("TOPLEFT", parent, "TOPLEFT", 14, -230)
-	Detail.modelNotice:SetSize(348, 28)
-	Detail.modelNotice:SetJustifyH("CENTER")
-	Detail.modelNotice:SetText(L["Creature portrait"])
 
 	Detail.location = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
 	Detail.location:SetPoint("TOPLEFT", 378, -82)
@@ -119,18 +113,8 @@ function Detail.Create(parent)
 	Detail.specimenCount:SetPoint("TOPRIGHT", -10, -8)
 	Detail.specimenCount:SetWidth(350)
 	Detail.specimenCount:SetJustifyH("RIGHT")
-	Detail.specimenBar = CreateFrame("StatusBar", nil, research)
+	Detail.specimenBar = Art.StatusBar(research, CARD_WIDTH - 20, 12, ns.Model.MASTERED_AT)
 	Detail.specimenBar:SetPoint("TOPLEFT", 10, -30)
-	Detail.specimenBar:SetSize(CARD_WIDTH - 20, 12)
-	Detail.specimenBar:SetMinMaxValues(0, ns.Model.MASTERED_AT)
-	Detail.specimenBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-	Detail.specimenBar:SetStatusBarColor(Art.RGBA("gold", 1))
-	local background = Detail.specimenBar:CreateTexture(nil, "BACKGROUND")
-	background:SetAtlas("Profession-ProgressBar-BG")
-	background:SetAllPoints()
-	local border = Detail.specimenBar:CreateTexture(nil, "OVERLAY")
-	border:SetAtlas("Profession-ProgressBar-frame")
-	border:SetAllPoints()
 
 	Detail.pages, Detail.tabs = {}, {}
 	for index, name in ipairs({ "Overview", "Variants", "Records" }) do
@@ -203,7 +187,6 @@ local function UpdateLocation(zone)
 	Detail.mapButton:SetPoint("TOPLEFT", Detail.content, "TOPLEFT", art and 378 or 231, art and -254 or -268)
 	Detail.portrait:ClearAllPoints()
 	Detail.portrait:SetPoint("TOPLEFT", art and 140 or 243, -116)
-	Detail.modelNotice:SetWidth(art and 348 or CARD_WIDTH)
 end
 
 ---@param text FontString
@@ -286,7 +269,7 @@ end
 local function UpdateRewards(state)
 	local rank = ns.Model.Rank(state and state.count or 0)
 	for index, label in ipairs(Detail.rewards) do
-		local status = rank >= index and L["UNLOCKED"] or string.format(L["Locked · %s"], L[PIPS[index]])
+		local status = rank >= index and L["Unlocked"] or string.format(L["Unlocks at %s"], L[PIPS[index]])
 		label:SetText(string.format(L["%s: %s"], L[REWARDS[index]], status))
 	end
 end
@@ -365,7 +348,6 @@ function Detail.Show(species, character, zone)
 		Detail.model:ClearModel()
 		Detail.model:Hide()
 		Detail.portrait:Hide()
-		Detail.modelNotice:Hide()
 		Detail.location:Hide()
 		Detail.locationName:SetText("")
 		Detail.mapButton:Disable()
@@ -397,7 +379,6 @@ function Detail.Show(species, character, zone)
 		modelSpecies = species.id
 		Art.Icon(Detail.portrait, Art.SpeciesIcon(species.name, species.id), 96)
 		Detail.portrait:Show()
-		Detail.modelNotice:Show()
 		Detail.model:SetCreature(species.id)
 		Detail.model:SetCamDistanceScale(1)
 		Detail.model:SetPortraitZoom(0)
