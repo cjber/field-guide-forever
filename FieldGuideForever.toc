@@ -13,7 +13,6 @@
 ## OptionalDeps: QuestieDB, Questie
 
 Locales\enUS.lua
-Bindings.xml
 Data\Client.lua
 Data\CreatureIcons.lua
 Integrations\QuestieDB.lua
