@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Suite tooling stays in step with Forever Core.** The vendored shared-file check knows about the new tracker header menu spec. Nothing a player sees changes.
+
 ## [0.3.30] - 2026-11-05
 
 - **The Field Guide micro-menu button stays inside the micro menu.** Blizzard's buttons slid aside past the menu's own edge, so the row ran over the action bar beside it. The menu now grows by the addon buttons, and the action bar and bags beside it move aside, as they do for Blizzard's own buttons.
