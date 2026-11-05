@@ -14,6 +14,7 @@ for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
 uvx ruff@0.16.8 check tools && uvx ruff@0.16.8 format --check tools
 python3 tools/check_generated.py
 python3 tools/check_core_shared.py
+python3 tools/check_family.py
 python3 tools/visual_audit.py
 python3 tools/check_screenshots.py
 python3 tools/changelog.py --check
@@ -61,7 +62,8 @@ picture looks right, so trace a visible defect to its runtime or renderer produc
 - `Core/Core.lua` owns SavedVariables, character identity, catalogue lookup, kill and sighting recording, progress callbacks, and slash commands. `Core/Kills.lua` detects kills from the signals the client lets addons read (target and nameplate deaths, rare map markers; the combat log only where a client still allows it) and counts each death once. `Core/Secret.lua` holds `ns.Readable`, through which every possibly secret value (unit GUIDs and names) is read. Event handlers use `Core/SafeCall.lua`.
 - `Core/API.lua` is the versioned addon-to-addon contract. It returns nil until saved state and catalogue data are ready.
 - `Core/Settings.lua` registers options. `UI/Art.lua` owns frame helpers and palette; `UI/Window.lua` owns the shell and selection; other files in `UI/` own focused views.
-- `tests/` contains the mock client and model, data, rarity, and API specs. `docs/screenshots/` contains the README gallery; neither ships in the addon package.
+- `tests/` contains the mock client and model, data, rarity, and API specs. `docs/screenshots/` holds every rendered scene and `docs/gallery.md`, written by `tools/mockups.py`, lists them; README and `docs/curseforge.md` (the store description) pick their headline images by hand. None of these ship in the addon package.
+- `media/icon.svg` is the family icon (WFA-7); `python3 <forever-core>/.agents/skills/wow-forever-addon/render_icon.py` renders `media/icon-400.png` (README and store logo) and `media/Icon.tga` (the TOC icon).
 
 ## Rules
 
@@ -72,7 +74,7 @@ picture looks right, so trace a visible defect to its runtime or renderer produc
 - Match creature names case-insensitively only when resolving localized creature names from a kill or sighting, or migrating old records; never use personal progress to classify catalogue rarity.
 - Keep SavedVariables flat and serialisable. Do not persist frames, functions, userdata, or the session sighting log.
 - Use tabs, annotations, `local addonName, ns = ...`, the established palette, and Blizzard fonts. Add `read_globals` to `.luacheckrc` only for actual client APIs.
-- Every user-facing feature has a mocked scene and README screenshot until the addon is published.
+- Every user-facing feature has a mocked scene listed in `docs/gallery.md`.
 - Do not edit `.pkgmeta` to include development-only tools, tests, or screenshots.
 - Credit players as every Forever addon does (WFA-33 in forever-core's `wow-forever-addon` skill): a fix for a reported
   bug or a feature someone asked for ends its changelog bullet "thanks to X for the report" (or "for the idea") and adds
@@ -96,4 +98,4 @@ geometry checks do not validate these relationships. AI concepts are proposals, 
 
 ## Release flow
 
-Keep changes under an appropriate `CHANGELOG.md` version heading, run the full gate, and check the packaged TOC contents before releasing. The BigWigs packager reads `.pkgmeta`, substitutes the release version in the TOC, and publishes the changelog entry as release notes.
+Follow `.agents/skills/release/SKILL.md`. Keep changes under an appropriate `CHANGELOG.md` version heading, run the full gate, and check the packaged TOC contents before releasing. `X-Curse-Project-ID` and `X-Wago-ID` stay `0` (the packager's "no project") until the store projects exist; then set the real IDs and confirm the `CF_API_KEY` and `WAGO_API_TOKEN` secrets. The BigWigs packager reads `.pkgmeta`, substitutes the release version in the TOC, and publishes the changelog entry as release notes.

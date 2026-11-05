@@ -1192,7 +1192,7 @@ def main():
     render_micro_menu_scenes()
     subprocess.run([sys.executable, str(ROOT / "tools" / "rarity.py")], check=True)
 
-    def write_readme_gallery():
+    def write_gallery():
         features = [
             ("leaderboard.png", "Recorded kills leaderboard"),
             ("field-guide.png", "Creatures journal"),
@@ -1212,27 +1212,27 @@ def main():
             ("instances-boss.png", "Instance boss record"),
             ("missing-questiedb.png", "QuestieDB install prompt"),
         ]
-        gallery = ["![A short walk through the journal](docs/screenshots/demo.gif)", "", "## Feature previews", ""]
-        gallery.extend(f"![{label}](docs/screenshots/{filename})\n" for filename, label in features)
+        gallery = ["![A short walk through the journal](screenshots/demo.gif)", "", "## Feature previews", ""]
+        gallery.extend(f"![{label}](screenshots/{filename})\n" for filename, label in features)
         gallery += ["## Zone pages", "", "| | | |", "| --- | --- | --- |"]
         row = []
         for zone in zone_pages(zones):
             filename = f"zone-{zone['id']:04d}.png"
-            row.append(f"![{zone['name']}](docs/screenshots/{filename})")
+            row.append(f"![{zone['name']}](screenshots/{filename})")
             if len(row) == 3:
                 gallery.append("| " + " | ".join(row) + " |")
                 row = []
         if row:
             row.extend([""] * (3 - len(row)))
             gallery.append("| " + " | ".join(row) + " |")
-        readme_path = ROOT / "README.md"
-        readme = readme_path.read_text(encoding="utf-8")
-        begin, finish = "<!-- SCREENSHOT_GALLERY:START -->", "<!-- SCREENSHOT_GALLERY:END -->"
-        if begin not in readme or finish not in readme:
-            raise ValueError("README screenshot gallery markers are missing")
-        before, rest = readme.split(begin, 1)
-        _, after = rest.split(finish, 1)
-        readme_path.write_text(before + begin + "\n" + "\n".join(gallery) + "\n" + finish + after, encoding="utf-8")
+        # Every scene, for review. README and the store page pick their headline images by hand (WFA-10, WFA-25).
+        header = [
+            "# Screenshot gallery",
+            "",
+            "Every scene `tools/mockups.py` renders. Written by that script; do not edit by hand.",
+            "",
+        ]
+        (ROOT / "docs" / "gallery.md").write_text("\n".join(header + gallery) + "\n", encoding="utf-8")
 
     demo = [
         render(barrens, prowler, "CREATURES"),
@@ -1248,12 +1248,16 @@ def main():
     # One palette shared by every frame, sampled from all of them: per-frame adaptive palettes shift the colour of the
     # shared chrome and backdrop from frame to frame, and optimisation then leaks the previous frame through the
     # disposal, which reads as a torn background. Quantise once and clear each frame before the next is drawn.
+    # Half the scene scale (960 px wide), so the GIF stays under the stores' 2 MB limit per image.
     rgb_frames = [getattr(frame, "image", frame).convert("RGB") for frame in demo]
-    palette_source = Image.new("RGB", (512, 8 * 395))
+    demo_size = (960, round(rgb_frames[0].height * 960 / rgb_frames[0].width))
+    rgb_frames = [frame.resize(demo_size, Image.Resampling.LANCZOS) for frame in rgb_frames]
+    palette_source = Image.new("RGB", (512, len(rgb_frames) * 395))
     for index, frame in enumerate(rgb_frames):
         palette_source.paste(frame.resize((512, 395)), (0, index * 395))
     palette = palette_source.quantize(colors=256, method=Image.Quantize.MEDIANCUT)
-    palette_frames = [frame.quantize(palette=palette, dither=Image.Dither.FLOYDSTEINBERG) for frame in rgb_frames]
+    # No dither: dithered noise defeats GIF compression.
+    palette_frames = [frame.quantize(palette=palette, dither=Image.Dither.NONE) for frame in rgb_frames]
     palette_frames[0].save(
         OUT / "demo.gif",
         save_all=True,
@@ -1263,9 +1267,9 @@ def main():
         optimize=False,
         disposal=2,
     )
-    write_readme_gallery()
+    write_gallery()
     (OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(f"wrote {len(list(OUT.glob('*.png')))} PNG scenes and updated README gallery")
+    print(f"wrote {len(list(OUT.glob('*.png')))} PNG scenes and docs/gallery.md")
 
 
 if __name__ == "__main__":

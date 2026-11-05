@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Field Guide has its own icon in the addon list.** The client's book icon gives way to the Forever family's gold frame around an open journal with a paw print, the same art as the store logo.
+
 ## [0.3.25] - 2026-11-05
 
 - **No more "C stack overflow" errors from the micro-menu button.** It hooked the game's micro-menu update again on every refresh, so errors piled up and the frame rate dropped. It now hooks once.
