@@ -10,6 +10,7 @@
 | QuestieDB-Forever release zip | The mock catalogue the specs run against | `TAG` in `tools/gen_mock_catalogue.py` | QuestieDB carries no licence | No, tests only |
 | [forever-core](https://github.com/cjber/forever-core) | The vendored shared files listed in `PATHS` in `tools/check_core_shared.py`, and the renderer `tools/mockups.py` draws the README scenes with | forever-core `main`, checked by `.github/workflows/core-shared-drift.yml` | GPL-3.0-or-later | The vendored Lua files, yes; the renderer, no |
 | Client art | Creature portraits, icons and window textures, drawn from the player's own client at runtime | The client the player runs | Blizzard Entertainment's | No |
+| Addon icon, made for this addon | `media/icon.svg`, rendered to `media/icon-400.png` and `media/Icon.tga` by forever-core's `wow-forever-addon/render_icon.py` | `media/icon.svg` | GPL-3.0-or-later | `Icon.tga` yes; the SVG and 400 px PNG no |
 
 ## Ideas and contributors
 

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>Field Guide Forever</title>
+  <defs>
+    <!-- Family palette: keep these four gradients unchanged in every addon. -->
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="#3a2a1c"/>
+      <stop offset="1" stop-color="#120c08"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbe7a1"/>
+      <stop offset="0.45" stop-color="#d9a441"/>
+      <stop offset="1" stop-color="#7a4f14"/>
+    </linearGradient>
+    <linearGradient id="emblem" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff4c2"/>
+      <stop offset="0.5" stop-color="#f2c14e"/>
+      <stop offset="1" stop-color="#b3741c"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Frame and background: identical in every addon. -->
+  <rect x="6" y="6" width="244" height="244" rx="28" fill="url(#gold)"/>
+  <rect x="16" y="16" width="224" height="224" rx="20" fill="url(#bg)"/>
+
+  <!-- Emblem: an open field journal, notes on the left page and a paw print on the right. -->
+  <path d="M128 76 C102 60 66 58 36 68 L36 192 C66 182 102 184 128 200 C154 184 190 182 220 192 L220 68 C190 58 154 60 128 76 Z" fill="#000" opacity="0.45" transform="translate(4 5)"/>
+  <path d="M128 76 C102 60 66 58 36 68 L36 192 C66 182 102 184 128 200 C154 184 190 182 220 192 L220 68 C190 58 154 60 128 76 Z" fill="url(#emblem)" stroke="#5a360c" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M128 82 C104 68 70 66 44 74 L44 116 C70 108 104 110 128 124 C152 110 186 108 212 116 L212 74 C186 66 152 68 128 82 Z" fill="url(#shine)"/>
+  <path d="M128 76 V200" stroke="#5a360c" stroke-width="5" stroke-linecap="round"/>
+  <g stroke="#5a360c" stroke-width="5" stroke-linecap="round" fill="none">
+    <path d="M56 100 C76 95 96 96 112 102"/>
+    <path d="M56 122 C76 117 96 118 112 124"/>
+    <path d="M56 144 C76 139 96 140 112 146"/>
+    <path d="M56 166 C70 162 82 162 92 165"/>
+  </g>
+  <g fill="#5a360c">
+    <ellipse cx="174" cy="150" rx="19" ry="16"/>
+    <circle cx="151" cy="122" r="8"/>
+    <circle cx="165" cy="108" r="8"/>
+    <circle cx="183" cy="108" r="8"/>
+    <circle cx="197" cy="122" r="8"/>
+  </g>
+</svg>
