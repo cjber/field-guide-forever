@@ -16,10 +16,13 @@ import re
 import sys
 from pathlib import Path
 
+from forever_tools.package import FORBIDDEN
+
 ROOT = Path(__file__).resolve().parent.parent
 RELEASE = ROOT / ".release"
 ADDON = "FieldGuideForever"
-DEVELOPMENT = ("tests", "tools", "docs", "reference", "scratch", ".github")
+# The suite's shared list, plus any top-level dot file (`.luacheckrc`, `.github`).
+DEVELOPMENT = (*FORBIDDEN, "reference", "scratch")
 REQUIRED = ("LICENSE", "README.md", "THIRD_PARTY.md")
 CREDITS = (("README.md", "## Credits"), ("THIRD_PARTY.md", "## Ideas and contributors"))
 
@@ -74,9 +77,9 @@ def check(root: Path) -> list[str]:
         path = addon / name
         if path.is_file() and not has_section(path.read_text(encoding="utf-8"), heading):
             problems.append(f"{ADDON}/{name} has no {heading} section with text under it (WFA-10, WFA-31)")
-    for entry in DEVELOPMENT:
-        if (addon / entry).exists():
-            problems.append(f"{ADDON}/{entry} is development-only and must not ship")
+    for entry in sorted(addon.iterdir()):
+        if entry.name.startswith(".") or entry.name in DEVELOPMENT:
+            problems.append(f"{ADDON}/{entry.name} is development-only and must not ship")
     return problems
 
 
