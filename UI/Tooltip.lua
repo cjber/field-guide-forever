@@ -7,6 +7,9 @@ local Art = ns.Art
 local Tooltip = {}
 ns.Tooltip = Tooltip
 
+-- Every line wraps, so a short creature name would size the whole tooltip to itself and wrap the facts under it.
+local MIN_WIDTH = 220
+
 ---@param owner Frame
 ---@param entry FGListEntry
 function Tooltip.Show(owner, entry)
@@ -19,6 +22,7 @@ function Tooltip.Show(owner, entry)
 	local r, g, b = Art.RGBA("gold", 1)
 	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
 	GameTooltip:ClearLines()
+	GameTooltip:SetMinimumWidth(MIN_WIDTH)
 	GameTooltip:AddLine(species.name, r, g, b, true)
 	local tr, tg, tb = Art.RGBA("text", 1)
 	GameTooltip:AddLine(string.format(L["%s · %s"], L[species.family], L[species.zone]), tr, tg, tb, true)
@@ -55,6 +59,8 @@ end
 
 function Tooltip.Hide()
 	if GameTooltip and GameTooltip.Hide then
+		-- GameTooltip is shared: the next one to use it gets its own width back.
+		GameTooltip:SetMinimumWidth(0)
 		GameTooltip:Hide()
 	end
 end
