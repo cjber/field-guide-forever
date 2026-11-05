@@ -208,7 +208,7 @@ function ns.Migrate(db)
 	end
 	local version = Integer(db.version)
 	if version > ns.SCHEMA then
-		return { version = ns.SCHEMA, chars = {}, window = {}, options = {}, peerStats = {} }, true
+		return { version = ns.SCHEMA, chars = {}, options = {}, peerStats = {} }, true
 	end
 	db.chars = type(db.chars) == "table" and db.chars or {}
 	for key, state in pairs(db.chars) do
@@ -218,7 +218,8 @@ function ns.Migrate(db)
 			db.chars[key] = NormalizeState(state)
 		end
 	end
-	db.window = type(db.window) == "table" and db.window or {}
+	-- The journal is a UI panel the game places; the old dragged position is gone.
+	db.window = nil
 	db.options = type(db.options) == "table" and db.options or {}
 	ns.Stats.Migrate(db)
 

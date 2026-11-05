@@ -19,9 +19,12 @@ globals = {
 	"SLASH_FIELDGUIDEFOREVER2",
 	"SLASH_FIELDGUIDEFOREVER3",
 	"SlashCmdList",
+	"UIPanelWindows",
 }
 read_globals = {
 	"C_Map",
+	"ShowUIPanel",
+	"HideUIPanel",
 	"PanelTemplates_SelectTab",
 	"PanelTemplates_DeselectTab",
 	"PanelTemplates_TabResize",
