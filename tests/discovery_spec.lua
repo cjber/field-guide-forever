@@ -17,7 +17,7 @@ local npcFixture = {
 	[1019] = { name = "Dishu", minLevel = 13, maxLevel = 13, rank = 2, subName = "Beast", zoneID = 17 },
 }
 
-local PAGE_TURN, EPIC, LEGENDARY, LESSER = 836, 31578, 63971, 31579
+local PAGE_TURN, ACHIEVEMENT = 836, 12891
 
 -- UI/Window.lua's journal needs the client's portrait frame, which the mock does not draw. This stand-in keeps the
 -- calls Discovery makes and builds the real list and detail panes inside a plain frame.
@@ -111,6 +111,13 @@ local function Count(list, value)
 	return count
 end
 
+-- Every sound this view plays is either the first-kill line's page turn or a toast's achievement chime.
+local function OnlyJournalSounds(label)
+	for _, sound in ipairs(Mock.sounds) do
+		equal(sound == PAGE_TURN or sound == ACHIEVEMENT, true, label .. " (heard " .. tostring(sound) .. ")")
+	end
+end
+
 -- A first kill: one yellow line where an explored area is announced, the page-turn sound, a New tag and the pulse.
 local h = Start()
 local ns = h.ns
@@ -187,8 +194,8 @@ equal(rare.Background.atlas, "ui-achievement-alert-background", "a rare uses the
 equal(rare.Icon.Texture._texture, ns.Art.SpeciesIcon("Dishu", 1019), "the toast shows the journal's icon")
 equal(zone.Unlocked:GetText(), "Zone complete", "zone heading")
 equal(zone.Name:GetText(), "The Barrens: every creature recorded", "zone toast names the zone")
-equal(Count(Mock.sounds, EPIC), 1, "the rare sound plays once")
-equal(Count(Mock.sounds, LESSER), 1, "the zone sound plays once")
+equal(Count(Mock.sounds, ACHIEVEMENT), 2, "the rare and zone toasts each play the achievement chime once")
+OnlyJournalSounds("the rare and zone toasts play no loot sound")
 
 -- A left click opens the journal on the creature; a right click only dismisses.
 rare:GetScript("OnClick")(rare, "RightButton")
@@ -203,6 +210,7 @@ for _ = 1, 7 do
 end
 h:RunTimers()
 equal(#Mock.alerts, 2, "no toast before mastery")
+local beforeMastery = Count(Mock.sounds, ACHIEVEMENT)
 h:Kill("Plainstrider", 1001)
 h:RunTimers()
 local mastered = Mock.alerts[3]
@@ -217,8 +225,9 @@ equal(ns.Detail.name:GetText(), "Plainstrider", "showing its entry")
 h:Kill("Plainstrider", 1001)
 h:RunTimers()
 equal(#Mock.alerts, 3, "mastery is told once")
+equal(Count(Mock.sounds, ACHIEVEMENT) - beforeMastery, 1, "the mastery toast plays the achievement chime once")
 
--- A shiny is the biggest: the guild variant's larger art, the legendary sound; the next toast gets the standard art.
+-- A shiny is the biggest: the guild variant's larger art, the achievement chime; the next toast gets the standard art.
 h = Start()
 ns = h.ns
 ns.Model.SetRandom(function()
@@ -231,7 +240,8 @@ equal(shiny.Unlocked:GetText(), "Shiny found", "shiny heading")
 equal(shiny.Name:GetText(), "Shiny Plainstrider!", "shiny names the creature")
 equal(shiny.Background.atlas, "ui-achievement-guild-background", "a shiny takes the larger guild art")
 equal(shiny.GuildBanner:IsShown(), false, "without a guild banner")
-equal(Count(Mock.sounds, LEGENDARY), 1, "the shiny sound plays")
+equal(Count(Mock.sounds, ACHIEVEMENT), 1, "the shiny toast plays the achievement chime once")
+OnlyJournalSounds("the shiny toast plays no loot sound")
 equal(#Mock.messages, 0, "a shiny first kill has no line")
 
 -- A pull of shinies shows at most BURST_TOASTS toasts, biggest first, through the two-on-screen queue.

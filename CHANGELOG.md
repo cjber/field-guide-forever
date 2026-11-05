@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- The discovery toasts now play the achievement chime instead of loot fanfares. Thanks to cjber for the report (#130).
+
 ## [0.3.32] - 2026-11-05
 
 - **Rare creatures and shinies stand out on the target frame and nameplates.** A silver, gold or shiny creature gives the target frame a soft tier-coloured aura, a tier-coloured health bar and name, and a RARE or SHINY tag above the name; its nameplate takes the tier colour, a soft glow and a small mark. Shiny creatures pulse gently. Copper creatures look exactly as before. `/fg preview` cycles all three tiers through every creature for the session without recording anything rare. Thanks to cjber for the idea (#123, #124).
