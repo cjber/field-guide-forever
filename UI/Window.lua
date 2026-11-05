@@ -473,6 +473,8 @@ function Window.ToggleZoneMenu()
 		return
 	end
 	MenuUtil.CreateContextMenu(Window.breadcrumb, function(_, root)
+		-- Every zone is a row: past 20 rows of 20 px the menu scrolls rather than running off the screen (WFA-36).
+		root:SetScrollMode(20 * 20)
 		root:CreateTitle(L["Choose a zone"])
 		for index, zone in ipairs(ns.Zones or {}) do
 			local zoneIndexAtBuild = index
@@ -492,7 +494,7 @@ function Window.ToggleFilterMenu()
 	end
 	MenuUtil.CreateContextMenu(Window.filterButton, function(_, root)
 		root:CreateTitle(L["Filter species"])
-		for _, info in ipairs(filters) do
+		for _, info in ipairs(filters) do -- menu-scroll-ok: filters is six fixed species filters
 			local key = info.key
 			root:CreateRadio(L[info.text], function()
 				return filter == key
