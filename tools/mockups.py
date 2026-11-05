@@ -92,6 +92,10 @@ MUTED = wowmock.rgb("9e998c")
 BLUE = wowmock.rgb("85b8f2")
 GREEN = wowmock.rgb("7d9961")
 DIM = wowmock.rgb("9e998c")
+# The settings page title: Blizzard's GameFontHighlightHuge, white FRIZQT at 20 (SystemFont_Shadow_Huge1).
+FONTS["GameFontHighlightHuge"] = wowmock.Font(
+    FONTS["GameFontHighlight"].path, 20, FONTS["GameFontHighlight"].color, (1, -1)
+)
 FONTS["FieldGuideTabLabel"] = wowmock.Font(
     FONTS["GameFontDisableSmall"].path, 8, FONTS["GameFontDisableSmall"].color, (1, -1)
 )
@@ -1109,9 +1113,9 @@ def main():
     LAYOUT["canvas"] = {"width": settings.width, "height": settings.height, "scale": ui.scale}
     LAYOUT["frame"] = {"x": 0, "y": 0, "w": 620, "h": 276}
     note("Settings content", "pane", 12, 12, 596, 252)
-    note("Settings title", "content", 16, 16, 380, 20)
+    note("Settings title", "content", 16, 16, 380, 24)
     settings.fill(0, 0, 620, 276, wowmock.rgb("0d0f12"))
-    text(settings, 16, 16, "Field Guide Forever options", "GameFontNormalLarge", GOLD)
+    text(settings, 16, 16, "Field Guide Forever options", "GameFontHighlightHuge", FONTS["GameFontHighlightHuge"].color)
     labels = [
         "Show undiscovered species",
         "Show the sighting log",

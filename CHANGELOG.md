@@ -12,6 +12,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 - **The Field Guide micro-menu button gets its own slot.** With Adventure Guide Forever also installed, both buttons asked for the place before Game Menu and Field Guide's sat on top of Adventure Guide's. Each now gets its own place, and the game's buttons move aside instead of being covered.
 - **Field Guide has its own icon in the addon list.** The client's book icon gives way to the Forever family's gold frame around an open journal with a paw print, the same art as the store logo.
 - **A new creature now shows on screen when you kill it.** The first kill of a species is announced at the top of the screen in the line the game uses for a newly explored area, with a page-turn sound; the creature is tagged New in the journal and the Field Guide micro button pulses until you open it. The big moments, a rare's first kill, a shiny, a mastered species and a zone with every creature recorded, get the game's own achievement toast; left-click one to open the journal on that creature. A big pull shows at most three toasts. Two new options turn the line and the toasts off. Thanks to cjber for the idea.
+- **The settings page opens without an error.** Its title asked the game for a font Forever does not have, which logged a Lua error each time the page was built; it now uses the font the game's own settings pages title with.
+- **No more Bindings.xml warnings at login.** The addon list no longer loads the key bindings file a second time as a UI file, so the five `Unrecognized XML` warnings on every login are gone. The bindings still work.
 
 ## [0.3.25] - 2026-11-05
 
