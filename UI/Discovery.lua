@@ -16,6 +16,7 @@ local Discovery = {}
 ns.Discovery = Discovery
 
 local TEMPLATE = "AchievementAlertFrameTemplate"
+local ACHIEVEMENT_SOUND = 12891 -- the achievement-gained chime; not in SOUNDKIT
 -- At most this many toasts from one burst of kills; the rest of a big pull is left to the journal.
 Discovery.BURST_TOASTS = 3
 -- A burst names this many new creatures and counts the rest.
@@ -68,13 +69,6 @@ local function Sound(kit)
 		PlaySound(SOUNDKIT[kit])
 	end
 end
-
-local SOUNDS = {
-	shiny = "UI_LEGENDARY_LOOT_TOAST",
-	rare = "UI_EPICLOOT_TOAST",
-	mastered = "UI_RAID_LOOT_TOAST_LESSER_ITEM_WON",
-	zone = "UI_RAID_LOOT_TOAST_LESSER_ITEM_WON",
-}
 
 ---@param speciesId integer?
 ---@param zone FGZone?
@@ -147,7 +141,9 @@ local function SetUp(frame, toast)
 	frame.Unlocked:SetText(L[HEADINGS[toast.kind]])
 	frame.Name:SetText(toast.name)
 	frame.Icon.Texture:SetTexture(toast.icon)
-	Sound(SOUNDS[toast.kind])
+	if PlaySound then
+		PlaySound(ACHIEVEMENT_SOUND)
+	end
 end
 
 ---@type table?
