@@ -12,6 +12,8 @@ local ROW_WIDTH = 304
 local MARK_SIZE = 16
 local MARK_GAP = 6
 local NAME_WIDTH = 152
+-- Visible rows plus one, the pool the scroll frame recycles. Its size is fixed for the journal's fixed pane.
+local OVERSCAN = 1
 -- A tagged name gives up room for the tag, so NEW never runs under the variant marks.
 local TAGGED_NAME_WIDTH = 110
 
@@ -33,7 +35,10 @@ end
 ---@param selectedId integer?
 local function UpdateRow(row, entry, selectedId)
 	local species = entry.species
-	Art.Icon(row.Icon, Art.SpeciesIcon(species.name, species.id), 32)
+	if row.iconSpecies ~= species.id then
+		Art.CreatureIcon(row.Icon, species.name, species.id, 32)
+		row.iconSpecies = species.id
+	end
 	row.Name:SetText(species.name)
 	local character = ns.GetCharacterState(false)
 	local variants = ns.Model.Variants(character, species.id)
@@ -63,7 +68,7 @@ end
 local function CreateRow(index)
 	local row = CreateFrame("Button", nil, List.child) --[[@as FGListRow]]
 	row:SetSize(ROW_WIDTH, ROW_HEIGHT)
-	row:SetPoint("TOPLEFT", 0, -(index - 1) * ROW_HEIGHT)
+	row.index = index
 
 	-- The same additive row highlight used by the native quest and collection lists.
 	row.Selected = row:CreateTexture(nil, "BACKGROUND")
@@ -134,10 +139,15 @@ function List.Create(parent, controller)
 	List.controller = controller
 	List.rows = {}
 	List.entries = {}
+	List.viewHeight = math.max(ROW_HEIGHT, parent:GetHeight() or 0)
+	List.viewRows = math.ceil(List.viewHeight / ROW_HEIGHT) + OVERSCAN
 
 	local scroll = CreateFrame("ScrollFrame", nil, parent, "UIPanelScrollFrameTemplate")
 	scroll:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0)
 	scroll:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -26, 0)
+	scroll:SetScript("OnVerticalScroll", function()
+		List.Update()
+	end)
 	List.scroll = scroll
 
 	local child = CreateFrame("Frame", nil, scroll)
@@ -153,6 +163,39 @@ function List.Create(parent, controller)
 	List.empty:Hide()
 end
 
+-- Fill only the rows on screen, from the scroll frame's offset. Scrolling recycles this fixed pool; it never creates
+-- a row per creature, and nothing here runs from OnUpdate.
+function List.Update()
+	if not List.child then
+		return
+	end
+	local total = #List.entries
+	local offset = List.scroll and List.scroll:GetVerticalScroll() or 0
+	local first = math.floor(offset / ROW_HEIGHT) + 1
+	local last = math.min(total, first + List.viewRows - 1)
+	local poolIndex = 1
+	for index = first, last do
+		local row = List.rows[poolIndex]
+		if not row then
+			row = CreateRow(index)
+			List.rows[poolIndex] = row
+		end
+		row:ClearAllPoints()
+		row:SetPoint("TOPLEFT", 0, -(index - 1) * ROW_HEIGHT)
+		row.index = index
+		row:Show()
+		UpdateRow(row, List.entries[index], List.selectedId)
+		poolIndex = poolIndex + 1
+	end
+	for index = poolIndex, #List.rows do
+		local row = List.rows[index]
+		row:Hide()
+		row.index = nil
+		row.species = nil
+		row.entry = nil
+	end
+end
+
 ---@param entries FGListEntry[]
 ---@param selectedId integer?
 ---@param preserveScroll boolean?
@@ -162,28 +205,19 @@ function List.Refresh(entries, selectedId, preserveScroll)
 	end
 	local offset = preserveScroll and List.scroll:GetVerticalScroll() or 0
 	List.entries = entries or {}
-	for index, entry in ipairs(List.entries) do
-		local row = List.rows[index]
-		if not row then
-			row = CreateRow(index)
-			List.rows[index] = row
-		end
-		row:Show()
-		UpdateRow(row, entry, selectedId)
-	end
-	for index = #List.entries + 1, #List.rows do
-		List.rows[index]:Hide()
-	end
+	List.selectedId = selectedId
 	List.child:SetHeight(math.max(1, #List.entries * ROW_HEIGHT))
 	List.empty:SetShown(#List.entries == 0)
 	if List.scroll and List.scroll.SetVerticalScroll then
-		local maximum = math.max(0, List.child:GetHeight() - List.scroll:GetHeight())
+		local maximum = math.max(0, List.child:GetHeight() - List.viewHeight)
 		List.scroll:SetVerticalScroll(math.min(offset, maximum))
 	end
+	List.Update()
 end
 
 ---@param selectedId integer?
 function List.SetSelected(selectedId)
+	List.selectedId = selectedId
 	for _, row in ipairs(List.rows or {}) do
 		if row.species then
 			row.Selected:SetShown(row.species.id == selectedId)

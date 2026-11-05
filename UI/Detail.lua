@@ -39,7 +39,7 @@ local function CreateCard(parent, kind, index)
 	card.kind = kind
 	card:SetSize(CARD_WIDTH, CARD_HEIGHT)
 	local left = (PANE_WIDTH - (3 * CARD_WIDTH + 2 * CARD_GAP)) / 2
-	card:SetPoint("TOPLEFT", parent, "TOPLEFT", left + (index - 1) * (CARD_WIDTH + CARD_GAP), -64)
+	card:SetPoint("TOPLEFT", parent, "TOPLEFT", left + (index - 1) * (CARD_WIDTH + CARD_GAP), -72)
 	-- The Appearances tab's own collected and uncollected card frames.
 	card.Glow = card:CreateTexture(nil, "BACKGROUND")
 	card.Glow:SetAtlas("collections-upgradeglow")
@@ -68,13 +68,15 @@ local function CreateCard(parent, kind, index)
 		card.Sparkles[sparkleIndex] = star
 	end
 	card.Title = Art.Text(card, "GameFontNormalLarge", "gold")
-	card.Title:SetPoint("TOP", 0, -150)
+	card.Title:SetPoint("TOP", card, "TOP", 0, -136)
 	card.Title:SetWidth(CARD_WIDTH)
 	card.Title:SetJustifyH("CENTER")
+	card.Title:SetMaxLines(1)
 	card.Status = Art.Text(card, "GameFontDisableSmall", "muted")
-	card.Status:SetPoint("TOP", 0, -176)
-	card.Status:SetWidth(CARD_WIDTH - 12)
+	card.Status:SetPoint("TOP", card, "TOP", 0, -162)
+	card.Status:SetWidth(CARD_WIDTH - 16)
 	card.Status:SetJustifyH("CENTER")
+	card.Status:SetMaxLines(2)
 	return card
 end
 
@@ -94,11 +96,11 @@ function Detail.Create(parent)
 	modelSpecies = nil
 	currentMap = nil
 	Detail.name = Art.Text(parent, "GameFontNormalLarge", "gold")
-	Detail.name:SetPoint("TOPLEFT", 14, -14)
-	Detail.name:SetSize(INNER_WIDTH, 22)
+	Detail.name:SetPoint("TOPLEFT", parent, "TOPLEFT", 14, -14)
+	Detail.name:SetSize(INNER_WIDTH, 20)
 	Detail.name:SetWordWrap(false)
 	Detail.sub = Art.Text(parent, "GameFontHighlightSmall", "text")
-	Detail.sub:SetPoint("TOPLEFT", 14, -38)
+	Detail.sub:SetPoint("TOPLEFT", parent, "TOPLEFT", 14, -40)
 	Detail.sub:SetSize(INNER_WIDTH, 14)
 	Detail.sub:SetWordWrap(false)
 
@@ -363,7 +365,8 @@ function Detail.Show(species, character, zone)
 	if modelSpecies ~= species.id then
 		Detail.model:ClearModel()
 		modelSpecies = species.id
-		Detail.model:SetCreature(species.id)
+		local _, _, _, displayID = ns.CreatureInfo.Get(species.id)
+		Detail.model:SetCreature(species.id, displayID or 0)
 		Detail.model:SetCamDistanceScale(1)
 		Detail.model:SetPortraitZoom(0)
 		Detail.model:SetFacing(0.3)

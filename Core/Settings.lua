@@ -103,7 +103,7 @@ end
 ns.On("PLAYER_LOGIN", function()
 	ns.SafeCall("settings", SettingsPanel.Register)
 	ns.SafeCall("micro button", function()
-		ns.MicroButton.Create({
+		local spec = {
 			name = "FieldGuideForeverMicroButton",
 			atlas = "Questlog",
 			icon = "Interface\\Icons\\inv_misc_book_09",
@@ -116,6 +116,15 @@ ns.On("PLAYER_LOGIN", function()
 				return ns.db and ns.db.options.microButton ~= false
 			end,
 			onClick = ns.OpenGuide,
-		})
+		}
+		local button = ns.MicroButton.Create(spec)
+		if button and ns.Tooltip then
+			-- The shared button draws its own title-only tooltip; Field Guide then redraws it with the journal's minimum
+			-- width. Hooks keep the shared handler's own work rather than replacing it.
+			button:HookScript("OnEnter", function(self)
+				ns.Tooltip.ShowButton(self, spec)
+			end)
+			button:HookScript("OnLeave", ns.Tooltip.Hide)
+		end
 	end)
 end)

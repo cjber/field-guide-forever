@@ -40,6 +40,7 @@ read_globals = {
 	"AlertFrame",
 	"hooksecurefunc",
 	"NEW_FEATURE_SHADOW_COLOR",
+	"SetPortraitTextureFromCreatureDisplayID",
 	"PlaySound",
 	"SOUNDKIT",
 	"UIErrorsFrame",

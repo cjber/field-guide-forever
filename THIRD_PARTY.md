@@ -5,7 +5,7 @@
 | Input | What it gives | Pin | Licence | Ships in zip |
 |---|---|---|---|---|
 | WoW: Forever client tables, via [wago.tools](https://wago.tools) | Zone names, instance types, creature families and portrait IDs in `Data/Client.lua` | `BUILD` in `tools/gen_zones.py` | Blizzard Entertainment's game data | Yes, as generated data |
-| [CMaNGOS classic-db](https://github.com/cmangos/classic-db), the [wow-listfile](https://github.com/wowdev/wow-listfile) community listfile and the client's `CreatureModelData`, via wago.tools | Which species icon each creature shows, in `Data/CreatureIcons.lua` | `CMANGOS_COMMIT`, `LISTFILE_TAG` and `MODEL_DATA_URL` in `tools/gen_creature_icons.py` | classic-db: GPL-3.0; the listfile publishes no licence and only file IDs are used; client data: Blizzard Entertainment's | Yes, as generated data |
+| [CMaNGOS classic-db](https://github.com/cmangos/classic-db), the [wow-listfile](https://github.com/wowdev/wow-listfile) community listfile and the client's `CreatureModelData`, via wago.tools | Which species icon and portrait display ID each creature shows, in `Data/CreatureIcons.lua` | `CMANGOS_COMMIT`, `LISTFILE_TAG` and `MODEL_DATA_URL` in `tools/gen_creature_icons.py` | classic-db: GPL-3.0; the listfile publishes no licence and only file IDs are used; client data: Blizzard Entertainment's | Yes, as generated data |
 | [QuestieDB](https://github.com/Questie/QuestieDB) and Questie, installed by the player | Creature names, levels, ranks and spawn locations, read at runtime (`Integrations/QuestieDB.lua`) | None; whatever the player has installed | QuestieDB carries no licence; nothing is copied | No |
 | QuestieDB-Forever release zip | The mock catalogue the specs run against | `TAG` in `tools/gen_mock_catalogue.py` | QuestieDB carries no licence | No, tests only |
 | [forever-core](https://github.com/cjber/forever-core) | The vendored shared files listed in `PATHS` in `tools/check_core_shared.py`, and the renderer `tools/mockups.py` draws the README scenes with | forever-core `main`, checked by `.github/workflows/core-shared-drift.yml` | GPL-3.0-or-later | The vendored Lua files, yes; the renderer, no |
@@ -18,6 +18,6 @@ Credit for the ideas and reports behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
-| cjber | Asked for native journal composition and single-border icons, reported shared-frame colour restoration conflicts (#71) and kills going unrecorded once the client closed the combat log to addons (#91), asked for an on-screen moment when a new creature is killed, and asked for obvious rarity marks on target frames and nameplates plus a session preview (#123, #124) | |
+| cjber | Asked for native journal composition and single-border icons, and reported shared-frame colour restoration conflicts (#71), kills going unrecorded once the client closed the combat log to addons (#91), generic creature list icons (#120) and crowded detail spacing (#121), and asked for an on-screen moment when a new creature is killed, obvious rarity marks on target frames and nameplates, and a session preview (#123, #124) | |
 
 Thanks also to everyone else who reported a bug or asked for a feature, here or on CurseForge.

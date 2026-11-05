@@ -29,4 +29,16 @@ assert(
 	Art.SpeciesIcon("Unmapped Creature", -1) == Art.GENERIC_CREATURE_ICON,
 	"unmatched NPCs use a neutral creature icon"
 )
+assert(Art.SpeciesIcon("Deer", 883) == "Interface\\Icons\\inv_babydeer", "a deer shows a deer")
+assert(Art.SpeciesIcon("Squirrel", 1412) == "Interface\\Icons\\inv_squirrelardenweald", "a squirrel shows a squirrel")
+assert(Art.SpeciesIcon("Toad", 1420) == "Interface\\Icons\\inv_pet_toad_green", "a toad shows a toad")
+assert(Art.SpeciesIcon("Rabbit", 721) == "Interface\\Icons\\inv_misc_rabbit", "a rabbit shows a rabbit")
+assert(
+	Art.SpeciesIcon("Ancient of Lore", 3468) == "Interface\\Icons\\inv_pet_ancientprotector",
+	"a treant shows a treant, not a humanoid head"
+)
+assert(
+	Art.SpeciesIcon("Yowler", -1) ~= "Interface\\Icons\\ability_hunter_pet_bat",
+	"a keyword matches a whole word, so Yowler is not an owl"
+)
 print("icon: ok")

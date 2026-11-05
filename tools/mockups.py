@@ -132,261 +132,40 @@ def rank_of(count):
 
 
 # Fallback name rules mirror Art.SpeciesIcon in UI/Art.lua after the generated per-NPC model icon.
-SPECIES_ICONS = (
-    (
-        "interface/icons/ability_hunter_pet_cat.blp",
-        "beast",
-        (
-            "prowler",
-            "highmane",
-            "nightsaber",
-            "cougar",
-            "tiger",
-            "rake",
-            "saber",
-            "dishu",
-        ),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_wolf.blp",
-        "beast",
-        (
-            "wolf",
-            "coyote",
-            "darkhound",
-            "hound",
-            "arugal",
-            "worgen",
-            "stalker",
-            "fenros",
-            "nefaru",
-            "deeb",
-        ),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_boar.blp",
-        "beast",
-        (
-            "boar",
-            "goretusk",
-            "bristleback",
-            "quilboar",
-            "bellygrub",
-        ),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_tallstrider.blp",
-        "beast",
-        (
-            "plainstrider",
-            "strider",
-            "giraffe",
-            "mazzranache",
-        ),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_raptor.blp",
-        "beast",
-        (
-            "raptor",
-            "scytheclaw",
-            "taillasher",
-            "scythemaw",
-        ),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_scorpid.blp",
-        "beast",
-        (
-            "scorpid",
-            "sting",
-            "flayer",
-        ),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_spider.blp",
-        "beast",
-        (
-            "spider",
-            "tarantula",
-            "venomfang",
-            "lurker",
-            "fang",
-        ),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_crocolisk.blp",
-        "beast",
-        (
-            "crocolisk",
-            "snapjaw",
-            "gesharahan",
-        ),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_hyena.blp",
-        "beast",
-        (
-            "hyena",
-            "stormsnout",
-        ),
-    ),
-    (
-        "interface/icons/ability_mount_ridinghorse.blp",
-        "beast",
-        ("zhevra",),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_turtle.blp",
-        "beast",
-        ("turtle",),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_silithid.blp",
-        "beast",
-        (
-            "silithid",
-            "swarmer",
-        ),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_bear.blp",
-        "beast",
-        (
-            "bear",
-            "grizzlegut",
-        ),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_bat.blp",
-        "any",
-        (
-            "harpy",
-            "windfury",
-            "duskbat",
-            "bat",
-            "owl",
-            "strigid",
-            "screecher",
-            "swoop",
-            "buzzard",
-            "condor",
-            "thunderhawk",
-            "hippogryph",
-            "razorbeak",
-            "fleshripper",
-        ),
-    ),
-    (
-        "interface/icons/ability_hunter_pet_worm.blp",
-        "beast",
-        (
-            "worm",
-            "grub",
-        ),
-    ),
-    (
-        "interface/icons/inv_misc_head_tauren_01.blp",
-        "people",
-        (
-            "ogre",
-            "mo'grosh",
-            "kolkar",
-            "galak",
-        ),
-    ),
-    (
-        "interface/icons/inv_misc_head_gnoll_01.blp",
-        "people",
-        (
-            "gnoll",
-            "mongrel",
-            "brute",
-            "mystic",
-            "basher",
-            "trapper",
-        ),
-    ),
-    (
-        "interface/icons/inv_misc_head_kobold_01.blp",
-        "people",
-        (
-            "kobold",
-            "trogg",
-            "stonesplinter",
-            "digger",
-        ),
-    ),
-    (
-        "interface/icons/inv_misc_head_murloc_01.blp",
-        "people",
-        (
-            "murloc",
-            "puddlejumper",
-            "oracle",
-            "coastrunner",
-        ),
-    ),
-    (
-        "interface/icons/inv_misc_head_undead_01.blp",
-        "people",
-        (
-            "ghoul",
-            "dead",
-            "rot",
-            "plague",
-            "gorelix",
-        ),
-    ),
-    (
-        "interface/icons/inv_misc_head_human_01.blp",
-        "people",
-        (
-            "defias",
-            "scarlet",
-            "dalaran",
-            "kul tiras",
-            "human",
-            "thug",
-            "pillager",
-            "looter",
-            "highwayman",
-            "smuggler",
-            "blackguard",
-            "mage",
-            "guard",
-            "theurgist",
-            "sailor",
-            "marine",
-            "convert",
-            "initiate",
-            "warrior",
-            "missionary",
-            "scout",
-            "palemane",
-            "dustwind",
-            "gnarlpine",
-            "melanas",
-            "ursal",
-            "yowler",
-            "zzarc",
-            "slark",
-            "goldtooth",
-            "fedfennel",
-            "gibblewilt",
-            "galgosh",
-        ),
-    ),
-    (
-        "interface/icons/inv_misc_head_dragon_01.blp",
-        "people",
-        (
-            "dragon",
-            "whelp",
-            "drake",
-        ),
-    ),
-)
+def load_art_species_icons():
+    """Art.SPECIES_ICONS from UI/Art.lua, so the render and the addon cannot drift apart."""
+    source = (ROOT / "UI" / "Art.lua").read_text(encoding="utf-8")
+    marker = "Art.SPECIES_ICONS = {"
+    start = source.index(marker) + len(marker)
+    depth, index, in_string, escaped = 1, start, False, False
+    while index < len(source) and depth:
+        char = source[index]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+        elif char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+        index += 1
+    body = source[start : index - 1]
+    rules = []
+    for path, side, words in re.findall(r'\{\s*"([^"]+)",\s*"(any|beast|people)",\s*\{([^}]*)\}\s*,?\s*\}', body, re.S):
+        icon = path.replace("\\\\", "/").lower()
+        if not icon.endswith(".blp"):
+            icon += ".blp"
+        rules.append((icon, side, tuple(re.findall(r'"([^"]+)"', words))))
+    return tuple(rules)
+
+
+SPECIES_ICONS = load_art_species_icons()
+
 # One client icon per family, Art.FAMILY_ICONS in UI/Art.lua.
 FAMILY_ICONS = {
     "Beast": "interface/icons/ability_hunter_beasttaming.blp",
@@ -396,7 +175,7 @@ FAMILY_ICONS = {
     "Elemental": "interface/icons/spell_nature_lightning.blp",
     "Giant": "interface/icons/ability_warrior_savageblow.blp",
     "Mechanical": "interface/icons/inv_misc_gear_01.blp",
-    "Critter": "interface/icons/ability_hunter_beasttaming.blp",
+    "Critter": "interface/icons/pet_type_critter.blp",
     "Demon": "interface/icons/spell_shadow_metamorphosis.blp",
     "Aberration": "interface/icons/ability_creature_poison_01.blp",
 }
@@ -412,13 +191,13 @@ def species_icon(species):
     """Mirror Art.SpeciesIcon using the same generated model icon and type/family data."""
     name = species["name"].lower()
     packed = CREATURE_INFO.get(species["id"])
-    icon_index = packed >> 20 if packed else 0
+    icon_index = (packed >> 20) & 0xFF if packed else 0
     metadata = packed & 0xFFFFF if packed else 0
     type_id, family_id = (metadata >> 16, metadata & 0xFFFF) if packed else (0, 0)
     if icon_index:
         return MODEL_ICONS[icon_index]
     creature_type = CREATURE_TYPE_NAMES.get(type_id, "Unknown")
-    beast = creature_type == "Beast" or family_id > 0
+    beast = creature_type in ("Beast", "Critter") or family_id > 0
     for path, side, keywords in SPECIES_ICONS:
         if side not in ("any", "beast" if beast else "people"):
             continue
@@ -631,25 +410,21 @@ def variant_card(canvas, kind, states, icon, x, y):
     else:
         title, status = "Shiny", f"1 in {SHINY_CHANCE} per kill"
     colour = (BLUE if kind == "rare" else GOLD) if known else MUTED
-    text(
-        canvas,
-        x,
-        y + 150,
-        title,
-        "GameFontNormalLarge" if known else "GameFontNormal",
-        colour,
-        width=CARD_W,
-        justify="CENTER",
-    )
-    text(
-        canvas,
-        x + 6,
-        y + 176,
-        status,
-        "GameFontHighlightSmall" if known else "GameFontDisableSmall",
-        GREEN if known else MUTED,
-        width=CARD_W - 12,
-        justify="CENTER",
+    title_font = "GameFontNormalLarge" if known else "GameFontNormal"
+    status_font = "GameFontHighlightSmall" if known else "GameFontDisableSmall"
+    text(canvas, x, y + 136, title, title_font, colour, width=CARD_W, justify="CENTER")
+    text(canvas, x + 8, y + 162, status, status_font, GREEN if known else MUTED, width=CARD_W - 16, justify="CENTER")
+    card_name = f"{kind.capitalize()} card"
+    note(f"{title} title", "content", x, y + 136, CARD_W, FONTS[title_font].height, parent=card_name)
+    lines = wrap_pixels(status, FONTS[status_font], CARD_W - 16, 2, canvas)
+    note(
+        f"{title} status",
+        "content",
+        x + 8,
+        y + 162,
+        CARD_W - 16,
+        FONTS[status_font].height * len(lines),
+        parent=card_name,
     )
 
 
@@ -723,10 +498,20 @@ LAYOUT: dict[str, Any] = {}
 MOCK_INSTANCES: dict[int, dict[str, Any]] = {}
 
 
-def note(name, role, x, y, w, h):
+def note(name, role, x, y, w, h, parent=None):
     """Record a widget rect (canvas units) for tools/visual_audit.py: bounds, overlaps and margins."""
+    widget: dict[str, Any] = {
+        "name": name,
+        "role": role,
+        "x": round(x, 1),
+        "y": round(y, 1),
+        "w": round(w, 1),
+        "h": round(h, 1),
+    }
+    if parent:
+        widget["parent"] = parent
     widgets: list[dict[str, Any]] = LAYOUT.setdefault("widgets", [])
-    widgets.append({"name": name, "role": role, "x": round(x, 1), "y": round(y, 1), "w": round(w, 1), "h": round(h, 1)})
+    widgets.append(widget)
 
 
 def window(ui, zone, species, tab, icons, sigil, filter_key=None, tracked=False, unavailable=False, catalogue=None):
@@ -903,20 +688,22 @@ def window(ui, zone, species, tab, icons, sigil, filter_key=None, tracked=False,
     canvas.draw(ui.atlas("Collections-background"), rx + 3, ry + 3, 576, 508)
     note("Detail pane", "pane", rx, ry, 582, 514)
     text(canvas, rx + 14, ry + 14, species["name"], "GameFontNormalLarge", GOLD, width=554)
+    note("Detail name", "content", rx + 14, ry + 14, 554, 20, parent="Detail pane")
     level = str(species["min"]) if species["min"] == species["max"] else f"{species['min']}-{species['max']}"
     text(
         canvas,
         rx + 14,
-        ry + 38,
+        ry + 40,
         f"{species['family']} · {zone['name']} · Level {level}",
         "GameFontHighlightSmall",
         TEXT,
         width=554,
     )
+    note("Detail subtitle", "content", rx + 14, ry + 40, 554, 14, parent="Detail pane")
     left = (582 - (CARD_W * 3 + CARD_GAP * 2)) / 2
     for index, kind in enumerate(("common", "rare", "shiny")):
         cx = rx + left + index * (CARD_W + CARD_GAP)
-        variant_card(canvas, kind, states, icons[species["id"]], cx, ry + 64)
+        variant_card(canvas, kind, states, icons[species["id"]], cx, ry + 72)
         note(f"{kind.capitalize()} card", "card", cx, ry + 64, CARD_W, CARD_H)
 
     card(canvas, rx + 14, ry + 300, 554, 52)
@@ -1122,6 +909,11 @@ def main():
         return
 
     save(render(badlands, siege_golem, "CREATURES"), "field-guide.png")
+    # Darnassus has the critters and treants from the icon report in one list: Deer, Squirrel, Toad, the Ancients.
+    icons_zone = by_name["Darnassus"]
+    icons_species = next((species for species in icons_zone["species"] if species["name"] == "Deer"), None)
+    if icons_species:
+        save(render(icons_zone, icons_species, "CREATURES"), "creature-icons.png")
     save(render(rare_zone, rare, "RARES"), "rares.png")
     save(render(shiny_zone, shiny, "SHINY"), "shiny.png")
 
@@ -1210,6 +1002,7 @@ def main():
         features = [
             ("leaderboard.png", "Recorded kills leaderboard"),
             ("field-guide.png", "Creatures journal"),
+            ("creature-icons.png", "Creature list icons in Darnassus"),
             ("rares.png", "Rares page"),
             ("rare-record.png", "Personal rare record"),
             ("shiny.png", "Shiny page"),

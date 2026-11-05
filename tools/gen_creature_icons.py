@@ -9,6 +9,7 @@ import gzip
 import hashlib
 import io
 import json
+import re
 import subprocess
 import sys
 import urllib.request
@@ -32,7 +33,8 @@ MODEL_PATHS = CACHE / f"creature-model-paths-{LISTFILE_TAG}.json"
 MODEL_DATA_URL = "https://wago.tools/db2/CreatureModelData/csv?build=1.60.1.70450"
 AGENT = "FieldGuideForever species icon generator (+https://github.com/cjber/field-guide-forever)"
 MAX_RECORDS = 20_000
-MAX_PACKAGED_BYTES = 220_000  # measured output: 215,402 bytes, +21,058 from the 194,344-byte baseline
+MAX_PACKAGED_BYTES = 300_000  # measured output after display IDs: 265,930 bytes
+DISPLAY_UNIT = 268_435_456  # 2^28; the old icon/type/family packed value stays below it
 
 # Ordered model stem rules. Specific stems come before broad race/family matches.
 STEM_ICONS = (
@@ -169,8 +171,19 @@ def pinned_file(path: Path, url: str, offline: bool) -> bytes:
     return path.read_bytes()
 
 
+def art_icon_paths() -> set[str]:
+    """Every Interface\\Icons path UI/Art.lua can draw, as a listfile path."""
+    source = (ROOT / "UI" / "Art.lua").read_text(encoding="utf-8")
+    names = re.findall(r"Interface\\\\Icons\\\\([A-Za-z0-9_]+)", source)
+    return {f"interface/icons/{name.lower()}.blp" for name in names}
+
+
 def model_paths(offline: bool) -> tuple[dict[int, str], dict[str, int]]:
-    if not MODEL_PATHS.is_file():
+    candidates = {f"interface/icons/{icon}.blp" for _, icon in STEM_ICONS} | art_icon_paths()
+    cached_icons: set[str] = set()
+    if MODEL_PATHS.is_file():
+        cached_icons = set(json.loads(MODEL_PATHS.read_text(encoding="utf-8"))["icons"])
+    if not MODEL_PATHS.is_file() or not candidates.issubset(cached_icons):
         if offline:
             raise SystemExit(f"Missing cached pinned listfile subset: {MODEL_PATHS}")
         CACHE.mkdir(parents=True, exist_ok=True)
@@ -178,7 +191,6 @@ def model_paths(offline: bool) -> tuple[dict[int, str], dict[str, int]]:
         digest = hashlib.sha256()
         models: dict[int, str] = {}
         icons: dict[str, int] = {}
-        candidates = {f"interface/icons/{icon}.blp" for _, icon in STEM_ICONS}
         with urllib.request.urlopen(request, timeout=240) as response:
             while line := response.readline():
                 digest.update(line)
@@ -198,7 +210,7 @@ def model_paths(offline: bool) -> tuple[dict[int, str], dict[str, int]]:
     return {int(k): v for k, v in cached["models"].items()}, {k: int(v) for k, v in cached["icons"].items()}
 
 
-def model_mapping(offline: bool, npc_ids: set[int]) -> tuple[dict[int, str], dict[str, int]]:
+def model_mapping(offline: bool, npc_ids: set[int]) -> tuple[dict[int, tuple[str, int]], dict[str, int]]:
     display_data = pinned_file(
         DISPLAY_CSV, "https://wago.tools/db2/CreatureDisplayInfo/csv?build=1.60.1.70450", offline
     )
@@ -214,7 +226,7 @@ def model_mapping(offline: bool, npc_ids: set[int]) -> tuple[dict[int, str], dic
     paths, icon_paths = model_paths(offline)
     source = source_bytes(offline)
     with gzip.GzipFile(fileobj=io.BytesIO(source)) as compressed:
-        found: dict[int, str] = {}
+        found: dict[int, tuple[str, int]] = {}
         for raw_line in compressed:
             line = raw_line.decode("latin1")
             if not line.startswith("INSERT INTO `creature_template` VALUES "):
@@ -227,7 +239,7 @@ def model_mapping(offline: bool, npc_ids: set[int]) -> tuple[dict[int, str], dic
                 model_id = display_to_model.get(display_id)
                 file_id = model_to_file.get(model_id, 0)
                 if file_id in paths:
-                    found[npc_id] = paths[file_id]
+                    found[npc_id] = (paths[file_id], display_id)
     return found, icon_paths
 
 
@@ -311,11 +323,15 @@ def generate(offline: bool = False, output: Path = OUT) -> None:
     source = source_bytes(offline)
     entries = read_mapping(source, ids)
     resolved, listed_icons = model_mapping(offline, ids)
-    npc_icons = {npc_id: icon for npc_id, model in resolved.items() if (icon := stem_icon(model))}
+    npc_icons = {npc_id: icon for npc_id, (model, _) in resolved.items() if (icon := stem_icon(model))}
+    npc_displays = {npc_id: display_id for npc_id, (_, display_id) in resolved.items()}
     icon_paths = sorted({f"interface/icons/{icon}.blp" for icon in npc_icons.values()})
     missing = [path for path in icon_paths if path not in listed_icons]
     if missing:
         raise SystemExit(f"Generated icon paths missing from pinned listfile: {', '.join(missing)}")
+    missing_fallbacks = sorted(art_icon_paths() - set(listed_icons))
+    if missing_fallbacks:
+        raise SystemExit(f"UI/Art.lua icon paths missing from pinned listfile: {', '.join(missing_fallbacks)}")
     icon_index = {path: index for index, path in enumerate(icon_paths, 1)}
     questie_hash = hashlib.sha256(QUESTIE_TSV.read_bytes()).hexdigest()
     lines = [
@@ -330,6 +346,7 @@ def generate(offline: bool = False, output: Path = OUT) -> None:
         f"-- Pinned QuestieDB catalogue sha256 {questie_hash}.",
         f"-- {len(npc_icons)} of {len(ids)} catalogue NPCs have a model-derived icon; "
         f"{len(icon_paths)} distinct icons.",
+        f"-- {len(npc_displays)} of {len(ids)} catalogue NPCs have a client display ID for a live portrait.",
         "ns.CreatureInfo = {",
         "\ticons = {",
     ]
@@ -344,10 +361,11 @@ def generate(offline: bool = False, output: Path = OUT) -> None:
     for type_id, name in CREATURE_TYPES.items():
         lines.append(f'\t\t[{type_id}] = "{name}",')
     lines.extend(["\t},", "\tentries = {"])
-    for npc_id in sorted(set(entries) | set(npc_icons)):
+    for npc_id in sorted(set(entries) | set(npc_icons) | set(npc_displays)):
         type_id, family_id = entries.get(npc_id, (0, 0))
         icon_id = icon_index.get(f"interface/icons/{npc_icons[npc_id]}.blp", 0) if npc_id in npc_icons else 0
-        packed = icon_id * 1048576 + type_id * 65536 + family_id
+        display_id = npc_displays.get(npc_id, 0)
+        packed = display_id * DISPLAY_UNIT + icon_id * 1048576 + type_id * 65536 + family_id
         lines.append(f"\t\t[{npc_id}] = {packed},")
     lines.extend(
         [
@@ -359,9 +377,14 @@ def generate(offline: bool = False, output: Path = OUT) -> None:
             "\tif not packed then",
             "\t\treturn nil",
             "\tend",
-            "\tlocal iconIndex = math.floor(packed / 1048576)",
-            "\tlocal metadata = packed % 1048576",
-            "\treturn math.floor(metadata / 65536), metadata % 65536, ns.CreatureInfo.icons[iconIndex]",
+            f"\tlocal displayID = math.floor(packed / {DISPLAY_UNIT})",
+            f"\tlocal metadata = packed % {DISPLAY_UNIT}",
+            "\tlocal iconIndex = math.floor(metadata / 1048576)",
+            "\tlocal creature = metadata % 1048576",
+            "\treturn math.floor(creature / 65536),",
+            "\t\tcreature % 65536,",
+            "\t\tns.CreatureInfo.icons[iconIndex],",
+            "\t\tdisplayID > 0 and displayID or nil",
             "end",
             "",
         ]

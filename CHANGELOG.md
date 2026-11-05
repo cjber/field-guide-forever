@@ -6,6 +6,12 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 ## [Unreleased]
 
 - **Rare creatures and shinies stand out on the target frame and nameplates.** A silver, gold or shiny creature gives the target frame a soft tier-coloured aura, a tier-coloured health bar and name, and a RARE or SHINY tag above the name; its nameplate takes the tier colour, a soft glow and a small mark. Shiny creatures pulse gently. Copper creatures look exactly as before. `/fg preview` cycles all three tiers through every creature for the session without recording anything rare. Thanks to cjber for the idea (#123, #124).
+
+## [0.3.31] - 2026-11-05
+
+- **The creature list shows each creature's real face.** A row now draws the creature's client portrait from its display ID, so a deer, squirrel, toad or treant no longer borrows a shared paw or humanoid head. When the catalogue has no display ID, a much larger keyword and family map over the client's modern icons shows the right animal instead. Only the rows on screen are kept, so scrolling stays cheap.
+- **The detail header and cards have room to breathe.** The subtitle no longer crowds the portrait cards, and a two-line card status such as "Only rare creatures have one" keeps a clear gap from the card's bottom edge.
+- **The micro-menu button's tooltip keeps a minimum width.** Its short two-word title no longer squeezes the binding and description under it into a narrow column, and the creature and micro-menu tooltips now take that width from the same place.
 - **Suite tooling stays in step with Forever Core.** The vendored shared-file check knows about the new tracker header menu spec. Nothing a player sees changes.
 
 ## [0.3.30] - 2026-11-05
