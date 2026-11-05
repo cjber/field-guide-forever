@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.26] - 2026-11-05
+
 - **The journal opens like the game's own windows.** It sits on the left beside your other panels, the way the Adventure Guide does, closes with Escape or when another left-hand window opens, and no longer floats over everything. It can still be opened in combat. The old dragged position is no longer saved.
 - **The journal looks more like the game's own windows.** Every progress bar is the gold Professions bar, so zone completion no longer shows a lone green bar. Creature rows drop the gold underline, the zone path sits beside the portrait, and the "Creature portrait" caption and all-caps labels are gone: rewards read "Unlocked" or "Unlocks at Studied".
 - **The Field Guide micro-menu button gets its own slot.** With Adventure Guide Forever also installed, both buttons asked for the place before Game Menu and Field Guide's sat on top of Adventure Guide's. Each now gets its own place, and the game's buttons move aside instead of being covered.
