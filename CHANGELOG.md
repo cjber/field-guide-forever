@@ -5,14 +5,17 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
-## [0.5.1] - 2026-11-06
+## [0.5.2] - 2026-11-06
 - **The rarity frame reads as one piece.** The tier gem and its socket are gone, so the ornament's six o'clock is plain and the tier shows in its colour alone, and the rare silver frame sits two units lower so the name lands in its name box exactly as on an ordinary target frame. (#169).
 - **Every rarity frame is a laurel.** The quill and journal frames and their setting are gone, so each tier wears its own laurel: a plain silver ring with one small oak sprig, the gold wreath as before, and a fuller crystal wreath in the shiny metal. An old saved style choice is ignored. (#171).
 - **Creature sizes are gone.** Spawns no longer roll a size, the target tag shows only the coat, and Records no longer keeps smallest and largest kills, Tiny and Giant badges or the size toasts. Old saves drop their size fields on load. (#170).
-- **Regenerating the shipped data now gives the same result on every machine.** The QuestieDB fixture that `tools/gen_creature_icons.py` builds `Data/CreatureIcons.lua` from is stamped with the extractor that wrote it, so a fixture left behind by an older tool is re-extracted instead of being silently pinned, the screenshot fixture formats every number the same way, and the recorded catalogue pin hashes the sorted NPC id set the generator consumes rather than the fixture bytes. Two LuaJIT builds that render the same catalogue can no longer disagree, so a locally regenerated file passes CI's `generated-data` gate. (#166).
+- **Regenerating the shipped data gives the same file on every machine.** The generated creature icon table now pins a hash of the sorted NPC id set it consumes rather than a hash of the QuestieDB fixture bytes, so the same catalogue rendered by a different LuaJIT build no longer disagrees with CI. The fixture also records the extractor that wrote it, so a fixture left behind by an older tool is re-extracted instead of being silently pinned. (#166).
 
 ### For addon authors
 - `Specimen` and `Specimens` no longer return `sizeSmallest`, `sizeLargest`, `tiny` or `giant`, and the API's minor version is 4. (#170).
+
+## [0.5.1] - 2026-11-06
+- **Regenerating the shipped data now gives the same result on every machine.** The QuestieDB fixture that `tools/gen_creature_icons.py` builds `Data/CreatureIcons.lua` from is stamped with the extractor that wrote it, so a fixture left behind by an older tool is re-extracted instead of being silently pinned, and the recorded catalogue pin now hashes the fixture's normalised values rather than its bytes. Two LuaJIT builds that render the same catalogue can no longer disagree, so a locally regenerated file passes CI's `generated-data` gate. (#166).
 
 ## [0.5.0] - 2026-11-06
 - **The journal opens on Discovered.** The creature list starts on what this character has actually met, with its filter button already reading Discovered, so a long zone does not open as a wall of unknown names. A character with nothing recorded yet gets a line saying how to add a creature instead of an empty list. (#152).
