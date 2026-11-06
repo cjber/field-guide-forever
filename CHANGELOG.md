@@ -4,8 +4,11 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
 ## [Unreleased]
+
+## [0.5.3] - 2026-11-06
 - **The rarity frame's silver ring now shares the portrait's centre.** The rare art is split into its bar and ring pieces, so the ring no longer inherits the bar's 2-unit shift and the laurel is anchored to the portrait itself. Silver, gold and shiny targets keep the ring, portrait and laurel on one centre while the name divider still lines up. (#176).
 - **Habitat map pins keep their true shape.** Spawn pins are drawn at the client's native 15 by 15 square instead of being stretched taller. (#178).
+- **Store screenshots draw the bars the way the client does.** The rendered scenes now mask the progress fill through the bar's nine-sliced art and flip it as `SetFillPercent` does, so the Observed and zone completion bars no longer show a dark gap at the left. (#177).
 
 ## [0.5.2] - 2026-11-06
 - **The rarity frame reads as one piece.** The tier gem and its socket are gone, so the ornament's six o'clock is plain and the tier shows in its colour alone, and the rare silver frame sits two units lower so the name lands in its name box exactly as on an ordinary target frame. (#169).
