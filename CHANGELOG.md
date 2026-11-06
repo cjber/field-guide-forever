@@ -4,6 +4,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
 ## [Unreleased]
+
+## [0.5.5] - 2026-11-06
 - **You appear once on leaderboards with a two-part name.** A Forever name like Hel Io no longer shows twice, once as you and once as a reported player with the same value.
 - **The silver and shiny target frame no longer paints a rectangular border over the name and health bar.** The rare frame's bar piece, its mask and its sheen are gone, so only the silver portrait ring, the laurel and the laurel's sheen remain. (#187).
 
