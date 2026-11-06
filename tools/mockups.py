@@ -1193,8 +1193,12 @@ def main():
 
     save(render(search_zone, prowler, "CREATURES", tracked=True), "tracking.png")
     save(render(silver_zone, silver, "CREATURES", "silver"), "silver-record.png")
-    # The record itself, on the full list rather than the Shiny filter shown in shiny.png.
-    save(render(shiny_zone, shiny, "CREATURES"), "shiny-record.png")
+    # The record itself, on the full list rather than the Shiny filter shown in shiny.png, for a shiny that no zone
+    # page opens on, so it is not the same picture as that zone's render.
+    record_zone, record = next(
+        ((zone, species) for zone, species in shinies if species is not zone["species"][0]), (shiny_zone, shiny)
+    )
+    save(render(record_zone, record, "CREATURES"), "shiny-record.png")
 
     # Show the native filter menu on the same all-species state as the All label and visible list.
     filtered = render(search_zone, search_species, "CREATURES", "missingShiny")
@@ -1351,6 +1355,14 @@ def main():
         disposal=2,
     )
     write_gallery()
+    # Two gallery images showing one picture is a scene bug, not a render detail.
+    seen = {}
+    for image in sorted(OUT.glob("*.png")):
+        seen.setdefault(image.read_bytes(), []).append(image.name)
+    duplicates = [names for names in seen.values() if len(names) > 1]
+    if duplicates:
+        print(f"identical renders: {duplicates}", file=sys.stderr)
+        return 1
     (OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"wrote {len(list(OUT.glob('*.png')))} PNG scenes and docs/gallery.md")
 
