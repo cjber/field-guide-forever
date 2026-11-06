@@ -1,4 +1,0 @@
-ruleDirs:
-  - .sloppatrol/rules
-testConfigs:
-  - testDir: .sloppatrol/rule-tests

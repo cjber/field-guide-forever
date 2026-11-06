@@ -20,7 +20,7 @@ python3 tools/check_screenshots.py
 python3 tools/changelog.py --check
 python3 tools/deadcode.py --check
 python3 tools/check_menu_scroll.py # menus built from a list scroll (WFA-36); CI runs it in core-shared
-python3 .sloppatrol/gate.py --base origin/main && python3 .sloppatrol/agents.py check
+python3 tools/repo_rules.py # rules no linter covers; CI runs it in project-rules
 ```
 
 Specs are Lua 5.1 scripts run with LuaJIT through `tests/wow_mock.lua`. `FOREVER_CORE=/path/to/forever-core python3 tools/mockups.py` renders the README scenes from WoW client assets and a disposable fixture extracted from the pinned QuestieDB Forever release. The fixture lives only in an ignored cache directory under `tools/`.
@@ -36,7 +36,7 @@ runs it on a schedule. `tools/typecheck.sh` verifies the vendored `tools/forever
 forever-core: refresh it only with `python3 tools/forever_tools/sync.py update --source <forever-core checkout>`),
 checks that the TOC/XML load graph reaches every runtime Lua file (`tools/typecheck_coverage.py`), then runs LuaLS
 over every TOC-loaded file against the pinned WoW API and FrameXML annotations. CI runs the gate in the jobs
-`deadcode`, `check`, `python`, `typecheck`, `generated-data`, `project-rules` (changelog and the Sloppatrol gate),
+`deadcode`, `check`, `python`, `typecheck`, `generated-data`, `project-rules` (changelog and `tools/repo_rules.py`),
 `workflows`, `secrets` and `package`, each on every pull request.
 `tools/visual_audit.py` reads the `docs/screenshots/layout.json` manifest `tools/mockups.py` writes and fails when a widget leaves the window
 frame, when two controls overlap or sit closer than 8 units apart, or when the rendered button art is not where the
@@ -97,7 +97,7 @@ geometry checks do not validate these relationships. AI concepts are proposals, 
 - Never merge a change to `UI/` that leaves `python3 tools/visual_audit.py` red: read the rendered images, not just
   the diff.
 - Do not edit `.luacheckrc` to hide a real warning. Add a `read_globals` entry only for a genuine WoW API global.
-- Load `.agents/skills/sloppatrol-project/SKILL.md` before cleanup, dead-code or refactoring work.
+- Read the live roots in `.sloppatrol/instructions.md` before deleting code as unused.
 
 ## Release flow
 
