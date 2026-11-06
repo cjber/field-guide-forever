@@ -3,14 +3,13 @@
 The addon's own ornaments do the work. A silver creature draws the client's rare silver frame plus the silver laurel
 around its portrait, gold draws the gold laurel alone, and shiny draws the rare frame, the shiny laurel and the
 client's loot-toast sheen across both pieces. Each ornament is the addon's 256 px square TGA drawn at 2 px per UI
-unit, so 128 UI units a side and never stretched. The coat's quality gem sits in a socket at six o'clock in the
-ornament, and the SILVER, GOLD or SHINY tag stays above the name. Nameplates carry the same quality icon to the right
-of the health bar. The health bar fill and name text keep the client's own colours, and BRONZE is the untouched
-client frame.
+unit, so 128 UI units a side and never stretched. The SILVER, GOLD or SHINY tag stays above the name. Nameplates carry
+the same quality icon to the right of the health bar. The health bar fill and name text keep the client's own colours,
+and BRONZE is the untouched client frame.
 
-Rare, elite, boss and minus-mob units already get the client's own frame art, so our ornaments and their gem are
-skipped for them while the tag still reads the coat. Every pixel that is not the addon's own art or layout comes from
-the pinned WoW: Forever build through wowmock, so what is approved here is what the addon paints.
+Rare, elite, boss and minus-mob units already get the client's own frame art, so our ornaments are skipped for them
+while the tag still reads the coat. Every pixel that is not the addon's own art or layout comes from the pinned WoW:
+Forever build through wowmock, so what is approved here is what the addon paints.
 
     python3 tools/rarity.py
 """
@@ -37,9 +36,9 @@ OUT = ROOT / "docs" / "screenshots"
 # all; the whole promise of the feature is that a bronze creature looks exactly as it always did.
 TIERS = (
     ("BRONZE", "every spawn", None, "the client's frame, untouched"),
-    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver coat, quality gem and SILVER tag"),
-    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "gold coat, quality gem and GOLD tag"),
-    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "shiny coat, quality gem and SHINY tag"),
+    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver coat and SILVER tag"),
+    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "gold coat and GOLD tag"),
+    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "shiny coat and SHINY tag"),
 )
 # The addon's own ornaments, one per coat. Each file is 256 px square at 2 px per UI unit, so 128 UI units a side.
 ORNAMENT_DIR = ROOT / "media" / "Rarity"
@@ -50,25 +49,13 @@ ORNAMENT_FILES = {
     "SHINY": "Laurel-Shiny",
 }
 ORNAMENTS = {}
-# UI/Rarity.lua's GEM_SOCKETS and GEM_SIZES: each gem is centred on the ornament's six o'clock socket, from the art's
-# top-left, and drawn as a square so the 50 px quality atlas keeps its aspect.
-ORNAMENT_HOLE = (48, 80)
-GEM_SOCKETS = {
-    "SILVER": (0.5, 31.5),
-    "GOLD": (1.25, 30.75),
-    "SHINY": (0.75, 31.0),
-}
-GEM_SIZES = {
-    "SILVER": 11.5,
-    "GOLD": 12,
-    "SHINY": 11.7,
-}
 TARGET_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn"
 RARE_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
 GOLD_RING_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold"
 SHEEN_ATLAS = "loottoast-sheen"
 HEALTH_BAR_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Bar-Health"
 POWER_BAR_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Bar-Mana"
+NAME_BAR_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Type"
 TAG_HEIGHT = 15
 TAG_PAD = 4
 # Art.TIER_ICONS for the tiers whose target frame and nameplate carry their quality mark, at Rarity.lua's size and
@@ -91,13 +78,21 @@ TAG_TEXT = wowmock.rgb("0d0f12")
 # The UI-HUD target frame's atlas is 192 by 67. These windows are the measured client regions inside it, in the same
 # units TargetFrame.xml anchors its health, power and portrait to.
 FRAME_W, FRAME_H = 192, 67
-HEALTH_WINDOW = (2, 22, 128, 42)
-POWER_WINDOW = (2, 44, 136, 54)
+HEALTH_WINDOW = (3, 23.5, 129, 43.5)
+POWER_WINDOW = (3, 44.5, 137, 54.5)
 # TargetFrame.xml centres FrameTexture (192x67) in the 232x100 container, so its top-left is (20, 16.5) container
 # units. The 58-wide portrait is anchored TOPRIGHT -26,-19, putting its centre at (177, 48) in the container and
 # (157, 31.5) in the frame art.
 PORTRAIT_CENTER = (157, 31.5)
 PORTRAIT_RADIUS = 29
+# TargetFrame.xml's ReputationColor is 135 by 18, anchored TOPRIGHT at -75,-25 in the 232 by 100 container, which puts
+# it at (2, 8.5) in the frame art. Camelot's TargetFrame.lua then anchors Name to its TOPRIGHT at -133,-1 with width
+# 117, so the name box starts at (4, 9.5) in the art and is 117 by 12.
+NAME_BAR_LEFT, NAME_BAR_TOP = 2, 8.5
+NAME_BAR_W, NAME_BAR_H = 135, 18
+NAME_LEFT = NAME_BAR_LEFT + NAME_BAR_W - 133
+NAME_TOP = NAME_BAR_TOP + 1
+NAME_W, NAME_H = 117, 12
 # Camelot's TargetFrame.lua centres LevelText on LevelBackgroundCircle at the frame's bottom right, not Mainline's
 # top-left spot.
 LEVEL_CENTER = (188, 54)
@@ -106,6 +101,9 @@ LEVEL_CENTER = (188, 54)
 # origin, so it places that hole on the portrait centre it already measures.
 ORNAMENT_LEFT = PORTRAIT_CENTER[0] - 48
 ORNAMENT_TOP = PORTRAIT_CENTER[1] - 80
+# UI/Rarity.lua's RARE_FRAME_OFFSET_Y: the retail rare atlas has no c60 member, and its name/health divider sits 2 UI
+# units above the Forever normal frame's, so the overlay drops 2 units to keep the name where the client puts it.
+RARE_FRAME_OFFSET_Y = -2
 
 # NumberFontNormalSmall is the client font object used by target-frame level text.
 FONTS["NumberFontNormalSmall"] = Font(wowmock.ARIALN, 10, wowmock.WHITE, None, True)
@@ -127,20 +125,6 @@ def draw_ornament(canvas, tier, x, y):
     size = canvas.px(ORNAMENT_SIZE)
     piece = ornament(tier).resize((size, size), Image.LANCZOS)
     canvas.composite(piece, canvas.px(x + ORNAMENT_LEFT), canvas.px(y + ORNAMENT_TOP))
-
-
-def draw_gem(canvas, ui, label, x, y):
-    """The tier's quality gem, centred on the ornament's socket exactly as UI/Rarity.lua anchors it."""
-    socket = GEM_SOCKETS[label]
-    mark(
-        canvas,
-        ui,
-        PLATE_MARKS[label],
-        x + ORNAMENT_LEFT + ORNAMENT_HOLE[0] + socket[0],
-        y + ORNAMENT_TOP + ORNAMENT_HOLE[1] + socket[1],
-        GEM_SIZES[label],
-        wowmock.WHITE,
-    )
 
 
 def sheen_mask(canvas, pieces):
@@ -165,7 +149,7 @@ def sheen(canvas, ui, x, y, pieces):
 
 
 def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
-    """Compose the client target frame with the addon's ornament, the quality gem and the tag."""
+    """Compose the client target frame with the addon's ornament and the tag."""
     label, _, colour, _ = tier
     frame = ui.atlas(TARGET_FRAME_ATLAS)
     health_bar = ui.atlas(HEALTH_BAR_ATLAS)
@@ -186,10 +170,9 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
     # already drew there instead.
     if not native:
         if label in ("SILVER", "SHINY"):
-            canvas.draw(ui.atlas(RARE_FRAME_ATLAS), x, y, FRAME_W, FRAME_H)
+            canvas.draw(ui.atlas(RARE_FRAME_ATLAS), x, y + RARE_FRAME_OFFSET_Y, FRAME_W, FRAME_H)
         if label in ORNAMENT_FILES:
             draw_ornament(canvas, label, x, y)
-            draw_gem(canvas, ui, label, x, y)
         if label == "SHINY":
             sheen(
                 canvas,
@@ -197,13 +180,16 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
                 x,
                 y,
                 (
-                    (ui.atlas(RARE_FRAME_ATLAS).image, x, y, FRAME_W, FRAME_H),
+                    (ui.atlas(RARE_FRAME_ATLAS).image, x, y + RARE_FRAME_OFFSET_Y, FRAME_W, FRAME_H),
                     (ornament(label), x + ORNAMENT_LEFT, y + ORNAMENT_TOP, ORNAMENT_SIZE, ORNAMENT_SIZE),
                 ),
             )
     else:
         ring = ui.atlas(GOLD_RING_ATLAS)
         canvas.draw(ring, x + 112, y - 17.5, ring.width, ring.height)
+
+    # The client's name bar sits over the frame art, and the name sits inside it where Camelot anchors it.
+    canvas.draw(ui.atlas(NAME_BAR_ATLAS), x + NAME_BAR_LEFT, y + NAME_BAR_TOP, NAME_BAR_W, NAME_BAR_H)
 
     # The status bar art already carries the client's green and blue fills; crop it to the shown fraction.
     for atlas, bounds, fraction in (
@@ -218,14 +204,14 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
 
     text(
         canvas,
-        x + HEALTH_WINDOW[0],
-        y + HEALTH_WINDOW[1],
+        x + NAME_LEFT,
+        y + NAME_TOP,
         name,
         "GameFontNormalSmall",
         TEXT,
-        justify="CENTER",
-        width=HEALTH_WINDOW[2] - HEALTH_WINDOW[0],
-        box_height=HEALTH_WINDOW[3] - HEALTH_WINDOW[1],
+        justify="LEFT",
+        width=NAME_W,
+        box_height=NAME_H,
     )
     text(
         canvas,
@@ -305,7 +291,7 @@ def sheet(ui, icons, name, native=False, plates=False):
     canvas = ui.canvas(cell_w * cols + m * 2, cell_h * rows + m * 2 + 64)
     canvas.fill(0, 0, canvas.width, canvas.height, BG)
     text(canvas, m, 18, "FIELD GUIDE  \u00b7  RARITY AT A GLANCE", "GameFontNormal", BRASS)
-    subtitle = "Field Guide's own laurel ornaments around each portrait, with the quality gem and tag"
+    subtitle = "Field Guide's own laurel ornaments around each portrait, with the tag"
     if native:
         subtitle = "The client's own rare and elite frame art stays; the tag still names the coat"
     text(canvas, m, 36, subtitle, "GameFontDisableSmall", MUTED)

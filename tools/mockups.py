@@ -1309,7 +1309,6 @@ def main():
         "Show the records list",
         "Announce newly recorded creatures",
         "Show milestone toasts",
-        "Quill and journal rarity frames",
         "Share progress with guild and group addon users",
         "Minimap button",
     ]
@@ -1325,12 +1324,12 @@ def main():
     text(
         settings,
         36,
-        250,
+        222,
         "The Field Guide button can also be bound in Key Bindings > AddOns.",
         "GameFontDisableSmall",
         MUTED,
     )
-    note("Settings binding note", "content", 36, 250, 560, 16)
+    note("Settings binding note", "content", 36, 222, 560, 16)
     save(settings, "settings.png")
     save(render(barrens, search_species, "CREATURES"), "sighting-log.png")
     save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")

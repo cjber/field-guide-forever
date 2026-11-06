@@ -88,7 +88,6 @@ harness.env.UnitName = function(unit)
 end
 Mock.guids.target = GuidFor("silver", "t")
 harness:Fire("ADDON_LOADED", "FieldGuideForever")
-assert(ns.db.options.rarityFrameStyle == "laurel", "the target frame ornaments default to laurel")
 
 local function AssertColour(region, expected, label)
 	local r, g, b = region:GetStatusBarColor()
@@ -111,34 +110,9 @@ end
 
 local RARE_FRAME = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
 local ORNAMENTS = {
-	laurel = {
-		silver = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Silver.tga",
-		gold = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Gold.tga",
-		shiny = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Shiny.tga",
-	},
-	quill = {
-		silver = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Quill-Silver.tga",
-		gold = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Quill-Gold.tga",
-		shiny = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Quill-Shiny.tga",
-	},
-}
-
-local GEM_SOCKETS = {
-	laurel = {
-		silver = { 0.5, 31.5 },
-		gold = { 1.25, 30.75 },
-		shiny = { 0.75, 31.0 },
-	},
-	quill = {
-		silver = { 0.0, 31.25 },
-		gold = { -0.25, 30.5 },
-		shiny = { -0.25, 31.5 },
-	},
-}
-local GEM_SIZES = {
-	silver = 11.5,
-	gold = 12,
-	shiny = 11.7,
+	silver = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Silver.tga",
+	gold = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Gold.tga",
+	shiny = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Shiny.tga",
 }
 
 local function AssertNoTint(piece, label)
@@ -149,36 +123,7 @@ end
 
 ---@param tier string
 ---@param label string
----@param style string?
-local function AssertTargetGem(tier, label, style)
-	style = style or "laurel"
-	local art = target.FGFRarityArt
-	local gem = art.gem
-	assert(type(gem) == "table", label .. ": the target frame gets a socket gem")
-	assert(gem:IsShown(), label .. ": the socket gem is shown")
-	assert(gem:GetAtlas() == ns.Art.TIER_ICONS[tier], label .. ": the gem shows the tier's quality mark")
-	local width, height = gem:GetSize()
-	assert(
-		width == GEM_SIZES[tier] and height == GEM_SIZES[tier],
-		label .. ": the gem keeps its square " .. GEM_SIZES[tier] .. "-unit size"
-	)
-	local socket = GEM_SOCKETS[style][tier]
-	local point, relativeTo, relativePoint, x, y = gem:GetPoint(1)
-	assert(
-		point == "CENTER"
-			and relativeTo == art.ornament
-			and relativePoint == "TOPLEFT"
-			and x == 48 + socket[1]
-			and y == -(80 + socket[2]),
-		label .. ": the gem sits in the ornament's six o'clock socket"
-	)
-end
-
----@param tier string
----@param label string
----@param style string?
-local function AssertTargetFrame(tier, label, style)
-	style = style or "laurel"
+local function AssertTargetFrame(tier, label)
 	local art = target.FGFRarityArt
 	assert(type(art) == "table", label .. ": the target frame gets the rarity art")
 	local hasSilver = tier == "silver" or tier == "shiny"
@@ -186,20 +131,17 @@ local function AssertTargetFrame(tier, label, style)
 		assert(art.overlay:IsShown(), label .. ": the silver rare frame is shown")
 		assert(art.overlay:GetAtlas() == RARE_FRAME, label .. ": it is the game's rare frame atlas")
 		assert(art.overlay.atlasUseSize, label .. ": the rare frame keeps the atlas's own size")
-		local point, relativeTo, relativePoint = art.overlay:GetPoint(1)
+		local point, relativeTo, relativePoint, x, y = art.overlay:GetPoint(1)
 		assert(
-			point == "CENTER" and relativeTo == container and relativePoint == "CENTER",
-			label .. ": the rare frame copies FrameTexture's anchors"
+			point == "CENTER" and relativeTo == container and relativePoint == "CENTER" and x == 0 and y == -2,
+			label .. ": the rare frame copies FrameTexture's anchors, 2 units lower to match the c60 name box"
 		)
 		AssertNoTint(art.overlay, label)
 	else
 		assert(not art.overlay:IsShown(), label .. ": no silver frame on this tier")
 	end
-	assert(art.ornament:IsShown(), label .. ": the " .. style .. " " .. tier .. " ornament is shown")
-	assert(
-		art.ornament._texture == ORNAMENTS[style][tier],
-		label .. ": it is the " .. style .. " " .. tier .. " ornament file"
-	)
+	assert(art.ornament:IsShown(), label .. ": the " .. tier .. " ornament is shown")
+	assert(art.ornament._texture == ORNAMENTS[tier], label .. ": it is the " .. tier .. " laurel ornament file")
 	local width, height = art.ornament:GetSize()
 	assert(width == 128 and height == 128, label .. ": the ornament keeps its square 128-unit size")
 	local point, relativeTo, relativePoint, x, y = art.ornament:GetPoint(1)
@@ -208,7 +150,6 @@ local function AssertTargetFrame(tier, label, style)
 		label .. ": the ornament anchors its round hole over the portrait"
 	)
 	AssertNoTint(art.ornament, label)
-	AssertTargetGem(tier, label, style)
 	if tier == "shiny" then
 		assert(art.anim:IsPlaying(), label .. ": the shiny sheen animates")
 		assert(art.sheen:IsShown() and art.ornamentSheen:IsShown(), label .. ": both sheen textures are shown")
@@ -216,10 +157,7 @@ local function AssertTargetFrame(tier, label, style)
 		assert(art.sheen.mask == art.sheenMask, label .. ": the frame sheen is masked")
 		assert(art.ornamentSheen.mask == art.ornamentMask, label .. ": the ornament sheen is masked")
 		assert(art.sheenMask:GetAtlas() == RARE_FRAME, label .. ": the frame mask follows the rare frame")
-		assert(
-			art.ornamentMask._texture == ORNAMENTS[style].shiny,
-			label .. ": the ornament mask is the shiny ornament file"
-		)
+		assert(art.ornamentMask._texture == ORNAMENTS.shiny, label .. ": the ornament mask is the shiny ornament file")
 	else
 		assert(not art.anim:IsPlaying(), label .. ": only shiny animates")
 		assert(not art.sheen:IsShown() and not art.ornamentSheen:IsShown(), label .. ": the sheen hides with the art")
@@ -272,7 +210,6 @@ assert(target.FGFRarityTag:IsShown(), "a bronze target still shows its size tag"
 assert(target.FGFRarityTag.text:GetText() == ExpectedTag("bronze"), "bronze reads its size")
 assert(not target.FGFRarityFrame:IsShown(), "an uncatalogued target hides the frame recolour")
 assert(not target.FGFRarityArt.ornament:IsShown(), "an uncatalogued target hides the ornament")
-assert(not target.FGFRarityArt.gem:IsShown(), "an uncatalogued target hides the socket gem")
 chromeR, chromeG, chromeB, chromeA = chrome:GetVertexColor()
 assert(not chrome:IsDesaturated(), "the chrome stays untouched after cleanup")
 assert(
@@ -284,7 +221,7 @@ assert(
 )
 
 -- Rare, elite, boss and minus-mob units already get the client's own silver, gold or reduced frame art. Our ornament
--- and its gem stay out of the way, while the tag still tells the player which coat this spawn rolled.
+-- stays out of the way, while the tag still tells the player which coat this spawn rolled.
 harness.env.UnitName = function(unit)
 	return unit == "target" and silver.name or "Tester"
 end
@@ -299,10 +236,6 @@ for _, classification in ipairs({ "rare", "rareelite", "elite", "minus" }) do
 	assert(not target.FGFRarityArt.ornament:IsShown(), "a " .. classification .. " target adds no ornament")
 	assert(not target.FGFRarityArt.anim:IsPlaying(), "a " .. classification .. " target starts no sheen")
 	assert(target.FGFRarityTag:IsShown(), "a " .. classification .. " target still shows its tier tag")
-	assert(
-		not target.FGFRarityArt.gem:IsShown(),
-		"a " .. classification .. " target hides the socket gem with the ornament"
-	)
 end
 Mock.classification.target = "normal"
 Mock.boss.target = true
@@ -362,54 +295,6 @@ assert(
 	not shinyArt.sheen:IsShown() and not shinyArt.ornamentSheen:IsShown(),
 	"hiding the art hides both sheen textures"
 )
-
--- The ornaments are a saved setting: laurel by default, quill when the player ticks the box, and the current target
--- repaints at once rather than waiting for the next target change.
-ns.Settings.Register()
-local quillBox
-for _, frame in ipairs(Mock.frames) do
-	if
-		frame._type == "CheckButton"
-		and frame.tooltipText
-			== "Draw rare creatures' target frames with the quill and journal design instead of the laurel wreath."
-	then
-		quillBox = frame
-	end
-end
-assert(quillBox, "the settings page has the quill rarity frame row")
-assert(quillBox:GetChecked() == false, "the quill box starts unchecked for the laurel ornaments")
-
-harness.env.UnitName = function(unit)
-	return unit == "target" and shiny.name or "Tester"
-end
-Mock.guids.target = GuidFor("shiny", "t")
-Mock.Fire("PLAYER_TARGET_CHANGED")
-AssertTargetFrame("shiny", "a shiny target on laurel")
-
-quillBox:SetChecked(true)
-quillBox:GetScript("OnClick")(quillBox)
-assert(ns.db.options.rarityFrameStyle == "quill", "ticking the box saves the quill design")
-AssertTargetFrame("shiny", "a shiny target repainted at once", "quill")
-
-harness.env.UnitName = function(unit)
-	return unit == "target" and silver.name or "Tester"
-end
-Mock.guids.target = GuidFor("silver", "t")
-Mock.Fire("PLAYER_TARGET_CHANGED")
-AssertTargetFrame("silver", "a silver target with quill", "quill")
-
-harness.env.UnitName = function(unit)
-	return unit == "target" and gold.name or "Tester"
-end
-Mock.guids.target = GuidFor("gold", "t")
-Mock.Fire("PLAYER_TARGET_CHANGED")
-assert(not target.FGFRarityArt.overlay:IsShown(), "a gold quill target shows no silver frame")
-AssertTargetFrame("gold", "a gold target with quill", "quill")
-
-quillBox:SetChecked(false)
-quillBox:GetScript("OnClick")(quillBox)
-assert(ns.db.options.rarityFrameStyle == "laurel", "unticking the box returns to laurel")
-AssertTargetFrame("gold", "a gold target back on laurel")
 
 -- A nameplate is recycled between units, so a tier is marked by its quality icon only and never by the plate's own
 -- health colour or name.
@@ -546,7 +431,6 @@ for _, tier in ipairs({ "silver", "gold", "shiny" }) do
 	assert(not target.FGFRarityFrame:IsShown(), label .. ": no silver frame")
 	assert(not target.FGFRarityArt.ornament:IsShown(), label .. ": no ornament")
 	assert(not target.FGFRarityArt.anim:IsPlaying(), label .. ": no sheen")
-	assert(not target.FGFRarityArt.gem:IsShown(), label .. ": no socket gem")
 	local text = target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() or ""
 	assert(not text:find(tier:upper(), 1, true), label .. ": no " .. tier:upper() .. " tag")
 

@@ -18,45 +18,21 @@ local WHITE = "Interface\\Buttons\\WHITE8X8"
 -- The client's own rare silver frame, at its own size. A normal bronze frame stays exactly as the client draws it,
 -- and the rare frame is the piece CheckClassification uses, with no desaturation or tint of ours.
 local TARGET_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
--- The addon's own ornaments, one per coat and design. Each file is 256 px square at 2 px per UI unit, with the
--- portrait's hole centred 48 units right and 80 units down from the texture's top-left, so the portrait's centre
--- (55 left of and 48 below the container's top-right) is the ornament's round hole.
+-- Forever's normal target frame is the c60 atlas, but the rare atlas has no c60 member and returns the retail art.
+-- Both are 192 by 67, yet the retail rare art draws its name/health divider 2 units above the c60 art (name bar rows
+-- 20 to 23 against 21 to 25, health rows 24 to 41 against 26 to 41). The client name is anchored to ReputationColor,
+-- not to this texture, so centring the overlay leaves the name 2 units closer to the line above the health bar. Drop
+-- the overlay 2 units so its divider and health bar line up with the frame it covers.
+local RARE_FRAME_OFFSET_Y = -2
+-- The addon's own ornaments, one per coat. Each file is 256 px square at 2 px per UI unit, with the portrait's hole
+-- centred 48 units right and 80 units down from the texture's top-left, so the portrait's centre (55 left of and 48
+-- below the container's top-right) is the ornament's round hole.
 local ORNAMENT_SIZE = 128
 local ORNAMENT_X, ORNAMENT_Y = -103, 32
-local ORNAMENT_HOLE_X, ORNAMENT_HOLE_Y = 48, 80
 local ORNAMENT_TEXTURES = {
-	laurel = {
-		silver = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Silver.tga]],
-		gold = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Gold.tga]],
-		shiny = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Shiny.tga]],
-	},
-	quill = {
-		silver = [[Interface\AddOns\FieldGuideForever\media\Rarity\Quill-Silver.tga]],
-		gold = [[Interface\AddOns\FieldGuideForever\media\Rarity\Quill-Gold.tga]],
-		shiny = [[Interface\AddOns\FieldGuideForever\media\Rarity\Quill-Shiny.tga]],
-	},
-}
-local DEFAULT_ORNAMENT_STYLE = "laurel"
--- Each ornament has a gem socket at six o'clock, below the portrait. These are the socket centres from the art's
--- top-left, per design and tier, measured from the finished 256 px files.
-local GEM_SOCKETS = {
-	laurel = {
-		silver = { 0.5, 31.5 },
-		gold = { 1.25, 30.75 },
-		shiny = { 0.75, 31.0 },
-	},
-	quill = {
-		silver = { 0.0, 31.25 },
-		gold = { -0.25, 30.5 },
-		shiny = { -0.25, 31.5 },
-	},
-}
--- The quality marks are 50 px square atlases. These sizes keep each icon's visible pixels 11 UI across and preserve
--- the atlas's square aspect.
-local GEM_SIZES = {
-	silver = 11.5,
-	gold = 12,
-	shiny = 11.7,
+	silver = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Silver.tga]],
+	gold = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Gold.tga]],
+	shiny = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Shiny.tga]],
 }
 -- LootUpgradeFrame's sheen (Mainline/AlertFrameSystems.xml): the client's own loot-toast sweep, repeated after a hold.
 local SHEEN_ATLAS = "loottoast-sheen"
@@ -173,32 +149,24 @@ local function NativeFrame(unit)
 	return classification ~= nil and NATIVE_FRAME_CLASSIFICATIONS[classification] == true
 end
 
--- Read the client frame's own anchors, so the rare overlay sits exactly where it draws its bronze frame. The atlas
--- itself supplies the size (SetAtlas(..., true)), never the normal frame's measured size.
+-- Read the client frame's own anchors, so the rare overlay sits where it draws its bronze frame, then apply the
+-- measured offset that lines the retail rare art up with the c60 normal art. The atlas itself supplies the size
+-- (SetAtlas(..., true)), never the normal frame's measured size.
 ---@param texture table
 ---@param source table
-local function MirrorFramePoints(texture, source)
+---@param offsetX number
+---@param offsetY number
+local function MirrorFramePoints(texture, source, offsetX, offsetY)
 	texture:ClearAllPoints()
 	for index = 1, source:GetNumPoints() do
 		local point, relativeTo, relativePoint, x, y = source:GetPoint(index)
+		x, y = (x or 0) + offsetX, (y or 0) + offsetY
 		if relativeTo and relativePoint then
 			texture:SetPoint(point, relativeTo, relativePoint, x, y)
 		else
-			texture:SetPoint(point, x or 0, y or 0)
+			texture:SetPoint(point, x, y)
 		end
 	end
-end
-
--- The ornament design the player picked. A missing or unknown saved value reads as the laurel wreath.
----@return string
-local function OrnamentStyle()
-	local style = ns.db and ns.db.options and ns.db.options.rarityFrameStyle
-	return ORNAMENT_TEXTURES[style] and style or DEFAULT_ORNAMENT_STYLE
-end
-
----@return table<string, string>
-local function OrnamentSet()
-	return ORNAMENT_TEXTURES[OrnamentStyle()]
 end
 
 -- One sheen texture, masked by the art it crosses so it can never spill outside that piece.
@@ -262,8 +230,7 @@ end
 
 ---@class FGFRarityTargetArt
 ---@field overlay Texture the rare silver frame
----@field ornament Texture the style's coat ornament
----@field gem Texture the tier's quality mark in the ornament's socket
+---@field ornament Texture the coat's ornament
 ---@field sheen Texture the frame sheen
 ---@field ornamentSheen Texture the ornament sheen
 ---@field sheenMask MaskTexture
@@ -285,23 +252,19 @@ local function CreateTargetArt(target)
 
 	local overlay = container:CreateTexture(nil, "BACKGROUND", nil, 3)
 	overlay:SetAtlas(TARGET_FRAME_ATLAS, true)
-	MirrorFramePoints(overlay, source)
+	MirrorFramePoints(overlay, source, 0, RARE_FRAME_OFFSET_Y)
 
 	-- The ornament's round hole sits over the portrait, so the art is anchored from the container's top-right corner.
 	local ornament = container:CreateTexture(nil, "ARTWORK", nil, 2)
 	ornament:SetSize(ORNAMENT_SIZE, ORNAMENT_SIZE)
 	ornament:SetPoint("TOPLEFT", container, "TOPRIGHT", ORNAMENT_X, ORNAMENT_Y)
 
-	-- The tier gem sits in the ornament's six o'clock socket: one sublevel above the ornament and below its sheen.
-	local gem = container:CreateTexture(nil, "ARTWORK", nil, 3)
-	gem:Hide()
-
 	local sheen, sheenMask = CreateSheen(container, overlay, 3, function(mask)
 		mask:SetAtlas(TARGET_FRAME_ATLAS, true)
 	end)
 	local ornamentSheen, ornamentMask = CreateSheen(container, ornament, 4, function(mask)
 		-- art-ok: the ornament is square 256 px art drawn at 128 units on both sides
-		mask:SetTexture(OrnamentSet().shiny, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+		mask:SetTexture(ORNAMENT_TEXTURES.shiny, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
 	end)
 	local anim = CreateSheenAnimation(target, container, { sheen, ornamentSheen })
 
@@ -311,7 +274,6 @@ local function CreateTargetArt(target)
 	local art = {
 		overlay = overlay,
 		ornament = ornament,
-		gem = gem,
 		sheen = sheen,
 		ornamentSheen = ornamentSheen,
 		sheenMask = sheenMask,
@@ -334,34 +296,14 @@ local function PaintTargetFrame(target, tier, color, native)
 	local show = color and not native
 	local silver = show and (tier == "silver" or tier == "shiny")
 	local shiny = show and tier == "shiny"
-	local style = show and OrnamentStyle()
-	local ornaments = style and ORNAMENT_TEXTURES[style]
-	local ornamentTexture = ornaments and ornaments[tier]
+	local ornamentTexture = show and ORNAMENT_TEXTURES[tier]
 	art.overlay:SetShown(silver)
-	if ornaments and ornamentTexture then
+	if ornamentTexture then
 		art.ornament:SetTexture(ornamentTexture) -- art-ok: the ornament is square 256 px art drawn at 128 units on both sides
-		art.ornamentMask:SetTexture(ornaments.shiny, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+		art.ornamentMask:SetTexture(ORNAMENT_TEXTURES.shiny, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
 		art.ornament:Show()
-		local socket = GEM_SOCKETS[style] and GEM_SOCKETS[style][tier]
-		local gemSize = GEM_SIZES[tier]
-		if socket and gemSize then
-			Art.PaintTierIcon(art.gem, tier, gemSize)
-			art.gem:ClearAllPoints()
-			art.gem:SetPoint(
-				"CENTER",
-				art.ornament,
-				"TOPLEFT",
-				ORNAMENT_HOLE_X + socket[1],
-				-(ORNAMENT_HOLE_Y + socket[2])
-			)
-			art.gem:SetVertexColor(1, 1, 1, 1)
-			art.gem:Show()
-		else
-			art.gem:Hide()
-		end
 	else
 		art.ornament:Hide()
-		art.gem:Hide()
 	end
 	if shiny then
 		art.sheen:Show()
