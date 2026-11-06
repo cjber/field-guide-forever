@@ -1146,7 +1146,7 @@
           "h": 16,
           "name": "Settings label 5",
           "role": "content",
-          "w": 167.0,
+          "w": 279.0,
           "x": 46,
           "y": 166
         },
@@ -1162,25 +1162,9 @@
           "h": 16,
           "name": "Settings label 6",
           "role": "content",
-          "w": 279.0,
-          "x": 46,
-          "y": 194
-        },
-        {
-          "h": 26,
-          "name": "Settings checkbox 7",
-          "role": "content",
-          "w": 26,
-          "x": 16,
-          "y": 216
-        },
-        {
-          "h": 16,
-          "name": "Settings label 7",
-          "role": "content",
           "w": 91.5,
           "x": 46,
-          "y": 222
+          "y": 194
         },
         {
           "h": 16,
@@ -1188,7 +1172,7 @@
           "role": "content",
           "w": 560,
           "x": 36,
-          "y": 250
+          "y": 222
         }
       ]
     },
