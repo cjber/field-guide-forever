@@ -4,6 +4,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
 ## [Unreleased]
+- **You appear once on leaderboards with a two-part name.** A Forever name like Hel Io no longer shows twice, once as you and once as a reported player with the same value.
 
 ## [0.5.4] - 2026-11-06
 - **Milestone toasts no longer raise a Lua error.** The toast loads the client's achievement UI before it builds its frame, so a silver, gold, shiny, mastered or zone toast no longer warns about an unknown achievement function. (#183).
