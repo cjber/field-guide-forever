@@ -145,8 +145,19 @@ assert(
 	"a silver preview keeps the silver art's own colour"
 )
 assert(
-	target.FGFRarityIcon:IsShown() and target.FGFRarityIcon:GetAtlas() == ns.Art.TIER_ICONS.silver,
-	"the preview marks the target frame with the silver quality icon"
+	previewArt.gem:IsShown() and previewArt.gem:GetAtlas() == ns.Art.TIER_ICONS.silver,
+	"the preview puts the silver quality gem in the ornament's socket"
+)
+local gemWidth, gemHeight = previewArt.gem:GetSize()
+assert(gemWidth == 11.5 and gemHeight == 11.5, "the silver gem keeps its square size")
+local gemPoint, gemRelative, gemRelativePoint, gemX, gemY = previewArt.gem:GetPoint(1)
+assert(
+	gemPoint == "CENTER"
+		and gemRelative == previewArt.ornament
+		and gemRelativePoint == "TOPLEFT"
+		and gemX == 48.5
+		and gemY == -111.5,
+	"the silver gem sits in the laurel's six o'clock socket"
 )
 
 local function targetCreature(name, guid)
@@ -173,10 +184,9 @@ assert(
 )
 assert(previewArt.ornamentMask._texture == LAUREL_SHINY, "the shiny laurel's sheen mask follows the same art")
 assert(previewArt.anim:IsPlaying(), "a shiny preview runs the sheen")
-assert(
-	target.FGFRarityIcon:GetAtlas() == ns.Art.TIER_ICONS.shiny,
-	"the target icon follows the preview through the tiers"
-)
+assert(previewArt.gem:GetAtlas() == ns.Art.TIER_ICONS.shiny, "the socket gem follows the preview through the tiers")
+local shinyGemWidth, shinyGemHeight = previewArt.gem:GetSize()
+assert(shinyGemWidth == 11.7 and shinyGemHeight == 11.7, "the shiny gem keeps its square size")
 
 -- Nameplates take the preview tier mark, but never the preview tier's colour on the plate itself.
 local plateColour = { 0.64, 0.2, 0.17, 1 }
@@ -245,7 +255,7 @@ assert(ns.RarityPreviewActive(), "preview turns on for the friendly checks")
 assert(not previewArt.overlay:IsShown(), "a friendly preview target shows no rare frame")
 assert(not previewArt.ornament:IsShown(), "a friendly preview target shows no ornament")
 assert(not previewArt.anim:IsPlaying(), "a friendly preview target starts no sheen")
-assert(not target.FGFRarityIcon:IsShown(), "a friendly preview target shows no tier icon")
+assert(not previewArt.gem:IsShown(), "a friendly preview target hides the socket gem with the ornament")
 local friendlyTag = target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() or ""
 for _, tier in ipairs({ "SILVER", "GOLD", "SHINY" }) do
 	assert(not friendlyTag:find(tier, 1, true), "a friendly preview target shows no " .. tier .. " tag")

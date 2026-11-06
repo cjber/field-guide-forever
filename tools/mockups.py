@@ -936,7 +936,7 @@ def detail(canvas, rx, ry, zone, species, icons):
         badges = []
         if size_smallest < 70:
             badges.append("TINY")
-        if size_largest > 140:
+        if size_largest is not None and size_largest > 140:
             badges.append("GIANT")
         badge_right = rx + SECTION_X + RECORDS_W - 8
         for badge in reversed(badges):

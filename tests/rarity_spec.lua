@@ -123,10 +123,55 @@ local ORNAMENTS = {
 	},
 }
 
+local GEM_SOCKETS = {
+	laurel = {
+		silver = { 0.5, 31.5 },
+		gold = { 1.25, 30.75 },
+		shiny = { 0.75, 31.0 },
+	},
+	quill = {
+		silver = { 0.0, 31.25 },
+		gold = { -0.25, 30.5 },
+		shiny = { -0.25, 31.5 },
+	},
+}
+local GEM_SIZES = {
+	silver = 11.5,
+	gold = 12,
+	shiny = 11.7,
+}
+
 local function AssertNoTint(piece, label)
 	assert(not piece:IsDesaturated(), label .. ": the art is never desaturated")
 	local r, g, b = piece:GetVertexColor()
 	assert(r == 1 and g == 1 and b == 1, label .. ": the art is never tinted")
+end
+
+---@param tier string
+---@param label string
+---@param style string?
+local function AssertTargetGem(tier, label, style)
+	style = style or "laurel"
+	local art = target.FGFRarityArt
+	local gem = art.gem
+	assert(type(gem) == "table", label .. ": the target frame gets a socket gem")
+	assert(gem:IsShown(), label .. ": the socket gem is shown")
+	assert(gem:GetAtlas() == ns.Art.TIER_ICONS[tier], label .. ": the gem shows the tier's quality mark")
+	local width, height = gem:GetSize()
+	assert(
+		width == GEM_SIZES[tier] and height == GEM_SIZES[tier],
+		label .. ": the gem keeps its square " .. GEM_SIZES[tier] .. "-unit size"
+	)
+	local socket = GEM_SOCKETS[style][tier]
+	local point, relativeTo, relativePoint, x, y = gem:GetPoint(1)
+	assert(
+		point == "CENTER"
+			and relativeTo == art.ornament
+			and relativePoint == "TOPLEFT"
+			and x == 48 + socket[1]
+			and y == -(80 + socket[2]),
+		label .. ": the gem sits in the ornament's six o'clock socket"
+	)
 end
 
 ---@param tier string
@@ -163,6 +208,7 @@ local function AssertTargetFrame(tier, label, style)
 		label .. ": the ornament anchors its round hole over the portrait"
 	)
 	AssertNoTint(art.ornament, label)
+	AssertTargetGem(tier, label, style)
 	if tier == "shiny" then
 		assert(art.anim:IsPlaying(), label .. ": the shiny sheen animates")
 		assert(art.sheen:IsShown() and art.ornamentSheen:IsShown(), label .. ": both sheen textures are shown")
@@ -178,22 +224,6 @@ local function AssertTargetFrame(tier, label, style)
 		assert(not art.anim:IsPlaying(), label .. ": only shiny animates")
 		assert(not art.sheen:IsShown() and not art.ornamentSheen:IsShown(), label .. ": the sheen hides with the art")
 	end
-end
-
----@param tier string
----@param label string
-local function AssertTargetIcon(tier, label)
-	local icon = target.FGFRarityIcon
-	assert(type(icon) == "table", label .. ": the target frame gets a tier icon")
-	assert(icon:IsShown(), label .. ": the tier icon is shown")
-	assert(icon:GetAtlas() == ns.Art.TIER_ICONS[tier], label .. ": the target icon shows the tier's quality mark")
-	local width, height = icon:GetSize()
-	assert(width == 15 and height == 15, label .. ": the target icon keeps its compact size")
-	local point, relativeTo, relativePoint, x, y = icon:GetPoint(1)
-	assert(
-		point == "BOTTOMLEFT" and relativeTo == container and relativePoint == "BOTTOMLEFT" and x == 24 and y == 14,
-		label .. ": the tier icon sits in the free bottom-left corner, clear of the PvP badge"
-	)
 end
 
 Mock.Fire("PLAYER_TARGET_CHANGED")
@@ -217,7 +247,6 @@ assert(
 	"the tag plate takes the tier colour"
 )
 AssertTargetFrame("silver", "a silver target")
-AssertTargetIcon("silver", "a silver target")
 harness.env.UnitName = function(unit)
 	return unit == "target" and gold.name or "Tester"
 end
@@ -232,7 +261,6 @@ assert(
 	"the tag plate follows a tier change"
 )
 AssertTargetFrame("gold", "a gold target")
-AssertTargetIcon("gold", "a gold target")
 
 harness.env.UnitName = function()
 	return "Uncatalogued"
@@ -244,7 +272,7 @@ assert(target.FGFRarityTag:IsShown(), "a bronze target still shows its size tag"
 assert(target.FGFRarityTag.text:GetText() == ExpectedTag("bronze"), "bronze reads its size")
 assert(not target.FGFRarityFrame:IsShown(), "an uncatalogued target hides the frame recolour")
 assert(not target.FGFRarityArt.ornament:IsShown(), "an uncatalogued target hides the ornament")
-assert(not target.FGFRarityIcon:IsShown(), "an uncatalogued target hides the tier icon")
+assert(not target.FGFRarityArt.gem:IsShown(), "an uncatalogued target hides the socket gem")
 chromeR, chromeG, chromeB, chromeA = chrome:GetVertexColor()
 assert(not chrome:IsDesaturated(), "the chrome stays untouched after cleanup")
 assert(
@@ -255,8 +283,8 @@ assert(
 	"the chrome tint is unchanged after cleanup"
 )
 
--- Rare, elite, boss and minus-mob units already get the client's own silver, gold or reduced frame art. Our art
--- stays out of its way, while the tier icon and tag still tell the player which coat this spawn rolled.
+-- Rare, elite, boss and minus-mob units already get the client's own silver, gold or reduced frame art. Our ornament
+-- and its gem stay out of the way, while the tag still tells the player which coat this spawn rolled.
 harness.env.UnitName = function(unit)
 	return unit == "target" and silver.name or "Tester"
 end
@@ -271,7 +299,10 @@ for _, classification in ipairs({ "rare", "rareelite", "elite", "minus" }) do
 	assert(not target.FGFRarityArt.ornament:IsShown(), "a " .. classification .. " target adds no ornament")
 	assert(not target.FGFRarityArt.anim:IsPlaying(), "a " .. classification .. " target starts no sheen")
 	assert(target.FGFRarityTag:IsShown(), "a " .. classification .. " target still shows its tier tag")
-	assert(target.FGFRarityIcon:IsShown(), "a " .. classification .. " target still shows its tier icon")
+	assert(
+		not target.FGFRarityArt.gem:IsShown(),
+		"a " .. classification .. " target hides the socket gem with the ornament"
+	)
 end
 Mock.classification.target = "normal"
 Mock.boss.target = true
@@ -284,7 +315,6 @@ Mock.boss.target = false
 Mock.dead.target = true
 Mock.Fire("PLAYER_TARGET_CHANGED")
 AssertTargetFrame("silver", "a dead silver target")
-AssertTargetIcon("silver", "a dead silver target")
 Mock.dead.target = false
 
 -- The target frame is protected: the update waits until combat ends instead of touching it in combat.
@@ -309,7 +339,6 @@ AssertTargetColoursUntouched("a target change after combat")
 assert(target.FGFRarityTag:IsShown(), "the shiny tag applies after combat")
 assert(target.FGFRarityTag.text:GetText() == ExpectedTag("shiny"), "shiny reads its size and SHINY")
 AssertTargetFrame("shiny", "a shiny target after combat")
-AssertTargetIcon("shiny", "a shiny target after combat")
 
 -- The sheen is cosmetic and animates nothing protected, so a fight does not stop it; hiding the art does.
 local shinyArt = target.FGFRarityArt
@@ -517,7 +546,7 @@ for _, tier in ipairs({ "silver", "gold", "shiny" }) do
 	assert(not target.FGFRarityFrame:IsShown(), label .. ": no silver frame")
 	assert(not target.FGFRarityArt.ornament:IsShown(), label .. ": no ornament")
 	assert(not target.FGFRarityArt.anim:IsPlaying(), label .. ": no sheen")
-	assert(not target.FGFRarityIcon:IsShown(), label .. ": no tier icon")
+	assert(not target.FGFRarityArt.gem:IsShown(), label .. ": no socket gem")
 	local text = target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() or ""
 	assert(not text:find(tier:upper(), 1, true), label .. ": no " .. tier:upper() .. " tag")
 

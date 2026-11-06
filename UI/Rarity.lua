@@ -19,10 +19,11 @@ local WHITE = "Interface\\Buttons\\WHITE8X8"
 -- and the rare frame is the piece CheckClassification uses, with no desaturation or tint of ours.
 local TARGET_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
 -- The addon's own ornaments, one per coat and design. Each file is 256 px square at 2 px per UI unit, with the
--- portrait's 59-unit circle centred 48 units right and 80 units down from the texture's top-left, so the portrait's
--- centre (55 left of and 48 below the container's top-right) is the ornament's round hole.
+-- portrait's hole centred 48 units right and 80 units down from the texture's top-left, so the portrait's centre
+-- (55 left of and 48 below the container's top-right) is the ornament's round hole.
 local ORNAMENT_SIZE = 128
 local ORNAMENT_X, ORNAMENT_Y = -103, 32
+local ORNAMENT_HOLE_X, ORNAMENT_HOLE_Y = 48, 80
 local ORNAMENT_TEXTURES = {
 	laurel = {
 		silver = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Silver.tga]],
@@ -36,6 +37,27 @@ local ORNAMENT_TEXTURES = {
 	},
 }
 local DEFAULT_ORNAMENT_STYLE = "laurel"
+-- Each ornament has a gem socket at six o'clock, below the portrait. These are the socket centres from the art's
+-- top-left, per design and tier, measured from the finished 256 px files.
+local GEM_SOCKETS = {
+	laurel = {
+		silver = { 0.5, 31.5 },
+		gold = { 1.25, 30.75 },
+		shiny = { 0.75, 31.0 },
+	},
+	quill = {
+		silver = { 0.0, 31.25 },
+		gold = { -0.25, 30.5 },
+		shiny = { -0.25, 31.5 },
+	},
+}
+-- The quality marks are 50 px square atlases. These sizes keep each icon's visible pixels 11 UI across and preserve
+-- the atlas's square aspect.
+local GEM_SIZES = {
+	silver = 11.5,
+	gold = 12,
+	shiny = 11.7,
+}
 -- LootUpgradeFrame's sheen (Mainline/AlertFrameSystems.xml): the client's own loot-toast sweep, repeated after a hold.
 local SHEEN_ATLAS = "loottoast-sheen"
 local SHEEN_START = 1.1
@@ -45,9 +67,6 @@ local SHEEN_FADE_OUT_DURATION = 0.25
 local SHEEN_TRAVEL = 165
 local SHEEN_TRAVEL_DURATION = 0.725
 local SHEEN_HOLD = 2.4
--- The target frame's tier mark lives in the free bottom-left corner, under the power bar and clear of the PvP badge.
-local TARGET_ICON_SIZE = 15
-local TARGET_ICON_X, TARGET_ICON_Y = 24, 14
 -- Classifications the client already draws its own frame art for, so our art would only double it up.
 local NATIVE_FRAME_CLASSIFICATIONS = {
 	rare = true,
@@ -171,10 +190,15 @@ local function MirrorFramePoints(texture, source)
 end
 
 -- The ornament design the player picked. A missing or unknown saved value reads as the laurel wreath.
+---@return string
+local function OrnamentStyle()
+	local style = ns.db and ns.db.options and ns.db.options.rarityFrameStyle
+	return ORNAMENT_TEXTURES[style] and style or DEFAULT_ORNAMENT_STYLE
+end
+
 ---@return table<string, string>
 local function OrnamentSet()
-	local style = ns.db and ns.db.options and ns.db.options.rarityFrameStyle
-	return ORNAMENT_TEXTURES[style] or ORNAMENT_TEXTURES[DEFAULT_ORNAMENT_STYLE]
+	return ORNAMENT_TEXTURES[OrnamentStyle()]
 end
 
 -- One sheen texture, masked by the art it crosses so it can never spill outside that piece.
@@ -239,6 +263,7 @@ end
 ---@class FGFRarityTargetArt
 ---@field overlay Texture the rare silver frame
 ---@field ornament Texture the style's coat ornament
+---@field gem Texture the tier's quality mark in the ornament's socket
 ---@field sheen Texture the frame sheen
 ---@field ornamentSheen Texture the ornament sheen
 ---@field sheenMask MaskTexture
@@ -267,6 +292,10 @@ local function CreateTargetArt(target)
 	ornament:SetSize(ORNAMENT_SIZE, ORNAMENT_SIZE)
 	ornament:SetPoint("TOPLEFT", container, "TOPRIGHT", ORNAMENT_X, ORNAMENT_Y)
 
+	-- The tier gem sits in the ornament's six o'clock socket: one sublevel above the ornament and below its sheen.
+	local gem = container:CreateTexture(nil, "ARTWORK", nil, 3)
+	gem:Hide()
+
 	local sheen, sheenMask = CreateSheen(container, overlay, 3, function(mask)
 		mask:SetAtlas(TARGET_FRAME_ATLAS, true)
 	end)
@@ -282,6 +311,7 @@ local function CreateTargetArt(target)
 	local art = {
 		overlay = overlay,
 		ornament = ornament,
+		gem = gem,
 		sheen = sheen,
 		ornamentSheen = ornamentSheen,
 		sheenMask = sheenMask,
@@ -304,15 +334,34 @@ local function PaintTargetFrame(target, tier, color, native)
 	local show = color and not native
 	local silver = show and (tier == "silver" or tier == "shiny")
 	local shiny = show and tier == "shiny"
-	local ornaments = show and OrnamentSet()
+	local style = show and OrnamentStyle()
+	local ornaments = style and ORNAMENT_TEXTURES[style]
 	local ornamentTexture = ornaments and ornaments[tier]
 	art.overlay:SetShown(silver)
 	if ornaments and ornamentTexture then
 		art.ornament:SetTexture(ornamentTexture) -- art-ok: the ornament is square 256 px art drawn at 128 units on both sides
 		art.ornamentMask:SetTexture(ornaments.shiny, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
 		art.ornament:Show()
+		local socket = GEM_SOCKETS[style] and GEM_SOCKETS[style][tier]
+		local gemSize = GEM_SIZES[tier]
+		if socket and gemSize then
+			Art.PaintTierIcon(art.gem, tier, gemSize)
+			art.gem:ClearAllPoints()
+			art.gem:SetPoint(
+				"CENTER",
+				art.ornament,
+				"TOPLEFT",
+				ORNAMENT_HOLE_X + socket[1],
+				-(ORNAMENT_HOLE_Y + socket[2])
+			)
+			art.gem:SetVertexColor(1, 1, 1, 1)
+			art.gem:Show()
+		else
+			art.gem:Hide()
+		end
 	else
 		art.ornament:Hide()
+		art.gem:Hide()
 	end
 	if shiny then
 		art.sheen:Show()
@@ -331,42 +380,6 @@ local function PaintTargetFrame(target, tier, color, native)
 		art.ornamentSheen:Hide()
 		art.ornamentMask:Hide()
 	end
-end
-
----@param target table?
----@return table?
-local function TargetIcon(target)
-	local icon = target and target.FGFRarityIcon
-	if type(icon) == "table" then
-		return icon
-	end
-	local owner = target and target.TargetFrameContainer
-	if not target or not owner or not owner.CreateTexture then
-		return nil
-	end
-	icon = owner:CreateTexture(nil, "OVERLAY")
-	-- Below the power bar in the free bottom-left corner: the PvP badge sits at the portrait's bottom right, the level
-	-- text at the bottom right, the raid marker above the portrait and the boss/quest icons below it.
-	icon:SetPoint("BOTTOMLEFT", owner, "BOTTOMLEFT", TARGET_ICON_X, TARGET_ICON_Y)
-	target.FGFRarityIcon = icon
-	return icon
-end
-
----@param icon table?
----@param tier string
----@param color number[]?
-local function PaintTargetIcon(icon, tier, color)
-	if type(icon) ~= "table" then
-		return
-	end
-	if not color then
-		icon:Hide()
-		return
-	end
-	Art.PaintTierIcon(icon, tier, TARGET_ICON_SIZE)
-	icon:SetVertexColor(1, 1, 1, 1)
-	icon:SetAlpha(1)
-	icon:Show()
 end
 
 ---@param target table?
@@ -468,8 +481,6 @@ local function UpdateTarget()
 	end
 
 	PaintTargetFrame(target, tier, color, NativeFrame("target"))
-	local icon = target and TargetIcon(target)
-	PaintTargetIcon(icon, tier, color)
 	local parts = {}
 	local badge = ns.Model.SizeBadge(size)
 	if size then
