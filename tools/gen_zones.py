@@ -15,12 +15,17 @@ BUILD = "1.60.1.70790"
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / "tools" / ".cache"
 OUT = ROOT / "Data" / "Client.lua"
+# stylua.toml column_width: a longer table literal is laid out one entry per line.
+STYLUA_WIDTH = 120
 AGENT = "FieldGuideForever data generator (+https://github.com/cjber/field-guide-forever)"
 TABLES = {
     "AreaTable": ("ID", "AreaName_lang", "ContinentID"),
     "Map": ("ID", "MapName_lang", "InstanceType"),
     "CreatureFamily": ("ID", "Name_lang"),
     "CreatureDisplayInfo": ("ID", "PortraitTextureFileDataID"),
+    "UiMapXMapArt": ("ID", "PhaseID", "UiMapArtID", "UiMapID"),
+    "WorldMapOverlay": ("ID", "UiMapArtID", "TextureWidth", "TextureHeight", "OffsetX", "OffsetY"),
+    "WorldMapOverlayTile": ("ID", "RowIndex", "ColIndex", "LayerIndex", "FileDataID", "WorldMapOverlayID"),
 }
 
 
@@ -46,10 +51,11 @@ def generate(build, offline=False, output=OUT):
     ]
     for t, (count, digest) in meta.items():
         lines.append(f"-- {t}: {count} rows; sha256 {digest}")
+    # Laid out the way stylua formats it, so the checked-in file passes both `stylua --check` and check_generated.
     lines += [
-        "ns.ClientData = { "
-        f"build = {q(build)}, continents = {{}}, zones = {{}}, maps = {{}}, "
-        "families = {}, portraits = {} }"
+        "ns.ClientData =",
+        f"\t{{ build = {q(build)}, continents = {{}}, zones = {{}}, maps = {{}}, "
+        "families = {}, portraits = {}, mapOverlays = {} }",
     ]
     for r in sorted(data["Map"], key=lambda x: x["ID"]):
         if r["ID"] in (0, 1) and str(r["MapName_lang"]).strip():
@@ -72,6 +78,34 @@ def generate(build, offline=False, output=OUT):
         fid = r["PortraitTextureFileDataID"]
         if fid:
             lines.append(f"ns.ClientData.portraits[{r['ID']}] = {fid}")
+    # Every exploration overlay of each uiMap's unphased art, so the journal can show a zone fully explored:
+    # { offsetX, offsetY, width, height, { tile file IDs, row-major } }, as C_MapExplorationInfo describes one.
+    art_maps = {}
+    for r in sorted(data["UiMapXMapArt"], key=lambda x: x["ID"]):
+        if int(r["PhaseID"]) == 0:
+            art_maps.setdefault(int(r["UiMapArtID"]), int(r["UiMapID"]))
+    tiles = {}
+    for r in data["WorldMapOverlayTile"]:
+        if int(r["LayerIndex"]) == 0:
+            tiles.setdefault(int(r["WorldMapOverlayID"]), []).append(r)
+    overlays = {}
+    for r in sorted(data["WorldMapOverlay"], key=lambda x: x["ID"]):
+        ui_map = art_maps.get(int(r["UiMapArtID"]))
+        files = [
+            str(int(t["FileDataID"]))
+            for t in sorted(tiles.get(r["ID"], []), key=lambda t: (int(t["RowIndex"]), int(t["ColIndex"])))
+        ]
+        if ui_map and files:
+            dims = ", ".join(str(int(r[k])) for k in ("OffsetX", "OffsetY", "TextureWidth", "TextureHeight"))
+            overlays.setdefault(ui_map, []).append(f"{{ {dims}, {{ {', '.join(files)} }} }}")
+    for ui_map in sorted(overlays):
+        line = f"ns.ClientData.mapOverlays[{ui_map}] = {{ {', '.join(overlays[ui_map])} }}"
+        if len(line) <= STYLUA_WIDTH:
+            lines.append(line)
+        else:
+            lines.append(f"ns.ClientData.mapOverlays[{ui_map}] = {{")
+            lines += [f"\t{overlay}," for overlay in overlays[ui_map]]
+            lines.append("}")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text("\n".join(lines) + "\n")
     print(

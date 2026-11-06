@@ -1,9 +1,9 @@
 """Rarity mockups: the target frame and the nameplate at every collection tier.
 
 Design C: the client frame keeps its own chrome and the game's own reaction colours. A silver, gold or shiny creature
-adds a soft tier-coloured aura around the bars and portrait, plus a RARE or SHINY tag above the target name;
+adds a soft tier-coloured aura around the bars and portrait, plus a SILVER, GOLD or SHINY tag above the target name;
 nameplates take a soft tier glow and the existing mark. The health bar fill and name text are never recoloured.
-COMMON is the untouched client frame.
+BRONZE is the untouched client frame.
 
 Every pixel that is not the addon's own layout comes from the pinned WoW: Forever build through
 wowmock, so what is approved here is what the addon paints.
@@ -29,13 +29,13 @@ from wowmock import FONTS, Font, tint  # noqa: E402  # ty: ignore[unresolved-imp
 
 OUT = ROOT / "docs" / "screenshots"
 
-# UI/Rarity.lua's COLORS table, verbatim. Copper has no entry because copper is the client's own chrome and needs no
-# change at all; the whole promise of the feature is that a common creature looks exactly as it always did.
+# UI/Rarity.lua's ladder. Bronze has no entry in COLORS because it is the client's own chrome and needs no change at
+# all; the whole promise of the feature is that a bronze creature looks exactly as it always did.
 TIERS = (
-    ("COMMON", "1 in 1", None, "the client's frame, untouched"),
-    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver aura and RARE tag"),
-    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "gold aura and RARE tag"),
-    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "cyan aura and SHINY tag"),
+    ("BRONZE", "every spawn", None, "the client's frame, untouched"),
+    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver aura, quality mark and SILVER tag"),
+    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "gold aura, quality mark and GOLD tag"),
+    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "shiny aura, quality mark and SHINY tag"),
 )
 BAR_GLOW_LEFT = "UI-Frame-Bar-GlowLeft"
 BAR_GLOW_CENTER = "UI-Frame-Bar-GlowCenter"
@@ -46,14 +46,17 @@ TARGET_GLOW_LAYERS = ((9, 0.12), (5, 0.28), (2, 0.9))
 PLATE_GLOW_LAYERS = ((9, 0.22), (4, 0.55), (1, 1.0))
 TARGET_RING = "Portrait-Frame-Small"
 TARGET_PORTRAIT_GLOW_LAYERS = ((96, 0.12), (88, 0.28), (80, 0.6), (74, 1.0))
-TARGET_BADGE = "Rare-Elite-Star"
 TAG_HEIGHT = 15
 TAG_PAD = 4
+# Art.TIER_ICONS for the tiers whose nameplate carries its quality mark beside the name, at Rarity.lua's size and
+# resting alpha.
 PLATE_MARKS = {
-    "SILVER": "nameplates-icon-elite-silver",
-    "GOLD": "nameplates-icon-elite-gold",
-    "SHINY": TARGET_BADGE,
+    "SILVER": "Professions-Icon-Quality-Tier2",
+    "GOLD": "Professions-Icon-Quality-Tier3",
+    "SHINY": "Professions-Icon-Quality-Tier4",
 }
+PLATE_MARK_SIZE = 17
+PLATE_ACCENT_ALPHA = 0.72
 
 TEXT = wowmock.rgb("e3d9c2")
 MUTED = wowmock.rgb("9e998c")
@@ -164,7 +167,7 @@ def portrait_glow(canvas, ui, x, y, colour):
 
 
 def tag(canvas, x, y, label, colour):
-    """The RARE or SHINY plate above the name: tier colour with dark text and a thin dark edge."""
+    """The SILVER, GOLD or SHINY plate above the name: tier colour with dark text and a thin dark edge."""
     font = FONTS["GameFontNormalSmall"]
     width = canvas.text_width(label, font) + TAG_PAD * 2
     left = x + 32 + 111 / 2 - width / 2
@@ -219,7 +222,7 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False):
     status_bar(canvas, bar_texture, power_bounds, 0.62, wowmock.rgb("2f5a9e"))
     if colour:
         portrait_glow(canvas, ui, x, y, colour)
-        tag(canvas, x, y, "SHINY" if label == "SHINY" else "RARE", colour)
+        tag(canvas, x, y, label, colour)
     text(canvas, x + 32, y + 8, name, "GameFontNormalSmall", TEXT, justify="CENTER", width=111)
     text(
         canvas,
@@ -234,8 +237,8 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False):
 
 
 def nameplate(ui, canvas, x, y, tier, name):
-    """One nameplate: a soft tier aura and the existing tier mark, over the client's own reaction colours.
-    Every tier keeps the client's red fill and white name; only copper has no aura or mark."""
+    """One nameplate: a soft tier aura and the ladder's mark, over the client's own reaction colours.
+    Every tier keeps the client's red fill and white name; only bronze has no aura or mark."""
     label, _, colour, _ = tier
     w, h = 116, 12
     fill_texture = ui.texture("interface/targetingframe/nameplatefill.blp")
@@ -247,23 +250,19 @@ def nameplate(ui, canvas, x, y, tier, name):
     font = FONTS["GameFontNormalSmall"]
     label_width = canvas.text_width(name, font)
     atlas_name = PLATE_MARKS.get(label)
-    atlas = ui.atlas(atlas_name) if atlas_name else None
-    icon_height = 14
-    icon_width = icon_height * atlas.width / atlas.height if atlas else 0
-    gap = 3 if atlas else 0
-    group_width = label_width + gap + icon_width
-    group_left = x + (w - group_width) / 2
+    mark_width = PLATE_MARK_SIZE if atlas_name else 0
+    gap = 2 if mark_width else 0
+    group_left = x + (w - label_width - gap - mark_width) / 2
     text(canvas, group_left, y - 15, name, "GameFontNormalSmall", TEXT)
-    if atlas:
-        # The native elite marks already carry silver and gold; the shiny star takes the tier colour.
-        mark_colour = colour if label == "SHINY" else wowmock.WHITE
+    if atlas_name:
+        # LEFT on the name's RIGHT, centred on its line.
         canvas.draw(
-            atlas,
+            ui.atlas(atlas_name),
             group_left + label_width + gap,
-            y - 17,
-            icon_width,
-            icon_height,
-            mark_colour,
+            y - 15 + (font.height - PLATE_MARK_SIZE) / 2,
+            PLATE_MARK_SIZE,
+            PLATE_MARK_SIZE,
+            (1, 1, 1, PLATE_ACCENT_ALPHA),
         )
 
 
@@ -274,7 +273,7 @@ def sheet(ui, icons, name, elite=False, plates=False):
     canvas = ui.canvas(cell_w * cols + m * 2, cell_h * rows + m * 2 + 64)
     canvas.fill(0, 0, canvas.width, canvas.height, BG)
     text(canvas, m, 18, "FIELD GUIDE  \u00b7  RARITY AT A GLANCE", "GameFontNormal", BRASS)
-    subtitle = "Normal frame with a tier aura and a RARE / SHINY tag; the game keeps its health colours"
+    subtitle = "Normal frame with a tier aura and a SILVER, GOLD or SHINY tag; the game keeps its health colours"
     if elite:
         subtitle = "Elite frame keeps its client dragon chrome; the rarity adds the aura and tag"
     text(canvas, m, 36, subtitle, "GameFontDisableSmall", MUTED)

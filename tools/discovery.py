@@ -147,7 +147,8 @@ def main(argv):
     ]
     wowmock.scene(ui, [(list_panel(ui, rows), 0, 0)]).save(out / "discovery-new-tag.png")
     toasts = [
-        ("discovery-toast-rare.png", "Rare recorded", "Nightsaber", CAT_ICON, "achievement"),
+        ("discovery-toast-silver.png", "Silver found", "Nightsaber", CAT_ICON, "achievement"),
+        ("discovery-toast-gold.png", "Gold found", "Nightsaber", CAT_ICON, "achievement"),
         ("discovery-toast-shiny.png", "Shiny found", "Shiny Nightsaber!", CAT_ICON, "guild"),
         ("discovery-toast-mastered.png", "Mastered", "Nightsaber", CAT_ICON, "achievement"),
         ("discovery-toast-zone.png", "Zone complete", "Shadowglen: every creature recorded", BOOK_ICON, "achievement"),

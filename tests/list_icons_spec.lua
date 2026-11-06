@@ -59,7 +59,7 @@ end
 List.Refresh(many, many[1].species.id)
 assert(#List.rows < 100, "the list keeps a small recycled pool: " .. #List.rows)
 assert(List.rows[1].species == many[1].species, "the first row starts at the top")
-List.scroll:SetVerticalScroll(46 * 20)
+List.scroll:SetVerticalScroll(55 * 20)
 List.scroll:GetScript("OnVerticalScroll")()
 assert(List.rows[1].species == many[21].species, "scrolling reuses the same rows for the next screen")
 print("list icons: ok")

@@ -1,5 +1,6 @@
 -- What a kill shows (UI/Discovery.lua): a first kill's explored-area line, New tag and micro button pulse, the
--- achievement toast for rare, shiny, mastery and zone milestones, the burst cap, the toast's click and both settings.
+-- achievement toast for silver, gold, shiny, mastery and zone milestones, the burst cap, the toast's click and both
+-- settings.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
 
@@ -90,9 +91,6 @@ local function Start(options)
 	harness:Fire("ADDON_LOADED", "FieldGuideForever")
 	harness:Fire("PLAYER_LOGIN")
 	harness:RunTimers()
-	harness.ns.Model.SetRandom(function()
-		return 1
-	end)
 	assert(harness.ns.ready and harness.ns.SpeciesById[1019], "the addon loads the fixture catalogue")
 	Mock.sounds, Mock.messages, Mock.alerts = {}, {}, {}
 	harness.env.PlaySound = function(kit)
@@ -111,6 +109,16 @@ local function Count(list, value)
 	return count
 end
 
+local function GuidFor(ns, tier, salt, npcId)
+	for index = 1, 1000000 do
+		local guid = "Creature-0-1-0-1-" .. (npcId or 1001) .. "-" .. salt .. string.format("%010X", index)
+		if ns.Model.SpawnTier(guid) == tier then
+			return guid
+		end
+	end
+	error("no GUID rolls " .. tier)
+end
+
 -- Every sound this view plays is either the first-kill line's page turn or a toast's achievement chime.
 local function OnlyJournalSounds(label)
 	for _, sound in ipairs(Mock.sounds) do
@@ -121,7 +129,8 @@ end
 -- A first kill: one yellow line where an explored area is announced, the page-turn sound, a New tag and the pulse.
 local h = Start()
 local ns = h.ns
-h:Kill("Plainstrider", 1001)
+local bronzeGuid = GuidFor(ns, "bronze", "first")
+h:Kill("Plainstrider", 1001, bronzeGuid)
 equal(#Mock.messages, 0, "nothing is shown from inside the kill handler")
 h:RunTimers()
 equal(#Mock.messages, 1, "a first kill shows one line")
@@ -135,7 +144,7 @@ equal(border:IsShown(), true, "the micro button's flash border shows")
 equal(ns.Discovery.pulse:IsPlaying(), true, "the micro button pulses")
 equal(ns.Discovery.pulse.looping, "REPEAT", "the pulse repeats until the journal opens")
 
-h:Kill("Plainstrider", 1001)
+h:Kill("Plainstrider", 1001, bronzeGuid)
 h:RunTimers()
 equal(#Mock.messages, 1, "a second kill of a known creature shows nothing")
 
@@ -172,51 +181,50 @@ equal(tagged.NewGlow.atlas, "collections-newglow", "the tag sits on the collecti
 -- A burst of first kills is one line, naming two and counting the rest, with one sound.
 h = Start()
 ns = h.ns
-h:Kill("Plainstrider", 1001)
-h:Kill("Savannah Prowler", 1003)
+h:Kill("Plainstrider", 1001, GuidFor(ns, "bronze", "burst1"))
+h:Kill("Savannah Prowler", 1003, GuidFor(ns, "bronze", "burst2", 1003))
 h:RunTimers()
 equal(#Mock.messages, 1, "a burst is one line")
 equal(Mock.messages[1].text, "New creatures recorded: Plainstrider, Savannah Prowler", "the burst names both")
 equal(Count(Mock.sounds, PAGE_TURN), 1, "a burst turns the page once")
 
--- The rare's first kill completes the zone: a toast for each, the rare first, and no line for it.
-h:Kill("Dishu", 1019)
+-- A silver's first kill completes the zone: a toast for each, the silver first, and no line for it.
+h:Kill("Dishu", 1019, GuidFor(ns, "silver", "dishu", 1019))
 h:RunTimers()
 equal(#Mock.messages, 1, "a first kill told by a toast has no line")
-equal(#Mock.alerts, 2, "the rare and the zone each get a toast")
-local rare, zone = Mock.alerts[1], Mock.alerts[2]
-equal(rare.template, "AchievementAlertFrameTemplate", "the toast is the client's achievement toast")
-equal(rare.Unlocked:GetText(), "Rare recorded", "rare heading")
-equal(rare.Name:GetText(), "Dishu", "rare toast names the creature")
-equal(rare.id, nil, "the toast carries no achievement")
-equal(rare.Shield:IsShown(), false, "the points shield is hidden")
-equal(rare.Background.atlas, "ui-achievement-alert-background", "a rare uses the standard toast art")
-equal(rare.Icon.Texture._texture, ns.Art.SpeciesIcon("Dishu", 1019), "the toast shows the journal's icon")
+equal(#Mock.alerts, 2, "the silver and the zone each get a toast")
+local silver, zone = Mock.alerts[1], Mock.alerts[2]
+equal(silver.template, "AchievementAlertFrameTemplate", "the toast is the client's achievement toast")
+equal(silver.Unlocked:GetText(), "Silver found", "silver heading")
+equal(silver.Name:GetText(), "Dishu", "silver toast names the creature")
+equal(silver.id, nil, "the toast carries no achievement")
+equal(silver.Shield:IsShown(), false, "the points shield is hidden")
+equal(silver.Background.atlas, "ui-achievement-alert-background", "silver uses the standard toast art")
+equal(silver.Icon.Texture._texture, ns.Art.SpeciesIcon("Dishu", 1019), "the toast shows the journal's icon")
 equal(zone.Unlocked:GetText(), "Zone complete", "zone heading")
 equal(zone.Name:GetText(), "The Barrens: every creature recorded", "zone toast names the zone")
-equal(Count(Mock.sounds, ACHIEVEMENT), 2, "the rare and zone toasts each play the achievement chime once")
-OnlyJournalSounds("the rare and zone toasts play no loot sound")
+equal(Count(Mock.sounds, ACHIEVEMENT), 2, "the silver and zone toasts each play the achievement chime once")
+OnlyJournalSounds("the silver and zone toasts play no loot sound")
 
 -- A left click opens the journal on the creature; a right click only dismisses.
-rare:GetScript("OnClick")(rare, "RightButton")
+silver:GetScript("OnClick")(silver, "RightButton")
 equal(ns.Window.IsShown(), false, "a right click opens nothing")
-equal(rare:IsShown(), false, "a right click dismisses the toast")
+equal(silver:IsShown(), false, "a right click dismisses the toast")
 zone:GetScript("OnClick")(zone, "LeftButton")
 equal(ns.Window.IsShown(), true, "a left click on the zone toast opens the journal")
 ns.Window.Hide()
-h:Kill("Plainstrider", 1001)
-for _ = 1, 7 do
-	h:Kill("Plainstrider", 1001)
+for index = 1, 8 do
+	h:Kill("Plainstrider", 1001, GuidFor(ns, "bronze", "master" .. index))
 end
 h:RunTimers()
 equal(#Mock.alerts, 2, "no toast before mastery")
 local beforeMastery = Count(Mock.sounds, ACHIEVEMENT)
-h:Kill("Plainstrider", 1001)
+h:Kill("Plainstrider", 1001, GuidFor(ns, "bronze", "master9"))
 h:RunTimers()
 local mastered = Mock.alerts[3]
 equal(mastered and mastered.Unlocked:GetText(), "Mastered", "the tenth specimen is a mastery toast")
 equal(mastered.Name:GetText(), "Plainstrider", "mastery names the creature")
-equal(mastered, rare, "the dismissed toast's frame is reused")
+equal(mastered, silver, "the dismissed toast's frame is reused")
 mastered:GetScript("OnClick")(mastered, "LeftButton")
 equal(ns.Window.IsShown(), true, "a left click opens the journal")
 equal(ns.Window.selected, 1001, "the journal opens on that creature")
@@ -230,10 +238,7 @@ equal(Count(Mock.sounds, ACHIEVEMENT) - beforeMastery, 1, "the mastery toast pla
 -- A shiny is the biggest: the guild variant's larger art, the achievement chime; the next toast gets the standard art.
 h = Start()
 ns = h.ns
-ns.Model.SetRandom(function()
-	return 0
-end)
-h:Kill("Plainstrider", 1001)
+h:Kill("Plainstrider", 1001, GuidFor(ns, "shiny", "shiny"))
 h:RunTimers()
 local shiny = Mock.alerts[1]
 equal(shiny.Unlocked:GetText(), "Shiny found", "shiny heading")
@@ -245,33 +250,33 @@ OnlyJournalSounds("the shiny toast plays no loot sound")
 equal(#Mock.messages, 0, "a shiny first kill has no line")
 
 -- A pull of shinies shows at most BURST_TOASTS toasts, biggest first, through the two-on-screen queue.
-h:Kill("Savannah Prowler", 1003)
-h:Kill("Dishu", 1019)
-h:Kill("Savannah Prowler", 1003)
-h:Kill("Dishu", 1019)
+h:Kill("Savannah Prowler", 1003, GuidFor(ns, "shiny", "pull1", 1003))
+h:Kill("Dishu", 1019, GuidFor(ns, "shiny", "pull2", 1019))
+h:Kill("Savannah Prowler", 1003, GuidFor(ns, "shiny", "pull3", 1003))
+h:Kill("Dishu", 1019, GuidFor(ns, "shiny", "pull4", 1019))
 h:RunTimers()
 equal(#Mock.alerts, 2, "two toasts show at once")
+equal(Mock.alerts[2].Background.atlas, "ui-achievement-guild-background", "the shinies come first")
+for index = 1, #Mock.alerts do
+	equal(Mock.alerts[index].Unlocked:GetText(), "Shiny found", "the cap keeps the biggest moments")
+end
 for _ = 1, 4 do
 	Mock.alerts[#Mock.alerts]:Hide()
 end
 equal(#Mock.alerts, 1 + ns.Discovery.BURST_TOASTS, "a burst is capped")
-equal(Mock.alerts[2].Background.atlas, "ui-achievement-guild-background", "the shinies come first")
-for index = 2, #Mock.alerts do
-	equal(Mock.alerts[index].Unlocked:GetText(), "Shiny found", "the cap keeps the biggest moments")
-end
 
--- With the line turned off a first kill is quiet but still tagged; with toasts off a rare falls back to the line.
+-- With the line turned off a first kill is quiet but still tagged; with toasts off a tier falls back to the line.
 h = Start({ discoveryText = false, milestoneToasts = false })
 ns = h.ns
-h:Kill("Plainstrider", 1001)
+h:Kill("Plainstrider", 1001, GuidFor(ns, "bronze", "quiet"))
 h:RunTimers()
 equal(#Mock.messages, 0, "the line can be turned off")
 equal(ns.GetCharacterState(false).unseen[1001], true, "the New tag stays")
 ns.db.options.discoveryText = true
-h:Kill("Dishu", 1019)
+h:Kill("Dishu", 1019, GuidFor(ns, "silver", "quiet", 1019))
 h:RunTimers()
 equal(#Mock.alerts, 0, "toasts can be turned off")
-equal(Mock.messages[1] and Mock.messages[1].text, "New creature recorded: Dishu", "a rare falls back to the line")
+equal(Mock.messages[1] and Mock.messages[1].text, "New creature recorded: Dishu", "a tier falls back to the line")
 
 -- Both settings are checkboxes on the options page, on by default.
 h = Start()
@@ -286,8 +291,9 @@ local function Check(tooltip)
 	end
 end
 local line = Check(ns.L["A first kill shows one line at the top of the screen, where an explored area is announced."])
-local toasts =
-	Check(ns.L["Rare, shiny, mastery and zone milestones show an achievement toast. Click it to open the journal."])
+local toasts = Check(
+	ns.L["Silver, gold, shiny, mastery and zone milestones show an achievement toast. Click it to open the journal."]
+)
 equal(line ~= nil and toasts ~= nil, true, "both checkboxes are on the page")
 equal(line:GetChecked(), true, "the line's box starts ticked")
 toasts:SetChecked(false)

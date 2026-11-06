@@ -7,15 +7,17 @@ local Art = ns.Art
 local List = {}
 ns.List = List
 
-local ROW_HEIGHT = 46
-local ROW_WIDTH = 304
-local MARK_SIZE = 16
-local MARK_GAP = 6
-local NAME_WIDTH = 152
+-- Pet Journal rows: 51 tall art with a 4 gap, the icon in a Collections item border.
+local ROW_HEIGHT = 55
+local ROW_ART_HEIGHT = 51
+local ROW_WIDTH = 300
+local MARK_SIZE = 26
+local BORDER_SIZE = 45
+local NAME_WIDTH = 196
 -- Visible rows plus one, the pool the scroll frame recycles. Its size is fixed for the journal's fixed pane.
 local OVERSCAN = 1
 -- A tagged name gives up room for the tag, so NEW never runs under the variant marks.
-local TAGGED_NAME_WIDTH = 110
+local TAGGED_NAME_WIDTH = 150
 
 -- The mount journal's New tag (Blizzard_MountCollection.xml): NEW after the name's text, over collections-newglow.
 ---@param row FGListRow
@@ -36,27 +38,28 @@ end
 local function UpdateRow(row, entry, selectedId)
 	local species = entry.species
 	if row.iconSpecies ~= species.id then
-		Art.CreatureIcon(row.Icon, species.name, species.id, 32)
+		Art.CreatureIcon(row.Icon, species.name, species.id, BORDER_SIZE - 8)
 		row.iconSpecies = species.id
 	end
 	row.Name:SetText(species.name)
 	local character = ns.GetCharacterState(false)
-	local variants = ns.Model.Variants(character, species.id)
-	local nameColor = variants.rare.known and "rare" or "text"
-	local nr, ng, nb = Art.RGBA(nameColor, 1)
-	row.Name:SetTextColor(nr, ng, nb, 1)
+	local record = character and character.species and character.species[species.id]
+	local known = record ~= nil and (record.count or 0) > 0
+	local bestTier = ns.Model.BestTier(record)
+	row.Name:SetTextColor(Art.RGBA(known and "gold" or "muted", 1))
+	row.Icon:SetDesaturated(not known)
+	local shade = known and 1 or 0.5
+	row.Icon:SetVertexColor(shade, shade, shade, 1)
+	Art.SetBorderCollected(row.Border, known)
 	row.Sub:SetText(
-		string.format(L["%s · Lv %s"], L[species.family], ns.Model.LevelRange(species.minLevel, species.maxLevel))
+		string.format(L["%s · Level %s"], L[species.family], ns.Model.LevelRange(species.minLevel, species.maxLevel))
 	)
 	row.Selected:SetShown(selectedId == species.id)
-	local icon = Art.SpeciesIcon(species.name, species.id)
-	Art.VariantMark(row.Marks.common, "common", variants.common.known, icon)
-	Art.VariantMark(row.Marks.rare, "rare", variants.rare.known, icon, not ns.Model.HasRareForm(character, species))
-	Art.VariantMark(row.Marks.shiny, "shiny", variants.shiny.known, icon)
-	if variants.rare.known then
-		row.Name:SetTextColor(Art.RGBA("rare", 1))
+	if bestTier and bestTier ~= "bronze" then
+		Art.PaintTierIcon(row.Mark, bestTier, MARK_SIZE)
+		row.Mark:SetShown(true)
 	else
-		row.Name:SetTextColor(Art.RGBA("text", 1))
+		row.Mark:Hide()
 	end
 	SetNew(row, character ~= nil and character.unseen ~= nil and character.unseen[species.id] == true)
 	row.species = species
@@ -70,25 +73,27 @@ local function CreateRow(index)
 	row:SetSize(ROW_WIDTH, ROW_HEIGHT)
 	row.index = index
 
-	-- The same additive row highlight used by the native quest and collection lists.
-	row.Selected = row:CreateTexture(nil, "BACKGROUND")
-	row.Selected:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
-	row.Selected:SetBlendMode("ADD")
-	row.Selected:SetAllPoints(row)
+	row.Background = row:CreateTexture(nil, "BACKGROUND")
+	row.Background:SetAtlas("petlist-buttonbackground")
+	row.Background:SetPoint("TOPLEFT")
+	row.Background:SetSize(ROW_WIDTH, ROW_ART_HEIGHT)
+	row.Selected = row:CreateTexture(nil, "BORDER")
+	row.Selected:SetAtlas("petlist-buttonselect")
+	row.Selected:SetAllPoints(row.Background)
 	row.Selected:Hide()
 	row.Hover = row:CreateTexture(nil, "HIGHLIGHT")
-	row.Hover:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+	row.Hover:SetAtlas("petlist-buttonhighlight")
 	row.Hover:SetBlendMode("ADD")
-	row.Hover:SetAllPoints(row)
+	row.Hover:SetAllPoints(row.Background)
 	row.Hover:Hide()
 
-	row.Icon = row:CreateTexture(nil, "ARTWORK")
-	row.Icon:SetPoint("TOPLEFT", 10, -5)
-	row.Icon:SetSize(32, 32)
+	row.Icon, row.Border = Art.BorderedIcon(row, BORDER_SIZE)
+	row.Icon:SetPoint("TOPLEFT", 8, -7)
 
-	row.Name = Art.Text(row, "GameFontNormal", "text")
-	row.Name:SetPoint("TOPLEFT", 52, -5)
+	row.Name = Art.Text(row, "GameFontNormalLarge", "gold")
+	row.Name:SetPoint("TOPLEFT", 58, -8)
 	row.Name:SetWidth(NAME_WIDTH)
+	row.Name:SetJustifyH("LEFT")
 	row.Name:SetWordWrap(false)
 	row.Name:SetMaxLines(1)
 
@@ -104,16 +109,18 @@ local function CreateRow(index)
 	row.NewGlow:SetPoint("BOTTOMRIGHT", row.New, "BOTTOMRIGHT", 20, -10)
 	row.NewGlow:Hide()
 
-	row.Sub = Art.Text(row, "GameFontDisableSmall", "muted")
-	row.Sub:SetPoint("TOPLEFT", 52, -23)
+	row.Sub = Art.Text(row, "GameFontHighlight", "muted")
+	row.Sub:SetPoint("TOPLEFT", 58, -30)
+	row.Sub:SetWidth(NAME_WIDTH)
+	row.Sub:SetJustifyH("LEFT")
+	row.Sub:SetWordWrap(false)
 
-	-- Common, rare and shiny, left to right: lit when collected, dark while missing, empty with no rare form.
-	row.Marks = {}
-	for slot, kind in ipairs({ "common", "rare", "shiny" }) do
-		local mark = Art.CreateVariantMark(row, MARK_SIZE)
-		mark:SetPoint("RIGHT", row, "RIGHT", -14 - (3 - slot) * (MARK_SIZE + MARK_GAP), 0)
-		row.Marks[kind] = mark
-	end
+	-- The quality mark of the best variant this character has found past bronze. Bronze and undiscovered species
+	-- leave the slot empty.
+	row.Mark = row:CreateTexture(nil, "OVERLAY")
+	row.Mark:SetPoint("RIGHT", row.Background, "RIGHT", -12, 0)
+	row.Mark:SetSize(MARK_SIZE, MARK_SIZE)
+	row.Mark:Hide()
 
 	row:SetScript("OnClick", function()
 		if List.controller and row.species then
@@ -139,12 +146,12 @@ function List.Create(parent, controller)
 	List.controller = controller
 	List.rows = {}
 	List.entries = {}
-	List.viewHeight = math.max(ROW_HEIGHT, parent:GetHeight() or 0)
+	List.viewHeight = math.max(ROW_HEIGHT, (parent:GetHeight() or 0) - 12)
 	List.viewRows = math.ceil(List.viewHeight / ROW_HEIGHT) + OVERSCAN
 
 	local scroll = CreateFrame("ScrollFrame", nil, parent, "UIPanelScrollFrameTemplate")
-	scroll:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0)
-	scroll:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -26, 0)
+	scroll:SetPoint("TOPLEFT", parent, "TOPLEFT", 4, -6)
+	scroll:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -26, 6)
 	scroll:SetScript("OnVerticalScroll", function()
 		List.Update()
 	end)
@@ -155,9 +162,9 @@ function List.Create(parent, controller)
 	scroll:SetScrollChild(child)
 	List.child = child
 
-	List.empty = Art.Text(parent, "GameFontDisableSmall", "muted")
+	List.empty = Art.Text(parent, "GameFontHighlight", "muted")
 	List.empty:SetPoint("TOP", parent, "TOP", 0, -36)
-	List.empty:SetWidth(304)
+	List.empty:SetWidth(300)
 	List.empty:SetJustifyH("CENTER")
 	List.empty:SetText(L["No creatures match your search."])
 	List.empty:Hide()

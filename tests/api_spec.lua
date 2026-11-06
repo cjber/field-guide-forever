@@ -6,7 +6,7 @@ local API = harness.env.FieldGuideForever and harness.env.FieldGuideForever.API
 
 assert(API, "the public API is installed")
 assert(API.version >= 1, "the contract is versioned")
-assert(API.version == 1 and API.minor == 1, "the spawn additions are API minor 1")
+assert(API.version == 2 and API.minor == 2, "the tier ladder is API version 2")
 
 local npcFixture = {
 	[1001] = {
@@ -81,8 +81,9 @@ local migrated = ns.Migrate({
 })
 assert(migrated.version == ns.SCHEMA, "version zero migrates forward")
 local migratedEntry = migrated.chars["Old-Realm"].species[1001]
-assert(migratedEntry.count == ns.Model.MASTERED_AT and migratedEntry.rare == 0 and migratedEntry.shiny == 1)
-assert(migratedEntry.injected == nil and migrated.chars["Old-Realm"].unexpected == nil)
+assert(migratedEntry.count == ns.Model.MASTERED_AT and migratedEntry.bronze == 8)
+assert(migratedEntry.silver == 0 and migratedEntry.gold == 0 and migratedEntry.shiny == 1)
+assert(migratedEntry.rare == nil and migratedEntry.injected == nil and migrated.chars["Old-Realm"].unexpected == nil)
 assert(migrated.chars["Old-Realm"].species[1002] == nil, "invalid entries are discarded")
 assert(type(migrated.chars["Old-Realm"].encounters) == "table", "corrupt encounter data is repaired")
 assert(migrated.chars["Old-Realm"].tracked == 1003, "the tracked species survives a reload")
@@ -108,18 +109,25 @@ local progress = API.Progress("The Barrens")
 assert(progress and progress.total == #species, "the API counts the same catalogue")
 assert(progress.catalogued == 0 and progress.fraction == 0, "an empty catalogue has no progress")
 
+local function GuidFor(tier, salt, npcId)
+	for index = 1, 1000000 do
+		local guid = "Creature-0-1-0-1-" .. (npcId or 1001) .. "-" .. salt .. string.format("%010X", index)
+		if ns.Model.SpawnTier(guid) == tier then
+			return guid
+		end
+	end
+	error("no GUID rolls " .. tier)
+end
+
 ns.Model.ClearSightings()
-ns.Model.SetRandom(function()
-	return 1
-end)
-harness:Kill("Plainstrider")
+harness:Kill("Plainstrider", 1001, GuidFor("bronze", "api"))
 local specimen = API.Specimen(1001)
 assert(
 	specimen and specimen.count == 1 and specimen.kills == 1 and specimen.rank == 1,
 	"a recorded kill is visible through the API"
 )
 assert(specimen.firstKill == 1000 and specimen.firstSighting == 1000, "the API exposes local first records")
-assert(not specimen.shiny and not specimen.rare, "an ordinary kill is neither rare nor shiny")
+assert(specimen.bronze and not specimen.silver and not specimen.gold and not specimen.shiny, "a bronze spawn")
 progress = API.Progress("The Barrens")
 assert(progress.catalogued == 1, "the kill catalogues the species")
 
@@ -129,55 +137,47 @@ local prowler = API.Specimen(1003)
 assert(prowler and prowler.firstSighting == 1000, "a visible hostile nameplate records a personal first sighting")
 assert(prowler.kills == 0, "a sighting alone does not count as a kill")
 
-for _ = 1, ns.Model.RARE_TARGET do
-	harness:Kill("Dishu")
+for _, tier in ipairs({ "silver", "gold", "shiny" }) do
+	harness:Kill("Dishu", 1019, GuidFor(tier, "dishu", 1019))
 end
-local rare = API.Specimen(1019)
-assert(rare and rare.rareCount == ns.Model.RARE_TARGET and rare.rare, "rare sightings reach the variant target")
+local tiered = API.Specimen(1019)
+assert(tiered and tiered.silverCount == 1 and tiered.goldCount == 1 and tiered.shinyCount == 1, "each coat counts")
+assert(tiered.bestTier == "shiny", "the best coat is reported")
 
--- The detail page leads with the three collectible cards, read from the character's state.
+-- The detail page leads with the round portrait and the four ladder slots, read from the character's state.
 ns.Detail.Create(harness.env.CreateFrame("Frame"))
 local character = ns.GetCharacterState(false)
 local detail = ns.Detail
 detail.Show(ns.SpeciesById[1019], character, ns.SpeciesZone[1019])
-local cards = detail.cards
-assert(cards.rare.Title:GetText() == "Rare" and cards.rare.Status:GetText() == "Collected", "Dishu's rare is collected")
-assert(cards.rare.IconBorder.atlas == "loottoast-itemborder-blue", "rare reads by its blue quality border")
-assert(cards.rare.Border.atlas == "transmog-wardrobe-border-collected", "a collected form uses the collected card")
-assert(not cards.rare.Unknown:IsShown(), "a collected form shows the creature, not a question mark")
-assert(cards.shiny.Status:GetText() == "1 in 500 per kill", "a missing shiny says how to get one")
-assert(cards.shiny.Unknown:IsShown() and not cards.shiny.Glow:IsShown(), "a missing shiny is a silhouette")
-assert(cards.shiny.Border.atlas == "transmog-wardrobe-border-uncollected")
-local research = ns.Detail.specimenCount:GetText()
-assert(research:find("^" .. rare.count .. " / "), "the research count is the species' own: " .. research)
+local slots = detail.slots
+assert(slots.bronze.Status:GetText() == "Every spawn", "an unfound bronze slot shows its odds")
+assert(slots.silver.Title:GetText() == "Silver" and slots.silver.Status:GetText() == "Found 1", "silver is found")
+assert(slots.gold.Status:GetText() == "Found 1", "gold is found")
+assert(slots.shiny.Status:GetText() == "Found", "a found shiny reads Found")
+local research = detail.specimenCount:GetText()
+assert(research == "3 / 10 sightings", "the bar counts this species' sightings: " .. research)
 
 assert(detail.location.template == "InsetFrameTemplate", "zone artwork has its own native border")
 assert(detail.name:GetParent() == detail.content, "detail labels render above the content background")
-assert(detail.model.creatureID == 1019, "selection loads the selected NPC model")
 local _, _, _, dishuDisplay = ns.CreatureInfo.Get(1019)
-assert(detail.model.creatureDisplayID == dishuDisplay, "the model also gets the NPC's client display ID")
-assert(detail.model:GetParent() == cards.common, "the model lives in the common card")
-local loads = detail.model.creatureLoads
+assert(detail.portrait.portraitDisplayID == dishuDisplay, "the portrait draws the selected NPC")
+assert(detail.portrait:IsShown(), "the portrait is visible")
 detail.Show(ns.SpeciesById[1019], character, ns.SpeciesZone[1019])
-assert(detail.model.creatureLoads == loads, "progress refresh does not reload the same model")
-assert(detail.portrait:IsShown(), "icon stays visible until a model actually loads")
-detail.model.modelFileID = 12345
-detail.model:GetScript("OnModelLoaded")(detail.model)
-assert(not detail.portrait:IsShown(), "a loaded model replaces the fallback")
-detail.Show(ns.SpeciesById[1019], character, ns.SpeciesZone[1019])
-assert(not detail.portrait:IsShown(), "a refresh keeps a loaded model in front")
-assert(detail.recordsTitle:IsShown() and detail.sightingText:GetText():find("Personal first sighting"), "records show")
-detail.Show(nil, nil, nil)
-assert(detail.model.creatureID == nil and not detail.model:IsShown(), "empty selection clears a stale model")
+assert(detail.portrait.portraitDisplayID == dishuDisplay, "a refresh keeps the portrait")
 assert(
-	not detail.researchCard:IsShown() and not detail.mapButton:IsEnabled() and not cards.common:IsShown(),
-	"empty selection clears old progress, cards and map"
+	detail.recordsTitle:IsShown() and detail.records[1].key:GetText() == "Sightings",
+	"records show as key and value pairs"
+)
+detail.Show(nil, nil, nil)
+assert(not detail.portrait:IsShown(), "empty selection clears the portrait")
+assert(
+	not detail.slots.bronze:IsShown() and not detail.recordsTitle:IsShown() and not detail.mapButton:IsEnabled(),
+	"empty selection clears the slots, records and map"
 )
 detail.Show(ns.SpeciesById[1001], character, ns.SpeciesZone[1001])
-assert(detail.model.creatureID == 1001 and detail.portrait:IsShown(), "new selection restores fallback while loading")
--- Plainstrider can never be rare: its rare slot is a muted placeholder, never shown as missing.
-assert(cards.rare.Title:GetText() == "No rare form" and not cards.rare.Icon:IsShown(), cards.rare.Title:GetText())
-assert(not cards.rare.Unknown:IsShown(), "no question mark on a form the species does not have")
+assert(detail.portrait:IsShown(), "new selection restores the portrait")
+assert(slots.bronze.Status:GetText() == "Found 1", "Plainstrider's bronze spawn is found")
+assert(slots.silver.Status:GetText() == "1 in 25 spawns", "a missing silver says its odds")
 local originalAreaMaps = ns.QuestieDB.AreaMaps
 ns.QuestieDB.AreaMaps = function()
 	return { [17] = 1413, [38] = 1432 }, { [17] = 999 }
@@ -200,19 +200,13 @@ assert(
 )
 assert(not detail.mapButton:IsEnabled(), "an unresolved location disables old map navigation")
 
--- Collection totals leave out species with no rare form.
-local totals = ns.Model.VariantTotals(character, { ns.SpeciesById[1001], ns.SpeciesById[1019] })
-assert(
-	totals.rare == 1 and totals.rareTotal == 1 and totals.shinyTotal == 2,
-	"a species with no rare form adds no rare"
-)
+-- Header totals count species with each coat found.
+local totals = ns.Model.TierTotals(character, { ns.SpeciesById[1001], ns.SpeciesById[1019] })
+assert(totals.silver == 1 and totals.gold == 1 and totals.shiny == 1, "each coat counts one species")
 
-ns.Model.SetRandom(function()
-	return 0
-end)
-harness:Kill("Plainstrider")
+harness:Kill("Plainstrider", 1001, GuidFor("shiny", "plainstrider"))
 specimen = API.Specimen(1001)
-assert(specimen.shiny and specimen.shinyCount == 1, "a lucky roll is visible as a shiny")
+assert(specimen.shiny and specimen.shinyCount == 1, "a shiny spawn is visible as a shiny")
 
 local sightings = API.Sightings()
 assert(sightings and #sightings >= 1, "the session log is exposed")
@@ -333,7 +327,7 @@ while #listEntries > 12 do
 	table.remove(listEntries)
 end
 ns.List.Refresh(listEntries, 1001, true)
-assert(ns.List.scroll:GetVerticalScroll() == 38, "a shorter list clamps scrolling to its new end")
+assert(ns.List.scroll:GetVerticalScroll() == 12 * 55 - 502, "a shorter list clamps scrolling to its new end")
 ns.List.Refresh(listEntries, 1001)
 assert(ns.List.scroll:GetVerticalScroll() == 0, "changing the list resets scrolling")
 ns.List.scroll:SetVerticalScroll(30)

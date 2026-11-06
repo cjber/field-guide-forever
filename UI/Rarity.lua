@@ -1,5 +1,6 @@
 ---@type string, FGNamespace
 local _, ns = ...
+local Art = ns.Art
 
 ---@class FGRarity
 local Rarity = {}
@@ -19,11 +20,11 @@ local BAR_GLOW_RIGHT = "UI-Frame-Bar-GlowRight"
 local BAR_GLOW_LEFT_WIDTH = 35
 local BAR_GLOW_RIGHT_WIDTH = 34
 local TARGET_RING = "Portrait-Frame-Small"
-local TARGET_BADGE = "Rare-Elite-Star"
+-- The tiers whose nameplate carries its quality mark beside the name.
 local PLATE_MARKS = {
-	silver = "nameplates-icon-elite-silver",
-	gold = "nameplates-icon-elite-gold",
-	shiny = TARGET_BADGE,
+	silver = true,
+	gold = true,
+	shiny = true,
 }
 local PLATE_GLOW_LAYERS = {
 	{ pad = 9, alpha = 0.22 },
@@ -44,7 +45,7 @@ local TARGET_PORTRAIT_GLOW_LAYERS = {
 local TAG_HEIGHT = 15
 local TAG_PAD = 4
 local TAG_TEXT = { 0.05, 0.06, 0.07 }
-local TARGET_TAGS = { silver = "RARE", gold = "RARE", shiny = "SHINY" }
+local TARGET_TAGS = { silver = "SILVER", gold = "GOLD", shiny = "SHINY" }
 local PREVIEW_TIERS = { "silver", "gold", "shiny" }
 local discoveredThisSession = {}
 
@@ -57,10 +58,15 @@ local previewNext = 0
 local previewWasActive = false
 local targetPending = false
 
----@param species FGSpecies?
+-- The spawn's tier comes from its readable GUID, so every player who meets that spawn sees the same coat. A player
+-- has no spawn tier, and a unit whose GUID the client hides stays bronze.
+---@param unit string
 ---@return string
-local function SpeciesTier(species)
-	return species and ns.Model.Tier(species.id) or "copper"
+local function UnitTier(unit)
+	if UnitIsPlayer and UnitIsPlayer(unit) then
+		return "bronze"
+	end
+	return ns.Model.SpawnTier(ns.Readable(UnitGUID(unit)))
 end
 
 -- Preview tiers are session state, never saved progress. Each creature gets one tier per session so retargeting it
@@ -72,9 +78,8 @@ function Rarity.ResetPreview()
 end
 
 ---@param unit string
----@param species FGSpecies?
 ---@return string
-local function TierFor(unit, species)
+local function TierFor(unit)
 	local active = ns.RarityPreviewActive and ns.RarityPreviewActive() or false
 	if active and not previewWasActive then
 		Rarity.ResetPreview()
@@ -83,13 +88,13 @@ local function TierFor(unit, species)
 		previewWasActive = false
 	end
 	if not active then
-		return SpeciesTier(species)
+		return UnitTier(unit)
 	end
 	if UnitIsPlayer and UnitIsPlayer(unit) then
-		return "copper"
+		return "bronze"
 	end
 	local guid = ns.Readable(UnitGUID(unit))
-	local key = guid and tostring(guid) or (species and ("species:" .. species.id)) or unit
+	local key = guid and tostring(guid) or unit
 	local tier = previewTiers[key]
 	if not tier then
 		previewNext = previewNext + 1
@@ -348,13 +353,8 @@ local function UpdateAccent(owner, name, healthBar, tier, discovery)
 	end
 	if marker then
 		if color and mark then
-			marker:SetAtlas(mark)
-			marker:SetSize(tier == "shiny" and 16 or 17, 16)
-			if tier == "shiny" then
-				marker:SetVertexColor(color[1], color[2], color[3], 1)
-			else
-				marker:SetVertexColor(1, 1, 1, 1)
-			end
+			Art.PaintTierIcon(marker, tier, 17)
+			marker:SetVertexColor(1, 1, 1, 1)
 			marker:Show()
 			marker:SetAlpha(discovery and 1 or PLATE_ACCENT_ALPHA)
 			if discovery and C_Timer and C_Timer.After then
@@ -384,10 +384,7 @@ local function UpdateTarget()
 		targetPending = true
 		return
 	end
-	local zone = ns.CurrentZone()
-	local unitName = ns.Readable(UnitName("target"))
-	local species = ns.FindSpecies(unitName, zone)
-	local tier = TierFor("target", species)
+	local tier = TierFor("target")
 	local color = Rarity.COLORS[tier]
 	local target = _G.TargetFrame
 	local name = target and (target.name or target.Name)
@@ -423,7 +420,7 @@ local function UpdatePlate(plate, unit)
 	local name = frame and (frame.name or frame.Name)
 	local unitName = ns.Readable(UnitName(unit))
 	local species = ns.FindSpecies(unitName, ns.CurrentZone())
-	local tier = TierFor(unit, species)
+	local tier = TierFor(unit)
 	local entry = species and ns.Model.Specimen(ns.GetCharacterState(false), species.id)
 	local discovery = species
 		and entry
@@ -479,7 +476,7 @@ events:SetScript("OnEvent", function(_, event, unit)
 			if frame then
 				local bar = frame.healthBar
 				local name = frame.name or frame.Name
-				UpdateAccent(frame, type(name) == "table" and name or nil, bar, "copper", false)
+				UpdateAccent(frame, type(name) == "table" and name or nil, bar, "bronze", false)
 			end
 		end
 	end

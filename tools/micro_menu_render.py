@@ -11,6 +11,9 @@ import wowmock as W  # noqa: E402  # ty: ignore[unresolved-import]
 from PIL import Image  # noqa: E402  # ty: ignore[unresolved-import]  # Pillow is local only, like wowmock
 from ui_art import BUILD as ART_BUILD  # noqa: E402
 
+ROOT = Path(__file__).resolve().parent.parent
+GLYPH = ROOT / "media" / "MicroGlyph.tga"
+GLYPH_HOVER = ROOT / "media" / "MicroGlyphHover.tga"
 ui = W.Ui(build=ART_BUILD, scale=2)
 
 BTN_W, BTN_H, STEP = 32, 41, 27
@@ -29,6 +32,10 @@ NATIVE = [
 def glyph(u, icon, size):
     """An icon drawn on its own canvas at the target canvas's scale (micro glyphs carry no bezel)."""
     c = u.canvas(size, size)
+    if isinstance(icon, Path):
+        image = Image.open(icon).convert("RGBA").resize(c.image.size, Image.Resampling.LANCZOS)
+        c.image = image
+        return c
     c.draw(u.texture(icon), 0, 0, size, size)
     return c
 
@@ -57,8 +64,8 @@ def custom_button(canvas, x, y, icon, hover=False, alert=False):
     # A soft contact shadow from the icon's own alpha, the way the painted glyphs sit on the plate.
     shadow = g_shadow(u, icon, ICON)
     canvas.paste(shadow, gx + 1, gy + 2)
-    g = glyph(u, icon, ICON)
-    if hover:
+    g = glyph(u, GLYPH_HOVER if hover and icon == GLYPH else icon, ICON)
+    if hover and icon != GLYPH:
         g.image = W.tint(g.image, (1.15, 1.15, 1.15, 1))
     canvas.paste(g, gx, gy)
     if alert:
@@ -87,7 +94,10 @@ def row(ui, w, h, buttons, hover_index=None, tooltip_lines=None, tooltip_side="l
 
 def g_shadow(u, icon, size):
     c = u.canvas(size + 2, size + 2)
-    c.draw(u.texture(icon), 1, 1, size, size)
+    if isinstance(icon, Path):
+        c.image = Image.open(icon).convert("RGBA").resize(c.image.size, Image.Resampling.LANCZOS)
+    else:
+        c.draw(u.texture(icon), 1, 1, size, size)
     alpha = c.image.getchannel("A").point(lambda a: int(a * 0.55))
     black = Image.new("RGBA", c.image.size, (0, 0, 0, 255))
     black.putalpha(alpha)
@@ -96,7 +106,7 @@ def g_shadow(u, icon, size):
     return out
 
 
-FG_ICON = "interface/icons/inv_misc_book_09.blp"
+FG_ICON = GLYPH
 AG_ICON = "interface/icons/inv_misc_map_01.blp"
 
 

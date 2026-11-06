@@ -3,16 +3,18 @@ local _, ns = ...
 
 -- Public addon-to-addon interface. nil means the answer is not known yet: before the saved variables load there is
 -- no catalogue state to read, and a caller such as a map addon should ask again after PLAYER_LOGIN rather than
--- treating the silence as an empty field guide. Version 1 is the first contract. SPF's type docs require every
--- additive API change to raise `minor`; Spawns and ZoneSpawns are the minor-1 additions.
+-- treating the silence as an empty field guide. Version 2 is the tier ladder: the old rare form and per-kill shiny
+-- roll are gone, so callers reading per-creature progress now get counts for bronze, silver, gold and shiny spawns.
 ---@class FGPublicAPI
-local API = { version = 1, minor = 1 }
+local API = { version = 2, minor = 2 }
 ---@type FGSpawnCache?
 local spawnCache
 local FIRST_METRICS = {
 	first_sighting = true,
 	first_kill = true,
-	first_rare = true,
+	first_bronze = true,
+	first_silver = true,
+	first_gold = true,
 	first_shiny = true,
 	boss_first_sighting = true,
 	boss_first_kill = true,
@@ -243,11 +245,12 @@ API.ZoneProgress = API.Progress
 API.GetZoneProgress = API.Progress
 
 ---@param speciesId integer
----@return { id: integer, name: string, count: integer, kills: integer, killsEstimated: boolean, rank: integer,
---- rare: boolean, shiny: boolean,
---- rareCount: integer, rareKills: integer, shinyCount: integer, shinyFinds: integer, firstSighting: number?,
---- firstSightingZone: string?, firstKill: number?, firstKillZone: string?, firstRare: number?, firstRareZone: string?,
---- firstShiny: number?, firstShinyZone: string? }?
+---@return { id: integer, name: string, count: integer, kills: integer, killsEstimated: boolean,
+--- rank: integer, bestTier: string?, bronze: boolean, silver: boolean, gold: boolean, shiny: boolean,
+--- bronzeCount: integer, silverCount: integer, goldCount: integer, shinyCount: integer,
+--- firstSighting: number?, firstSightingZone: string?, firstKill: number?, firstKillZone: string?,
+--- firstBronze: number?, firstBronzeZone: string?, firstSilver: number?, firstSilverZone: string?,
+--- firstGold: number?, firstGoldZone: string?, firstShiny: number?, firstShinyZone: string? }?
 function API.Specimen(speciesId)
 	if not Ready() or ns.catalogueStatus ~= "ok" then
 		return nil
@@ -264,20 +267,27 @@ function API.Specimen(speciesId)
 		count = entry.count,
 		kills = entry.kills,
 		killsEstimated = entry.killsEstimated,
+		bestTier = ns.Model.BestTier(entry),
 		firstSighting = entry.firstSighting,
 		firstSightingZone = entry.firstSightingZone,
 		firstKill = entry.firstKill,
 		firstKillZone = entry.firstKillZone,
-		firstRare = entry.firstRare,
-		firstRareZone = entry.firstRareZone,
+		firstBronze = entry.firstBronze,
+		firstBronzeZone = entry.firstBronzeZone,
+		firstSilver = entry.firstSilver,
+		firstSilverZone = entry.firstSilverZone,
+		firstGold = entry.firstGold,
+		firstGoldZone = entry.firstGoldZone,
 		firstShiny = entry.firstShiny,
 		firstShinyZone = entry.firstShinyZone,
-		rareKills = entry.rareKills,
-		shinyFinds = entry.shinyFinds,
 		rank = ns.Model.Rank(entry.count),
-		rare = entry.rare >= ns.Model.RARE_TARGET,
-		shiny = entry.shiny >= ns.Model.SHINY_TARGET,
-		rareCount = entry.rare,
+		bronze = entry.bronze > 0,
+		silver = entry.silver > 0,
+		gold = entry.gold > 0,
+		shiny = entry.shiny > 0,
+		bronzeCount = entry.bronze,
+		silverCount = entry.silver,
+		goldCount = entry.gold,
 		shinyCount = entry.shiny,
 	}
 end
@@ -306,8 +316,8 @@ API.GetSightings = API.Sightings
 
 -- Every species with its current specimen row, for a caller drawing its own summary. A fresh table on each call keeps
 -- the saved state out of reach.
----@return { id: integer, name: string, zone: string, count: integer, kills: integer, rank: integer, rare: boolean,
---- shiny: boolean }[]?
+---@return { id: integer, name: string, zone: string, count: integer, kills: integer, rank: integer,
+--- bestTier: string?, silver: boolean, gold: boolean, shiny: boolean }[]?
 function API.Specimens()
 	if not Ready() or ns.catalogueStatus ~= "ok" then
 		return nil
@@ -324,8 +334,10 @@ function API.Specimens()
 				kills = entry.kills,
 				killsEstimated = entry.killsEstimated,
 				rank = ns.Model.Rank(entry.count),
-				rare = entry.rare >= ns.Model.RARE_TARGET,
-				shiny = entry.shiny >= ns.Model.SHINY_TARGET,
+				bestTier = ns.Model.BestTier(entry),
+				silver = entry.silver > 0,
+				gold = entry.gold > 0,
+				shiny = entry.shiny > 0,
 			}
 		end
 	end
@@ -389,18 +401,24 @@ function API.Leaderboard(metric, subject)
 	local state = ns.GetCharacterState(false)
 	local localRecord
 	local creatureMetric = metric == "creature_kills"
-		or metric == "rare_kills"
+		or metric == "bronze_finds"
+		or metric == "silver_finds"
+		or metric == "gold_finds"
 		or metric == "shiny_finds"
 		or metric:match("^first_")
 	if creatureMetric then
 		local entry = ns.Model.Specimen(state, tonumber(subject) or 0)
 		local fields = {
 			creature_kills = { value = ns.Model.ObservedKills(entry), time = entry.lastKill },
-			rare_kills = { value = entry.rareKills, time = entry.firstRare },
-			shiny_finds = { value = entry.shinyFinds, time = entry.firstShiny },
+			bronze_finds = { value = entry.bronze, time = entry.firstBronze },
+			silver_finds = { value = entry.silver, time = entry.firstSilver },
+			gold_finds = { value = entry.gold, time = entry.firstGold },
+			shiny_finds = { value = entry.shiny, time = entry.firstShiny },
 			first_sighting = { value = 1, time = entry.firstSighting },
 			first_kill = { value = 1, time = entry.firstKill },
-			first_rare = { value = 1, time = entry.firstRare },
+			first_bronze = { value = 1, time = entry.firstBronze },
+			first_silver = { value = 1, time = entry.firstSilver },
+			first_gold = { value = 1, time = entry.firstGold },
 			first_shiny = { value = 1, time = entry.firstShiny },
 		}
 		localRecord = fields[metric]

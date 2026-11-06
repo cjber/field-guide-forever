@@ -16,6 +16,7 @@ Deterministic: the specimen counts come from the species id, so a second run is 
 """
 
 import csv
+import dataclasses
 import json
 import os
 import re
@@ -84,7 +85,7 @@ def render_micro_menu_scenes():
 
 
 # UI/Art.lua's palette, as wowmock colour tuples.
-GOLD = wowmock.rgb("e0b540")
+GOLD = wowmock.rgb("e8bd63")
 BRASS = wowmock.rgb("b8a16b")
 TEXT = wowmock.rgb("e3d9c2")
 MUTED = wowmock.rgb("9e998c")
@@ -103,11 +104,12 @@ FONTS["FieldGuideTabLabel"] = wowmock.Font(
 )
 TAB_ICON_PATHS = (
     "interface/icons/inv_misc_book_09.blp",
-    "interface/icons/inv_misc_spyglass_02.blp",
-    "interface/icons/inv_scroll_03.blp",
     "interface/icons/inv_chest_chain_05.blp",
 )
-TAB_TOOLTIPS = ("CREATURES", "RARES", "SHINY", "INSTANCES")
+TAB_TOOLTIPS = (
+    ("Creatures", "Every creature of a zone, its sightings and variants"),
+    ("Instances", "Boss encounters recorded on this character"),
+)
 
 W, H = 960, 700
 # UI/Window.lua's shell geometry, and the only place these numbers live in this file: the bottom bar is 924 wide at
@@ -119,8 +121,34 @@ OPEN_W, OPEN_RIGHT = 120, 140
 TRACK_W, TRACK_RIGHT = 120, 12
 OPEN_X = BAR_X + BAR_W - OPEN_RIGHT - OPEN_W
 TRACK_X = BAR_X + BAR_W - TRACK_RIGHT - TRACK_W
-MASTERED_AT, RARE_TARGET, SHINY_CHANCE = 10, 3, 500
+MASTERED_AT = 10
 PIPS = ("Discovered", "Observed", "Studied", "Mastered")
+BRONZE = wowmock.rgb("c7875a")
+SILVER = wowmock.rgb("c9d2dc")
+GOLDC = wowmock.rgb("e8bd63")
+SHINY = wowmock.rgb("bae6ff")
+# Detail.lua's LADDER with Art.TIER_ICONS: the crafting quality marks, one per variant.
+TIERS = (
+    ("bronze", "Bronze", "Professions-Icon-Quality-Tier1", BRONZE, 1, True),
+    ("silver", "Silver", "Professions-Icon-Quality-Tier2", SILVER, 25, False),
+    ("gold", "Gold", "Professions-Icon-Quality-Tier3", GOLDC, 100, False),
+    ("shiny", "Shiny", "Professions-Icon-Quality-Tier4", SHINY, 1000, False),
+)
+# Detail.lua's layout: the card, the sightings bar, the variant slots, then records beside the habitat map.
+PANE_W, PANE_H = 582, 514
+CARD_H, TEXT_X = 156, 120
+BAR_WIDTH = PANE_W - 24 - TEXT_X
+SECTION_X, VARIANTS_Y, LOWER_Y = 14, 172, 340
+SLOT_SIZE, SLOT_MARK = 70, 46
+SLOT_SPAN = (PANE_W - SECTION_X * 2) / 4
+RECORDS_W = 250
+HABITAT_X = SECTION_X + RECORDS_W + 20
+HABITAT_W = PANE_W - SECTION_X - HABITAT_X
+MAP_W, MAP_H = 174, 116
+SIDE_X = HABITAT_X + MAP_W + 16
+SIDE_W = PANE_W - SECTION_X - SIDE_X
+# List.lua and Instances.lua: Pet Journal rows in a 330 wide inset.
+LEFT_W, ROW_H, ROW_ART_H, ROW_W = 330, 55, 51, 300
 
 
 def rank_of(count):
@@ -330,114 +358,121 @@ def load_catalogue():
 def progress(species):
     """A plausible saved character, deterministic in the id: mastered, part-way and untouched species."""
     seed = (species["id"] * 2654435761) % 4294967296
+    shiny = 1 if (seed >> 13) % 23 == 0 else 0
+    # A shiny is found on a recorded kill, so it always comes with at least one sighting.
+    count = max((seed >> 7) % 11, shiny)
     return {
-        "count": (seed >> 7) % 11,
-        "kills": (seed >> 7) % 11 + (seed >> 17) % 23,
-        "rare": min(RARE_TARGET, (seed >> 11) % (RARE_TARGET + 1)) if species["rare"] else 0,
-        "shiny": 1 if (seed >> 13) % 23 == 0 else 0,
+        "count": count,
+        "kills": count + (seed >> 17) % 23,
+        "bronze": count,
+        "silver": (seed >> 5) % 3 if count > 3 else 0,
+        "gold": 1 if count > 6 and (seed >> 9) % 3 == 0 else 0,
+        "shiny": shiny,
     }
 
 
-VARIANT_BORDERS = {
-    "common": "loottoast-itemborder-white",
-    "rare": "loottoast-itemborder-blue",
-    "shiny": "loottoast-itemborder-gold",
-}
-SHINY_STAR = "Rare-Elite-Star"
-CARD_W, CARD_H, CARD_GAP, CARD_ICON = 164, 219, 20, 72
+def best_tier(state):
+    for tier, _, _, _, _, _ in reversed(TIERS):
+        if state[tier]:
+            return tier
+    return None
 
 
-def variant_states(species):
-    """Model.Variants plus Model.HasRareForm for the fake character: known flags and the rare kill count."""
-    state = progress(species)
-    return {
-        "common": state["count"] > 0,
-        "rare": state["rare"] >= RARE_TARGET,
-        "shiny": bool(state["shiny"]),
-        "rare_form": bool(species["rare"]) or state["rare"] > 0,
-        "rare_count": state["rare"],
-    }
-
-
-def variant_mark(canvas, kind, known, icon, x, y, size=16):
-    """Art.VariantMark: the species icon in its quality border, or the gold star for shiny; dark while missing."""
-    shade = 1 if known else 0.3
-    if kind == "shiny":
-        r, g, b = GOLD[:3]
-        canvas.draw(canvas.ui.atlas(SHINY_STAR), x, y, size, size, (r * shade, g * shade, b * shade, 1))
-        return
-    tint = (shade, shade, shade, 1)
-    canvas.draw(icon if known else icon.convert("LA").convert("RGBA"), x + 2, y + 2, size - 4, size - 4, tint)
-    canvas.draw(canvas.ui.atlas(VARIANT_BORDERS[kind]), x, y, size, size, tint)
-
-
-def variant_card(canvas, kind, states, icon, x, y):
-    """One Detail card: the Appearances tab's card frame, the form's icon in its quality border, title and status."""
-    ui = canvas.ui
-    absent = kind == "rare" and not states["rare_form"]
-    known = states[kind] and not absent
-    if kind == "shiny" and known:
-        glow = CARD_ICON + 48
-        canvas.draw(
-            ui.atlas("collections-upgradeglow"), x + (CARD_W - glow) / 2, y + 82 - glow / 2, glow, glow, blend="ADD"
-        )
-    border = "transmog-wardrobe-border-collected" if known else "transmog-wardrobe-border-uncollected"
-    canvas.draw(ui.atlas(border), x, y, CARD_W, CARD_H, (1, 1, 1, 0.5 if absent else 1))
-    ix, iy = x + (CARD_W - CARD_ICON) / 2, y + 82 - CARD_ICON / 2
-    if not absent:
-        if known:
-            canvas.draw(icon, ix, iy, CARD_ICON, CARD_ICON)
-        else:
-            canvas.draw(icon.convert("LA").convert("RGBA"), ix, iy, CARD_ICON, CARD_ICON, (0.08, 0.08, 0.08, 1))
-        edge = 1 if known else 0.45
-        canvas.draw(
-            ui.atlas(VARIANT_BORDERS[kind]), ix - 6, iy - 6, CARD_ICON + 12, CARD_ICON + 12, (edge, edge, edge, 1)
-        )
-        if not known:
-            text(canvas, ix, iy + 25, "?", "GameFontDisableHuge", MUTED, width=CARD_ICON, justify="CENTER")
-    if kind == "shiny" and known:
-        cx, cy = ix + CARD_ICON / 2, iy + CARD_ICON / 2
-        for dx, dy, size in ((0.36, -0.44, 16), (-0.44, -0.30, 11), (0.48, 0.20, 9)):
-            canvas.draw(ui.atlas(SHINY_STAR), cx + dx * 96 - size / 2, cy + dy * 96 - size / 2, size, size, blend="ADD")
-    if absent:
-        title, status = "No rare form", "Only rare creatures have one"
-    elif known:
-        title, status = kind.capitalize(), "Collected"
-    elif kind == "common":
-        title, status = "Common", "Defeat one"
-    elif kind == "rare":
-        title, status = "Rare", f"{states['rare_count']} / {RARE_TARGET} rare kills"
-    else:
-        title, status = "Shiny", f"1 in {SHINY_CHANCE} per kill"
-    colour = (BLUE if kind == "rare" else GOLD) if known else MUTED
-    title_font = "GameFontNormalLarge" if known else "GameFontNormal"
-    status_font = "GameFontHighlightSmall" if known else "GameFontDisableSmall"
-    text(canvas, x, y + 136, title, title_font, colour, width=CARD_W, justify="CENTER")
-    text(canvas, x + 8, y + 162, status, status_font, GREEN if known else MUTED, width=CARD_W - 16, justify="CENTER")
-    card_name = f"{kind.capitalize()} card"
-    note(f"{title} title", "content", x, y + 136, CARD_W, FONTS[title_font].height, parent=card_name)
-    lines = wrap_pixels(status, FONTS[status_font], CARD_W - 16, 2, canvas)
-    note(
-        f"{title} status",
-        "content",
-        x + 8,
-        y + 162,
-        CARD_W - 16,
-        FONTS[status_font].height * len(lines),
-        parent=card_name,
-    )
-
-
-def variant_totals(species_list):
-    """Model.VariantTotals: a species with no rare form adds nothing to the rare figures."""
-    rare = rare_total = shiny = 0
+def tier_totals(species_list):
+    """Model.TierTotals: how many species in the list have each of the three standout coats."""
+    totals = {"silver": 0, "gold": 0, "shiny": 0}
     for species in species_list:
-        states = variant_states(species)
-        if states["rare_form"]:
-            rare_total += 1
-            rare += states["rare"]
-        shiny += states["shiny"]
-    return rare, rare_total, shiny, len(species_list)
+        state = progress(species)
+        for tier in totals:
+            if state[tier]:
+                totals[tier] += 1
+    return totals
+
+
+def tier_icon(canvas, tier, x, y, size, known=True):
+    """Art.PaintTierIcon: the variant's quality mark, desaturated and dimmed while missing."""
+    atlas = canvas.ui.atlas(next(item for item in TIERS if item[0] == tier)[2])
+    if known:
+        canvas.draw(atlas, x, y, size, size)
+    else:
+        canvas.draw(desaturated(atlas), x, y, size, size, (0.35, 0.35, 0.35, 0.8))
+
+
+def desaturated(source):
+    """Texture:SetDesaturated(true) on a texture or atlas member."""
+    if isinstance(source, wowmock.Atlas):
+        return dataclasses.replace(source, image=grey(source.image))
+    return grey(source)
+
+
+def grey(image):
+    alpha = image.getchannel("A")
+    out = image.convert("L").convert("RGBA")
+    out.putalpha(alpha)
+    return out
+
+
+def bordered_icon(canvas, image, x, y, icon_size, border, collected, shade=1.0, desaturate=False):
+    """Art.BorderedIcon: the icon at (x, y), the Collections item border of `border` centred on it."""
+    canvas.draw(grey(image) if desaturate else image, x, y, icon_size, icon_size, (shade, shade, shade, 1))
+    edge = (border - icon_size) / 2
+    atlas = "collections-itemborder-collected" if collected else "collections-itemborder-uncollected"
+    canvas.draw(canvas.ui.atlas(atlas), x - edge, y - edge, border, border)
+
+
+def header(canvas, x, y, width, label):
+    """Art.Header: the quest tracker's header band at its 30 height, the title centred on it 7 in."""
+    canvas.draw(canvas.ui.atlas("UI-QuestTracker-Secondary-Objective-Header"), x, y, width, 30)
+    text(canvas, x + 7, y, label, "GameFontNormalLarge", GOLD, box_height=30)
+
+
+def objective_bar(canvas, x, y, width, ticks, fraction):
+    """Art.ObjectiveBar: the world quest bar's track, yellow fill, three-piece border and a tick per quarter."""
+    ui = canvas.ui
+    canvas.draw(ui.atlas("objectivewidget-bar-background"), x + 4, y + 5, width - 8, 12)
+    filled = (width - 8) * max(0, min(1, fraction))
+    if filled > 0:
+        canvas.draw(ui.atlas("ui-frame-bar-fill-yellow"), x + 4, y + 5, filled, 12)
+    canvas.draw(ui.atlas("objectivewidget-bar-border-left"), x, y, 8, 22)
+    canvas.draw(ui.atlas("objectivewidget-bar-border-middle"), x + 8, y, width - 16, 22)
+    canvas.draw(ui.atlas("objectivewidget-bar-border-right"), x + width - 8, y, 8, 22)
+    for index in range(1, ticks):
+        canvas.draw(ui.atlas("ui-frame-bar-bordertick"), x + width * index / ticks - 5, y - 1, 10, 24)
+
+
+ZONE_MAPS: dict[int, Any] = {}
+
+
+def zone_map(ui, map_id):
+    """Art.SetZoneMap: the uiMap's base art with every exploration overlay on top, fully explored."""
+    if map_id not in ZONE_MAPS:
+        try:
+            image = wowmock.map_art(ui, map_id)
+        except (KeyError, StopIteration):
+            ZONE_MAPS[map_id] = None
+            return None
+        for overlay in wowmock.map_overlays(ui, map_id):
+            wowmock.draw_overlay(
+                ui, image, overlay.offset_x, overlay.offset_y, overlay.width, overlay.height, overlay.tiles
+            )
+        ZONE_MAPS[map_id] = image
+    return ZONE_MAPS[map_id]
+
+
+def truncate(canvas, value, font, width):
+    while canvas.text_width(value, FONTS[font]) > width:
+        value = value[:-2].rstrip() + "…"
+    return value
+
+
+def level_range(low, high):
+    return str(low) if low == high else f"{low}-{high}"
+
+
+def fraction_of_ranks(count):
+    """Detail.UpdateResearch: each quarter of the bar is one rank, filled by the sightings between ranks."""
+    bounds = (0, 1, 3, 6, MASTERED_AT)
+    return sum(max(0, min(1, (count - low) / (high - low))) for low, high in zip(bounds, bounds[1:], strict=False)) / 4
 
 
 def status_bar(canvas, x, y, w, h, fraction):
@@ -493,7 +528,16 @@ def marker(canvas, cx, cy, size, colour):
     canvas.draw(canvas.ui.atlas("common-icon-checkmark"), cx - size / 2, cy - size / 2, size, size, colour)
 
 
-FILTER_LABELS = {None: "All", "missingShiny": "Missing shiny"}
+FILTER_LABELS = {
+    None: "All",
+    "discovered": "Discovered",
+    "undiscovered": "Undiscovered",
+    "mastered": "Mastered",
+    "silver": "Silver found",
+    "gold": "Gold found",
+    "shiny": "Shiny found",
+    "missingShiny": "Missing shiny",
+}
 LAYOUT: dict[str, Any] = {}
 MOCK_INSTANCES: dict[int, dict[str, Any]] = {}
 
@@ -514,11 +558,41 @@ def note(name, role, x, y, w, h, parent=None):
     widgets.append(widget)
 
 
+def zone_map_id(zone):
+    """QuestieDB's area to uiMap table, overrides first, as Detail.UpdateLocation reads it."""
+    map_source = (EXTRACTED / "QuestieDB/support/Forever/Zones/areaIdToUiMapId.lua").read_text()
+    map_tables = {}
+    for name, body in re.findall(r"ZoneDB.private.(\w+) = \[\[return \{(.*?)\}\]\]", map_source, re.S):
+        map_tables[name] = {int(area): int(map_id) for area, map_id in re.findall(r"\[(\d+)\] = (\d+)", body)}
+    return map_tables.get("areaIdToUiMapIdOverride", {}).get(
+        zone["id"], map_tables.get("areaIdToUiMapId", {}).get(zone["id"], 0)
+    )
+
+
+def lua_table(name, pattern):
+    """A table literal from UI/Art.lua, so the mock reads the same hand-mapped art the addon ships."""
+    body = re.search(rf"Art.{name} = \{{(.*?)\n\}}", (ROOT / "UI/Art.lua").read_text(), re.S)
+    assert body, name
+    return dict(re.findall(pattern, body[1]))
+
+
+def tab_tooltip(ui, index):
+    """SidePanelTabButtonMixin:OnEnter with the addon's setup function: the tab's name, then its detail line."""
+    title, detail = TAB_TOOLTIPS[index]
+    return wowmock.tooltip(ui, [wowmock.TooltipLine(title), wowmock.TooltipLine(detail)])
+
+
 def window(ui, zone, species, tab, icons, sigil, filter_key=None, tracked=False, unavailable=False, catalogue=None):
     """The journal as UI/Window.lua builds it: a real PortraitFrameTemplate (metal NineSlice, circular portrait,
     centred title, close button) around the addon's own list and detail panes at their own anchors."""
     m = 26
-    canvas = ui.canvas(W + m * 2 + 60, H + m * 2)
+    strip_x, strip_y = m + W + 3, m + 28
+    tip = tab_tooltip(ui, 1) if tab == "INSTANCES" else None
+    # The Instances scene shows its tab's tooltip, anchored right of the tab, so the canvas grows to hold it.
+    width = W + m * 2 + 60
+    if tip:
+        width = max(width, strip_x + 55 + tip.width + m)
+    canvas = ui.canvas(width, H + m * 2)
     # Each saved scene captures its own controls, including optional map navigation.
     LAYOUT["widgets"] = []
     LAYOUT["canvas"] = {"width": canvas.width, "height": canvas.height, "scale": ui.scale}
@@ -534,11 +608,12 @@ def window(ui, zone, species, tab, icons, sigil, filter_key=None, tracked=False,
     rock = ui.texture("interface/framegeneral/ui-background-rock.blp")
     tiled(canvas, rock, px(2), py(21), W - 4, H - 23, rock.width / ui.scale, rock.height / ui.scale)
     canvas.draw(ui.atlas("_UI-Frame-TopTileStreaks"), px(6), py(21), W - 8, 43)
-    index = ("CREATURES", "RARES", "SHINY", "INSTANCES").index(tab)
+    index = ("CREATURES", "INSTANCES").index(tab)
     portrait_frame_art(canvas, m, m, W, H, sigil, "Field Guide")
     if unavailable:
+        # Window.body: the one inset shown only while the catalogue is missing, with the notice centred on the frame.
         note("Catalogue body", "pane", px(18), py(104), 924, 514)
-        note("Catalogue notice", "content", px(140), py(344), 680, 60)
+        note("Catalogue notice", "content", px(140), py(344), 680, 36)
         card(canvas, px(18), py(104), 924, 514)
         text(
             canvas,
@@ -552,239 +627,441 @@ def window(ui, zone, species, tab, icons, sigil, filter_key=None, tracked=False,
         )
         return canvas
 
-    strip_x, strip_y = px(W + 3), py(28)
-    note("right tab strip", "tabs", strip_x, strip_y, 55, 55 * 4 + 3 * 3)
-    for tab_index, tooltip in enumerate(TAB_TOOLTIPS):
+    note("right tab strip", "tabs", strip_x, strip_y, 55, 55 * 2 + 3)
+    for tab_index, (title, _detail) in enumerate(TAB_TOOLTIPS):
         tab_x, tab_y = strip_x, strip_y + tab_index * 58
         side_tab(canvas, tab_x, tab_y, TAB_ICON_PATHS[tab_index], selected=tab_index == index)
-        note(f"tab plate {tab_index + 1} {tooltip.lower()}", "tabs", tab_x, tab_y, 55, 55)
+        note(f"tab plate {tab_index + 1} {title.lower()}", "tabs", tab_x, tab_y, 55, 55)
 
-    card(canvas, px(18), py(104), 924, 514)
+    search_box(canvas, px(24), py(62), 250, 24, "Search instances" if tab == "INSTANCES" else "Search creatures")
+    note("search", "input", px(24), py(62), 250, 24)
+    canvas.draw(ui.atlas("_UI-Frame-InnerTopTile"), px(18), py(94), W - 36, 3)
 
     if tab == "INSTANCES":
-        view_x, view_y = px(18), py(104)
-        note("Instances body", "pane", view_x, view_y, 924, 514)
-        note("Instances title", "content", view_x + 4, view_y + 4, 884, 20)
-        note("Instances subtitle", "content", view_x + 4, view_y + 26, 884, 16)
-        text(canvas, view_x + 4, view_y + 4, "Instances", "GameFontNormalLarge", GOLD)
-        text(
-            canvas, view_x + 4, view_y + 26, "Boss encounters recorded on this character", "GameFontDisableSmall", MUTED
-        )
-        boss_rows = sorted(
-            (
-                (group["name"], boss["name"])
-                for group in MOCK_INSTANCES.values()
-                for boss in group["species"]
-                if boss["boss"]
-            ),
-            key=lambda pair: (pair[0], pair[1]),
-        )
-        for row_index, (instance_name, boss_name) in enumerate(boss_rows[:4]):
-            row_y = view_y + 48 + row_index * 92
-            note(f"Instance row {row_index + 1}", "content", view_x, row_y, 884, 86)
-            card(canvas, view_x, row_y, 884, 86)
-            text(canvas, view_x + 12, row_y + 8, f"{instance_name} · {boss_name}", "GameFontNormal", TEXT, width=540)
-            right(canvas, view_x + 872, row_y + 8, "0 recorded boss kills", "GameFontHighlightSmall", GOLD, width=180)
-            right(canvas, view_x + 872, row_y + 27, "0 attempts recorded", "GameFontDisableSmall", MUTED, width=180)
-            text(
-                canvas,
-                view_x + 12,
-                row_y + 30,
-                "Personal first boss clear: — · difficulty —",
-                "GameFontDisableSmall",
-                MUTED,
-            )
+        instances_view(ui, canvas, px, py, icons)
+        if tip:
+            # ANCHOR_RIGHT: the tooltip's bottom left on the Instances tab's top right.
+            canvas.paste(tip, strip_x + 55, strip_y + 58 - tip.height)
         return canvas
 
     breadcrumb = f"{zone['continent']} > {zone['name']}"
-    text(canvas, px(64), py(32), breadcrumb, "GameFontNormal", TEXT)
+    text(canvas, px(64), py(32), breadcrumb, "GameFontHighlightMedium", TEXT, box_height=20)
     canvas.draw(
         ui.atlas("common-dropdown-c-button-hover-arrow"),
-        px(68) + canvas.text_width(breadcrumb, FONTS["GameFontNormal"]),
-        py(34),
+        px(68) + canvas.text_width(breadcrumb, FONTS["GameFontHighlightMedium"]),
+        py(32 + 7.5),
         12,
         5,
     )
-    search_box(canvas, px(24), py(62), 250, 24, "Search creatures")
-    note("search", "input", px(24), py(62), 250, 24)
     ui_panel_button(canvas, px(288), py(62), 128, 24, FILTER_LABELS[filter_key])
     note("filter", "input", px(288), py(62), 128, 24)
-    canvas.draw(ui.atlas("_UI-Frame-InnerTopTile"), px(18), py(94), W - 36, 3)
 
-    # Window.UpdateProgress: rare and shiny collected here, then across every zone.
-    every = [s for area in (catalogue or [zone]) for s in area["species"]]
-    for index, (label, species_list) in enumerate(((zone["name"], zone["species"]), ("All zones", every))):
-        rare, rare_total, shiny, shiny_total = variant_totals(species_list)
-        values = f"Rare {rare} / {rare_total} · Shiny {shiny} / {shiny_total}"
-        font = "GameFontHighlightSmall" if index == 0 else "GameFontDisableSmall"
-        width = canvas.text_width(values, FONTS[font])
-        right_edge, y = px(W - 24), py(30 + index * 18)
-        right(canvas, right_edge, y, values, font, TEXT if index == 0 else MUTED, width=width)
-        label_font = "GameFontNormalSmall" if index == 0 else "GameFontDisableSmall"
-        right(canvas, right_edge - width - 10, y, label, label_font, GOLD if index == 0 else MUTED, width=160)
-        span = width + 10 + canvas.text_width(label, FONTS[label_font])
-        note(f"{label} totals", "header", right_edge - span, y, span, 12)
+    # Left pane: List.lua's Pet Journal rows in their own inset.
+    lx, ly = px(18), py(104)
+    card(canvas, lx, ly, LEFT_W, PANE_H)
+    note("Creature list", "list", lx, ly, LEFT_W, PANE_H)
 
-    # Left pane: the creature list.
-    catalogued = sum(1 for s in zone["species"] if progress(s)["count"])
-    rows = zone["species"]
-    if tab in ("RARES", "SHINY"):
-        rows = [s for area in (catalogue or [zone]) for s in area["species"]]
-        rows = [s for s in rows if s["rare"]] if tab == "RARES" else [s for s in rows if progress(s)["shiny"]]
-    if filter_key == "missingShiny":
-        rows = [s for s in rows if not progress(s)["shiny"]]
+    def matches(species):
+        state = progress(species)
+        if filter_key == "discovered" and not state["count"]:
+            return False
+        if filter_key == "undiscovered" and state["count"]:
+            return False
+        if filter_key == "mastered" and state["count"] < MASTERED_AT:
+            return False
+        if filter_key == "silver" and not state["silver"]:
+            return False
+        if filter_key == "gold" and not state["gold"]:
+            return False
+        if filter_key == "shiny" and not state["shiny"]:
+            return False
+        if filter_key == "missingShiny" and state["shiny"]:
+            return False
+        return True
 
+    rows = [s for s in zone["species"] if matches(s)]
+    view_h = PANE_H - 12
     selected_row = next((i for i, row in enumerate(rows) if row["id"] == species["id"]), 0)
-    first_row = max(0, min(selected_row - 5, len(rows) - 12))
-    if len(rows) * 46 > 514:
-        minimal_scrollbar(
-            canvas,
-            px(322),
-            py(108),
-            506,
-            visible=514 / (len(rows) * 46),
-            offset=first_row * 46 / (len(rows) * 46 - 514),
-        )
-    list_bottom = canvas.px(py(618))
-    below_list = canvas.image.crop((0, list_bottom, canvas.image.width, canvas.image.height))
-    for row_index, row in enumerate(rows[first_row : first_row + 12]):
-        state = progress(row)
-        chosen = row["id"] == species["id"]
-        y = py(104 + row_index * 46)
-        if chosen:
-            canvas.draw(ui.texture("interface/questframe/ui-questtitlehighlight.blp"), px(18), y, 304, 46, blend="ADD")
-        canvas.draw(icons[row["id"]], px(28), y + 5, 32, 32)
-        states = variant_states(row)
-        # Marks sit from x 230 (Art.CreateVariantMark slots); a longer name is cut with an ellipsis before them.
-        name = row["name"]
-        while canvas.text_width(name, FONTS["GameFontNormal"]) > 152:
-            name = name[:-2].rstrip() + "…"
-        text(canvas, px(70), y + 5, name, "GameFontNormal", TEXT, width=152)
-        level = str(row["min"]) if row["min"] == row["max"] else f"{row['min']}-{row['max']}"
-        text(
-            canvas,
-            px(70),
-            y + 23,
-            f"{row['family']} \u00b7 Lv {level}",
-            "GameFontDisableSmall",
-            MUTED,
-        )
-        for slot, kind in enumerate(("common", "rare", "shiny")):
-            if kind == "rare" and not states["rare_form"]:
-                continue
-            mark_x = px(18 + 304 - 14 - (2 - slot) * 22 - 16)
-            variant_mark(canvas, kind, states[kind], icons[row["id"]], mark_x, y + 15)
-
-    canvas.image.paste(below_list, (0, list_bottom))
-
-    # Detail.Create: the native 582x514 inset over Collections-background, the three variant cards, research,
-    # records and the place.
-    state = progress(species)
-    count = state["count"]
-    rank = rank_of(count)
-    states = variant_states(species)
-    rx, ry = px(360), py(104)
-    card(canvas, rx, ry, 582, 514)
-    canvas.draw(ui.atlas("Collections-background"), rx + 3, ry + 3, 576, 508)
-    note("Detail pane", "pane", rx, ry, 582, 514)
-    text(canvas, rx + 14, ry + 14, species["name"], "GameFontNormalLarge", GOLD, width=554)
-    note("Detail name", "content", rx + 14, ry + 14, 554, 20, parent="Detail pane")
-    level = str(species["min"]) if species["min"] == species["max"] else f"{species['min']}-{species['max']}"
-    text(
+    first_row = max(0, min(selected_row - 4, len(rows) - view_h // ROW_H))
+    draw_rows(
         canvas,
-        rx + 14,
-        ry + 40,
-        f"{species['family']} · {zone['name']} · Level {level}",
-        "GameFontHighlightSmall",
-        TEXT,
-        width=554,
+        lx,
+        ly,
+        [
+            {
+                "icon": icons[row["id"]],
+                "icon_size": 37,
+                "icon_at": (8, 7),
+                "name": row["name"],
+                "sub": f"{row['family']} · Level {level_range(row['min'], row['max'])}",
+                "known": progress(row)["count"] > 0,
+                "mark": best_tier(progress(row)) if best_tier(progress(row)) != "bronze" else None,
+                "selected": row["id"] == species["id"],
+            }
+            for row in rows[first_row : first_row + view_h // ROW_H + 1]
+        ],
+        len(rows),
+        first_row,
     )
-    note("Detail subtitle", "content", rx + 14, ry + 40, 554, 14, parent="Detail pane")
-    left = (582 - (CARD_W * 3 + CARD_GAP * 2)) / 2
-    for index, kind in enumerate(("common", "rare", "shiny")):
-        cx = rx + left + index * (CARD_W + CARD_GAP)
-        variant_card(canvas, kind, states, icons[species["id"]], cx, ry + 72)
-        note(f"{kind.capitalize()} card", "card", cx, ry + 64, CARD_W, CARD_H)
 
-    card(canvas, rx + 14, ry + 300, 554, 52)
-    text(canvas, rx + 24, ry + 308, PIPS[rank - 1] if rank else "Research", "GameFontNormal", GOLD)
-    right(
-        canvas,
-        rx + 558,
-        ry + 308,
-        f"{count} / 10 · {state['kills']} recorded deaths",
-        "GameFontHighlightSmall",
-        TEXT,
-        width=350,
-    )
-    status_bar(canvas, rx + 24, ry + 330, 534, 12, count / MASTERED_AT)
-    note("Research strip", "card", rx + 14, ry + 300, 554, 52)
-    note("Research bar", "progress", rx + 24, ry + 330, 534, 12)
+    detail(canvas, px(360), py(104), zone, species, icons)
 
-    records = []
-    stamp = f"{zone['name']} · 2026-10-22 10:00"
-    if state["kills"]:
-        records.extend((f"Personal first sighting: {stamp}", f"First death observed: {stamp}"))
-    if state["rare"]:
-        records.append(f"First rare recorded: {stamp}")
-    if state["shiny"]:
-        records.append(f"First shiny recorded: {stamp}")
-    text(canvas, rx + 14, ry + 370, "Records", "GameFontNormal", GOLD)
-    for index, line in enumerate(records[:4] or ["No sightings yet this session."]):
-        line = wrap_pixels(line, FONTS["GameFontHighlightSmall"], 350, 1, canvas)[0]
-        text(canvas, rx + 14, ry + 392 + index * 14, line, "GameFontHighlightSmall", TEXT, width=350)
-    note("Records", "content", rx + 14, ry + 370, 350, 102)
-
-    art_table = re.search(r"Art.LOCATION_ART = \{(.*?)\n\}", (ROOT / "UI/Art.lua").read_text(), re.S)
-    assert art_table
-    locations = {int(zone_id): int(file) for zone_id, file in re.findall(r"\[(\d+)\] = (\d+)", art_table[1])}
-    art_file = locations.get(zone["id"])
-    map_source = (EXTRACTED / "QuestieDB/support/Forever/Zones/areaIdToUiMapId.lua").read_text()
-    map_tables = {}
-    for name, body in re.findall(r"ZoneDB.private.(\w+) = \[\[return \{(.*?)\}\]\]", map_source, re.S):
-        map_tables[name] = {int(area): int(map_id) for area, map_id in re.findall(r"\[(\d+)\] = (\d+)", body)}
-    map_id = map_tables.get("areaIdToUiMapIdOverride", {}).get(
-        zone["id"], map_tables.get("areaIdToUiMapId", {}).get(zone["id"], 0)
-    )
-    if art_file:
-        card(canvas, rx + 378, ry + 364, 190, 112)
-        canvas.draw(ui.texture(art_file).crop((33, 0, 223, 128)), rx + 384, ry + 368, 178, 104)
-        name = zone["name"]
-        while canvas.text_width(name, FONTS["GameFontNormal"]) > 88:
-            name = name[:-2].rstrip() + "…"
-        text(canvas, rx + 378, ry + 484, name, "GameFontNormal", GOLD, width=88)
-        note("Zone artwork frame", "card", rx + 378, ry + 364, 190, 112)
-    if map_id > 0:
-        ui_panel_button(canvas, rx + 470, ry + 480, 98, 22, "Open map")
-        note("Open map", "button", rx + 470, ry + 480, 98, 22)
-
-    # Bottom bar: zone completion and the two buttons, at the bar's own coordinates (the addon anchors them to the
-    # bar, so a button starts BAR_W - inset - width from the bar's left, not from the window's).
-    by = py(BAR_Y)
-    card(canvas, px(BAR_X), by, BAR_W, BAR_H)
-    note("bottom bar", "bar", px(BAR_X), by, BAR_W, BAR_H)
-    button_y = by + BUTTON_TOP
+    # Bottom bar: zone completion, how many species here have each standout variant, then the two buttons. The
+    # addon anchors them to the bar, so a button starts BAR_W - inset - width from the bar's left.
+    catalogued = sum(1 for s in zone["species"] if progress(s)["count"])
+    bx, by = px(BAR_X), py(BAR_Y)
+    card(canvas, bx, by, BAR_W, BAR_H)
+    note("bottom bar", "bar", bx, by, BAR_W, BAR_H)
     label = "Zone completion"
-    text(canvas, px(BAR_X + 14), by + 10, label, "GameFontNormal", GOLD)
     fraction = catalogued / len(zone["species"])
-    percent_x = BAR_X + 14 + canvas.text_width(label, FONTS["GameFontNormal"]) + 8
-    text(canvas, px(percent_x), by + 10, f"{round(fraction * 100)}%", "GameFontNormal", GOLD)
-    right(
-        canvas,
-        px(BAR_X + 360),
-        by + 10,
-        f"{catalogued} of {len(zone['species'])} species",
-        "GameFontDisableSmall",
-        MUTED,
-        width=140,
-    )
-    status_bar(canvas, px(BAR_X + 14), by + 30, 320, 12, fraction)
-    note("Bottom progress", "progress", px(BAR_X + 14), by + 30, 320, 12)
+    text(canvas, bx + 14, by + 8, label, "GameFontNormalLarge", GOLD)
+    label_w = canvas.text_width(label, FONTS["GameFontNormalLarge"])
+    text(canvas, bx + 14 + label_w + 10, by + 8, f"{round(fraction * 100)}%", "GameFontNormalLarge", GOLD)
+    right(canvas, bx + 334, by + 10, f"{catalogued} of {len(zone['species'])}", "GameFontHighlight", MUTED)
+    status_bar(canvas, bx + 14, by + 32, 320, 12, fraction)
+    note("Bottom progress", "progress", bx + 14, by + 32, 320, 12)
+    x = bx + 370
+    for tier in ("silver", "gold", "shiny"):
+        value = str(sum(1 for s in zone["species"] if progress(s)[tier]))
+        tier_icon(canvas, tier, x, by + 16, 26)
+        text(canvas, x + 30, by + 16, value, "GameFontHighlightLarge", TEXT, box_height=26)
+        x += 30 + canvas.text_width(value, FONTS["GameFontHighlightLarge"]) + 20
+    note("Variant totals", "label", bx + 370, by + 16, x - 20 - bx - 370, 26)
+    button_y = by + BUTTON_TOP
     ui_panel_button(canvas, px(OPEN_X), button_y, OPEN_W, BUTTON_H, "Open Journal")
     note("Open Journal", "button", px(OPEN_X), button_y, OPEN_W, BUTTON_H)
     ui_panel_button(canvas, px(TRACK_X), button_y, TRACK_W, BUTTON_H, "Tracking" if tracked else "Track Species")
     note("Track Species", "button", px(TRACK_X), button_y, TRACK_W, BUTTON_H)
     return canvas
+
+
+def draw_rows(canvas, lx, ly, rows, total, first_row):
+    """Pet Journal rows from the scroll frame's TOPLEFT (4, 6), clipped to its bottom, with the scroll bar."""
+    ui = canvas.ui
+    view_h = PANE_H - 12
+    if total * ROW_H > view_h:
+        minimal_scrollbar(
+            canvas,
+            lx + LEFT_W - 20,
+            ly + 6,
+            view_h,
+            visible=view_h / (total * ROW_H),
+            offset=first_row * ROW_H / (total * ROW_H - view_h),
+        )
+    clip = canvas.px(ly + 6 + view_h)
+    below = canvas.image.crop((0, clip, canvas.image.width, canvas.image.height))
+    for row_index, row in enumerate(rows):
+        x, y = lx + 4, ly + 6 + row_index * ROW_H
+        canvas.draw(ui.atlas("petlist-buttonbackground"), x, y, ROW_W, ROW_ART_H)
+        if row["selected"]:
+            canvas.draw(ui.atlas("petlist-buttonselect"), x, y, ROW_W, ROW_ART_H)
+        known = row["known"]
+        size = row["icon_size"]
+        ix, iy = row["icon_at"]
+        bordered_icon(canvas, row["icon"], x + ix, y + iy, size, 45, known, 1 if known else 0.5, not known)
+        name = truncate(canvas, row["name"], "GameFontNormalLarge", 196)
+        text(canvas, x + 58, y + 8, name, "GameFontNormalLarge", GOLD if known else MUTED)
+        text(canvas, x + 58, y + 30, truncate(canvas, row["sub"], "GameFontHighlight", 196), "GameFontHighlight", MUTED)
+        if row["mark"]:
+            tier_icon(canvas, row["mark"], x + ROW_W - 12 - 26, y + (ROW_ART_H - 26) / 2, 26)
+    canvas.image.paste(below, (0, clip))
+
+
+def detail(canvas, rx, ry, zone, species, icons):
+    """Detail.Create and Detail.Show: the Pet Journal card, the variants, then records beside the habitat."""
+    ui = canvas.ui
+    state = progress(species)
+    count = state["count"]
+    known = count > 0
+    rank = rank_of(count)
+    card(canvas, rx, ry, PANE_W, PANE_H)
+    note("Detail pane", "pane", rx, ry, PANE_W, PANE_H)
+    canvas.draw(ui.atlas("PetJournal-PetCard-BG"), rx + 4, ry + 4, PANE_W - 8, CARD_H)
+    canvas.draw(ui.atlas("ChallengeMode-ThinDivider"), rx + 4, ry + 4 + CARD_H - 1, PANE_W - 8, 3)
+    bordered_icon(canvas, icons[species["id"]], rx + 24, ry + 22, 72, 90, known, 1 if known else 0.12, not known)
+    note("Detail portrait", "content", rx + 15, ry + 13, 90, 90, parent="Detail pane")
+
+    tx = rx + TEXT_X
+    text(canvas, tx, ry + 20, species["name"], "GameFontHighlightHuge", GOLD if known else MUTED, width=BAR_WIDTH)
+    note("Detail name", "content", tx, ry + 20, BAR_WIDTH, 24, parent="Detail pane")
+    sub = f"{species['family']} · {zone['name']} · Level {level_range(species['min'], species['max'])}"
+    text(canvas, tx, ry + 50, sub, "GameFontHighlight", TEXT, width=BAR_WIDTH)
+    note("Detail subtitle", "content", tx, ry + 50, BAR_WIDTH, 16, parent="Detail pane")
+    if known:
+        text(canvas, tx, ry + 78, PIPS[rank - 1], "GameFontNormalLarge", GOLD)
+        right(canvas, rx + PANE_W - 24, ry + 80, f"{count} / {MASTERED_AT} sightings", "GameFontHighlight", width=220)
+        objective_bar(canvas, tx, ry + 100, BAR_WIDTH, len(PIPS), fraction_of_ranks(count))
+        note("Research bar", "progress", tx, ry + 100, BAR_WIDTH, 22, parent="Detail pane")
+        span = BAR_WIDTH / len(PIPS)
+        for pip_index, label in enumerate(PIPS):
+            colour = TEXT if rank > pip_index else MUTED
+            text(
+                canvas,
+                tx + pip_index * span,
+                ry + 126,
+                label,
+                "GameFontHighlightSmall",
+                colour,
+                width=span,
+                justify="CENTER",
+            )
+    else:
+        text(canvas, tx, ry + 78, "Not yet in your journal", "GameFontNormalLarge", MUTED)
+        text(
+            canvas,
+            tx,
+            ry + 104,
+            "Defeat one to add it, then watch for its rarer variants.",
+            "GameFontHighlight",
+            TEXT,
+            width=BAR_WIDTH,
+        )
+
+    header(canvas, rx + SECTION_X, ry + VARIANTS_Y, 300, "Variants")
+    note("Variants heading", "content", rx + SECTION_X, ry + VARIANTS_Y, 300, 30, parent="Detail pane")
+    for slot_index, (tier, label, _atlas, colour, odds, every) in enumerate(TIERS):
+        sx, sy = rx + SECTION_X + slot_index * SLOT_SPAN, ry + VARIANTS_Y + 40
+        cx = sx + SLOT_SPAN / 2
+        found = bool(state[tier])
+        if found and tier == "shiny":
+            glow = SLOT_SIZE + 52
+            canvas.draw(
+                ui.atlas("collections-upgradeglow"),
+                cx - glow / 2,
+                sy + SLOT_SIZE / 2 - glow / 2,
+                glow,
+                glow,
+                blend="ADD",
+            )
+        atlas = "collections-itemborder-collected" if found else "collections-itemborder-uncollected"
+        canvas.draw(ui.atlas(atlas), cx - SLOT_SIZE / 2, sy, SLOT_SIZE, SLOT_SIZE)
+        tier_icon(canvas, tier, cx - SLOT_MARK / 2, sy + (SLOT_SIZE - SLOT_MARK) / 2, SLOT_MARK, found)
+        text(
+            canvas,
+            sx,
+            sy + SLOT_SIZE + 6,
+            label,
+            "GameFontNormalLarge",
+            colour if found else MUTED,
+            width=SLOT_SPAN,
+            justify="CENTER",
+        )
+        if found:
+            status = "Found" if tier == "shiny" else f"Found {state[tier]}"
+        else:
+            status = "Every spawn" if every else f"1 in {odds} spawns"
+        text(
+            canvas,
+            sx,
+            sy + SLOT_SIZE + 28,
+            status,
+            "GameFontHighlight",
+            GREEN if found else MUTED,
+            width=SLOT_SPAN,
+            justify="CENTER",
+        )
+        note(f"{label} variant", "card", sx + 4, sy, SLOT_SPAN - 8, 112)
+
+    header(canvas, rx + SECTION_X, ry + LOWER_Y, RECORDS_W, "Records")
+    note("Records heading", "content", rx + SECTION_X, ry + LOWER_Y, RECORDS_W, 30, parent="Detail pane")
+    if not known:
+        pairs = [("Nothing recorded yet.", "")]
+    else:
+        top = best_tier(state)
+        pairs = [("Sightings", str(count))]
+        if state["kills"]:
+            pairs.append(("Deaths recorded", str(state["kills"])))
+        pairs += [("First seen", "22 Oct"), ("Last seen", "4 Nov")]
+        if top:
+            pairs.append(("Best variant", top.capitalize()))
+    for pair_index, (key, value) in enumerate(pairs):
+        y = ry + LOWER_Y + 40 + pair_index * 22
+        key_w = RECORDS_W - 24 if value == "" else 130
+        text(canvas, rx + SECTION_X + 12, y, key, "GameFontHighlight", MUTED, width=key_w)
+        if value:
+            right(canvas, rx + SECTION_X + RECORDS_W - 10, y, value, "GameFontHighlight", TEXT, width=RECORDS_W - 152)
+    note("Records", "content", rx + SECTION_X, ry + LOWER_Y + 40, RECORDS_W, 22 * len(pairs), parent="Detail pane")
+
+    hx = rx + HABITAT_X
+    header(canvas, hx, ry + LOWER_Y, HABITAT_W, "Habitat")
+    note("Habitat heading", "content", hx, ry + LOWER_Y, HABITAT_W, 30, parent="Detail pane")
+    map_id = zone_map_id(zone)
+    image = zone_map(ui, map_id) if map_id > 0 else None
+    art_file = None if image else lua_table("LOCATION_ART", r"\[(\d+)\] = (\d+)").get(str(zone["id"]))
+    ly = ry + LOWER_Y + 38
+    if image or art_file:
+        card(canvas, hx, ly, MAP_W + 6, MAP_H + 6)
+        note("Habitat map", "card", hx, ly, MAP_W + 6, MAP_H + 6)
+        if image:
+            scaled = image.resize((round(MAP_W * ui.scale), round(MAP_H * ui.scale)), Image.Resampling.LANCZOS)
+            canvas.draw(scaled, hx + 3, ly + 3, MAP_W, MAP_H)
+        elif art_file:
+            canvas.draw(ui.texture(int(art_file)), hx + 3, ly + 3, MAP_W, MAP_H)
+    sx = rx + SIDE_X
+    lines = wrap_pixels(zone["name"], FONTS["GameFontNormalLarge"], SIDE_W, 3, canvas)
+    text(canvas, sx, ry + LOWER_Y + 42, "\n".join(lines), "GameFontNormalLarge", GOLD)
+    note("Zone name", "content", sx, ry + LOWER_Y + 42, SIDE_W, 18 * len(lines), parent="Detail pane")
+    if map_id > 0:
+        button_y = ry + LOWER_Y + 38 + MAP_H - 18
+        ui_panel_button(canvas, sx, button_y, SIDE_W, 24, "Open map")
+        note("Open map", "button", sx, button_y, SIDE_W, 24)
+
+
+# Encounter records for the Instances scene: boss name to (kills, first kill), by instance.
+MOCK_ENCOUNTERS = {
+    "Deadmines": {
+        "Rhahk'Zor": (4, "18 Oct"),
+        "Sneed": (4, "18 Oct"),
+        "Gilnid": (3, "18 Oct"),
+        "Mr. Smite": (3, "18 Oct"),
+        "Captain Greenskin": (2, "21 Oct"),
+        "Edwin VanCleef": (2, "21 Oct"),
+        "Cookie": (0, None),
+    },
+    "Wailing Caverns": {
+        "Lord Cobrahn": (2, "14 Oct"),
+        "Kresh": (1, "14 Oct"),
+        "Lord Pythas": (2, "14 Oct"),
+        "Skum": (1, "14 Oct"),
+        "Lord Serpentis": (1, "14 Oct"),
+        "Verdan the Everliving": (1, "14 Oct"),
+        "Mutanus the Devourer": (1, "14 Oct"),
+    },
+    "Shadowfang Keep": {
+        "Rethilgore": (1, "2 Nov"),
+        "Razorclaw the Butcher": (1, "2 Nov"),
+        "Baron Silverlaine": (1, "2 Nov"),
+        "Commander Springvale": (0, None),
+        "Odo the Blindwatcher": (0, None),
+        "Fenrus the Devourer": (0, None),
+        "Wolf Master Nandos": (0, None),
+        "Archmage Arugal": (0, None),
+    },
+}
+
+
+def instance_groups():
+    """Instances.Group: each instance's catalogue bosses with this character's records merged by name, records the
+    catalogue lacks under their own instance, visited instances first and then by name."""
+    groups = []
+    for group in MOCK_INSTANCES.values():
+        records = dict(MOCK_ENCOUNTERS.get(group["name"], {}))
+        rows = []
+        for species in group["species"]:
+            if species["boss"]:
+                kills, first = records.pop(species["name"], (0, None))
+                rows.append({"name": species["name"], "kills": kills, "first": first, "tried": kills > 0})
+        rows += [{"name": name, "kills": k, "first": f, "tried": True} for name, (k, f) in records.items()]
+        groups.append(
+            {
+                "name": group["name"],
+                "id": group["id"],
+                "raid": group.get("instanceType") == 2,
+                "species": group["species"],
+                "rows": rows,
+                "done": sum(1 for row in rows if row["kills"]),
+                "visited": any(row["tried"] for row in rows),
+            }
+        )
+    return sorted(groups, key=lambda group: (not group["visited"], group["name"]))
+
+
+def instances_view(ui, canvas, px, py, icons):
+    """UI/Instances.lua: the instance list on the left, the open instance's card and bosses on the right."""
+    groups = instance_groups()
+    open_group = groups[0]
+    kind = "Raids" if open_group["raid"] else "Dungeons"
+    text(canvas, px(64), py(32), f"{kind} > {open_group['name']}", "GameFontHighlightMedium", TEXT, box_height=20)
+    instance_icons = lua_table("INSTANCE_ICONS", r'\[(\d+)\] = "([^"]+)"')
+
+    def instance_icon(group):
+        path = instance_icons.get(str(group["id"]), "Interface\\Icons\\INV_Misc_Book_09")
+        # The Lua source escapes each backslash, so the table holds two per separator.
+        return ui.texture(path.replace("\\\\", "/").replace("\\", "/").lower() + ".blp")
+
+    lx, ly = px(18), py(104)
+    card(canvas, lx, ly, LEFT_W, PANE_H)
+    note("Instance list", "list", lx, ly, LEFT_W, PANE_H)
+    draw_rows(
+        canvas,
+        lx,
+        ly,
+        [
+            {
+                "icon": instance_icon(group),
+                "icon_size": 35,
+                "icon_at": (8, 7),
+                "name": group["name"],
+                "sub": f"{group['done']} of {len(group['rows'])} bosses" if group["visited"] else "Not visited",
+                "known": group["visited"],
+                "mark": "gold" if group["rows"] and group["done"] == len(group["rows"]) else None,
+                "selected": group is open_group,
+            }
+            for group in groups[: (PANE_H - 12) // ROW_H + 1]
+        ],
+        len(groups),
+        0,
+    )
+
+    rx, ry = px(360), py(104)
+    card(canvas, rx, ry, PANE_W, PANE_H)
+    note("Instance pane", "pane", rx, ry, PANE_W, PANE_H)
+    canvas.draw(ui.atlas("PetJournal-PetCard-BG"), rx + 4, ry + 4, PANE_W - 8, 120)
+    canvas.draw(ui.atlas("ChallengeMode-ThinDivider"), rx + 4, ry + 3 + 120, PANE_W - 8, 3)
+    bordered_icon(canvas, instance_icon(open_group), rx + 24, ry + 22, 72, 90, True)
+    tx = rx + TEXT_X
+    text(canvas, tx, ry + 20, open_group["name"], "GameFontHighlightHuge", GOLD, width=BAR_WIDTH)
+    note("Instance name", "content", tx, ry + 20, BAR_WIDTH, 24, parent="Instance pane")
+    levels = [(s["min"], s["max"]) for s in open_group["species"] if s["max"] > 1]
+    sub = "Raid" if open_group["raid"] else "Dungeon"
+    if levels:
+        sub += f" · Level {level_range(min(lo for lo, _ in levels), max(hi for _, hi in levels))}"
+    text(canvas, tx, ry + 50, sub, "GameFontHighlight", TEXT)
+    rows = open_group["rows"]
+    text(canvas, tx, ry + 78, f"{open_group['done']} of {len(rows)} bosses recorded", "GameFontNormalLarge", GOLD)
+    header(canvas, rx + 14, ry + 140, 300, "Bosses")
+    note("Bosses heading", "content", rx + 14, ry + 140, 300, 30, parent="Instance pane")
+    by_name = {s["name"].lower(): s for s in open_group["species"]}
+    boss_w = PANE_W - 46
+    for row_index, row in enumerate(rows):
+        x, y = rx + 16, ry + 180 + row_index * 44
+        killed = row["kills"] > 0
+        canvas.draw(ui.atlas("petlist-buttonbackground"), x, y, boss_w, 40)
+        species = by_name.get(row["name"].lower())
+        icon = icons.get(species["id"]) if species else None
+        if icon is None:
+            icon = ui.texture(species_icon(species) if species else "interface/icons/ability_hunter_beasttaming.blp")
+        bordered_icon(canvas, icon, x + 8, y + 6, 28, 34, killed, 1 if killed else 0.5, not killed)
+        text(canvas, x + 48, y, row["name"], "GameFontNormalLarge", GOLD if killed else MUTED, box_height=40)
+        detail_text = "Not defeated yet"
+        if killed:
+            detail_text = f"{row['kills']} kill{'s' if row['kills'] != 1 else ''}"
+            if row["first"]:
+                detail_text += f" · first {row['first']}"
+        canvas.text(
+            x + boss_w - 14 - 220,
+            y,
+            detail_text,
+            FONTS["GameFontHighlight"],
+            TEXT if killed else MUTED,
+            box_height=40,
+            justify="RIGHT",
+            width=220,
+        )
+        note(f"Boss row {row_index + 1}", "content", x, y, boss_w, 40, parent="Instance pane")
+
+    bx, by = px(BAR_X), py(BAR_Y)
+    card(canvas, bx, by, BAR_W, BAR_H)
+    note("bottom bar", "bar", bx, by, BAR_W, BAR_H)
+    cleared = sum(1 for group in groups if group["rows"] and group["done"] == len(group["rows"]))
+    label = "Dungeons cleared"
+    text(canvas, bx + 14, by + 8, label, "GameFontNormalLarge", GOLD)
+    label_w = canvas.text_width(label, FONTS["GameFontNormalLarge"])
+    text(canvas, bx + 14 + label_w + 10, by + 8, f"{cleared} of {len(groups)}", "GameFontNormalLarge", GOLD)
+    status_bar(canvas, bx + 14, by + 32, 320, 12, cleared / len(groups))
+    note("Cleared progress", "progress", bx + 14, by + 32, 320, 12)
+    kills = sum(row["kills"] for group in groups for row in group["rows"])
+    text(canvas, bx + 370, by + 16, f"{kills} boss kills recorded", "GameFontHighlightLarge", TEXT, box_height=26)
 
 
 ZONE_PAGE_COUNT = 12
@@ -867,25 +1144,16 @@ def main():
     prowler = barrens["species"][0]
     badlands, siege_golem = pick("Badlands", lambda species: species["name"] == "Siege Golem")
     all_species = [(zone, species) for zone in zones for species in zone["species"]]
-    rare_zone, rare = next(
-        (
-            (zone, species)
-            for zone, species in all_species
-            if species["rare"] and progress(species)["rare"] >= RARE_TARGET
-        ),
-        (barrens, prowler),
-    )
-    hunting_zone, hunting = next(
-        (
-            (zone, species)
-            for zone, species in all_species
-            if species["rare"] and 0 < progress(species)["rare"] < RARE_TARGET
-        ),
-        (rare_zone, rare),
-    )
-    shinies = [(zone, species) for zone, species in all_species if progress(species)["shiny"]] or [(barrens, prowler)]
+    silvers = [(zone, species) for zone, species in all_species if progress(species)["silver"]] or [(barrens, prowler)]
+    golds = [(zone, species) for zone, species in all_species if progress(species)["gold"]] or silvers
+    shinies = [(zone, species) for zone, species in all_species if progress(species)["shiny"]] or silvers
+    silver_zone, silver = silvers[0]
+    gold_zone, gold = golds[0]
     shiny_zone, shiny = shinies[0]
-    second_zone, second_shiny = shinies[min(1, len(shinies) - 1)]
+    rich_zone, rich = max(
+        all_species,
+        key=lambda pair: (progress(pair[1])["gold"], progress(pair[1])["silver"], progress(pair[1])["count"]),
+    )
 
     def render(zone, species, tab="CREATURES", filter_key=None, tracked=False, unavailable=False):
         return wowmock.scene(
@@ -914,8 +1182,8 @@ def main():
     icons_species = next((species for species in icons_zone["species"] if species["name"] == "Deer"), None)
     if icons_species:
         save(render(icons_zone, icons_species, "CREATURES"), "creature-icons.png")
-    save(render(rare_zone, rare, "RARES"), "rares.png")
-    save(render(shiny_zone, shiny, "SHINY"), "shiny.png")
+    save(render(rich_zone, rich, "CREATURES", "silver"), "variants.png")
+    save(render(shiny_zone, shiny, "CREATURES", "shiny"), "shiny.png")
 
     for zone in zone_pages(zones):
         save(render(zone, zone["species"][0], "CREATURES"), f"zone-{zone['id']:04d}.png")
@@ -924,8 +1192,8 @@ def main():
     search_species = next((s for s in barrens["species"] if not progress(s)["shiny"]), prowler)
 
     save(render(search_zone, prowler, "CREATURES", tracked=True), "tracking.png")
-    save(render(hunting_zone, hunting, "RARES"), "rare-record.png")
-    save(render(second_zone, second_shiny, "SHINY"), "shiny-record.png")
+    save(render(silver_zone, silver, "CREATURES", "silver"), "silver-record.png")
+    save(render(shiny_zone, shiny, "CREATURES", "shiny"), "shiny-record.png")
 
     # Show the native filter menu on the same all-species state as the All label and visible list.
     filtered = render(search_zone, search_species, "CREATURES", "missingShiny")
@@ -937,10 +1205,10 @@ def main():
             MenuCheckbox("Discovered", False),
             MenuCheckbox("Undiscovered", False),
             MenuCheckbox("Mastered", False),
-            MenuCheckbox("Rare species", False),
-            MenuCheckbox("Shiny seen", False),
+            MenuCheckbox("Silver found", False),
+            MenuCheckbox("Gold found", False),
+            MenuCheckbox("Shiny found", False),
             MenuCheckbox("Missing shiny", True),
-            MenuCheckbox("Missing rare", False),
         ],
     )
     # `scene()` adds 24 UI units of margin around the window; open the menu just below the filter button.
@@ -957,7 +1225,7 @@ def main():
     text(settings, 16, 16, "Field Guide Forever options", "GameFontHighlightHuge", FONTS["GameFontHighlightHuge"].color)
     labels = [
         "Show undiscovered species",
-        "Show the sighting log",
+        "Show the records list",
         "Announce newly recorded creatures",
         "Show milestone toasts",
         "Share progress with guild and group addon users",
@@ -1003,15 +1271,16 @@ def main():
             ("leaderboard.png", "Recorded kills leaderboard"),
             ("field-guide.png", "Creatures journal"),
             ("creature-icons.png", "Creature list icons in Darnassus"),
-            ("rares.png", "Rares page"),
-            ("rare-record.png", "Personal rare record"),
-            ("shiny.png", "Shiny page"),
+            ("variants.png", "Silver and gold coat filters"),
+            ("silver-record.png", "Personal silver record"),
+            ("shiny.png", "Shiny filter"),
             ("shiny-record.png", "Personal shiny record"),
             ("search-filter.png", "Search and status filter"),
             ("tracking.png", "Tracked species"),
             ("discovery-new-creature.png", "A first kill, announced like an explored area"),
             ("discovery-new-tag.png", "New tag in the journal"),
-            ("discovery-toast-rare.png", "Rare milestone toast"),
+            ("discovery-toast-silver.png", "Silver milestone toast"),
+            ("discovery-toast-gold.png", "Gold milestone toast"),
             ("discovery-toast-shiny.png", "Shiny milestone toast"),
             ("discovery-toast-mastered.png", "Mastery milestone toast"),
             ("discovery-toast-zone.png", "Zone milestone toast"),
@@ -1050,12 +1319,12 @@ def main():
     demo = [
         render(barrens, prowler, "CREATURES"),
         render(barrens, prowler, "INSTANCES"),
-        render(barrens, prowler, "RARES"),
-        render(rare_zone, rare, "RARES"),
-        render(rare_zone, rare, "SHINY"),
-        render(shiny_zone, shiny, "SHINY"),
-        render(*pick("Teldrassil", lambda s: not s["rare"])),
-        render(*pick("Westfall", lambda s: s["rare"])),
+        render(rich_zone, rich, "CREATURES", "silver"),
+        render(silver_zone, silver, "CREATURES", "silver"),
+        render(gold_zone, gold, "CREATURES", "gold"),
+        render(shiny_zone, shiny, "CREATURES", "shiny"),
+        render(*pick("Teldrassil", lambda s: not progress(s)["silver"])),
+        render(*pick("Westfall", lambda s: progress(s)["gold"])),
         render(barrens, prowler, "CREATURES"),
     ]
     # One palette shared by every frame, sampled from all of them: per-frame adaptive palettes shift the colour of the

@@ -191,8 +191,8 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
     tab_plates = [w for w in widgets if w["role"] == "tabs" and w["name"].startswith("tab plate")]
     tab_strip = next((w for w in widgets if w["name"] == "right tab strip"), None)
     if tab_strip:
-        if tab_strip["w"] != 55 or tab_strip["h"] != 229:
-            findings.append("LargeSideTabButtonTemplate strip must be 55x229")
+        if tab_strip["w"] != 55 or tab_strip["h"] != 113:
+            findings.append("LargeSideTabButtonTemplate strip must be 55x113 for the two tabs")
         if tab_strip["x"] != right + 3 or tab_strip["y"] != frame["y"] + 28:
             findings.append("Native side tabs must start at frame TOPRIGHT +3,-28")
     if tab_plates:

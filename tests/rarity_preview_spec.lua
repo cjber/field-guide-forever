@@ -2,8 +2,18 @@ local Mock = dofile("tests/wow_mock.lua")
 local harness = Mock.Harness()
 local ns = harness.ns
 
+local function GuidFor(tier, salt)
+	for index = 1, 1000000 do
+		local guid = "Creature-0-1-0-1-1001-" .. salt .. string.format("%010X", index)
+		if ns.Model.SpawnTier(guid) == tier then
+			return guid
+		end
+	end
+	error("no GUID rolls " .. tier)
+end
+
 local species = {
-	{ id = 1001, name = "Copper Test Creature" },
+	{ id = 1001, name = "Bronze Test Creature" },
 	{ id = 1025, name = "Silver Test Creature" },
 	{ id = 1100, name = "Gold Test Creature" },
 	{ id = 2000, name = "Shiny Test Creature" },
@@ -91,17 +101,14 @@ for key, value in pairs(entry) do
 	assert(before[key] == value, "preview leaves saved progress alone: " .. key)
 end
 
--- A kill under preview records the species' real rarity, never the tier the preview shows.
-ns.Model.SetRandom(function()
-	return ns.Model.SHINY_CHANCE
-end)
-local copper = byName["Copper Test Creature"]
-local result = ns.RecordKill(copper.name, copper.id)
+-- A kill under preview records the spawn's real tier, never the tier the preview shows. Without a GUID that is bronze.
+local bronze = byName["Bronze Test Creature"]
+local result = ns.RecordKill(bronze.name, bronze.id)
 assert(result, "a kill is still recorded while preview is on")
-assert(result.rare == false and result.shiny == false, "preview does not make a kill rare or shiny")
-local copperEntry = ns.Model.Specimen(ns.GetCharacterState(false), copper.id)
-assert(copperEntry.rare == 0 and copperEntry.rareKills == 0, "preview writes no rare progress")
-assert(copperEntry.shiny == 0 and copperEntry.shinyFinds == 0, "preview writes no shiny progress")
+assert(result.tier == "bronze", "a kill without a GUID is bronze even while preview is on")
+local bronzeEntry = ns.Model.Specimen(ns.GetCharacterState(false), bronze.id)
+assert(bronzeEntry.bronze == 1, "preview writes the real bronze find")
+assert(bronzeEntry.silver == 0 and bronzeEntry.gold == 0 and bronzeEntry.shiny == 0, "preview writes no other coat")
 
 -- Cycle silver, gold and shiny across different creatures on the target frame.
 slash("preview")
@@ -111,7 +118,7 @@ Mock.guids.target = "Creature-0-1-0-1-1025-0000000002"
 slash("preview")
 local silverColour = ns.Rarity.COLORS.silver
 AssertTargetColoursUntouched("a silver preview")
-assert(target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() == "RARE", "silver previews RARE")
+assert(target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() == "SILVER", "silver previews SILVER")
 assert(target.FGFRarityBarGlow[1].textures.center:IsShown(), "the preview marks the target bars")
 assert(target.FGFRarityPortraitGlow[1].texture:IsShown(), "the preview marks the target portrait")
 local auraR, auraG, auraB = target.FGFRarityBarGlow[1].textures.center:GetVertexColor()
@@ -127,7 +134,7 @@ local function targetCreature(name, guid)
 end
 targetCreature("Gold Test Creature", "Creature-0-1-0-1-1100-0000000001")
 AssertTargetColoursUntouched("a gold preview")
-assert(target.FGFRarityTag.text:GetText() == "RARE", "gold previews RARE")
+assert(target.FGFRarityTag.text:GetText() == "GOLD", "gold previews GOLD")
 targetCreature("Shiny Test Creature", "Creature-0-1-0-1-2000-0000000001")
 AssertTargetColoursUntouched("a shiny preview")
 assert(target.FGFRarityTag.text:GetText() == "SHINY", "shiny previews SHINY")
@@ -164,8 +171,8 @@ local function AssertPlateColoursUntouched(label)
 	)
 end
 
-Mock.units.nameplate1 = "Copper Test Creature"
-Mock.guids.nameplate1 = "Creature-0-1-0-1-1001-0000000001"
+Mock.units.nameplate1 = "Bronze Test Creature"
+Mock.guids.nameplate1 = GuidFor("bronze", "plate")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a previewed nameplate")
 assert(unitFrame.FGFRarityMarker:IsShown(), "a nameplate shows the preview tier mark")
@@ -181,11 +188,11 @@ plateAttached = true
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 slash("preview")
 assert(not ns.RarityPreviewActive(), "preview turns off again")
-AssertPlateColoursUntouched("a copper nameplate once preview is off")
-assert(not unitFrame.FGFRarityMarker:IsShown(), "a copper nameplate keeps no mark once preview is off")
+AssertPlateColoursUntouched("a bronze nameplate once preview is off")
+assert(not unitFrame.FGFRarityMarker:IsShown(), "a bronze nameplate keeps no mark once preview is off")
 assert(
 	not unitFrame.FGFRarityBarGlow[1].textures.center:IsShown(),
-	"a copper nameplate keeps no aura once preview is off"
+	"a bronze nameplate keeps no aura once preview is off"
 )
 
 print("rarity preview: ok")

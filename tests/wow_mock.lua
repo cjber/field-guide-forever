@@ -609,9 +609,10 @@ end
 -- The player's target dies, the way Forever reports it to an addon: its health event, with UnitIsDead now true.
 ---@param name string
 ---@param npcId integer?
-function Mock.Kill(name, npcId)
+---@param guid string?
+function Mock.Kill(name, npcId, guid)
 	Mock.units.target = name
-	Mock.guids.target = Mock.CreatureGUID(npcId)
+	Mock.guids.target = guid or Mock.CreatureGUID(npcId)
 	Mock.dead.target = true
 	Mock.tapDenied.target = nil
 	Mock.Fire("UNIT_HEALTH", "target")
@@ -835,9 +836,24 @@ function Mock.Harness(opts)
 	env.PanelTemplates_TabResize = function(button, _padding, width)
 		button:SetSize(width, 32)
 	end
+	-- The Barrens' world map art: one 1002 by 668 layer of 256 tiles, twelve files; no other map has art.
 	env.C_Map = {
 		OpenWorldMap = function(id)
 			Mock.openedMap = id
+		end,
+		GetMapArtLayers = function(id)
+			if id == 1413 then
+				return { { layerWidth = 1002, layerHeight = 668, tileWidth = 256, tileHeight = 256 } }
+			end
+		end,
+		GetMapArtLayerTextures = function(id)
+			if id == 1413 then
+				local files = {}
+				for index = 1, 12 do
+					files[index] = 700000 + index
+				end
+				return files
+			end
 		end,
 	}
 	env.UIParent = env.CreateFrame("Frame", "UIParent")
@@ -1009,8 +1025,8 @@ function Mock.Harness(opts)
 	function harness.RunTimers(_)
 		Mock.RunTimers()
 	end
-	function harness.Kill(_, name, npcId)
-		Mock.Kill(name, npcId)
+	function harness.Kill(_, name, npcId, guid)
+		Mock.Kill(name, npcId, guid)
 	end
 	return harness
 end
