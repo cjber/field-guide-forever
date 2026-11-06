@@ -147,12 +147,23 @@ local function SetUp(frame, toast)
 	end
 end
 
+-- AlertFrames.lua:544 loads the achievement UI before its own toasts: AchievementAlertFrameTemplate's Shield child
+-- calls AchievementShield_OnLoad from the load-on-demand Blizzard_AchievementUI, so a toast built without it warns.
+local function LoadAchievementUI()
+	if AchievementFrame_LoadUI then
+		AchievementFrame_LoadUI()
+	elseif C_AddOns and C_AddOns.LoadAddOn then
+		C_AddOns.LoadAddOn("Blizzard_AchievementUI")
+	end
+end
+
 ---@type table?
 local system
 -- Registered at the first milestone, so a session without one adds nothing to AlertFrame. The achievement system's
 -- own global stands for its template being loaded.
 local function System()
 	if not system and AlertFrame and AchievementAlertSystem then
+		LoadAchievementUI()
 		system = AlertFrame:AddQueuedAlertFrameSubSystem(TEMPLATE, SetUp, 2, 6)
 	end
 	return system
