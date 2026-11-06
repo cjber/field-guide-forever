@@ -9,7 +9,7 @@
 ## X-Website: https://github.com/cjber/field-guide-forever
 ## X-Donate: https://ko-fi.com/cjber
 ## X-Curse-Project-ID: 0
-## X-Wago-ID: 0
+## X-Wago-ID: QKyqLnK7
 ## SavedVariables: FieldGuideForeverDB
 ## OptionalDeps: QuestieDB, Questie
 

@@ -1193,7 +1193,8 @@ def main():
 
     save(render(search_zone, prowler, "CREATURES", tracked=True), "tracking.png")
     save(render(silver_zone, silver, "CREATURES", "silver"), "silver-record.png")
-    save(render(shiny_zone, shiny, "CREATURES", "shiny"), "shiny-record.png")
+    # The record itself, on the full list rather than the Shiny filter shown in shiny.png.
+    save(render(shiny_zone, shiny, "CREATURES"), "shiny-record.png")
 
     # Show the native filter menu on the same all-species state as the All label and visible list.
     filtered = render(search_zone, search_species, "CREATURES", "missingShiny")
