@@ -6,7 +6,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 ## [Unreleased]
 
 - **The Field Guide button moves from the micro menu to the minimap.** The old button widened the micro menu row past the experience bar, so Field Guide now draws its own button on the minimap rim with the same wolf icon, title, Shift-F binding and click action. Drag it around the rim to move it, hide it with the new Minimap button option (shown by default), and an old hidden micro menu setting carries across.
-- **Progress bars use the client's modern bar art.** The gold fill in every journal progress bar now comes from the same atlas the client's current unit and nameplate bars use, replacing the 2004 loose status-bar texture. The gold colour, frame and layout are unchanged.
+- **Progress bars use the game's plain progress bar art.** Every journal progress bar now draws the client's own coloured progress bar, tinted gold, in place of the 2004 loose status bar texture and the profession crafting bar frame, which read as a crafting cast bar. The colour and layout are unchanged.
 
 ## [0.3.37] - 2026-11-06
 
