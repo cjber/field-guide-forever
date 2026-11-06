@@ -3,15 +3,16 @@ local _, ns = ...
 local L = ns.L
 
 -- What a kill shows. A first kill is announced the way the client announces an explored area: one yellow line in
--- UIErrorsFrame, with the page-turn sound, a New tag in the journal and the micro button pulsing until the journal
+-- UIErrorsFrame, with the page-turn sound, a New tag in the journal and the minimap button pulsing until the journal
 -- opens. The big moments (a rare's first kill, a shiny, a mastered species, a zone with every creature recorded) take
 -- the client's own achievement toast (Mainline/AlertFrameSystems.xml:173), queued through AlertFrame as achievements
 -- are: two on screen, six waiting.
 --
 -- Core calls in from the kill handler, which can run in combat, so a record is only noted here and everything shown
 -- waits for the next frame. Nothing here touches a secure frame: the toasts come from this addon's own AlertFrame
--- pool and the pulse animates the micro button this addon owns.
+-- pool and the pulse animates the minimap button this addon owns.
 ---@class FGDiscovery
+---@field pulseGlow? Texture the minimap button's glow while it pulses
 local Discovery = {}
 ns.Discovery = Discovery
 
@@ -208,17 +209,28 @@ local function DiscoveryLine(names)
 	return line
 end
 
--- The micro button's own FlashBorder (UI-HUD-MicroMenu-Highlightalert), pulsed with the timing MicroButtonPulse gives
--- UIFrameFlash (one second in, one out). Calling MicroButtonPulse would write this button into Blizzard's table of
--- flashing buttons; the animation keeps the pulse on the button this addon owns.
+-- The minimap button's own round glow, pulsed with the timing MicroButtonPulse gave UIFrameFlash (one second in, one
+-- out). The animation keeps the pulse on the button this addon owns rather than writing it into Blizzard's table of
+-- flashing buttons.
 ---@return Texture?
-local function FlashBorder()
-	local button = ns.microButton --[[@as (Frame|{FlashBorder: Texture?})?]]
-	return button and button.FlashBorder
+local function PulseGlow()
+	local button = ns.minimapButton
+	if not button then
+		return nil
+	end
+	if not Discovery.pulseGlow then
+		local glow = button:CreateTexture(nil, "OVERLAY")
+		glow:SetAtlas("bags-roundhighlight") -- art-ok: the client's own round hover glow
+		glow:SetAllPoints(button)
+		glow:SetBlendMode("ADD")
+		glow:Hide()
+		Discovery.pulseGlow = glow
+	end
+	return Discovery.pulseGlow
 end
 
 function Discovery.StartPulse()
-	local border = FlashBorder()
+	local border = PulseGlow()
 	if not border or not border.CreateAnimationGroup then
 		return
 	end
@@ -245,9 +257,8 @@ function Discovery.StopPulse()
 	if Discovery.pulse then
 		Discovery.pulse:Stop()
 	end
-	local border = FlashBorder()
-	if border then
-		border:Hide()
+	if Discovery.pulseGlow then
+		Discovery.pulseGlow:Hide()
 	end
 end
 

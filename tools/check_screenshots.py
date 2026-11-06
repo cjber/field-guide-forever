@@ -35,6 +35,7 @@ SOURCES = (
     "Core/API.lua",
     "tools/leaderboard_scene.lua",
     "Core/Settings.lua",
+    "Core/MinimapButton.lua",
     "UI/SettingsPage.lua",
     "UI/Rarity.lua",
     "UI/Discovery.lua",
@@ -48,10 +49,7 @@ SOURCES = (
     "tools/mockups.py",
     "tools/rarity.py",
     "tools/discovery.py",
-    "tools/micro_menu_render.py",
-    "tools/gen_micro_glyph.py",
-    "media/MicroGlyph.tga",
-    "media/MicroGlyphHover.tga",
+    "tools/minimap_mockups.py",
 )
 RARITY_GEOMETRY = {
     "HEALTH_WINDOW": (32, 26, 143, 49),

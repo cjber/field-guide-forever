@@ -88,7 +88,9 @@
 ---@field showUndiscovered? boolean
 ---@field showSightingLog? boolean
 ---@field statsShare? boolean
----@field microButton? boolean
+---@field microButton? boolean the old micro menu setting, migrated to minimapButtonHidden and removed
+---@field minimapButtonAngle? number the angle around the Minimap, in degrees
+---@field minimapButtonHidden? boolean hide the minimap button, shown by default
 ---@field discoveryText? boolean announce a first kill in the explored-area line
 ---@field milestoneToasts? boolean show the achievement toast for silver, gold, shiny, mastery and zone milestones
 
@@ -232,25 +234,23 @@ function FGCreatureInfo.Get(npcID) end
 ---@class FGSettingsPanel : Frame
 ---@field title FontString
 
--- What Core/Settings.lua hands Core/MicroButton.lua.
----@class FGMicroButtonSpec
+-- What Core/Settings.lua hands Core/MinimapButton.lua.
+---@class FGMinimapButtonSpec
 ---@field name string
----@field atlas string
----@field icon string square icon or painted glyph drawn on the button plate
+---@field icon string|number the addon's own content icon
 ---@field title string
 ---@field binding string
 ---@field subtext string
----@field slot string
----@field getSlot? fun(): string
----@field getShown fun(): boolean? anything but true hides the button
----@field onClick fun()
+---@field settings table the saved table holding the angle and hide flag
+---@field getShown? fun(): boolean? an addon-owned visibility rule, which wins over the hide flag
+---@field onClick fun(button: Frame, mouseButton: string)
 ---@field host? table
 
--- Core/MicroButton.lua, Forever Core's shared micro menu button.
----@class FGMicroButtonModule
----@field Create fun(spec: FGMicroButtonSpec): Frame?
----@field Destroy fun(button: Frame?)
----@field SetShown fun(button: Frame?, shown: boolean)
+-- Core/MinimapButton.lua, Forever Core's shared minimap button.
+---@class FGMinimapButtonModule
+---@field Create fun(spec: FGMinimapButtonSpec): ForeverMinimapButton?
+---@field Destroy fun(button: ForeverMinimapButton?)
+---@field SetShown fun(button: ForeverMinimapButton?, shown: boolean)
 ---@field Refresh fun()
 
 -- What Model.Record reports about one kill.
@@ -283,7 +283,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field ZoneByName table<string, FGZone> lower-case name -> zone
 ---@field SpeciesById table<integer, FGSpecies>
 ---@field SpeciesZone table<integer, FGZone> NPC ID -> the zone the species is listed under
----@field microButton? Frame the micro menu button, set by Core/MicroButton.lua
+---@field minimapButton? ForeverMinimapButton the minimap button, set by Core/MinimapButton.lua
 ---@field Model FGModel
 ---@field API FGPublicAPI
 ---@field Stats FGStatsModule
@@ -291,7 +291,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field QuestieDB FGQuestieDBModule
 ---@field Settings FGSettingsModule
 ---@field SettingsPage FGSettingsPageModule
----@field MicroButton FGMicroButtonModule
+---@field MinimapButton FGMinimapButtonModule
 ---@field Art FGArt
 ---@field Rarity FGRarity
 ---@field Tooltip FGTooltipModule

@@ -19,7 +19,7 @@ Data\CreatureIcons.lua
 Integrations\QuestieDB.lua
 Core\SafeCall.lua
 Core\Secret.lua
-Core\MicroButton.lua
+Core\MinimapButton.lua
 Core\Model.lua
 Core\LegacyIds.lua
 Core\Core.lua

@@ -5,6 +5,9 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **The Field Guide button moves from the micro menu to the minimap.** The old button widened the micro menu row past the experience bar, so Field Guide now draws its own button on the minimap rim with the same wolf icon, title, Shift-F binding and click action. Drag it around the rim to move it, hide it with the new Minimap button option (shown by default), and an old hidden micro menu setting carries across.
+- **Progress bars use the client's modern bar art.** The gold fill in every journal progress bar now comes from the same atlas the client's current unit and nameplate bars use, replacing the 2004 loose status-bar texture. The gold colour, frame and layout are unchanged.
+
 ## [0.3.37] - 2026-11-06
 
 - **Field Guide Forever is on CurseForge and Wago.** Install and update it with any addon manager. It keeps a journal of every creature you meet: each spawn is bronze, silver (1 in 25), gold (1 in 100) or shiny (1 in 1000), and the journal records your sightings, best coat and where each creature lives, zone by zone.

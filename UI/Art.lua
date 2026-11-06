@@ -678,8 +678,8 @@ function Art.Line(parent, key, alpha)
 	return line
 end
 
--- The status bar the Professions window uses for skill: gold fill in the client's progress frame. Every progress
--- figure in the journal uses this one style.
+-- The status bar the Professions window uses for skill: the client's modern bar fill in gold inside its progress
+-- frame. Every progress figure in the journal uses this one style.
 ---@param parent Frame
 ---@param width number
 ---@param height number
@@ -689,7 +689,7 @@ function Art.StatusBar(parent, width, height, maxValue)
 	local bar = CreateFrame("StatusBar", nil, parent)
 	bar:SetSize(width, height)
 	bar:SetMinMaxValues(0, maxValue)
-	bar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+	bar:SetStatusBarTexture("UI-HUD-CoolDownManager-Bar")
 	bar:SetStatusBarColor(Art.RGBA("gold", 1))
 	local background = bar:CreateTexture(nil, "BACKGROUND")
 	background:SetAtlas("Profession-ProgressBar-BG")

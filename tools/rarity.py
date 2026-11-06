@@ -195,7 +195,7 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False):
     label, _, colour, _ = tier
     stem = "targetframeelite" if elite else "targetframe"
     frame = ui.texture(f"interface/targetingframe/{stem}.blp")
-    bar_texture = ui.texture("interface/targetingframe/ui-targetingframe-barfill.blp")
+    bar_texture = ui.atlas("UI-HUD-CoolDownManager-Bar").image
     mask = ui.texture("interface/characterframe/tempportraitalphamask.blp")
 
     health_bounds = tuple(v + (x if i % 2 == 0 else y) for i, v in enumerate(HEALTH_WINDOW))

@@ -40,9 +40,9 @@ Every scene `tools/mockups.py` renders. Written by that script; do not edit by h
 
 ![Settings canvas content](screenshots/settings.png)
 
-![Field Guide micro menu button](screenshots/micro-menu-field-guide.png)
+![Field Guide minimap button](screenshots/minimap-field-guide.png)
 
-![Micro menu button settings](screenshots/micro-menu-options.png)
+![Minimap button setting](screenshots/minimap-options.png)
 
 ![Sighting records](screenshots/sighting-log.png)
 
