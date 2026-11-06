@@ -985,7 +985,7 @@ function Art.SetZoneMap(map, uiMapID, points)
 				marker:SetAtlas("Waypoint-MapPin-Tracked")
 				map.markers[usedMarkers] = marker
 			end
-			marker:SetSize(13, 16)
+			marker:SetSize(15, 15)
 			marker:ClearAllPoints()
 			marker:SetPoint(
 				"CENTER",

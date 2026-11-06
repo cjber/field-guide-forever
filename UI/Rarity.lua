@@ -21,14 +21,24 @@ local TARGET_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
 -- Forever's normal target frame is the c60 atlas, but the rare atlas has no c60 member and returns the retail art.
 -- Both are 192 by 67, yet the retail rare art draws its name/health divider 2 units above the c60 art (name bar rows
 -- 20 to 23 against 21 to 25, health rows 24 to 41 against 26 to 41). The client name is anchored to ReputationColor,
--- not to this texture, so centring the overlay leaves the name 2 units closer to the line above the health bar. Drop
--- the overlay 2 units so its divider and health bar line up with the frame it covers.
+-- not to this texture, so centring the bar art leaves the name 2 units closer to the line above the health bar. Drop
+-- the bar piece 2 units so its divider and health bar line up with the frame it covers; the ring piece keeps the
+-- portrait's own centre.
 local RARE_FRAME_OFFSET_Y = -2
--- The addon's own ornaments, one per coat. Each file is 256 px square at 2 px per UI unit, with the portrait's hole
--- centred 48 units right and 80 units down from the texture's top-left, so the portrait's centre (55 left of and 48
--- below the container's top-right) is the ornament's round hole.
+local FRAME_ATLAS_HEIGHT = 67
+-- The rare atlas's portrait hole, measured in atlas units: 50.5 wide, centred at (157.75, 32.25). The silver ring
+-- reaches 64 across including its soft outer edge. The bar art stops at the hole's centre, under the ring piece, so
+-- the bar's borders run into the ring with no gap, and the ring art is cut to that circle.
+local RING_HOLE_X = 157.75
+local RING_OUTER_DIAMETER = 64
+-- The client's circular portrait mask, clamped at both edges so it never tiles.
+local CIRCLE_MASK = "Interface\\Masks\\CircleMask"
+-- The addon's own ornaments, one per coat. Each file is 256 px square at 2 px per UI unit, with its round portrait
+-- hole centred 48 units right and 80 units down from the texture's top-left.
 local ORNAMENT_SIZE = 128
-local ORNAMENT_X, ORNAMENT_Y = -103, 32
+local ORNAMENT_HOLE_X, ORNAMENT_HOLE_Y = 48, 80
+local ORNAMENT_OFFSET_X = ORNAMENT_SIZE / 2 - ORNAMENT_HOLE_X
+local ORNAMENT_OFFSET_Y = ORNAMENT_HOLE_Y - ORNAMENT_SIZE / 2
 local ORNAMENT_TEXTURES = {
 	silver = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Silver.tga]],
 	gold = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Gold.tga]],
@@ -134,7 +144,7 @@ local function NativeFrame(unit)
 	return classification ~= nil and NATIVE_FRAME_CLASSIFICATIONS[classification] == true
 end
 
--- Read the client frame's own anchors, so the rare overlay sits where it draws its bronze frame, then apply the
+-- Read the client frame's own anchors, so each rare piece sits where the client draws its bronze frame, then apply the
 -- measured offset that lines the retail rare art up with the c60 normal art. The atlas itself supplies the size
 -- (SetAtlas(..., true)), never the normal frame's measured size.
 ---@param texture table
@@ -214,7 +224,10 @@ local function CreateSheenAnimation(target, container, sheens)
 end
 
 ---@class FGFRarityTargetArt
----@field overlay Texture the rare silver frame
+---@field bar Texture the rare silver frame's bar art
+---@field ring Texture the rare silver frame's portrait ring
+---@field barMask MaskTexture
+---@field ringMask MaskTexture
 ---@field ornament Texture the coat's ornament
 ---@field sheen Texture the frame sheen
 ---@field ornamentSheen Texture the ornament sheen
@@ -231,20 +244,45 @@ local function CreateTargetArt(target)
 	end
 	local container = target and target.TargetFrameContainer
 	local source = container and container.FrameTexture
-	if not target or not container or type(source) ~= "table" or not container.CreateTexture then
+	local portrait = container and container.Portrait
+	if
+		not target
+		or not container
+		or type(source) ~= "table"
+		or type(portrait) ~= "table"
+		or not container.CreateTexture
+	then
 		return nil
 	end
 
-	local overlay = container:CreateTexture(nil, "BACKGROUND", nil, 3)
-	overlay:SetAtlas(TARGET_FRAME_ATLAS, true)
-	MirrorFramePoints(overlay, source, 0, RARE_FRAME_OFFSET_Y)
+	-- The bar art carries the name divider and health bar, shifted 2 units to match the c60 frame. It is cut at the
+	-- ring's centre so the right half of its shifted ring never shows; the ring piece above covers the left half.
+	local bar = container:CreateTexture(nil, "BACKGROUND", nil, 3)
+	bar:SetAtlas(TARGET_FRAME_ATLAS, true)
+	MirrorFramePoints(bar, source, 0, RARE_FRAME_OFFSET_Y)
+	local barMask = container:CreateMaskTexture(nil, "BACKGROUND", nil, 3)
+	barMask:SetTexture(WHITE, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+	barMask:SetPoint("TOPLEFT", bar, "TOPLEFT")
+	barMask:SetSize(RING_HOLE_X, FRAME_ATLAS_HEIGHT)
+	bar:AddMaskTexture(barMask)
 
-	-- The ornament's round hole sits over the portrait, so the art is anchored from the container's top-right corner.
+	-- The ring art keeps the frame's unshifted anchors and is cut to the client's portrait circle, so the silver ring
+	-- shares the portrait's centre. The mask is the measured outer diameter of the ring.
+	local ring = container:CreateTexture(nil, "BACKGROUND", nil, 4)
+	ring:SetAtlas(TARGET_FRAME_ATLAS, true)
+	MirrorFramePoints(ring, source, 0, 0)
+	local ringMask = container:CreateMaskTexture(nil, "BACKGROUND", nil, 4)
+	ringMask:SetTexture(CIRCLE_MASK, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+	ringMask:SetPoint("CENTER", portrait, "CENTER")
+	ringMask:SetSize(RING_OUTER_DIAMETER, RING_OUTER_DIAMETER)
+	ring:AddMaskTexture(ringMask)
+
+	-- The ornament's round hole sits over the portrait, so it is anchored from the portrait's own centre.
 	local ornament = container:CreateTexture(nil, "ARTWORK", nil, 2)
 	ornament:SetSize(ORNAMENT_SIZE, ORNAMENT_SIZE)
-	ornament:SetPoint("TOPLEFT", container, "TOPRIGHT", ORNAMENT_X, ORNAMENT_Y)
+	ornament:SetPoint("CENTER", portrait, "CENTER", ORNAMENT_OFFSET_X, ORNAMENT_OFFSET_Y)
 
-	local sheen, sheenMask = CreateSheen(container, overlay, 3, function(mask)
+	local sheen, sheenMask = CreateSheen(container, bar, 3, function(mask)
 		mask:SetAtlas(TARGET_FRAME_ATLAS, true)
 	end)
 	local ornamentSheen, ornamentMask = CreateSheen(container, ornament, 4, function(mask)
@@ -253,11 +291,15 @@ local function CreateTargetArt(target)
 	end)
 	local anim = CreateSheenAnimation(target, container, { sheen, ornamentSheen })
 
-	overlay:Hide()
+	bar:Hide()
+	ring:Hide()
 	ornament:Hide()
-	target.FGFRarityFrame = overlay
+	target.FGFRarityFrame = { bar, ring }
 	local art = {
-		overlay = overlay,
+		bar = bar,
+		ring = ring,
+		barMask = barMask,
+		ringMask = ringMask,
 		ornament = ornament,
 		sheen = sheen,
 		ornamentSheen = ornamentSheen,
@@ -282,7 +324,8 @@ local function PaintTargetFrame(target, tier, color, native)
 	local silver = show and (tier == "silver" or tier == "shiny")
 	local shiny = show and tier == "shiny"
 	local ornamentTexture = show and ORNAMENT_TEXTURES[tier]
-	art.overlay:SetShown(silver)
+	art.bar:SetShown(silver)
+	art.ring:SetShown(silver)
 	if ornamentTexture then
 		art.ornament:SetTexture(ornamentTexture) -- art-ok: the ornament is square 256 px art drawn at 128 units on both sides
 		art.ornamentMask:SetTexture(ORNAMENT_TEXTURES.shiny, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")

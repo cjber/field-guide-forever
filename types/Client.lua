@@ -61,7 +61,7 @@ ForeverMinimapButtons = nil
 ---@field PowerBar? StatusBar
 ---@field portrait? Texture
 ---@field Portrait? Texture
----@field FGFRarityFrame? Texture
+---@field FGFRarityFrame? Texture[]
 ---@field FGFRarityArt? FGFRarityTargetArt
 ---@field FGFRaritySheenAnim? AnimationGroup
 ---@field FGFRarityIcon? Texture
