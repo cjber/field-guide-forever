@@ -89,7 +89,6 @@ jobs:
         with:
           path: tools/.cache
           key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py', 'tools/extract_*.lua') }}
-          restore-keys: regeneration-${{ runner.os }}-
       # gen_creature_icons.py builds its QuestieDB fixture with gen_mock_catalogue.py, which shells out to luajit.
       # Ubuntu 24.04's release-pocket builds, which the archive never replaces.
       - name: Install LuaJIT
