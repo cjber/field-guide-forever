@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.37] - 2026-11-06
+
+- **Field Guide Forever is on CurseForge and Wago.** Install and update it with any addon manager. It keeps a journal of every creature you meet: each spawn is bronze, silver (1 in 25), gold (1 in 100) or shiny (1 in 1000), and the journal records your sightings, best coat and where each creature lives, zone by zone.
+
 ## [0.3.36] - 2026-11-06
 
 - **The Wago listing is wired up.** The TOC now carries `X-Wago-ID: QKyqLnK7` so the Wago packager tags the release to the field-guide-forever project. The CurseForge ID follows once that project exists.
