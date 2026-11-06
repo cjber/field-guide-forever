@@ -895,7 +895,7 @@ def detail(canvas, rx, ry, zone, species, icons):
         if image:
             scaled = image.resize((round(MAP_W * ui.scale), round(MAP_H * ui.scale)), Image.Resampling.LANCZOS)
             canvas.draw(scaled, hx + 3, ly + 3, MAP_W, MAP_H)
-        else:
+        elif art_file:
             canvas.draw(ui.texture(int(art_file)), hx + 3, ly + 3, MAP_W, MAP_H)
     sx = rx + SIDE_X
     lines = wrap_pixels(zone["name"], FONTS["GameFontNormalLarge"], SIDE_W, 3, canvas)
