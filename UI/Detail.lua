@@ -148,27 +148,6 @@ function Detail.Create(parent)
 		value:SetWordWrap(false)
 		Detail.records[index] = { key = key, value = value }
 	end
-	-- Tiny and Giant finds wear a badge on the Records header, the way a quality mark sits on a card.
-	Detail.recordBadges = {}
-	for index, key in ipairs({ "TINY", "GIANT" }) do
-		local badge = CreateFrame("Frame", nil, parent)
-		badge:SetSize(42, 15)
-		if index == 1 then
-			badge:SetPoint("RIGHT", Detail.recordsBand, "RIGHT", -8, 0)
-		else
-			badge:SetPoint("RIGHT", Detail.recordBadges[index - 1], "LEFT", -4, 0)
-		end
-		local plate = badge:CreateTexture(nil, "BACKGROUND")
-		plate:SetTexture(Art.WHITE)
-		plate:SetAllPoints(badge)
-		plate:SetVertexColor(Art.RGBA(key == "TINY" and "shiny" or "gold", 1))
-		local text = Art.Text(badge, "GameFontNormalSmall", "text")
-		text:SetPoint("CENTER")
-		text:SetText(L[key])
-		badge.text = text
-		badge:Hide()
-		Detail.recordBadges[key] = badge
-	end
 
 	Detail.habitatBand, Detail.habitatTitle = Art.Header(parent, L["Habitat"])
 	Detail.habitatBand:SetPoint("TOPLEFT", parent, "TOPLEFT", HABITAT_X, LOWER_Y)
@@ -338,9 +317,6 @@ local function UpdateRecords(species, character)
 		row.key:Hide()
 		row.value:Hide()
 	end
-	for _, badge in pairs(Detail.recordBadges or {}) do
-		badge:Hide()
-	end
 	local options = ns.db and ns.db.options or {}
 	local show = options.showSightingLog ~= false
 	Detail.recordsTitle:SetShown(show)
@@ -369,12 +345,6 @@ local function UpdateRecords(species, character)
 		if best then
 			pairs[#pairs + 1] = { L["Best variant"], TierName(best) }
 		end
-		if entry.sizeLargest then
-			pairs[#pairs + 1] = { L["Largest"], ns.Model.FormatSize(entry.sizeLargest) }
-		end
-		if entry.sizeSmallest then
-			pairs[#pairs + 1] = { L["Smallest"], ns.Model.FormatSize(entry.sizeSmallest) }
-		end
 	end
 	for index, pair in ipairs(pairs) do
 		local row = Detail.records[index]
@@ -384,15 +354,6 @@ local function UpdateRecords(species, character)
 			row.value:SetText(pair[2])
 			row.key:Show()
 			row.value:Show()
-		end
-	end
-	if entry.count > 0 then
-		local smallest, largest = entry.sizeSmallest, entry.sizeLargest
-		if smallest and smallest < ns.Model.SIZE_TINY then
-			Detail.recordBadges.TINY:Show()
-		end
-		if largest and largest > ns.Model.SIZE_GIANT then
-			Detail.recordBadges.GIANT:Show()
 		end
 	end
 end
@@ -409,9 +370,6 @@ local function SetEntryShown(shown)
 	end
 	Detail.recordsBand:SetShown(shown)
 	Detail.recordsTitle:SetShown(shown)
-	for _, badge in pairs(Detail.recordBadges or {}) do
-		badge:SetShown(shown)
-	end
 	Detail.habitatBand:SetShown(shown)
 	Detail.habitatTitle:SetShown(shown)
 	for _, row in ipairs(Detail.records) do

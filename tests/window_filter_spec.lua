@@ -34,7 +34,7 @@ assert(
 )
 
 local state = ns.GetCharacterState()
-ns.Model.Record(state, 1001, { tier = "bronze", size = 112 })
+ns.Model.Record(state, 1001, { tier = "bronze" })
 ns.Window.Refresh()
 assert(#ns.List.entries == 1 and ns.List.entries[1].species.id == 1001, "only the discovered species is listed")
 assert(not ns.List.empty:IsShown(), "a non-empty list hides the empty state")

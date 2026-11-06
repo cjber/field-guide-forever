@@ -82,8 +82,6 @@ local SPECIMEN_NUMBERS = {
 	silver = false,
 	gold = false,
 	shiny = false,
-	tiny = false,
-	giant = false,
 }
 
 local SPECIMEN_TIMES = {
@@ -149,23 +147,6 @@ local function NormalizeState(state)
 				if type(old[field]) == "string" then
 					entry[field] = old[field]
 				end
-			end
-			-- Sizes are hundredths. A save from before schema 5 has none, and one written by an unknown build keeps
-			-- only values the journal could have drawn.
-			for _, field in ipairs({ "sizeSmallest", "sizeLargest" }) do
-				local value = tonumber(old[field])
-				if value and value >= 1 and value <= 999 and value % 1 == 0 then
-					entry[field] = value
-				end
-			end
-			if entry.sizeSmallest and entry.sizeLargest and entry.sizeSmallest > entry.sizeLargest then
-				entry.sizeSmallest, entry.sizeLargest = entry.sizeLargest, entry.sizeSmallest
-			end
-			if old.tiny == nil and entry.sizeSmallest and entry.sizeSmallest < ns.Model.SIZE_TINY then
-				entry.tiny = 1
-			end
-			if old.giant == nil and entry.sizeLargest and entry.sizeLargest > ns.Model.SIZE_GIANT then
-				entry.giant = 1
 			end
 			clean.species[numericId] = entry
 		end

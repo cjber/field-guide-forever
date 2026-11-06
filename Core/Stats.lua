@@ -18,10 +18,6 @@ local SOURCES = {
 		first_silver = "numeric",
 		first_gold = "numeric",
 		first_shiny = "numeric",
-		size_largest = "numeric",
-		size_smallest = "numeric",
-		tiny_finds = "numeric",
-		giant_finds = "numeric",
 		boss_sightings = "numeric",
 		boss_kills = "numeric_pair",
 		boss_first_sighting = "numeric",
@@ -48,9 +44,6 @@ local FIRST_FIELDS = {
 }
 local instances = {}
 local pending = false
--- The wire carries the larger of two values, so the smallest-size record travels inverted: a smaller spawn makes a
--- larger score. Consumers turn it back with SIZE_SCORE - value; nobody else needs to know the difference.
-local SIZE_SCORE = 1000
 
 local function Enabled()
 	return ns.db ~= nil and ns.db.options.statsShare ~= false
@@ -123,10 +116,6 @@ local function Snapshot()
 		Add("silver_finds", id, entry.silver or 0, entry.firstSilver)
 		Add("gold_finds", id, entry.gold or 0, entry.firstGold)
 		Add("shiny_finds", id, entry.shiny or 0, entry.firstShiny)
-		Add("size_largest", id, entry.sizeLargest or 0, entry.lastKill)
-		Add("size_smallest", id, entry.sizeSmallest and (SIZE_SCORE - entry.sizeSmallest) or 0, entry.lastKill)
-		Add("tiny_finds", id, entry.tiny or 0, entry.lastKill)
-		Add("giant_finds", id, entry.giant or 0, entry.lastKill)
 		for metric, field in pairs(FIRST_FIELDS) do
 			if entry[field] then
 				Add(metric, id, 1, entry[field])

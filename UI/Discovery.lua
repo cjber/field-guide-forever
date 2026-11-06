@@ -25,14 +25,12 @@ local NAMED_IN_LINE = 2
 local ZONE_ICON = "Interface\\Icons\\INV_Misc_Book_09"
 
 -- Biggest first: one kill shows only its biggest milestone, and a capped burst keeps the biggest ones.
-local PRIORITY = { shiny = 1, gold = 2, silver = 3, giant = 4, tiny = 5, zone = 6, mastered = 7 }
+local PRIORITY = { shiny = 1, gold = 2, silver = 3, zone = 4, mastered = 5 }
 
 local HEADINGS = {
 	shiny = "Shiny found",
 	gold = "Gold found",
 	silver = "Silver found",
-	giant = "Giant found",
-	tiny = "Tiny found",
 	mastered = "Mastered",
 	zone = "Zone complete",
 }
@@ -176,10 +174,6 @@ local function SpeciesMilestone(result)
 		return "gold"
 	elseif result.firstSilver then
 		return "silver"
-	elseif result.giant then
-		return "giant"
-	elseif result.tiny then
-		return "tiny"
 	elseif result.rank == 4 and result.previousRank < 4 then
 		return "mastered"
 	end
@@ -193,10 +187,6 @@ local function SpeciesToast(species, kind)
 	local name = species.name
 	if kind == "shiny" then
 		name = string.format(L["Shiny %s!"], species.name)
-	elseif kind == "giant" then
-		name = string.format(L["Giant %s!"], species.name)
-	elseif kind == "tiny" then
-		name = string.format(L["Tiny %s!"], species.name)
 	end
 	return { kind = kind, name = name, icon = ns.Art.SpeciesIcon(species.name, species.id), speciesId = species.id }
 end
@@ -280,7 +270,6 @@ local function Flush()
 	---@type FGToast[]
 	local toasts = {}
 	local names = {}
-	local sizeRecords = {}
 	local discovered = false
 	---@type table<FGZone, true>
 	local zonesDone = {}
@@ -289,16 +278,6 @@ local function Flush()
 		local kind = SpeciesMilestone(result)
 		if kind then
 			toasts[#toasts + 1] = SpeciesToast(species, kind)
-		end
-		if
-			not result.newlyDiscovered
-			and result.size
-			and (result.newLargest or result.newSmallest)
-			and not result.tiny
-			and not result.giant
-		then
-			sizeRecords[#sizeRecords + 1] =
-				string.format(L["New size record: %s %s"], species.name, ns.Model.FormatSize(result.size))
 		end
 		if result.newlyDiscovered then
 			discovered = true
@@ -322,12 +301,6 @@ local function Flush()
 	end
 	if #names > 0 and options.discoveryText ~= false and UIErrorsFrame then
 		UIErrorsFrame:AddMessage(DiscoveryLine(names), 1, 1, 0, 1)
-		Sound("IG_ABILITY_PAGE_TURN")
-	end
-	if #sizeRecords > 0 and options.discoveryText ~= false and UIErrorsFrame then
-		for _, line in ipairs(sizeRecords) do
-			UIErrorsFrame:AddMessage(line, 1, 1, 0, 1)
-		end
 		Sound("IG_ABILITY_PAGE_TURN")
 	end
 	if #toasts == 0 or not toastsOn then

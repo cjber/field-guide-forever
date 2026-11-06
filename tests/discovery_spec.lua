@@ -119,17 +119,6 @@ local function GuidFor(ns, tier, salt, npcId)
 	error("no GUID rolls " .. tier)
 end
 
-local function GuidForSize(ns, salt, predicate, tier)
-	for index = 1, 1000000 do
-		local guid = "Creature-0-1-0-1-1001-" .. salt .. string.format("%010X", index)
-		local size = ns.Model.SpawnSize(guid)
-		if (tier == nil or ns.Model.SpawnTier(guid) == tier) and size and predicate(size) then
-			return guid
-		end
-	end
-	error("no GUID rolls the wanted size")
-end
-
 -- Every sound this view plays is either the first-kill line's page turn or a toast's achievement chime.
 local function OnlyJournalSounds(label)
 	for _, sound in ipairs(Mock.sounds) do
@@ -158,29 +147,6 @@ equal(ns.Discovery.pulse.looping, "REPEAT", "the pulse repeats until the journal
 h:Kill("Plainstrider", 1001, bronzeGuid)
 h:RunTimers()
 equal(#Mock.messages, 1, "a second kill of a known creature shows nothing")
-
--- A new personal size record is a small line through the same discovery path; a Tiny or Giant spawn is a toast.
-local firstSize = ns.Model.SpawnSize(bronzeGuid)
-local recordGuid = GuidForSize(ns, "record", function(size)
-	return size ~= firstSize and size >= ns.Model.SIZE_TINY and size <= ns.Model.SIZE_GIANT
-end, "bronze")
-h:Kill("Plainstrider", 1001, recordGuid)
-h:RunTimers()
-equal(#Mock.messages, 2, "a new size record shows a line")
-equal(
-	Mock.messages[2].text,
-	"New size record: Plainstrider " .. ns.Model.FormatSize(ns.Model.SpawnSize(recordGuid)),
-	"the line names the creature and its size"
-)
-local tinyGuid = GuidForSize(ns, "tiny", function(size)
-	return size < ns.Model.SIZE_TINY
-end, "bronze")
-h:Kill("Plainstrider", 1001, tinyGuid)
-h:RunTimers()
-equal(#Mock.alerts, 1, "a Tiny spawn gets the achievement toast")
-equal(Mock.alerts[1].Unlocked:GetText(), "Tiny found", "the toast names the tail")
-equal(Mock.alerts[1].Name:GetText(), "Tiny Plainstrider!", "the toast names the creature")
-Mock.alerts[1]:Hide()
 
 -- The New tag survives a reload, and the journal showing the species clears it; opening the journal stops the pulse.
 local migrated = ns.Migrate({
