@@ -132,27 +132,22 @@ assert(
 )
 local previewArt = target.FGFRarityArt
 local function PreviewFrameShown()
-	return previewArt.bar:IsShown() and previewArt.ring:IsShown()
+	return previewArt.ring:IsShown()
 end
 assert(
-	PreviewFrameShown() and previewArt.bar:GetAtlas() == RARE_FRAME and previewArt.ring:GetAtlas() == RARE_FRAME,
-	"the preview draws both pieces of the game's silver rare frame"
+	PreviewFrameShown() and previewArt.ring:GetAtlas() == RARE_FRAME,
+	"the preview draws the game's silver rare-frame ring"
 )
-assert(
-	previewArt.bar.atlasUseSize and previewArt.ring.atlasUseSize,
-	"the preview rare frame keeps the atlas's own size"
-)
+assert(previewArt.ring.atlasUseSize, "the preview rare frame keeps the atlas's own size")
 assert(
 	previewArt.ornament:IsShown() and previewArt.ornament._texture == LAUREL_SILVER,
 	"a silver preview draws the silver laurel"
 )
-for _, piece in ipairs({ previewArt.bar, previewArt.ring }) do
-	local previewR, previewG, previewB = piece:GetVertexColor()
-	assert(
-		not piece:IsDesaturated() and previewR == 1 and previewG == 1 and previewB == 1,
-		"a silver preview keeps the silver art's own colour"
-	)
-end
+local previewR, previewG, previewB = previewArt.ring:GetVertexColor()
+assert(
+	not previewArt.ring:IsDesaturated() and previewR == 1 and previewG == 1 and previewB == 1,
+	"a silver preview keeps the silver art's own colour"
+)
 
 local function targetCreature(name, guid)
 	Mock.units.target = name

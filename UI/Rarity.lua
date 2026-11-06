@@ -15,21 +15,12 @@ Rarity.COLORS = {
 
 local PLATE_ACCENT_ALPHA = 0.72
 local WHITE = "Interface\\Buttons\\WHITE8X8"
--- The client's own rare silver frame, at its own size. A normal bronze frame stays exactly as the client draws it,
--- and the rare frame is the piece CheckClassification uses, with no desaturation or tint of ours.
+-- The client's own rare silver frame, at its own size, for its portrait ring alone. A normal bronze frame stays
+-- exactly as the client draws it, and the ring is the piece CheckClassification uses, with no desaturation or tint of
+-- ours. The rare atlas's bar piece is not drawn: it paints a rectangular border over the name and health bar that
+-- does not line up with the c60 frame, and the ring and ornament already carry the tier.
 local TARGET_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
--- Forever's normal target frame is the c60 atlas, but the rare atlas has no c60 member and returns the retail art.
--- Both are 192 by 67, yet the retail rare art draws its name/health divider 2 units above the c60 art (name bar rows
--- 20 to 23 against 21 to 25, health rows 24 to 41 against 26 to 41). The client name is anchored to ReputationColor,
--- not to this texture, so centring the bar art leaves the name 2 units closer to the line above the health bar. Drop
--- the bar piece 2 units so its divider and health bar line up with the frame it covers; the ring piece keeps the
--- portrait's own centre.
-local RARE_FRAME_OFFSET_Y = -2
-local FRAME_ATLAS_HEIGHT = 67
--- The rare atlas's portrait hole, measured in atlas units: 50.5 wide, centred at (157.75, 32.25). The silver ring
--- reaches 64 across including its soft outer edge. The bar art stops at the hole's centre, under the ring piece, so
--- the bar's borders run into the ring with no gap, and the ring art is cut to that circle.
-local RING_HOLE_X = 157.75
+-- The silver ring reaches 64 across including its soft outer edge, so the ring art is cut to that circle.
 local RING_OUTER_DIAMETER = 64
 -- The client's circular portrait mask, clamped at both edges so it never tiles.
 local CIRCLE_MASK = "Interface\\Masks\\CircleMask"
@@ -224,14 +215,10 @@ local function CreateSheenAnimation(target, container, sheens)
 end
 
 ---@class FGFRarityTargetArt
----@field bar Texture the rare silver frame's bar art
 ---@field ring Texture the rare silver frame's portrait ring
----@field barMask MaskTexture
 ---@field ringMask MaskTexture
 ---@field ornament Texture the coat's ornament
----@field sheen Texture the frame sheen
 ---@field ornamentSheen Texture the ornament sheen
----@field sheenMask MaskTexture
 ---@field ornamentMask MaskTexture
 ---@field anim AnimationGroup
 
@@ -255,18 +242,7 @@ local function CreateTargetArt(target)
 		return nil
 	end
 
-	-- The bar art carries the name divider and health bar, shifted 2 units to match the c60 frame. It is cut at the
-	-- ring's centre so the right half of its shifted ring never shows; the ring piece above covers the left half.
-	local bar = container:CreateTexture(nil, "BACKGROUND", nil, 3)
-	bar:SetAtlas(TARGET_FRAME_ATLAS, true)
-	MirrorFramePoints(bar, source, 0, RARE_FRAME_OFFSET_Y)
-	local barMask = container:CreateMaskTexture(nil, "BACKGROUND", nil, 3)
-	barMask:SetTexture(WHITE, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
-	barMask:SetPoint("TOPLEFT", bar, "TOPLEFT")
-	barMask:SetSize(RING_HOLE_X, FRAME_ATLAS_HEIGHT)
-	bar:AddMaskTexture(barMask)
-
-	-- The ring art keeps the frame's unshifted anchors and is cut to the client's portrait circle, so the silver ring
+	-- The ring art keeps the frame's own anchors and is cut to the client's portrait circle, so the silver ring
 	-- shares the portrait's centre. The mask is the measured outer diameter of the ring.
 	local ring = container:CreateTexture(nil, "BACKGROUND", nil, 4)
 	ring:SetAtlas(TARGET_FRAME_ATLAS, true)
@@ -282,28 +258,20 @@ local function CreateTargetArt(target)
 	ornament:SetSize(ORNAMENT_SIZE, ORNAMENT_SIZE)
 	ornament:SetPoint("CENTER", portrait, "CENTER", ORNAMENT_OFFSET_X, ORNAMENT_OFFSET_Y)
 
-	local sheen, sheenMask = CreateSheen(container, bar, 3, function(mask)
-		mask:SetAtlas(TARGET_FRAME_ATLAS, true)
-	end)
 	local ornamentSheen, ornamentMask = CreateSheen(container, ornament, 4, function(mask)
 		-- art-ok: the ornament is square 256 px art drawn at 128 units on both sides
 		mask:SetTexture(ORNAMENT_TEXTURES.shiny, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
 	end)
-	local anim = CreateSheenAnimation(target, container, { sheen, ornamentSheen })
+	local anim = CreateSheenAnimation(target, container, { ornamentSheen })
 
-	bar:Hide()
 	ring:Hide()
 	ornament:Hide()
-	target.FGFRarityFrame = { bar, ring }
+	target.FGFRarityFrame = { ring }
 	local art = {
-		bar = bar,
 		ring = ring,
-		barMask = barMask,
 		ringMask = ringMask,
 		ornament = ornament,
-		sheen = sheen,
 		ornamentSheen = ornamentSheen,
-		sheenMask = sheenMask,
 		ornamentMask = ornamentMask,
 		anim = anim,
 	}
@@ -324,7 +292,6 @@ local function PaintTargetFrame(target, tier, color, native)
 	local silver = show and (tier == "silver" or tier == "shiny")
 	local shiny = show and tier == "shiny"
 	local ornamentTexture = show and ORNAMENT_TEXTURES[tier]
-	art.bar:SetShown(silver)
 	art.ring:SetShown(silver)
 	if ornamentTexture then
 		art.ornament:SetTexture(ornamentTexture) -- art-ok: the ornament is square 256 px art drawn at 128 units on both sides
@@ -334,19 +301,14 @@ local function PaintTargetFrame(target, tier, color, native)
 		art.ornament:Hide()
 	end
 	if shiny then
-		art.sheen:Show()
-		art.sheenMask:Show()
 		art.ornamentSheen:Show()
 		art.ornamentMask:Show()
 		if not art.anim:IsPlaying() then
-			art.sheen:SetAlpha(0)
 			art.ornamentSheen:SetAlpha(0)
 			art.anim:Play()
 		end
 	else
 		art.anim:Stop()
-		art.sheen:Hide()
-		art.sheenMask:Hide()
 		art.ornamentSheen:Hide()
 		art.ornamentMask:Hide()
 	end

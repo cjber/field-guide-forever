@@ -1,7 +1,7 @@
 """Rarity mockups: the target frame and the nameplate at every collection tier.
 
-The addon's own ornaments do the work. A silver creature draws the client's rare silver frame plus the silver laurel
-around its portrait, gold draws the gold laurel alone, and shiny draws the rare frame, the shiny laurel and the
+The addon's own ornaments do the work. A silver creature draws the client's rare silver portrait ring plus the silver
+laurel around its portrait, gold draws the gold laurel alone, and shiny draws the rare ring, the shiny laurel and the
 client's loot-toast sheen across both pieces. Each ornament is the addon's 256 px square TGA drawn at 2 px per UI
 unit, so 128 UI units a side and never stretched. The SILVER, GOLD or SHINY tag stays above the name. Nameplates carry
 the same quality icon to the right of the health bar. The health bar fill and name text keep the client's own colours,
@@ -93,10 +93,8 @@ NAME_BAR_W, NAME_BAR_H = 135, 18
 NAME_LEFT = NAME_BAR_LEFT + NAME_BAR_W - 133
 NAME_TOP = NAME_BAR_TOP + 1
 NAME_W, NAME_H = 117, 12
-# UI/Rarity.lua splits the rare atlas in two. The bar piece keeps the -2 shift and is cut at the portrait ring's
-# centre, under the ring piece; the ring piece keeps the frame's own anchors and is cut to the client's CircleMask.
-# The atlas's portrait hole is 50.5 wide at (157.75, 32.25), and the ring's measured outer diameter is 64.
-RING_HOLE_X = 157.75
+# UI/Rarity.lua draws only the rare atlas's portrait ring, cut to the client's CircleMask; its bar piece would paint a
+# rectangular border over the name and health bar. The ring's measured outer diameter is 64.
 RING_OUTER_DIAMETER = 64
 # Camelot's TargetFrame.lua centres LevelText on LevelBackgroundCircle at the frame's bottom right, not Mainline's
 # top-left spot.
@@ -105,9 +103,6 @@ LEVEL_CENTER = (188, 54)
 # and 80 down from its top-left, so the renderer places that hole on the portrait centre it already measures.
 ORNAMENT_LEFT = PORTRAIT_CENTER[0] - 48
 ORNAMENT_TOP = PORTRAIT_CENTER[1] - 80
-# UI/Rarity.lua's RARE_FRAME_OFFSET_Y: the retail rare atlas has no c60 member, and its name/health divider sits 2 UI
-# units above the Forever normal frame's, so the bar piece drops 2 units to keep the name where the client puts it.
-RARE_FRAME_OFFSET_Y = -2
 
 # NumberFontNormalSmall is the client font object used by target-frame level text.
 FONTS["NumberFontNormalSmall"] = Font(wowmock.ARIALN, 10, wowmock.WHITE, None, True)
@@ -131,10 +126,9 @@ def draw_ornament(canvas, tier, x, y):
     canvas.composite(piece, canvas.px(x + ORNAMENT_LEFT), canvas.px(y + ORNAMENT_TOP))
 
 
-def rare_pieces(ui):
-    """UI/Rarity.lua's two rare-frame pieces: the bar art left of the ring, and the ring cut to the portrait circle."""
+def rare_ring(ui):
+    """UI/Rarity.lua's rare-frame ring, cut to the client's portrait circle."""
     image = ui.atlas(RARE_FRAME_ATLAS).image
-    bar = image.crop((0, 0, round(image.width * RING_HOLE_X / FRAME_W), image.height))
     ring = image.copy()
     density = image.width / FRAME_W
     supersample = 4
@@ -144,7 +138,7 @@ def rare_pieces(ui):
     radius = RING_OUTER_DIAMETER / 2 * density * supersample
     ImageDraw.Draw(mask).ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=255)
     ring.putalpha(ImageChops.multiply(ring.getchannel("A"), mask.resize(image.size, Image.LANCZOS)))
-    return bar, ring
+    return ring
 
 
 def sheen_mask(canvas, pieces):
@@ -159,7 +153,7 @@ def sheen_mask(canvas, pieces):
 
 
 def sheen(canvas, ui, x, y, pieces):
-    """Draw the loot-toast sheen still, clipped to the rare frame and ornament it crosses."""
+    """Draw the loot-toast sheen still, clipped to the ring and ornament it crosses."""
     atlas = ui.atlas(SHEEN_ATLAS)
     layer = Image.new("RGBA", canvas.image.size)
     piece = atlas.image.resize((canvas.px(atlas.width), canvas.px(atlas.height)), Image.LANCZOS)
@@ -186,12 +180,11 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
 
     canvas.draw(frame, x, y, FRAME_W, FRAME_H)
 
-    # The client's rare frame under the addon's own ornament. A rare, elite or boss unit keeps the art the client
-    # already drew there instead.
+    # The client's rare portrait ring under the addon's own ornament. A rare, elite or boss unit keeps the art the
+    # client already drew there instead.
     if not native:
         if label in ("SILVER", "SHINY"):
-            bar, ring = rare_pieces(ui)
-            canvas.draw(bar, x, y + RARE_FRAME_OFFSET_Y, RING_HOLE_X, FRAME_H)
+            ring = rare_ring(ui)
             canvas.draw(ring, x, y, FRAME_W, FRAME_H)
         if label in ORNAMENT_FILES:
             draw_ornament(canvas, label, x, y)
@@ -202,7 +195,6 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
                 x,
                 y,
                 (
-                    (bar, x, y + RARE_FRAME_OFFSET_Y, RING_HOLE_X, FRAME_H),
                     (ring, x, y, FRAME_W, FRAME_H),
                     (ornament(label), x + ORNAMENT_LEFT, y + ORNAMENT_TOP, ORNAMENT_SIZE, ORNAMENT_SIZE),
                 ),
