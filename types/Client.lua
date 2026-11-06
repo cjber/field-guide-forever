@@ -76,3 +76,8 @@ TargetFramePortrait = nil
 ---@param fillToInterior boolean
 ---@param extent? number
 function SidePanelTabButtonMixin:SetFillToInterior(fillToInterior, extent) end
+
+-- Blizzard_AchievementUI/Blizzard_AchievementUI_Bootstrap.lua: loads the load-on-demand achievement UI. AlertFrames
+-- calls it before its own toasts so the alert template's AchievementShield_OnLoad exists.
+---@return boolean?
+function AchievementFrame_LoadUI() end

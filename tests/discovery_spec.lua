@@ -93,6 +93,18 @@ local function Start(options)
 	harness:RunTimers()
 	assert(harness.ns.ready and harness.ns.SpeciesById[1019], "the addon loads the fixture catalogue")
 	Mock.sounds, Mock.messages, Mock.alerts = {}, {}, {}
+	-- The toast template's Shield child needs Blizzard_AchievementUI loaded, so record the order the subsystem is
+	-- registered in relative to the UI's own loader.
+	local calls = {}
+	harness.env.AchievementFrame_LoadUI = function()
+		calls[#calls + 1] = "load"
+	end
+	local addSubSystem = harness.env.AlertFrame.AddQueuedAlertFrameSubSystem
+	harness.env.AlertFrame.AddQueuedAlertFrameSubSystem = function(...)
+		calls[#calls + 1] = "system"
+		return addSubSystem(...)
+	end
+	harness.calls = calls
 	harness.env.PlaySound = function(kit)
 		Mock.sounds[#Mock.sounds + 1] = kit
 	end
@@ -138,6 +150,7 @@ equal(Mock.messages[1].text, "New creature recorded: Plainstrider", "the line na
 equal(Mock.messages[1].r == 1 and Mock.messages[1].g == 1 and Mock.messages[1].b == 0, true, "the line is yellow")
 equal(Count(Mock.sounds, PAGE_TURN), 1, "the page turns once")
 equal(#Mock.alerts, 0, "a common first kill has no toast")
+equal(#h.calls, 0, "a session without a milestone registers no toast subsystem")
 equal(ns.GetCharacterState(false).unseen[1001], true, "the species is tagged New")
 local glow = ns.Discovery.pulseGlow
 equal(glow ~= nil and glow:IsShown(), true, "the minimap button's glow shows")
@@ -194,6 +207,8 @@ h:RunTimers()
 equal(#Mock.messages, 1, "a first kill told by a toast has no line")
 equal(#Mock.alerts, 2, "the silver and the zone each get a toast")
 local silver, zone = Mock.alerts[1], Mock.alerts[2]
+equal(h.calls[1], "load", "the achievement UI loads before the toast subsystem is registered")
+equal(h.calls[2], "system", "the toast subsystem is registered after it")
 equal(silver.template, "AchievementAlertFrameTemplate", "the toast is the client's achievement toast")
 equal(silver.Unlocked:GetText(), "Silver found", "silver heading")
 equal(silver.Name:GetText(), "Dishu", "silver toast names the creature")
@@ -235,6 +250,7 @@ equal(ns.Detail.name:GetText(), "Plainstrider", "showing its entry")
 h:Kill("Plainstrider", 1001)
 h:RunTimers()
 equal(#Mock.alerts, 3, "mastery is told once")
+equal(Count(h.calls, "load"), 1, "the achievement UI loads only once")
 equal(Count(Mock.sounds, ACHIEVEMENT) - beforeMastery, 1, "the mastery toast plays the achievement chime once")
 
 -- A shiny is the biggest: the guild variant's larger art, the achievement chime; the next toast gets the standard art.

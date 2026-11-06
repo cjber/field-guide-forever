@@ -4,6 +4,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
 ## [Unreleased]
+- **Milestone toasts no longer raise a Lua error.** The toast loads the client's achievement UI before it builds its frame, so a silver, gold, shiny, mastered or zone toast no longer warns about an unknown achievement function. (#183).
 
 ## [0.5.3] - 2026-11-06
 - **The rarity frame's silver ring now shares the portrait's centre.** The rare art is split into its bar and ring pieces, so the ring no longer inherits the bar's 2-unit shift and the laurel is anchored to the portrait itself. Silver, gold and shiny targets keep the ring, portrait and laurel on one centre while the name divider still lines up. (#176).
