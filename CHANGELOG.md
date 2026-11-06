@@ -5,6 +5,9 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-06
+- **Regenerating the shipped data now gives the same result on every machine.** The QuestieDB fixture that `tools/gen_creature_icons.py` builds `Data/CreatureIcons.lua` from is stamped with the extractor that wrote it, so a fixture left behind by an older tool is re-extracted instead of being silently pinned, and the recorded catalogue pin now hashes the fixture's normalised values rather than its bytes. Two LuaJIT builds that render the same catalogue can no longer disagree, so a locally regenerated file passes CI's `generated-data` gate. (#166).
+
 ## [0.5.0] - 2026-11-06
 - **The journal opens on Discovered.** The creature list starts on what this character has actually met, with its filter button already reading Discovered, so a long zone does not open as a wall of unknown names. A character with nothing recorded yet gets a line saying how to add a creature instead of an empty list. (#152).
 - **Every spawn has a size.** The same stable hash that gives a spawn its coat, with a different salt, gives it a size: a bell around 1.00x, with rare Tiny (under 0.70x) and Giant (over 1.40x) spawns. Each species keeps the smallest and largest kill on this character, shown in its Records with TINY and GIANT badges. The target frame tag shows the spawn's size so it can be hunted, a new personal size record shows a small line, and a Tiny or Giant find gets the achievement toast through the existing discovery options. Size records travel with the shared totals, and old saves migrate without one. (#153).
