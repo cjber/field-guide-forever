@@ -452,9 +452,12 @@ def progress_bar(canvas, x, y, width, fraction):
     white = ui.atlas("common-stat-bar-white")
     source = white.image.crop((0, 0, round(white.image.width * fraction), white.image.height))
     fill = ui.canvas(filled, 15)
-    fill.draw(source, 0, 0, filled, 15, GOLD)
-    mask = ui.atlas("common-stat-bar-Mask").image.resize((canvas.px(width), canvas.px(29)), Image.Resampling.LANCZOS)
-    cut = mask.crop((0, canvas.px(7), fill.image.width, canvas.px(7) + fill.image.height))
+    # ColoredProgressBarMixin:SetFillPercent flips the white art vertically with SetTexCoord(0, p, 1, 0).
+    fill.draw(source, 0, 0, filled, 15, GOLD, flip_v=True)
+    # The mask is a nine-slice atlas, so the client keeps its 10-unit ends instead of stretching them with the bar.
+    mask_canvas = ui.canvas(width, 29)
+    mask_canvas.draw(ui.atlas("common-stat-bar-Mask"), 0, 0, width, 29)
+    cut = mask_canvas.image.crop((0, canvas.px(7), fill.image.width, canvas.px(7) + fill.image.height))
     fill.image.putalpha(ImageChops.multiply(fill.image.getchannel("A"), cut.getchannel("A")))
     canvas.paste(fill, x, y + 7)
 
@@ -934,7 +937,7 @@ def detail(canvas, rx, ry, zone, species, icons):
             canvas.draw(scaled, hx + 3, ly + 3, MAP_W, MAP_H)
             pin = ui.atlas("Waypoint-MapPin-Tracked")
             for marker_x, marker_y in habitat_markers(species.get("spawns", {}).get(zone["id"], [])):
-                canvas.draw(pin, hx + 3 + marker_x * MAP_W - 6.5, ly + 3 + marker_y * MAP_H - 8, 13, 16)
+                canvas.draw(pin, hx + 3 + marker_x * MAP_W - 7.5, ly + 3 + marker_y * MAP_H - 7.5, 15, 15)
         elif art_file:
             canvas.draw(ui.texture(int(art_file)), hx + 3, ly + 3, MAP_W, MAP_H)
     sx = rx + SIDE_X

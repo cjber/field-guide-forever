@@ -36,6 +36,7 @@ local chrome = targetContainer:CreateTexture(nil, "BACKGROUND")
 chrome:SetSize(192, 67)
 chrome:SetPoint("CENTER", targetContainer, "CENTER")
 chrome:SetVertexColor(1, 1, 1, 1)
+targetContainer.Portrait = Mock.NewRegion("Texture")
 local target = Mock.CreateFrame("Frame")
 target.TargetFrameContainer = targetContainer
 targetContainer.FrameTexture = chrome
@@ -130,20 +131,28 @@ assert(
 	"silver previews its size and SILVER"
 )
 local previewArt = target.FGFRarityArt
+local function PreviewFrameShown()
+	return previewArt.bar:IsShown() and previewArt.ring:IsShown()
+end
 assert(
-	previewArt.overlay:IsShown() and previewArt.overlay:GetAtlas() == RARE_FRAME,
-	"the preview draws the game's silver rare frame"
+	PreviewFrameShown() and previewArt.bar:GetAtlas() == RARE_FRAME and previewArt.ring:GetAtlas() == RARE_FRAME,
+	"the preview draws both pieces of the game's silver rare frame"
 )
-assert(previewArt.overlay.atlasUseSize, "the preview rare frame keeps the atlas's own size")
+assert(
+	previewArt.bar.atlasUseSize and previewArt.ring.atlasUseSize,
+	"the preview rare frame keeps the atlas's own size"
+)
 assert(
 	previewArt.ornament:IsShown() and previewArt.ornament._texture == LAUREL_SILVER,
 	"a silver preview draws the silver laurel"
 )
-local previewR, previewG, previewB = previewArt.overlay:GetVertexColor()
-assert(
-	not previewArt.overlay:IsDesaturated() and previewR == 1 and previewG == 1 and previewB == 1,
-	"a silver preview keeps the silver art's own colour"
-)
+for _, piece in ipairs({ previewArt.bar, previewArt.ring }) do
+	local previewR, previewG, previewB = piece:GetVertexColor()
+	assert(
+		not piece:IsDesaturated() and previewR == 1 and previewG == 1 and previewB == 1,
+		"a silver preview keeps the silver art's own colour"
+	)
+end
 
 local function targetCreature(name, guid)
 	Mock.units.target = name
@@ -153,7 +162,7 @@ end
 targetCreature("Gold Test Creature", "Creature-0-1-0-1-1100-0000000001")
 AssertTargetColoursUntouched("a gold preview")
 assert(target.FGFRarityTag.text:GetText():find("GOLD", 1, true), "gold previews its size and GOLD")
-assert(not previewArt.overlay:IsShown(), "a gold preview adds no frame overlay")
+assert(not PreviewFrameShown(), "a gold preview adds no rare frame")
 assert(
 	previewArt.ornament:IsShown() and previewArt.ornament._texture == LAUREL_GOLD,
 	"a gold preview draws the gold laurel"
@@ -162,7 +171,7 @@ assert(not previewArt.anim:IsPlaying(), "a gold preview does not animate")
 targetCreature("Shiny Test Creature", "Creature-0-1-0-1-2000-0000000001")
 AssertTargetColoursUntouched("a shiny preview")
 assert(target.FGFRarityTag.text:GetText():find("SHINY", 1, true), "shiny previews its size and SHINY")
-assert(previewArt.overlay:IsShown(), "a shiny preview keeps the silver rare frame")
+assert(PreviewFrameShown(), "a shiny preview keeps the silver rare frame")
 assert(
 	previewArt.ornament:IsShown() and previewArt.ornament._texture == LAUREL_SHINY,
 	"a shiny preview draws the shiny laurel"
@@ -234,7 +243,7 @@ Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
 targetCreature("Silver Test Creature", GuidFor("silver", "friendly-preview-target"))
 slash("preview")
 assert(ns.RarityPreviewActive(), "preview turns on for the friendly checks")
-assert(not previewArt.overlay:IsShown(), "a friendly preview target shows no rare frame")
+assert(not PreviewFrameShown(), "a friendly preview target shows no rare frame")
 assert(not previewArt.ornament:IsShown(), "a friendly preview target shows no ornament")
 assert(not previewArt.anim:IsPlaying(), "a friendly preview target starts no sheen")
 local friendlyTag = target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() or ""
@@ -248,7 +257,7 @@ assert(
 	target.FGFRarityTag.text:GetText():find("SILVER", 1, true),
 	"a friendly target does not consume the first preview tier"
 )
-assert(previewArt.overlay:IsShown(), "the next attackable creature takes the first preview tier")
+assert(PreviewFrameShown(), "the next attackable creature takes the first preview tier")
 
 plateAttached = true
 harness.env.UnitName = function(unit)

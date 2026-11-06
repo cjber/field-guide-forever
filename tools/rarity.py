@@ -18,7 +18,7 @@ import os
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageChops  # ty: ignore[unresolved-import]  # Pillow is local only
+from PIL import Image, ImageChops, ImageDraw  # ty: ignore[unresolved-import]  # Pillow is local only
 from ui_art import BUILD as ART_BUILD
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -93,16 +93,20 @@ NAME_BAR_W, NAME_BAR_H = 135, 18
 NAME_LEFT = NAME_BAR_LEFT + NAME_BAR_W - 133
 NAME_TOP = NAME_BAR_TOP + 1
 NAME_W, NAME_H = 117, 12
+# UI/Rarity.lua splits the rare atlas in two. The bar piece keeps the -2 shift and is cut at the portrait ring's
+# centre, under the ring piece; the ring piece keeps the frame's own anchors and is cut to the client's CircleMask.
+# The atlas's portrait hole is 50.5 wide at (157.75, 32.25), and the ring's measured outer diameter is 64.
+RING_HOLE_X = 157.75
+RING_OUTER_DIAMETER = 64
 # Camelot's TargetFrame.lua centres LevelText on LevelBackgroundCircle at the frame's bottom right, not Mainline's
 # top-left spot.
 LEVEL_CENTER = (188, 54)
-# UI/Rarity.lua anchors each ornament at TOPLEFT container TOPRIGHT -103, 32, which puts its round hole (centred 48
-# units right and 80 down from the ornament's top-left) over the portrait. The renderer draws from the frame art's own
-# origin, so it places that hole on the portrait centre it already measures.
+# UI/Rarity.lua anchors each ornament by its round hole to the portrait's centre. The ornament's hole is 48 units right
+# and 80 down from its top-left, so the renderer places that hole on the portrait centre it already measures.
 ORNAMENT_LEFT = PORTRAIT_CENTER[0] - 48
 ORNAMENT_TOP = PORTRAIT_CENTER[1] - 80
 # UI/Rarity.lua's RARE_FRAME_OFFSET_Y: the retail rare atlas has no c60 member, and its name/health divider sits 2 UI
-# units above the Forever normal frame's, so the overlay drops 2 units to keep the name where the client puts it.
+# units above the Forever normal frame's, so the bar piece drops 2 units to keep the name where the client puts it.
 RARE_FRAME_OFFSET_Y = -2
 
 # NumberFontNormalSmall is the client font object used by target-frame level text.
@@ -125,6 +129,22 @@ def draw_ornament(canvas, tier, x, y):
     size = canvas.px(ORNAMENT_SIZE)
     piece = ornament(tier).resize((size, size), Image.LANCZOS)
     canvas.composite(piece, canvas.px(x + ORNAMENT_LEFT), canvas.px(y + ORNAMENT_TOP))
+
+
+def rare_pieces(ui):
+    """UI/Rarity.lua's two rare-frame pieces: the bar art left of the ring, and the ring cut to the portrait circle."""
+    image = ui.atlas(RARE_FRAME_ATLAS).image
+    bar = image.crop((0, 0, round(image.width * RING_HOLE_X / FRAME_W), image.height))
+    ring = image.copy()
+    density = image.width / FRAME_W
+    supersample = 4
+    size = (image.width * supersample, image.height * supersample)
+    mask = Image.new("L", size, 0)
+    cx, cy = PORTRAIT_CENTER[0] * density * supersample, PORTRAIT_CENTER[1] * density * supersample
+    radius = RING_OUTER_DIAMETER / 2 * density * supersample
+    ImageDraw.Draw(mask).ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=255)
+    ring.putalpha(ImageChops.multiply(ring.getchannel("A"), mask.resize(image.size, Image.LANCZOS)))
+    return bar, ring
 
 
 def sheen_mask(canvas, pieces):
@@ -170,7 +190,9 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
     # already drew there instead.
     if not native:
         if label in ("SILVER", "SHINY"):
-            canvas.draw(ui.atlas(RARE_FRAME_ATLAS), x, y + RARE_FRAME_OFFSET_Y, FRAME_W, FRAME_H)
+            bar, ring = rare_pieces(ui)
+            canvas.draw(bar, x, y + RARE_FRAME_OFFSET_Y, RING_HOLE_X, FRAME_H)
+            canvas.draw(ring, x, y, FRAME_W, FRAME_H)
         if label in ORNAMENT_FILES:
             draw_ornament(canvas, label, x, y)
         if label == "SHINY":
@@ -180,7 +202,8 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
                 x,
                 y,
                 (
-                    (ui.atlas(RARE_FRAME_ATLAS).image, x, y + RARE_FRAME_OFFSET_Y, FRAME_W, FRAME_H),
+                    (bar, x, y + RARE_FRAME_OFFSET_Y, RING_HOLE_X, FRAME_H),
+                    (ring, x, y, FRAME_W, FRAME_H),
                     (ornament(label), x + ORNAMENT_LEFT, y + ORNAMENT_TOP, ORNAMENT_SIZE, ORNAMENT_SIZE),
                 ),
             )

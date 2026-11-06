@@ -28,6 +28,8 @@ assert(math.abs(lastX - 3 * 256 * scale) < 0.01 and math.abs(lastY + 2 * 256 * s
 
 assert(#map.markers == 2, "one marker per habitat point")
 assert(map.markers[1]:GetAtlas() == "Waypoint-MapPin-Tracked", "the marker is the client's map pin")
+local markerW, markerH = map.markers[1]:GetSize()
+assert(markerW == 15 and markerH == 15, "the square pin is drawn at its native 15 by 15 size")
 local _, _, _, markerX, markerY = map.markers[1]:GetPoint(1)
 assert(
 	math.abs(markerX - 174 * 0.5) < 0.01 and math.abs(markerY + 116 * 0.5) < 0.01,
