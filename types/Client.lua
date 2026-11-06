@@ -61,7 +61,7 @@ ForeverMinimapButtons = nil
 ---@field PowerBar? StatusBar
 ---@field portrait? Texture
 ---@field Portrait? Texture
----@field FGFRarityFrame? Texture[]
+---@field FGFRarityFrame? Texture[] the rare frame's portrait ring, when shown
 ---@field FGFRarityArt? FGFRarityTargetArt
 ---@field FGFRaritySheenAnim? AnimationGroup
 ---@field FGFRarityIcon? Texture

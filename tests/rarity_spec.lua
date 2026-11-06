@@ -125,24 +125,18 @@ local function AssertTargetFrame(tier, label)
 	local art = target.FGFRarityArt
 	assert(type(art) == "table", label .. ": the target frame gets the rarity art")
 	local hasSilver = tier == "silver" or tier == "shiny"
+	assert(art.bar == nil and art.barMask == nil, label .. ": the rare frame's bar piece is never drawn")
+	assert(art.sheen == nil and art.sheenMask == nil, label .. ": no frame sheen is created")
 	if hasSilver then
-		assert(art.bar:IsShown() and art.ring:IsShown(), label .. ": both silver rare-frame pieces are shown")
-		for _, piece in ipairs({ art.bar, art.ring }) do
-			assert(piece:GetAtlas() == RARE_FRAME, label .. ": it is the game's rare frame atlas")
-			assert(piece.atlasUseSize, label .. ": the rare frame keeps the atlas's own size")
-			AssertNoTint(piece, label)
-		end
-		local point, relativeTo, relativePoint, x, y = art.bar:GetPoint(1)
-		assert(
-			point == "CENTER" and relativeTo == container and relativePoint == "CENTER" and x == 0 and y == -2,
-			label .. ": the bar piece copies FrameTexture's anchors, 2 units lower to match the c60 name box"
-		)
-		point, relativeTo, relativePoint, x, y = art.ring:GetPoint(1)
+		assert(art.ring:IsShown(), label .. ": the silver rare-frame ring is shown")
+		assert(art.ring:GetAtlas() == RARE_FRAME, label .. ": it is the game's rare frame atlas")
+		assert(art.ring.atlasUseSize, label .. ": the rare frame keeps the atlas's own size")
+		AssertNoTint(art.ring, label)
+		local point, relativeTo, relativePoint, x, y = art.ring:GetPoint(1)
 		assert(
 			point == "CENTER" and relativeTo == container and relativePoint == "CENTER" and x == 0 and y == 0,
 			label .. ": the ring piece keeps FrameTexture's own anchors"
 		)
-		assert(art.bar.mask == art.barMask, label .. ": the bar piece is cut at the ring's centre")
 		assert(art.ring.mask == art.ringMask, label .. ": the ring piece is cut to the portrait circle")
 		local maskPoint, maskRelativeTo, maskRelativePoint, maskX, maskY = art.ringMask:GetPoint(1)
 		assert(
@@ -157,7 +151,7 @@ local function AssertTargetFrame(tier, label)
 		assert(maskWidth == 64 and maskHeight == 64, label .. ": the circle mask is the ring's outer diameter")
 		assert(art.ringMask._texture == "Interface\\Masks\\CircleMask", label .. ": the mask is the client's circle")
 	else
-		assert(not art.bar:IsShown() and not art.ring:IsShown(), label .. ": no silver frame on this tier")
+		assert(not art.ring:IsShown(), label .. ": no silver ring on this tier")
 	end
 	assert(art.ornament:IsShown(), label .. ": the " .. tier .. " ornament is shown")
 	assert(art.ornament._texture == ORNAMENTS[tier], label .. ": it is the " .. tier .. " laurel ornament file")
@@ -171,15 +165,13 @@ local function AssertTargetFrame(tier, label)
 	AssertNoTint(art.ornament, label)
 	if tier == "shiny" then
 		assert(art.anim:IsPlaying(), label .. ": the shiny sheen animates")
-		assert(art.sheen:IsShown() and art.ornamentSheen:IsShown(), label .. ": both sheen textures are shown")
-		assert(art.sheenMask:IsShown() and art.ornamentMask:IsShown(), label .. ": both sheen masks are shown")
-		assert(art.sheen.mask == art.sheenMask, label .. ": the frame sheen is masked")
+		assert(art.ornamentSheen:IsShown(), label .. ": the ornament sheen is shown")
+		assert(art.ornamentMask:IsShown(), label .. ": the ornament sheen mask is shown")
 		assert(art.ornamentSheen.mask == art.ornamentMask, label .. ": the ornament sheen is masked")
-		assert(art.sheenMask:GetAtlas() == RARE_FRAME, label .. ": the frame mask follows the rare frame")
 		assert(art.ornamentMask._texture == ORNAMENTS.shiny, label .. ": the ornament mask is the shiny ornament file")
 	else
 		assert(not art.anim:IsPlaying(), label .. ": only shiny animates")
-		assert(not art.sheen:IsShown() and not art.ornamentSheen:IsShown(), label .. ": the sheen hides with the art")
+		assert(not art.ornamentSheen:IsShown(), label .. ": the sheen hides with the art")
 	end
 end
 
@@ -306,10 +298,7 @@ end
 Mock.guids.target = GuidFor("bronze", "t")
 Mock.Fire("PLAYER_TARGET_CHANGED")
 assert(not shinyArt.anim:IsPlaying(), "the sheen stops when the target art hides")
-assert(
-	not shinyArt.sheen:IsShown() and not shinyArt.ornamentSheen:IsShown(),
-	"hiding the art hides both sheen textures"
-)
+assert(not shinyArt.ornamentSheen:IsShown(), "hiding the art hides the ornament sheen")
 
 -- A nameplate is recycled between units, so a tier is marked by its quality icon only and never by the plate's own
 -- health colour or name.

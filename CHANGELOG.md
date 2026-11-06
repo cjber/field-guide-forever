@@ -5,6 +5,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 - **You appear once on leaderboards with a two-part name.** A Forever name like Hel Io no longer shows twice, once as you and once as a reported player with the same value.
+- **The silver and shiny target frame no longer paints a rectangular border over the name and health bar.** The rare frame's bar piece, its mask and its sheen are gone, so only the silver portrait ring, the laurel and the laurel's sheen remain. (#187).
 
 ## [0.5.4] - 2026-11-06
 - **Milestone toasts no longer raise a Lua error.** The toast loads the client's achievement UI before it builds its frame, so a silver, gold, shiny, mastered or zone toast no longer warns about an unknown achievement function. (#183).
