@@ -24,11 +24,12 @@ local NAMED_IN_LINE = 2
 local ZONE_ICON = "Interface\\Icons\\INV_Misc_Book_09"
 
 -- Biggest first: one kill shows only its biggest milestone, and a capped burst keeps the biggest ones.
-local PRIORITY = { shiny = 1, rare = 2, zone = 3, mastered = 4 }
+local PRIORITY = { shiny = 1, gold = 2, silver = 3, zone = 4, mastered = 5 }
 
 local HEADINGS = {
 	shiny = "Shiny found",
-	rare = "Rare recorded",
+	gold = "Gold found",
+	silver = "Silver found",
 	mastered = "Mastered",
 	zone = "Zone complete",
 }
@@ -167,10 +168,12 @@ end
 ---@param result FGRecordResult
 ---@return string?
 local function SpeciesMilestone(result)
-	if result.shiny then
+	if result.firstShiny then
 		return "shiny"
-	elseif result.firstRare then
-		return "rare"
+	elseif result.firstGold then
+		return "gold"
+	elseif result.firstSilver then
+		return "silver"
 	elseif result.rank == 4 and result.previousRank < 4 then
 		return "mastered"
 	end

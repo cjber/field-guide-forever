@@ -9,17 +9,26 @@ ns.Art = Art
 
 Art.WHITE = "Interface\\Buttons\\WHITE8X8"
 Art.BOOK_ICON = "Interface\\Icons\\INV_Misc_Book_09"
-Art.PORTRAIT_MASK = "Interface\\CharacterFrame\\TempPortraitAlphaMask"
+
+-- One mark per variant: the Professions window's crafting quality marks, one to four, so the ladder reads as a rising
+-- quality rather than money.
+Art.TIER_ICONS = {
+	bronze = "Professions-Icon-Quality-Tier1",
+	silver = "Professions-Icon-Quality-Tier2",
+	gold = "Professions-Icon-Quality-Tier3",
+	shiny = "Professions-Icon-Quality-Tier4",
+}
 
 Art.COLORS = {
 	background = { 0.043, 0.047, 0.055 },
 	panel = { 0.13, 0.14, 0.16 },
 	border = { 0.72, 0.63, 0.42 },
-	gold = { 0.88, 0.71, 0.25 },
+	gold = { 0.91, 0.74, 0.39 },
+	bronze = { 0.78, 0.53, 0.35 },
+	silver = { 0.79, 0.82, 0.86 },
+	shiny = { 0.73, 0.90, 1 },
 	text = { 0.89, 0.85, 0.76 },
 	muted = { 0.62, 0.60, 0.55 },
-	rare = { 0.52, 0.72, 0.95 },
-	shiny = { 0.88, 0.71, 0.25 },
 	complete = { 0.49, 0.60, 0.38 },
 }
 
@@ -55,6 +64,36 @@ Art.LOCATION_ART = {
 	[490] = 1851111, -- Un'Goro Crater
 	[618] = 1851114, -- Winterspring
 	[1377] = 1851106, -- Silithus
+}
+
+-- The Dungeon Finder's own instance pictures, by instance Map ID. Content only; a missing instance shows the book.
+Art.INSTANCE_ICONS = {
+	[33] = "Interface\\LFGFrame\\LFGIcon-ShadowfangKeep",
+	[34] = "Interface\\LFGFrame\\LFGIcon-StormwindStockades",
+	[36] = "Interface\\LFGFrame\\LFGIcon-Deadmines",
+	[43] = "Interface\\LFGFrame\\LFGIcon-WailingCaverns",
+	[47] = "Interface\\LFGFrame\\LFGIcon-RazorfenKraul",
+	[48] = "Interface\\LFGFrame\\LFGIcon-BlackfathomDeeps",
+	[70] = "Interface\\LFGFrame\\LFGIcon-Uldaman",
+	[90] = "Interface\\LFGFrame\\LFGIcon-Gnomeregan",
+	[109] = "Interface\\LFGFrame\\LFGIcon-SunkenTemple",
+	[129] = "Interface\\LFGFrame\\LFGIcon-RazorfenDowns",
+	[189] = "Interface\\LFGFrame\\LFGIcon-ScarletMonastery",
+	[209] = "Interface\\LFGFrame\\LFGIcon-ZulFarak",
+	[229] = "Interface\\LFGFrame\\LFGIcon-BlackrockSpire",
+	[230] = "Interface\\LFGFrame\\LFGIcon-BlackrockDepths",
+	[249] = "Interface\\LFGFrame\\LFGIcon-OnyxiaEncounter",
+	[289] = "Interface\\LFGFrame\\LFGIcon-Scholomance",
+	[309] = "Interface\\LFGFrame\\LFGIcon-ZulGurub",
+	[329] = "Interface\\LFGFrame\\LFGIcon-Stratholme",
+	[349] = "Interface\\LFGFrame\\LFGIcon-Maraudon",
+	[389] = "Interface\\LFGFrame\\LFGIcon-RagefireChasm",
+	[409] = "Interface\\LFGFrame\\LFGIcon-MoltenCore",
+	[429] = "Interface\\LFGFrame\\LFGIcon-DireMaul",
+	[469] = "Interface\\LFGFrame\\LFGIcon-BlackwingLair",
+	[509] = "Interface\\LFGFrame\\LFGIcon-AQRuins",
+	[531] = "Interface\\LFGFrame\\LFGIcon-AQTemple",
+	[533] = "Interface\\LFGFrame\\LFGIcon-Naxxramas",
 }
 
 Art.FAMILY_ICONS = {
@@ -746,74 +785,184 @@ function Art.CreatureIcon(texture, name, npcID, size)
 	texture:SetTexture(Art.SpeciesIcon(name, npcID))
 end
 
+-- Draw one variant's quality mark on a texture. A nil tier leaves the caller to hide the texture.
 ---@param texture Texture
-function Art.MakePortrait(texture)
-	if not texture.AddMaskTexture then
-		return
-	end
-	local mask = texture:GetParent():CreateMaskTexture()
-	mask:SetTexture(Art.PORTRAIT_MASK)
-	mask:SetAllPoints(texture)
-	texture:AddMaskTexture(mask)
-end
-
--- A collectible form reads by its item-quality border, as on a loot toast: white for common, blue for rare, gold
--- for shiny. Missing forms are the same art, darkened.
-Art.VARIANT_BORDERS = {
-	common = "loottoast-itemborder-white",
-	rare = "loottoast-itemborder-blue",
-	shiny = "loottoast-itemborder-gold",
-}
-Art.SHINY_STAR = "Rare-Elite-Star"
-
----@param parent Frame
+---@param tier string?
 ---@param size number
----@return FGVariantMark
-function Art.CreateVariantMark(parent, size)
-	local mark = CreateFrame("Frame", nil, parent) --[[@as FGVariantMark]]
-	mark:SetSize(size, size)
-	mark.Icon = mark:CreateTexture(nil, "ARTWORK")
-	mark.Icon:SetPoint("TOPLEFT", 2, -2)
-	mark.Icon:SetPoint("BOTTOMRIGHT", -2, 2)
-	mark.Border = mark:CreateTexture(nil, "OVERLAY")
-	mark.Border:SetAllPoints()
-	mark.Star = mark:CreateTexture(nil, "ARTWORK")
-	mark.Star:SetAtlas(Art.SHINY_STAR)
-	mark.Star:SetAllPoints()
-	return mark
-end
-
--- The shiny mark is the gold star; common and rare are the species icon in their quality border. A form the species
--- does not have leaves an empty slot.
----@param mark FGVariantMark
----@param kind FGVariantKind
----@param known boolean
----@param icon string
----@param absent? boolean
-function Art.VariantMark(mark, kind, known, icon, absent)
-	mark:SetShown(not absent)
-	local shade = known and 1 or 0.3
-	mark.Star:SetShown(kind == "shiny")
-	mark.Icon:SetShown(kind ~= "shiny")
-	mark.Border:SetShown(kind ~= "shiny")
-	if kind == "shiny" then
-		local r, g, b = Art.RGBA("shiny", 1)
-		mark.Star:SetVertexColor(r * shade, g * shade, b * shade, 1)
-		return
-	end
-	mark.Icon:SetTexture(icon)
-	mark.Icon:SetDesaturated(not known)
-	mark.Icon:SetVertexColor(shade, shade, shade, 1)
-	mark.Border:SetAtlas(Art.VARIANT_BORDERS[kind])
-	mark.Border:SetVertexColor(shade, shade, shade, 1)
-end
-
----@param parent Frame
----@param size number
----@return Texture
-function Art.Portrait(parent, size)
-	local texture = parent:CreateTexture(nil, "ARTWORK")
+function Art.PaintTierIcon(texture, tier, size)
 	texture:SetSize(size, size)
-	Art.MakePortrait(texture)
-	return texture
+	if tier and Art.TIER_ICONS[tier] then
+		texture:SetAtlas(Art.TIER_ICONS[tier])
+	end
+end
+
+-- A section heading as the quest tracker draws one: its header band at the atlas's own height, the title centred on
+-- it 7 in from the left (ObjectiveTrackerModuleHeaderTemplate).
+---@param parent Frame
+---@param text string
+---@param width number
+---@return Texture band, FontString title
+function Art.Header(parent, text, width)
+	local band = parent:CreateTexture(nil, "BACKGROUND", nil, 2)
+	band:SetAtlas("UI-QuestTracker-Secondary-Objective-Header")
+	band:SetSize(width, 30)
+	local title = Art.Text(parent, "GameFontNormalLarge", "gold")
+	title:SetPoint("LEFT", band, "LEFT", 7, 0)
+	title:SetText(text)
+	return band, title
+end
+
+-- The world quest progress bar: its dark track, the client's yellow fill and three-piece border, with a tick at each
+-- quarter. SetFraction hides the fill at zero, since the client treats a width of 0 as unset.
+---@class FGObjectiveBar : Frame
+---@field Fill Texture
+---@field SetFraction fun(self: FGObjectiveBar, fraction: number)
+
+---@param parent Frame
+---@param width number
+---@param ticks integer
+---@return FGObjectiveBar
+function Art.ObjectiveBar(parent, width, ticks)
+	local bar = CreateFrame("Frame", nil, parent) --[[@as FGObjectiveBar]]
+	bar:SetSize(width, 22)
+	local track = bar:CreateTexture(nil, "BACKGROUND")
+	track:SetAtlas("objectivewidget-bar-background")
+	track:SetPoint("TOPLEFT", 4, -5)
+	track:SetPoint("BOTTOMRIGHT", -4, 5)
+	bar.Fill = bar:CreateTexture(nil, "ARTWORK")
+	bar.Fill:SetAtlas("ui-frame-bar-fill-yellow")
+	bar.Fill:SetPoint("TOPLEFT", 4, -5)
+	bar.Fill:SetHeight(12)
+	local left = bar:CreateTexture(nil, "OVERLAY")
+	left:SetAtlas("objectivewidget-bar-border-left")
+	left:SetPoint("TOPLEFT")
+	left:SetSize(8, 22)
+	local right = bar:CreateTexture(nil, "OVERLAY")
+	right:SetAtlas("objectivewidget-bar-border-right")
+	right:SetPoint("TOPRIGHT")
+	right:SetSize(8, 22)
+	local middle = bar:CreateTexture(nil, "OVERLAY")
+	middle:SetAtlas("objectivewidget-bar-border-middle")
+	middle:SetPoint("TOPLEFT", left, "TOPRIGHT")
+	middle:SetPoint("BOTTOMRIGHT", right, "BOTTOMLEFT")
+	for index = 1, ticks - 1 do
+		local tick = bar:CreateTexture(nil, "OVERLAY", nil, 1)
+		tick:SetAtlas("ui-frame-bar-bordertick")
+		tick:SetSize(10, 24)
+		tick:SetPoint("TOP", bar, "TOPLEFT", width * index / ticks, 1)
+	end
+	function bar:SetFraction(fraction)
+		local filled = (width - 8) * math.max(0, math.min(1, fraction))
+		self.Fill:SetWidth(math.max(1, filled))
+		self.Fill:SetShown(filled > 0)
+	end
+	bar:SetFraction(0)
+	return bar
+end
+
+-- An icon in the Collections journal's item border: gold when collected, grey when not.
+---@param parent Frame
+---@param size number the border's size; the icon sits inside it at about four fifths
+---@return Texture icon, Texture border
+function Art.BorderedIcon(parent, size)
+	local icon = parent:CreateTexture(nil, "ARTWORK")
+	local inset = math.floor(size * 0.1 + 0.5)
+	icon:SetSize(size - inset * 2, size - inset * 2)
+	local border = parent:CreateTexture(nil, "OVERLAY")
+	border:SetSize(size, size)
+	border:SetPoint("CENTER", icon, "CENTER")
+	return icon, border
+end
+
+---@param border Texture
+---@param collected boolean
+function Art.SetBorderCollected(border, collected)
+	border:SetAtlas(collected and "collections-itemborder-collected" or "collections-itemborder-uncollected")
+end
+
+-- A uiMap's world map art fully explored: the base tiles from C_Map, with every exploration overlay from the
+-- generated ns.ClientData.mapOverlays laid on top the way MapExplorationPinMixin:RefreshOverlays lays them out, all
+-- scaled to the frame's width and clipped to it.
+---@class FGZoneMap : Frame
+---@field tiles Texture[]
+
+---@param parent Frame
+---@param width number
+---@param height number
+---@return FGZoneMap
+function Art.ZoneMap(parent, width, height)
+	local map = CreateFrame("Frame", nil, parent) --[[@as FGZoneMap]]
+	map:SetSize(width, height)
+	map:SetClipsChildren(true)
+	map.tiles = {}
+	return map
+end
+
+---@param map FGZoneMap
+---@param uiMapID integer?
+---@return boolean drawn
+function Art.SetZoneMap(map, uiMapID)
+	local used = 0
+	local function Place(file, x, y, w, h, right, bottom, sublevel)
+		used = used + 1
+		local texture = map.tiles[used]
+		if not texture then
+			texture = map:CreateTexture(nil, "ARTWORK")
+			map.tiles[used] = texture
+		end
+		texture:SetDrawLayer("ARTWORK", sublevel)
+		texture:SetTexture(file)
+		texture:SetTexCoord(0, right, 0, bottom)
+		texture:ClearAllPoints()
+		texture:SetPoint("TOPLEFT", map, "TOPLEFT", x, -y)
+		texture:SetSize(w, h)
+		texture:Show()
+	end
+	local layers = uiMapID and C_Map and C_Map.GetMapArtLayers and C_Map.GetMapArtLayers(uiMapID)
+	local info = layers and layers[1]
+	local files = info and uiMapID and C_Map.GetMapArtLayerTextures(uiMapID, 1)
+	if info and files and #files > 0 then
+		local scale = map:GetWidth() / info.layerWidth
+		local tileW, tileH = info.tileWidth, info.tileHeight
+		local columns = math.ceil(info.layerWidth / tileW)
+		for index, file in ipairs(files) do
+			local column, row = (index - 1) % columns, math.floor((index - 1) / columns)
+			Place(file, column * tileW * scale, row * tileH * scale, tileW * scale, tileH * scale, 1, 1, 0)
+		end
+		for _, overlay in ipairs(ns.ClientData.mapOverlays[uiMapID] or {}) do
+			local offsetX, offsetY, overlayW, overlayH, ids = overlay[1], overlay[2], overlay[3], overlay[4], overlay[5]
+			local wide, tall = math.ceil(overlayW / tileW), math.ceil(overlayH / tileH)
+			for row = 1, tall do
+				local pixelH = row < tall and tileH or (overlayH - (tall - 1) * tileH)
+				local fileH = row < tall and tileH or 16
+				while fileH < pixelH do
+					fileH = fileH * 2
+				end
+				for column = 1, wide do
+					local pixelW = column < wide and tileW or (overlayW - (wide - 1) * tileW)
+					local fileW = column < wide and tileW or 16
+					while fileW < pixelW do
+						fileW = fileW * 2
+					end
+					local file = ids[(row - 1) * wide + column]
+					if file then
+						Place(
+							file,
+							(offsetX + tileW * (column - 1)) * scale,
+							(offsetY + tileH * (row - 1)) * scale,
+							pixelW * scale,
+							pixelH * scale,
+							pixelW / fileW,
+							pixelH / fileH,
+							1
+						)
+					end
+				end
+			end
+		end
+	end
+	for index = used + 1, #map.tiles do
+		map.tiles[index]:Hide()
+	end
+	return used > 0
 end

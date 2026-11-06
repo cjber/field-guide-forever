@@ -2,7 +2,7 @@ Field Guide Forever keeps a journal of the creatures you kill in Azeroth, zone b
 
 Free, with nothing locked behind it. If you enjoy it, you can [buy me a coffee on Ko-fi](https://ko-fi.com/cjber).
 
-![The Field Guide stepping through creatures, instances, rares and shinies in several zones](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/demo.gif)
+![The Field Guide stepping through creatures, instances and the coat filters in several zones](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/demo.gif)
 
 Every catalogued zone has its own page of creatures, with your kills and research rank for each.
 
@@ -10,21 +10,21 @@ Every catalogued zone has its own page of creatures, with your kills and researc
 
 Pick a creature to see its level, zone and how far you are towards Mastered. The bar at the bottom is the zone's completion.
 
-![The Rares tab with Digmaster Shovelphlange selected and his common and rare variants marked as known](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/rares.png)
+![The Creatures page filtered to Silver found, with Irradiated Invader selected and its bronze, silver, gold and shiny slots](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/variants.png)
 
-Rares have their own tab, and the Variants tab shows which forms of a creature you have recorded.
+Creatures and Instances share the side rail. Silver, gold and shiny are filters, and each entry shows all four coats a spawn can wear.
 
-![The Records tab for Alamar Grimm with the dates of the first sighting, first kill and first shiny](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/shiny-record.png)
+![The Records tab for Alamar Grimm with when it was first and last seen and the best coat found](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/shiny-record.png)
 
-Records keep the date you first saw a creature, first killed one and first found its rare or shiny variant.
+Records keep when you first and last saw a creature, how many deaths you recorded and the best coat you have found.
 
 ## Features
 
-- **Journal**: creatures across outdoor zones, dungeons and raids, with their level, rank and zone. Search by name, filter by status, and switch between the Creatures, Rares, Shiny and Instances tabs.
+- **Journal**: creatures across outdoor zones, dungeons and raids, with their level, rank and zone. Search by name, filter by status or coat, and switch between the Creatures and Instances tabs.
 - **Research ranks**: kills move a species through Discovered (1), Observed (3), Studied (6) and Mastered (10). The kill count keeps going after that.
 - **Zone completion**: the share of a zone's species you have recorded.
-- **Rares and shinies**: a rare variant is confirmed after three sightings, and every recorded kill has a 1 in 500 chance of a shiny.
-- **Rarity marks**: some species are silver, gold or shiny, the same for every player. A rare target frame gets a soft tier-coloured aura and a RARE or SHINY tag; its nameplate gets a soft glow and a small tier mark. Health bars and names keep the game's own colours. Shiny creatures pulse gently. `/fg preview` shows all three for this session.
+- **The coat ladder**: every spawn is bronze, silver (1 in 25), gold (1 in 100) or shiny (1 in 1000), decided by a stable hash of its spawn GUID. Every player sees the same coat on the same spawn, and the journal keeps how many of each you have found.
+- **Rarity marks**: a silver, gold or shiny spawn shows a soft coat-coloured aura and a SILVER, GOLD or SHINY tag on the target frame. Its nameplate gets a soft glow and the coat's quality mark beside the name. Health bars and names keep the game's own colours. Shiny creatures pulse gently, and bronze creatures look exactly as they always did. `/fg preview` cycles the three higher coats for this session.
 - **Records**: first sighting and first kill for each creature, kept per character, and a sighting log for the current session.
 - **Tracking**: mark the species you are working on.
 - **Instances**: bosses the game reports when an encounter ends, with first clears, attempts and kills by difficulty. It is a personal record, not a verified world-first board.

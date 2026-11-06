@@ -41,17 +41,22 @@
 ---@field count integer specimens toward mastery, capped at Model.MASTERED_AT
 ---@field kills integer
 ---@field killsEstimated? boolean the kills came from a save that counted only specimens
----@field rare integer rare sightings, capped at Model.RARE_TARGET
----@field rareKills integer
----@field shiny integer capped at Model.SHINY_TARGET
----@field shinyFinds integer
+---@field bronze integer bronze spawns found
+---@field silver integer silver spawns found
+---@field gold integer gold spawns found
+---@field shiny integer shiny spawns found
 ---@field lastKill? number
+---@field lastKillZone? string
 ---@field firstKill? number
 ---@field firstKillZone? string
 ---@field firstSighting? number
 ---@field firstSightingZone? string
----@field firstRare? number
----@field firstRareZone? string
+---@field firstBronze? number
+---@field firstBronzeZone? string
+---@field firstSilver? number
+---@field firstSilverZone? string
+---@field firstGold? number
+---@field firstGoldZone? string
 ---@field firstShiny? number
 ---@field firstShinyZone? string
 ---@field sharedKillsBaseline? integer kills already counted when an estimated save first shared (Core/Stats.lua)
@@ -85,7 +90,7 @@
 ---@field statsShare? boolean
 ---@field microButton? boolean
 ---@field discoveryText? boolean announce a first kill in the explored-area line
----@field milestoneToasts? boolean show the achievement toast for rare, shiny, mastery and zone milestones
+---@field milestoneToasts? boolean show the achievement toast for silver, gold, shiny, mastery and zone milestones
 
 -- One shared figure a peer reported: the value and the time() it was recorded.
 ---@class FGStatRecord
@@ -100,7 +105,7 @@
 ---@field sharedStats? table<string, table<string, table<string, table<string, FGStatRecord>>>> peer -> addon -> subject -> metric
 ---@field peerStats table<string, table<string, table>> character -> source -> Core protocol store
 
--- How far one variant of a species has got: common, rare or shiny.
+-- How many spawns of one coat this character has found, one entry for each rung of the ladder.
 ---@class FGVariant
 ---@field known boolean
 ---@field count integer
@@ -111,7 +116,7 @@
 ---@field time number
 ---@field zone string
 ---@field species string
----@field kind string "kill", "rare", "shiny", "sighting", "boss-first", "boss-kill" or "boss-sighting"
+---@field kind string "kill", "silver", "gold", "shiny", "sighting", "boss-first", "boss-kill" or "boss-sighting"
 
 -- A failure SafeCall caught.
 ---@class FGError
@@ -155,14 +160,6 @@ function FGSightingLog.Clear() end
 function FGSightingLog.List() end
 
 -- A row of the creature list (UI/List.lua) and the widgets it is drawn with.
----@alias FGVariantKind "common"|"rare"|"shiny"
-
--- A collectible form's mark (Art.CreateVariantMark): the species icon framed in its quality border, or the shiny star.
----@class FGVariantMark : Frame
----@field Icon Texture
----@field Border Texture
----@field Star Texture
-
 ---@class FGListRow : Button
 ---@field Background Texture
 ---@field Selected Texture
@@ -170,7 +167,8 @@ function FGSightingLog.List() end
 ---@field Icon Texture
 ---@field Name FontString
 ---@field Sub FontString
----@field Marks table<FGVariantKind, FGVariantMark>
+---@field Mark Texture the best variant's quality mark, or hidden for an undiscovered species
+---@field Border Texture
 ---@field New FontString
 ---@field NewGlow Texture
 ---@field index? integer
@@ -185,6 +183,7 @@ function FGSightingLog.List() end
 ---@class FGTabButton : LargeSideTabButtonTemplate
 ---@field tooltipText string
 ---@field key string
+---@field GetTooltipTextSetupFunction fun(): fun(tooltip: GameTooltip): boolean
 
 -- A button UI/Window.lua makes, with its label font string.
 ---@class FGButton : SharedButtonSmallTemplate
@@ -204,6 +203,7 @@ function FGSightingLog.List() end
 ---@field maps table<integer, {name: string, instanceType: integer}> Map ID -> name and Map.InstanceType
 ---@field families table<integer, string> CreatureFamily ID -> name
 ---@field portraits table<integer, integer> CreatureDisplayInfo ID -> portrait texture file ID
+---@field mapOverlays table<integer, table[]> uiMap ID -> { offsetX, offsetY, width, height, { tile file IDs } }
 
 -- Data/CreatureIcons.lua: per-NPC creature type, family, model icon and display ID, packed into one number each.
 ---@class FGCreatureInfo
@@ -236,7 +236,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@class FGMicroButtonSpec
 ---@field name string
 ---@field atlas string
----@field icon string
+---@field icon string square icon or painted glyph drawn on the button plate
 ---@field title string
 ---@field binding string
 ---@field subtext string
@@ -259,13 +259,15 @@ function FGCreatureInfo.Get(npcID) end
 ---@field kills integer
 ---@field rank integer
 ---@field previousRank integer
----@field shiny boolean
----@field rare boolean
+---@field tier string the spawn's rung: bronze, silver, gold or shiny
+---@field bestTier? string
 ---@field newlyDiscovered boolean
 ---@field firstKill boolean
----@field firstRare boolean
----@field rareKnown boolean
----@field shinyKnown boolean
+---@field firstTier boolean
+---@field firstBronze boolean
+---@field firstSilver boolean
+---@field firstGold boolean
+---@field firstShiny boolean
 
 ---@class FGNamespace
 ---@field L table<string, string> English phrases are the keys; an untranslated key reads as itself
@@ -312,7 +314,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field OnProgress fun(fn: fun())
 ---@field OnRecord fun(fn: fun(species: FGSpecies, zone: FGZone, result: FGRecordResult))
 ---@field FireProgress fun()
----@field RecordKill fun(name: string?, npcId: integer?): table?
+---@field RecordKill fun(name: string?, npcId: integer?, guid: string?): table?
 ---@field RecordSighting fun(unit: string): boolean
 ---@field On fun(event: string, fn: function): boolean
 ---@field Readable fun(value: any): any the value, or nil when the client keeps it secret

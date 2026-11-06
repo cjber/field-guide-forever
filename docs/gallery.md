@@ -12,11 +12,11 @@ Every scene `tools/mockups.py` renders. Written by that script; do not edit by h
 
 ![Creature list icons in Darnassus](screenshots/creature-icons.png)
 
-![Rares page](screenshots/rares.png)
+![Silver and gold coat filters](screenshots/variants.png)
 
-![Personal rare record](screenshots/rare-record.png)
+![Personal silver record](screenshots/silver-record.png)
 
-![Shiny page](screenshots/shiny.png)
+![Shiny filter](screenshots/shiny.png)
 
 ![Personal shiny record](screenshots/shiny-record.png)
 
@@ -28,7 +28,9 @@ Every scene `tools/mockups.py` renders. Written by that script; do not edit by h
 
 ![New tag in the journal](screenshots/discovery-new-tag.png)
 
-![Rare milestone toast](screenshots/discovery-toast-rare.png)
+![Silver milestone toast](screenshots/discovery-toast-silver.png)
+
+![Gold milestone toast](screenshots/discovery-toast-gold.png)
 
 ![Shiny milestone toast](screenshots/discovery-toast-shiny.png)
 

@@ -1,6 +1,6 @@
 ## Interface: 16001
 ## Title: Field Guide Forever
-## Notes: A cosmetic creature catalogue for Azeroth: track kills, rare variants and shinies zone by zone.
+## Notes: A cosmetic creature catalogue for Azeroth: track kills and the bronze, silver, gold and shiny spawns you meet zone by zone.
 ## Author: cjber
 ## Version: @project-version@
 ## Category: Interface Enhancements

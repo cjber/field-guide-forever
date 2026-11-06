@@ -2,10 +2,22 @@ local Mock = dofile("tests/wow_mock.lua")
 local harness = Mock.Harness()
 local ns = harness.ns
 
-assert(ns.Model.Tier(2000) == "shiny", "the 1-in-1000 band is shiny")
-assert(ns.Model.Tier(1100) == "gold", "the 1-in-100 band is gold")
-assert(ns.Model.Tier(1025) == "silver", "the 1-in-25 band is silver")
-assert(ns.Model.Tier(1001) == "copper", "other ids remain copper")
+---@param tier string
+---@param salt string
+---@return string
+local function GuidFor(tier, salt)
+	for index = 1, 1000000 do
+		local guid = "Creature-0-1-0-1-1001-" .. salt .. string.format("%010X", index)
+		if ns.Model.SpawnTier(guid) == tier then
+			return guid
+		end
+	end
+	error("no GUID rolls " .. tier)
+end
+assert(ns.Model.SpawnTier(GuidFor("shiny", "a")) == "shiny", "a spawn GUID can be shiny")
+assert(ns.Model.SpawnTier(GuidFor("gold", "b")) == "gold", "a spawn GUID can be gold")
+assert(ns.Model.SpawnTier(GuidFor("silver", "c")) == "silver", "a spawn GUID can be silver")
+assert(ns.Model.SpawnTier(nil) == "bronze", "no readable GUID stays bronze")
 
 local chromeColour = { 0.8, 0.7, 0.6, 0.9 }
 local healthColour = { 0.2, 0.6, 0.2, 1 }
@@ -53,6 +65,7 @@ end
 harness.env.UnitName = function(unit)
 	return unit == "target" and silver.name or "Tester"
 end
+Mock.guids.target = GuidFor("silver", "t")
 harness:Fire("ADDON_LOADED", "FieldGuideForever")
 
 local function AssertColour(region, expected, label)
@@ -87,7 +100,7 @@ assert(
 )
 AssertTargetColoursUntouched("a silver target")
 assert(target.FGFRarityTag:IsShown(), "a tier tag sits above the target name")
-assert(target.FGFRarityTag.text:GetText() == "RARE", "silver reads RARE")
+assert(target.FGFRarityTag.text:GetText() == "SILVER", "silver reads SILVER")
 local tagR, tagG, tagB = target.FGFRarityTag.plate:GetVertexColor()
 assert(
 	tagR == silverColour[1] and tagG == silverColour[2] and tagB == silverColour[3],
@@ -109,10 +122,11 @@ assert(
 harness.env.UnitName = function(unit)
 	return unit == "target" and gold.name or "Tester"
 end
+Mock.guids.target = GuidFor("gold", "t")
 Mock.Fire("PLAYER_TARGET_CHANGED")
 local goldColour = ns.Rarity.COLORS.gold
 AssertTargetColoursUntouched("a gold target")
-assert(target.FGFRarityTag.text:GetText() == "RARE", "gold reads RARE")
+assert(target.FGFRarityTag.text:GetText() == "GOLD", "gold reads GOLD")
 local goldTagR, goldTagG, goldTagB = target.FGFRarityTag.plate:GetVertexColor()
 assert(
 	goldTagR == goldColour[1] and goldTagG == goldColour[2] and goldTagB == goldColour[3],
@@ -122,9 +136,10 @@ assert(
 harness.env.UnitName = function()
 	return "Uncatalogued"
 end
+Mock.guids.target = GuidFor("bronze", "t")
 Mock.Fire("PLAYER_TARGET_CHANGED")
-AssertTargetColoursUntouched("an uncatalogued target")
-assert(not target.FGFRarityTag:IsShown(), "an uncatalogued target hides the tag")
+AssertTargetColoursUntouched("a bronze target")
+assert(not target.FGFRarityTag:IsShown(), "a bronze target hides the tag")
 assert(not target.FGFRarityBarGlow[1].textures.center:IsShown(), "an uncatalogued target hides the bar aura")
 assert(not target.FGFRarityPortraitGlow[1].texture:IsShown(), "an uncatalogued target hides the portrait aura")
 chromeR, chromeG, chromeB, chromeA = chrome:GetVertexColor()
@@ -144,6 +159,7 @@ end
 harness.env.UnitName = function(unit)
 	return unit == "target" and shiny.name or "Tester"
 end
+Mock.guids.target = GuidFor("shiny", "t")
 Mock.Fire("PLAYER_TARGET_CHANGED")
 AssertTargetColoursUntouched("a target change in combat")
 assert(not target.FGFRarityTag:IsShown(), "combat leaves the tag untouched")
@@ -186,11 +202,12 @@ end
 harness.env.UnitName = function(unit)
 	return unit == "nameplate1" and silver.name or "Tester"
 end
+Mock.guids.nameplate1 = GuidFor("silver", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a tiered nameplate")
 assert(
-	unitFrame.FGFRarityMarker:GetAtlas() == "nameplates-icon-elite-silver",
-	"the nameplate carries the silver tier mark"
+	unitFrame.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier2",
+	"the nameplate carries the silver mark"
 )
 assert(unitFrame.FGFRarityMarker:IsShown(), "a tiered nameplate shows its tag")
 assert(unitFrame.FGFRarityBarGlow[1].textures.center:IsShown(), "the nameplate carries a soft tier aura")
@@ -198,9 +215,13 @@ assert(unitFrame.FGFRarityBarGlow[1].textures.center:IsShown(), "the nameplate c
 harness.env.UnitName = function(unit)
 	return unit == "nameplate1" and gold.name or "Tester"
 end
+Mock.guids.nameplate1 = GuidFor("gold", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a nameplate after a tier change")
-assert(unitFrame.FGFRarityMarker:GetAtlas() == "nameplates-icon-elite-gold", "the nameplate mark follows a tier change")
+assert(
+	unitFrame.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier3",
+	"the nameplate mark follows a tier change"
+)
 
 plateAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
@@ -216,6 +237,7 @@ plateAttached = true
 harness.env.UnitName = function()
 	return "Sentinel Kyra Starsong"
 end
+Mock.guids.nameplate1 = GuidFor("bronze", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a recycled untiered nameplate")
 assert(not unitFrame.FGFRarityMarker:IsShown(), "an untiered nameplate shows no tag")
@@ -225,9 +247,14 @@ assert(not unitFrame.FGFRarityBarGlow[1].textures.center:IsShown(), "an untiered
 harness.env.UnitName = function(unit)
 	return unit == "nameplate1" and shiny.name or "Tester"
 end
+Mock.guids.nameplate1 = GuidFor("shiny", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a tiered unit on a recycled nameplate")
 assert(unitFrame.FGFRarityMarker:IsShown(), "a tiered unit shows its tag on a recycled plate")
+assert(
+	unitFrame.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier4",
+	"a shiny nameplate mark is the fourth quality mark"
+)
 assert(unitFrame.FGFRarityBarGlow[1].textures.center:IsShown(), "a tiered unit shows its aura on a recycled plate")
 plateAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
@@ -253,6 +280,7 @@ harness.env.C_NamePlate = {
 harness.env.UnitName = function()
 	return "Sentinel Kyra Starsong"
 end
+Mock.guids.nameplate2 = GuidFor("bronze", "q")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate2")
 assert(freshHealthCalls() == 0, "an untiered plate is never given a health colour")
 assert(freshNameCalls() == 0, "an untiered plate is never given a name colour")

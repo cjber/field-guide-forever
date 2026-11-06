@@ -79,7 +79,7 @@ local function Report(guid, name)
 		return
 	end
 	if FirstReport(guid, name) then
-		ns.RecordKill(name, npcId)
+		ns.RecordKill(name, npcId, guid)
 	end
 end
 

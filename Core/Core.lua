@@ -5,7 +5,7 @@ local L = ns.L
 ns.ready = false
 ns.Zones = ns.Zones or {}
 ns.Instances = ns.Instances or {}
-ns.SCHEMA = 3
+ns.SCHEMA = 4
 ---@type fun()[]
 local progressCallbacks = {}
 ---@type fun(species: FGSpecies, zone: FGZone, result: FGRecordResult)[]
@@ -78,24 +78,29 @@ end
 local SPECIMEN_NUMBERS = {
 	count = ns.Model.MASTERED_AT,
 	kills = false,
-	rare = ns.Model.RARE_TARGET,
-	rareKills = false,
-	shiny = ns.Model.SHINY_TARGET,
-	shinyFinds = false,
+	bronze = false,
+	silver = false,
+	gold = false,
+	shiny = false,
 }
 
 local SPECIMEN_TIMES = {
 	firstKill = true,
 	lastKill = true,
 	firstSighting = true,
-	firstRare = true,
+	firstBronze = true,
+	firstSilver = true,
+	firstGold = true,
 	firstShiny = true,
 }
 
 local SPECIMEN_ZONES = {
 	firstKillZone = true,
+	lastKillZone = true,
 	firstSightingZone = true,
-	firstRareZone = true,
+	firstBronzeZone = true,
+	firstSilverZone = true,
+	firstGoldZone = true,
 	firstShinyZone = true,
 }
 
@@ -116,16 +121,15 @@ local function NormalizeState(state)
 	if type(state) ~= "table" then
 		return clean
 	end
-	for id, old in pairs(type(state.species) == "table" and state.species or {}) do
+	for id, raw in pairs(type(state.species) == "table" and state.species or {}) do
 		local numericId = tonumber(id)
-		if numericId and numericId > 0 and numericId % 1 == 0 and type(old) == "table" then
+		if numericId and numericId > 0 and numericId % 1 == 0 and type(raw) == "table" then
+			local old = ns.Model.MigrateEntry(raw)
 			local entry = {}
 			for field, maximum in pairs(SPECIMEN_NUMBERS) do
 				entry[field] = Integer(old[field], maximum or nil)
 			end
 			entry.kills = math.max(entry.kills, entry.count)
-			entry.rareKills = math.max(entry.rareKills, entry.rare)
-			entry.shinyFinds = math.max(entry.shinyFinds, entry.shiny)
 			-- A save from before kills were counted has only `count`: its kills are an estimate, as Model.Specimen says.
 			entry.killsEstimated = old.killsEstimated == true
 				or (old.kills == nil and old.killsEstimated == nil and entry.count > 0)
@@ -308,11 +312,13 @@ function ns.OnRecord(fn)
 end
 
 -- A kill names its creature by NPC id when the client let us read the unit's GUID, else by name. Either way the
--- creature must belong to the zone the player is in, as every catalogue lookup does.
+-- creature must belong to the zone the player is in, as every catalogue lookup does. The readable spawn GUID is what
+-- decides the spawn's tier, so it travels with the record.
 ---@param name string?
 ---@param npcId integer?
+---@param guid string?
 ---@return table?
-function ns.RecordKill(name, npcId)
+function ns.RecordKill(name, npcId, guid)
 	if not ns.ready then
 		return nil
 	end
@@ -326,17 +332,12 @@ function ns.RecordKill(name, npcId)
 		return nil
 	end
 	local timestamp = GetServerTime()
-	local result = ns.Model.Record(state, species.id, { species = species, time = timestamp, zone = zone.name })
+	local result = ns.Model.Record(state, species.id, { guid = guid, time = timestamp, zone = zone.name })
 	if result.newlyDiscovered then
 		state.unseen = state.unseen or {}
 		state.unseen[species.id] = true
 	end
-	local kind = "kill"
-	if result.shiny then
-		kind = "shiny"
-	elseif result.rare then
-		kind = "rare"
-	end
+	local kind = result.tier ~= "bronze" and result.tier or "kill"
 	ns.Model.AddSighting({
 		time = timestamp,
 		zone = zone.name,
@@ -512,7 +513,7 @@ SlashCmdList["FIELDGUIDEFOREVER"] = function(message)
 	local command = type(message) == "string" and message:lower():match("^%s*(.-)%s*$") or ""
 	if command == "help" then
 		local help = "Open your field guide with /fieldguide or /fg. Use /fgf leaderboard to view recorded kills, "
-			.. "or /fg preview to show every creature as rare or shiny for this session."
+			.. "or /fg preview to show every creature as silver, gold or shiny for this session."
 		print(L[help])
 		return
 	end

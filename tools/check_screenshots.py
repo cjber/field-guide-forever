@@ -49,6 +49,9 @@ SOURCES = (
     "tools/rarity.py",
     "tools/discovery.py",
     "tools/micro_menu_render.py",
+    "tools/gen_micro_glyph.py",
+    "media/MicroGlyph.tga",
+    "media/MicroGlyphHover.tga",
 )
 RARITY_GEOMETRY = {
     "HEALTH_WINDOW": (32, 26, 143, 49),

@@ -8,11 +8,15 @@ ns.Stats = Stats
 local SOURCES = {
 	fieldguide = {
 		creature_kills = "numeric_or_all",
-		rare_kills = "numeric",
+		bronze_finds = "numeric",
+		silver_finds = "numeric",
+		gold_finds = "numeric",
 		shiny_finds = "numeric",
 		first_sighting = "numeric",
 		first_kill = "numeric",
-		first_rare = "numeric",
+		first_bronze = "numeric",
+		first_silver = "numeric",
+		first_gold = "numeric",
 		first_shiny = "numeric",
 		boss_sightings = "numeric",
 		boss_kills = "numeric_pair",
@@ -33,7 +37,9 @@ local SOURCES = {
 local FIRST_FIELDS = {
 	first_sighting = "firstSighting",
 	first_kill = "firstKill",
-	first_rare = "firstRare",
+	first_bronze = "firstBronze",
+	first_silver = "firstSilver",
+	first_gold = "firstGold",
 	first_shiny = "firstShiny",
 }
 local instances = {}
@@ -106,8 +112,10 @@ local function Snapshot()
 		local kills = ns.Model.ObservedKills(entry)
 		total = total + kills
 		Add("creature_kills", id, kills, entry.lastKill)
-		Add("rare_kills", id, entry.rareKills or 0, entry.firstRare)
-		Add("shiny_finds", id, entry.shinyFinds or 0, entry.firstShiny)
+		Add("bronze_finds", id, entry.bronze or 0, entry.firstBronze)
+		Add("silver_finds", id, entry.silver or 0, entry.firstSilver)
+		Add("gold_finds", id, entry.gold or 0, entry.firstGold)
+		Add("shiny_finds", id, entry.shiny or 0, entry.firstShiny)
 		for metric, field in pairs(FIRST_FIELDS) do
 			if entry[field] then
 				Add(metric, id, 1, entry[field])

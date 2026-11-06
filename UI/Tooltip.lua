@@ -57,23 +57,10 @@ function Tooltip.Show(owner, entry)
 	local variants = ns.Model.Variants(ns.GetCharacterState(false), species.id)
 	local known = L["Known"]
 	local locked = L["Locked"]
-	tooltip:AddLine(("%s: %s"):format(L["Common"], variants.common.known and known or locked), tr, tg, tb, true)
-	if ns.Model.HasRareForm(ns.GetCharacterState(false), species) then
-		tooltip:AddLine(
-			string.format(L["%s: %s"], L["Rare variant"], variants.rare.known and known or locked),
-			tr,
-			tg,
-			tb,
-			true
-		)
+	for _, tier in ipairs({ "bronze", "silver", "gold", "shiny" }) do
+		local label = tier == "shiny" and L["Shiny variant"] or L[tier:sub(1, 1):upper() .. tier:sub(2)]
+		tooltip:AddLine(string.format(L["%s: %s"], label, variants[tier].known and known or locked), tr, tg, tb, true)
 	end
-	tooltip:AddLine(
-		string.format(L["%s: %s"], L["Shiny variant"], variants.shiny.known and known or locked),
-		tr,
-		tg,
-		tb,
-		true
-	)
 	tooltip:Show()
 end
 

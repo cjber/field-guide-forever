@@ -25,7 +25,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -42,27 +42,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -81,20 +65,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Darnassus totals",
-          "role": "header",
-          "w": 178.5,
-          "x": 783.5,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -105,132 +81,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -246,7 +223,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 180.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -280,7 +265,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -297,27 +282,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -336,20 +305,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Badlands totals",
-          "role": "header",
-          "w": 166.5,
-          "x": 795.5,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -360,140 +321,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Rare title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Rare status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -509,7 +463,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 180.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -533,7 +495,7 @@
       "canvas": {
         "height": 752,
         "scale": 2,
-        "width": 1072
+        "width": 1335
       },
       "frame": {
         "h": 700,
@@ -543,7 +505,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -560,83 +522,132 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
         },
         {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
         },
         {
           "h": 514,
-          "name": "Instances body",
-          "role": "pane",
-          "w": 924,
+          "name": "Instance list",
+          "role": "list",
+          "w": 330,
           "x": 44,
           "y": 130
         },
         {
-          "h": 20,
-          "name": "Instances title",
-          "role": "content",
-          "w": 884,
-          "x": 48,
-          "y": 134
+          "h": 514,
+          "name": "Instance pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
         },
         {
-          "h": 16,
-          "name": "Instances subtitle",
+          "h": 24,
+          "name": "Instance name",
+          "parent": "Instance pane",
           "role": "content",
-          "w": 884,
-          "x": 48,
-          "y": 156
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
-          "h": 86,
-          "name": "Instance row 1",
+          "h": 30,
+          "name": "Bosses heading",
+          "parent": "Instance pane",
           "role": "content",
-          "w": 884,
-          "x": 44,
-          "y": 178
-        },
-        {
-          "h": 86,
-          "name": "Instance row 2",
-          "role": "content",
-          "w": 884,
-          "x": 44,
+          "w": 300,
+          "x": 400,
           "y": 270
         },
         {
-          "h": 86,
-          "name": "Instance row 3",
+          "h": 40,
+          "name": "Boss row 1",
+          "parent": "Instance pane",
           "role": "content",
-          "w": 884,
-          "x": 44,
-          "y": 362
+          "w": 536,
+          "x": 402,
+          "y": 310
         },
         {
-          "h": 86,
-          "name": "Instance row 4",
+          "h": 40,
+          "name": "Boss row 2",
+          "parent": "Instance pane",
           "role": "content",
-          "w": 884,
+          "w": 536,
+          "x": 402,
+          "y": 354
+        },
+        {
+          "h": 40,
+          "name": "Boss row 3",
+          "parent": "Instance pane",
+          "role": "content",
+          "w": 536,
+          "x": 402,
+          "y": 398
+        },
+        {
+          "h": 40,
+          "name": "Boss row 4",
+          "parent": "Instance pane",
+          "role": "content",
+          "w": 536,
+          "x": 402,
+          "y": 442
+        },
+        {
+          "h": 40,
+          "name": "Boss row 5",
+          "parent": "Instance pane",
+          "role": "content",
+          "w": 536,
+          "x": 402,
+          "y": 486
+        },
+        {
+          "h": 40,
+          "name": "Boss row 6",
+          "parent": "Instance pane",
+          "role": "content",
+          "w": 536,
+          "x": 402,
+          "y": 530
+        },
+        {
+          "h": 40,
+          "name": "Boss row 7",
+          "parent": "Instance pane",
+          "role": "content",
+          "w": 536,
+          "x": 402,
+          "y": 574
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
           "x": 44,
-          "y": 454
+          "y": 656
+        },
+        {
+          "h": 12,
+          "name": "Cleared progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 688
         }
       ]
     },
@@ -781,538 +792,12 @@
           "y": 130
         },
         {
-          "h": 60,
+          "h": 36,
           "name": "Catalogue notice",
           "role": "content",
           "w": 680,
           "x": 166,
           "y": 370
-        }
-      ]
-    },
-    "rare-record.png": {
-      "canvas": {
-        "height": 752,
-        "scale": 2,
-        "width": 1072
-      },
-      "frame": {
-        "h": 700,
-        "w": 960,
-        "x": 26,
-        "y": 26
-      },
-      "widgets": [
-        {
-          "h": 229,
-          "name": "right tab strip",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 54
-        },
-        {
-          "h": 55,
-          "name": "tab plate 1 creatures",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 54
-        },
-        {
-          "h": 55,
-          "name": "tab plate 2 rares",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
-        },
-        {
-          "h": 24,
-          "name": "search",
-          "role": "input",
-          "w": 250,
-          "x": 50,
-          "y": 88
-        },
-        {
-          "h": 24,
-          "name": "filter",
-          "role": "input",
-          "w": 128,
-          "x": 314,
-          "y": 88
-        },
-        {
-          "h": 12,
-          "name": "Swamp of Sorrows totals",
-          "role": "header",
-          "w": 219.0,
-          "x": 743.0,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
-        },
-        {
-          "h": 514,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 130
-        },
-        {
-          "h": 20,
-          "name": "Detail name",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
-        },
-        {
-          "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
-          "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Rare title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Rare status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
-        },
-        {
-          "h": 22,
-          "name": "Open map",
-          "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
-        },
-        {
-          "h": 58,
-          "name": "bottom bar",
-          "role": "bar",
-          "w": 924,
-          "x": 44,
-          "y": 656
-        },
-        {
-          "h": 12,
-          "name": "Bottom progress",
-          "role": "progress",
-          "w": 320,
-          "x": 58,
-          "y": 686
-        },
-        {
-          "h": 26,
-          "name": "Open Journal",
-          "role": "button",
-          "w": 120,
-          "x": 708,
-          "y": 672
-        },
-        {
-          "h": 26,
-          "name": "Track Species",
-          "role": "button",
-          "w": 120,
-          "x": 836,
-          "y": 672
-        }
-      ]
-    },
-    "rares.png": {
-      "canvas": {
-        "height": 752,
-        "scale": 2,
-        "width": 1072
-      },
-      "frame": {
-        "h": 700,
-        "w": 960,
-        "x": 26,
-        "y": 26
-      },
-      "widgets": [
-        {
-          "h": 229,
-          "name": "right tab strip",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 54
-        },
-        {
-          "h": 55,
-          "name": "tab plate 1 creatures",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 54
-        },
-        {
-          "h": 55,
-          "name": "tab plate 2 rares",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
-        },
-        {
-          "h": 24,
-          "name": "search",
-          "role": "input",
-          "w": 250,
-          "x": 50,
-          "y": 88
-        },
-        {
-          "h": 24,
-          "name": "filter",
-          "role": "input",
-          "w": 128,
-          "x": 314,
-          "y": 88
-        },
-        {
-          "h": 12,
-          "name": "Badlands totals",
-          "role": "header",
-          "w": 166.5,
-          "x": 795.5,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
-        },
-        {
-          "h": 514,
-          "name": "Detail pane",
-          "role": "pane",
-          "w": 582,
-          "x": 386,
-          "y": 130
-        },
-        {
-          "h": 20,
-          "name": "Detail name",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
-        },
-        {
-          "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
-          "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 16,
-          "name": "Rare title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Rare status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
-        },
-        {
-          "h": 22,
-          "name": "Open map",
-          "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
-        },
-        {
-          "h": 58,
-          "name": "bottom bar",
-          "role": "bar",
-          "w": 924,
-          "x": 44,
-          "y": 656
-        },
-        {
-          "h": 12,
-          "name": "Bottom progress",
-          "role": "progress",
-          "w": 320,
-          "x": 58,
-          "y": 686
-        },
-        {
-          "h": 26,
-          "name": "Open Journal",
-          "role": "button",
-          "w": 120,
-          "x": 708,
-          "y": 672
-        },
-        {
-          "h": 26,
-          "name": "Track Species",
-          "role": "button",
-          "w": 120,
-          "x": 836,
-          "y": 672
         }
       ]
     },
@@ -1330,7 +815,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -1347,27 +832,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -1386,20 +855,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "The Barrens totals",
-          "role": "header",
-          "w": 199.0,
-          "x": 763.0,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -1410,140 +871,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -1559,7 +1013,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 199.9,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -1636,7 +1098,7 @@
           "h": 16,
           "name": "Settings label 2",
           "role": "content",
-          "w": 124.0,
+          "w": 118.0,
           "x": 46,
           "y": 82
         },
@@ -1728,7 +1190,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -1745,27 +1207,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -1784,20 +1230,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Dun Morogh totals",
-          "role": "header",
-          "w": 191.5,
-          "x": 770.5,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -1808,140 +1246,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
-          "h": 14,
+          "h": 16,
           "name": "Detail subtitle",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
-        },
-        {
-          "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
-          "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 16,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 36,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -1957,7 +1388,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 190.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -1991,7 +1430,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -2008,27 +1447,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -2047,20 +1470,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Dun Morogh totals",
-          "role": "header",
-          "w": 191.5,
-          "x": 770.5,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -2071,140 +1486,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
-          "h": 14,
+          "h": 16,
           "name": "Detail subtitle",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
-        },
-        {
-          "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
-          "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 16,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 36,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -2220,7 +1628,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 190.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -2254,7 +1670,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -2271,27 +1687,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -2310,20 +1710,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "The Barrens totals",
-          "role": "header",
-          "w": 199.0,
-          "x": 763.0,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -2334,140 +1726,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -2483,7 +1868,255 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 199.9,
+          "x": 414,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "silver-record.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 113,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 438,
+          "x": 506,
+          "y": 150
+        },
+        {
+          "h": 16,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 438,
+          "x": 506,
+          "y": 180
+        },
+        {
+          "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 36,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 94,
+          "x": 860,
+          "y": 606
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 12,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 190.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -2517,7 +2150,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -2534,27 +2167,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -2573,20 +2190,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "The Barrens totals",
-          "role": "header",
-          "w": 199.0,
-          "x": 763.0,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -2597,140 +2206,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -2746,7 +2348,255 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 199.9,
+          "x": 414,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Open Journal",
+          "role": "button",
+          "w": 120,
+          "x": 708,
+          "y": 672
+        },
+        {
+          "h": 26,
+          "name": "Track Species",
+          "role": "button",
+          "w": 120,
+          "x": 836,
+          "y": 672
+        }
+      ]
+    },
+    "variants.png": {
+      "canvas": {
+        "height": 752,
+        "scale": 2,
+        "width": 1072
+      },
+      "frame": {
+        "h": 700,
+        "w": 960,
+        "x": 26,
+        "y": 26
+      },
+      "widgets": [
+        {
+          "h": 113,
+          "name": "right tab strip",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 1 creatures",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 54
+        },
+        {
+          "h": 55,
+          "name": "tab plate 2 instances",
+          "role": "tabs",
+          "w": 55,
+          "x": 989,
+          "y": 112
+        },
+        {
+          "h": 24,
+          "name": "search",
+          "role": "input",
+          "w": 250,
+          "x": 50,
+          "y": 88
+        },
+        {
+          "h": 24,
+          "name": "filter",
+          "role": "input",
+          "w": 128,
+          "x": 314,
+          "y": 88
+        },
+        {
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
+        },
+        {
+          "h": 514,
+          "name": "Detail pane",
+          "role": "pane",
+          "w": 582,
+          "x": 386,
+          "y": 130
+        },
+        {
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
+          "name": "Detail name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 438,
+          "x": 506,
+          "y": 150
+        },
+        {
+          "h": 16,
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 438,
+          "x": 506,
+          "y": 180
+        },
+        {
+          "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 36,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
+          "name": "Open map",
+          "role": "button",
+          "w": 94,
+          "x": 860,
+          "y": 606
+        },
+        {
+          "h": 58,
+          "name": "bottom bar",
+          "role": "bar",
+          "w": 924,
+          "x": 44,
+          "y": 656
+        },
+        {
+          "h": 12,
+          "name": "Bottom progress",
+          "role": "progress",
+          "w": 320,
+          "x": 58,
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 190.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -2780,7 +2630,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -2797,27 +2647,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -2836,20 +2670,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Dun Morogh totals",
-          "role": "header",
-          "w": 191.5,
-          "x": 770.5,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -2860,140 +2686,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
-          "h": 14,
+          "h": 16,
           "name": "Detail subtitle",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
-        },
-        {
-          "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
-          "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 16,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 36,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -3009,7 +2828,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 190.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -3043,7 +2870,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -3060,27 +2887,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -3099,20 +2910,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Duskwood totals",
-          "role": "header",
-          "w": 180.0,
-          "x": 782.0,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -3123,140 +2926,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -3272,7 +3068,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 180.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -3306,7 +3110,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -3323,27 +3127,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -3362,20 +3150,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Azshara totals",
-          "role": "header",
-          "w": 167.0,
-          "x": 795.0,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -3386,132 +3166,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -3527,7 +3308,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 180.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -3561,7 +3350,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -3578,27 +3367,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -3617,20 +3390,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Loch Modan totals",
-          "role": "header",
-          "w": 196.0,
-          "x": 766.0,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -3641,132 +3406,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 36,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -3782,7 +3548,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 189.9,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -3816,7 +3590,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -3833,27 +3607,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -3872,20 +3630,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Burning Steppes totals",
-          "role": "header",
-          "w": 202.0,
-          "x": 760.0,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -3896,140 +3646,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 36,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -4045,7 +3788,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 180.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -4079,7 +3830,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -4096,27 +3847,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -4135,20 +3870,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Hillsbrad Foothills totals",
-          "role": "header",
-          "w": 214.5,
-          "x": 747.5,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -4159,140 +3886,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 36,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -4308,7 +4028,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 180.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -4342,7 +4070,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -4359,27 +4087,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -4398,20 +4110,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Ashenvale totals",
-          "role": "header",
-          "w": 186.0,
-          "x": 776.0,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -4422,140 +4126,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
-        },
-        {
-          "h": 112,
-          "name": "Zone artwork frame",
-          "role": "card",
-          "w": 190,
-          "x": 764,
-          "y": 494
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -4571,7 +4268,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 199.9,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -4605,7 +4310,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -4622,27 +4327,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -4661,20 +4350,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Desolace totals",
-          "role": "header",
-          "w": 179.5,
-          "x": 782.5,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -4685,132 +4366,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -4826,7 +4508,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 190.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -4860,7 +4550,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -4877,27 +4567,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -4916,20 +4590,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Mount Hyjal totals",
-          "role": "header",
-          "w": 181.5,
-          "x": 780.5,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -4940,132 +4606,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -5081,7 +4748,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 180.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -5115,7 +4790,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -5132,27 +4807,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -5171,20 +4830,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Undercity totals",
-          "role": "header",
-          "w": 182.0,
-          "x": 780.0,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -5195,132 +4846,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
-          "h": 14,
+          "h": 16,
           "name": "Detail subtitle",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
-        },
-        {
-          "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
-          "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 16,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -5336,7 +4988,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 200.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -5370,7 +5030,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -5387,27 +5047,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -5426,20 +5070,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Orgrimmar totals",
-          "role": "header",
-          "w": 189.5,
-          "x": 772.5,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -5450,132 +5086,133 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
-          "name": "Research bar",
-          "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
-        },
-        {
-          "h": 102,
-          "name": "Records",
-          "role": "content",
-          "w": 350,
-          "x": 400,
-          "y": 500
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
           "h": 22,
+          "name": "Research bar",
+          "parent": "Detail pane",
+          "role": "progress",
+          "w": 438,
+          "x": 506,
+          "y": 230
+        },
+        {
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 300,
+          "x": 400,
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 122,
+          "name": "Habitat map",
+          "role": "card",
+          "w": 180,
+          "x": 670,
+          "y": 508
+        },
+        {
+          "h": 18,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
+        },
+        {
+          "h": 24,
           "name": "Open map",
           "role": "button",
-          "w": 98,
-          "x": 856,
-          "y": 610
+          "w": 94,
+          "x": 860,
+          "y": 606
         },
         {
           "h": 58,
@@ -5591,7 +5228,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 200.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -5625,7 +5270,7 @@
       },
       "widgets": [
         {
-          "h": 229,
+          "h": 113,
           "name": "right tab strip",
           "role": "tabs",
           "w": 55,
@@ -5642,27 +5287,11 @@
         },
         {
           "h": 55,
-          "name": "tab plate 2 rares",
+          "name": "tab plate 2 instances",
           "role": "tabs",
           "w": 55,
           "x": 989,
           "y": 112
-        },
-        {
-          "h": 55,
-          "name": "tab plate 3 shiny",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 170
-        },
-        {
-          "h": 55,
-          "name": "tab plate 4 instances",
-          "role": "tabs",
-          "w": 55,
-          "x": 989,
-          "y": 228
         },
         {
           "h": 24,
@@ -5681,20 +5310,12 @@
           "y": 88
         },
         {
-          "h": 12,
-          "name": "Hall of Legends totals",
-          "role": "header",
-          "w": 199.0,
-          "x": 763.0,
-          "y": 56
-        },
-        {
-          "h": 12,
-          "name": "All zones totals",
-          "role": "header",
-          "w": 205.5,
-          "x": 756.5,
-          "y": 74
+          "h": 514,
+          "name": "Creature list",
+          "role": "list",
+          "w": 330,
+          "x": 44,
+          "y": 130
         },
         {
           "h": 514,
@@ -5705,124 +5326,117 @@
           "y": 130
         },
         {
-          "h": 20,
+          "h": 90,
+          "name": "Detail portrait",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 90,
+          "x": 401,
+          "y": 143
+        },
+        {
+          "h": 24,
           "name": "Detail name",
           "parent": "Detail pane",
           "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 144
-        },
-        {
-          "h": 14,
-          "name": "Detail subtitle",
-          "parent": "Detail pane",
-          "role": "content",
-          "w": 554,
-          "x": 400,
-          "y": 170
+          "w": 438,
+          "x": 506,
+          "y": 150
         },
         {
           "h": 16,
-          "name": "Common title",
-          "parent": "Common card",
+          "name": "Detail subtitle",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 164,
-          "x": 411.0,
-          "y": 338
+          "w": 438,
+          "x": 506,
+          "y": 180
         },
         {
-          "h": 10,
-          "name": "Common status",
-          "parent": "Common card",
-          "role": "content",
-          "w": 148,
-          "x": 419.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Common card",
-          "role": "card",
-          "w": 164,
-          "x": 411.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "No rare form title",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 164,
-          "x": 595.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "No rare form status",
-          "parent": "Rare card",
-          "role": "content",
-          "w": 148,
-          "x": 603.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Rare card",
-          "role": "card",
-          "w": 164,
-          "x": 595.0,
-          "y": 194
-        },
-        {
-          "h": 12,
-          "name": "Shiny title",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 164,
-          "x": 779.0,
-          "y": 338
-        },
-        {
-          "h": 10,
-          "name": "Shiny status",
-          "parent": "Shiny card",
-          "role": "content",
-          "w": 148,
-          "x": 787.0,
-          "y": 364
-        },
-        {
-          "h": 219,
-          "name": "Shiny card",
-          "role": "card",
-          "w": 164,
-          "x": 779.0,
-          "y": 194
-        },
-        {
-          "h": 52,
-          "name": "Research strip",
-          "role": "card",
-          "w": 554,
-          "x": 400,
-          "y": 430
-        },
-        {
-          "h": 12,
+          "h": 22,
           "name": "Research bar",
+          "parent": "Detail pane",
           "role": "progress",
-          "w": 534,
-          "x": 410,
-          "y": 460
+          "w": 438,
+          "x": 506,
+          "y": 230
         },
         {
-          "h": 102,
-          "name": "Records",
+          "h": 30,
+          "name": "Variants heading",
+          "parent": "Detail pane",
           "role": "content",
-          "w": 350,
+          "w": 300,
           "x": 400,
-          "y": 500
+          "y": 302
+        },
+        {
+          "h": 112,
+          "name": "Bronze variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 404.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Silver variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 542.5,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Gold variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 681.0,
+          "y": 342
+        },
+        {
+          "h": 112,
+          "name": "Shiny variant",
+          "role": "card",
+          "w": 130.5,
+          "x": 819.5,
+          "y": 342
+        },
+        {
+          "h": 30,
+          "name": "Records heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 470
+        },
+        {
+          "h": 110,
+          "name": "Records",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 250,
+          "x": 400,
+          "y": 510
+        },
+        {
+          "h": 30,
+          "name": "Habitat heading",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 284,
+          "x": 670,
+          "y": 470
+        },
+        {
+          "h": 36,
+          "name": "Zone name",
+          "parent": "Detail pane",
+          "role": "content",
+          "w": 94,
+          "x": 860,
+          "y": 512
         },
         {
           "h": 58,
@@ -5838,7 +5452,15 @@
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 686
+          "y": 688
+        },
+        {
+          "h": 26,
+          "name": "Variant totals",
+          "role": "label",
+          "w": 160.0,
+          "x": 414,
+          "y": 672
         },
         {
           "h": 26,
@@ -5862,7 +5484,7 @@
   "scenes": [
     "field-guide.png",
     "creature-icons.png",
-    "rares.png",
+    "variants.png",
     "shiny.png",
     "zone-0001.png",
     "zone-0010.png",
@@ -5877,7 +5499,7 @@
     "zone-1637.png",
     "zone-2917.png",
     "tracking.png",
-    "rare-record.png",
+    "silver-record.png",
     "shiny-record.png",
     "search-filter.png",
     "settings.png",
@@ -5888,7 +5510,7 @@
   ],
   "widgets": [
     {
-      "h": 229,
+      "h": 113,
       "name": "right tab strip",
       "role": "tabs",
       "w": 55,
@@ -5905,27 +5527,11 @@
     },
     {
       "h": 55,
-      "name": "tab plate 2 rares",
+      "name": "tab plate 2 instances",
       "role": "tabs",
       "w": 55,
       "x": 989,
       "y": 112
-    },
-    {
-      "h": 55,
-      "name": "tab plate 3 shiny",
-      "role": "tabs",
-      "w": 55,
-      "x": 989,
-      "y": 170
-    },
-    {
-      "h": 55,
-      "name": "tab plate 4 instances",
-      "role": "tabs",
-      "w": 55,
-      "x": 989,
-      "y": 228
     },
     {
       "h": 24,
@@ -5944,20 +5550,12 @@
       "y": 88
     },
     {
-      "h": 12,
-      "name": "The Barrens totals",
-      "role": "header",
-      "w": 199.0,
-      "x": 763.0,
-      "y": 56
-    },
-    {
-      "h": 12,
-      "name": "All zones totals",
-      "role": "header",
-      "w": 205.5,
-      "x": 756.5,
-      "y": 74
+      "h": 514,
+      "name": "Creature list",
+      "role": "list",
+      "w": 330,
+      "x": 44,
+      "y": 130
     },
     {
       "h": 514,
@@ -5968,140 +5566,133 @@
       "y": 130
     },
     {
-      "h": 20,
+      "h": 90,
+      "name": "Detail portrait",
+      "parent": "Detail pane",
+      "role": "content",
+      "w": 90,
+      "x": 401,
+      "y": 143
+    },
+    {
+      "h": 24,
       "name": "Detail name",
       "parent": "Detail pane",
       "role": "content",
-      "w": 554,
-      "x": 400,
-      "y": 144
-    },
-    {
-      "h": 14,
-      "name": "Detail subtitle",
-      "parent": "Detail pane",
-      "role": "content",
-      "w": 554,
-      "x": 400,
-      "y": 170
+      "w": 438,
+      "x": 506,
+      "y": 150
     },
     {
       "h": 16,
-      "name": "Common title",
-      "parent": "Common card",
+      "name": "Detail subtitle",
+      "parent": "Detail pane",
       "role": "content",
-      "w": 164,
-      "x": 411.0,
-      "y": 338
-    },
-    {
-      "h": 10,
-      "name": "Common status",
-      "parent": "Common card",
-      "role": "content",
-      "w": 148,
-      "x": 419.0,
-      "y": 364
-    },
-    {
-      "h": 219,
-      "name": "Common card",
-      "role": "card",
-      "w": 164,
-      "x": 411.0,
-      "y": 194
-    },
-    {
-      "h": 12,
-      "name": "No rare form title",
-      "parent": "Rare card",
-      "role": "content",
-      "w": 164,
-      "x": 595.0,
-      "y": 338
-    },
-    {
-      "h": 10,
-      "name": "No rare form status",
-      "parent": "Rare card",
-      "role": "content",
-      "w": 148,
-      "x": 603.0,
-      "y": 364
-    },
-    {
-      "h": 219,
-      "name": "Rare card",
-      "role": "card",
-      "w": 164,
-      "x": 595.0,
-      "y": 194
-    },
-    {
-      "h": 12,
-      "name": "Shiny title",
-      "parent": "Shiny card",
-      "role": "content",
-      "w": 164,
-      "x": 779.0,
-      "y": 338
-    },
-    {
-      "h": 10,
-      "name": "Shiny status",
-      "parent": "Shiny card",
-      "role": "content",
-      "w": 148,
-      "x": 787.0,
-      "y": 364
-    },
-    {
-      "h": 219,
-      "name": "Shiny card",
-      "role": "card",
-      "w": 164,
-      "x": 779.0,
-      "y": 194
-    },
-    {
-      "h": 52,
-      "name": "Research strip",
-      "role": "card",
-      "w": 554,
-      "x": 400,
-      "y": 430
-    },
-    {
-      "h": 12,
-      "name": "Research bar",
-      "role": "progress",
-      "w": 534,
-      "x": 410,
-      "y": 460
-    },
-    {
-      "h": 102,
-      "name": "Records",
-      "role": "content",
-      "w": 350,
-      "x": 400,
-      "y": 500
-    },
-    {
-      "h": 112,
-      "name": "Zone artwork frame",
-      "role": "card",
-      "w": 190,
-      "x": 764,
-      "y": 494
+      "w": 438,
+      "x": 506,
+      "y": 180
     },
     {
       "h": 22,
+      "name": "Research bar",
+      "parent": "Detail pane",
+      "role": "progress",
+      "w": 438,
+      "x": 506,
+      "y": 230
+    },
+    {
+      "h": 30,
+      "name": "Variants heading",
+      "parent": "Detail pane",
+      "role": "content",
+      "w": 300,
+      "x": 400,
+      "y": 302
+    },
+    {
+      "h": 112,
+      "name": "Bronze variant",
+      "role": "card",
+      "w": 130.5,
+      "x": 404.0,
+      "y": 342
+    },
+    {
+      "h": 112,
+      "name": "Silver variant",
+      "role": "card",
+      "w": 130.5,
+      "x": 542.5,
+      "y": 342
+    },
+    {
+      "h": 112,
+      "name": "Gold variant",
+      "role": "card",
+      "w": 130.5,
+      "x": 681.0,
+      "y": 342
+    },
+    {
+      "h": 112,
+      "name": "Shiny variant",
+      "role": "card",
+      "w": 130.5,
+      "x": 819.5,
+      "y": 342
+    },
+    {
+      "h": 30,
+      "name": "Records heading",
+      "parent": "Detail pane",
+      "role": "content",
+      "w": 250,
+      "x": 400,
+      "y": 470
+    },
+    {
+      "h": 110,
+      "name": "Records",
+      "parent": "Detail pane",
+      "role": "content",
+      "w": 250,
+      "x": 400,
+      "y": 510
+    },
+    {
+      "h": 30,
+      "name": "Habitat heading",
+      "parent": "Detail pane",
+      "role": "content",
+      "w": 284,
+      "x": 670,
+      "y": 470
+    },
+    {
+      "h": 122,
+      "name": "Habitat map",
+      "role": "card",
+      "w": 180,
+      "x": 670,
+      "y": 508
+    },
+    {
+      "h": 18,
+      "name": "Zone name",
+      "parent": "Detail pane",
+      "role": "content",
+      "w": 94,
+      "x": 860,
+      "y": 512
+    },
+    {
+      "h": 24,
       "name": "Open map",
       "role": "button",
-      "w": 98,
-      "x": 856,
-      "y": 610
+      "w": 94,
+      "x": 860,
+      "y": 606
     },
     {
       "h": 58,
@@ -6117,7 +5708,15 @@
       "role": "progress",
       "w": 320,
       "x": 58,
-      "y": 686
+      "y": 688
+    },
+    {
+      "h": 26,
+      "name": "Variant totals",
+      "role": "label",
+      "w": 199.9,
+      "x": 414,
+      "y": 672
     },
     {
       "h": 26,

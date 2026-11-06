@@ -25,7 +25,7 @@ local function BuildPanel(panel, page)
 		end
 	end)
 
-	page.AddCheck(panel, L["Show the sighting log"], function()
+	page.AddCheck(panel, L["Show the records list"], function()
 		return ns.db and ns.db.options.showSightingLog ~= false
 	end, function(checked)
 		if ns.db then
@@ -50,7 +50,7 @@ local function BuildPanel(panel, page)
 		if ns.db then
 			ns.db.options.milestoneToasts = checked
 		end
-	end, L["Rare, shiny, mastery and zone milestones show an achievement toast. Click it to open the journal."])
+	end, L["Silver, gold, shiny, mastery and zone milestones show an achievement toast. Click it to open the journal."])
 
 	page.AddCheck(panel, L["Share progress with guild and group addon users"], function()
 		return ns.db and ns.db.options.statsShare ~= false
@@ -103,10 +103,12 @@ end
 ns.On("PLAYER_LOGIN", function()
 	ns.SafeCall("settings", SettingsPanel.Register)
 	ns.SafeCall("micro button", function()
+		local glyph = "Interface\\AddOns\\FieldGuideForever\\media\\MicroGlyph"
+		local glyphHover = "Interface\\AddOns\\FieldGuideForever\\media\\MicroGlyphHover"
 		local spec = {
 			name = "FieldGuideForeverMicroButton",
-			atlas = "Questlog",
-			icon = "Interface\\Icons\\inv_misc_book_09",
+			atlas = "ButtonBG",
+			icon = glyph,
 			title = L["Field Guide"],
 			binding = "Shift-F",
 			subtext = L["Click to browse the field compendium"],
@@ -118,6 +120,36 @@ ns.On("PLAYER_LOGIN", function()
 			onClick = ns.OpenGuide,
 		}
 		local button = ns.MicroButton.Create(spec)
+		if button then
+			-- The shared button puts the glyph on the native plate. Hover and the pressed offset are the native
+			-- micro-menu behaviours, added here so the shared module stays in step with Forever Core.
+			local micro = button --[[@as ForeverMicroButton]]
+			local hover = micro:CreateTexture(nil, "HIGHLIGHT")
+			hover:SetTexture(glyphHover)
+			hover:SetSize(22, 22)
+			hover:SetPoint("CENTER", 0, 0.5)
+			hover:SetBlendMode("ADD")
+			local icon = micro.icon
+			-- The plate is the button's normal texture on ARTWORK, the glyph's own layer, so it could draw over the
+			-- glyph; OVERLAY keeps the glyph on top in every state.
+			icon:SetDrawLayer("OVERLAY")
+			local function Offset(down)
+				icon:ClearAllPoints()
+				icon:SetPoint("CENTER", 0, down and -0.5 or 0.5)
+			end
+			micro:HookScript("OnMouseDown", function()
+				Offset(true)
+			end)
+			micro:HookScript("OnMouseUp", function()
+				Offset(false)
+			end)
+			micro:HookScript("OnLeave", function()
+				Offset(false)
+			end)
+			micro:HookScript("OnHide", function()
+				Offset(false)
+			end)
+		end
 		if button and ns.Tooltip then
 			-- The shared button draws its own title-only tooltip; Field Guide then redraws it with the journal's minimum
 			-- width. Hooks keep the shared handler's own work rather than replacing it.

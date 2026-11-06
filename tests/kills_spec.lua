@@ -53,9 +53,6 @@ local function Start(opts)
 	harness:Fire("ADDON_LOADED", "FieldGuideForever")
 	harness:Fire("PLAYER_LOGIN")
 	harness:RunTimers()
-	harness.ns.Model.SetRandom(function()
-		return 1
-	end)
 	assert(harness.ns.ready, "the addon initialises")
 	return harness
 end

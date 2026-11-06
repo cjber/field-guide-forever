@@ -8,24 +8,15 @@ local Model = {}
 ns.Model = Model
 
 Model.MASTERED_AT = 10
-Model.RARE_TARGET = 3
-Model.SHINY_TARGET = 1
-Model.SHINY_CHANCE = 500
 Model.SIGHTING_LIMIT = 50
 
----@param speciesId integer
----@return string
-function Model.Tier(speciesId)
-	local band = speciesId % 1000
-	if band == 0 then
-		return "shiny"
-	elseif band % 100 == 0 then
-		return "gold"
-	elseif band % 25 == 0 then
-		return "silver"
-	end
-	return "copper"
-end
+-- One ladder for every creature. A spawn's tier is part of the spawn, not of the species or the character, so every
+-- player who meets the same spawn sees the same tier.
+Model.TIERS = { "bronze", "silver", "gold", "shiny" }
+Model.TIER_ODDS = { bronze = 1, silver = 25, gold = 100, shiny = 1000 }
+
+-- Old saves called the rare form confirmed after this many sightings.
+Model.LEGACY_RARE_TARGET = 3
 
 ---@type table<integer, string>
 Model.RANK_NAMES = {
@@ -36,22 +27,57 @@ Model.RANK_NAMES = {
 	[4] = "Mastered",
 }
 
--- Tests replace this with a fixed function. The default is math.random itself so a caller can reason about a
--- 1 in SHINY_CHANCE roll without a wrapper changing the distribution.
----@type fun(...: any): number
-Model.random = math.random
+-- A prime below 2^31 keeps every product under 2^53, where Lua 5.1's doubles still hold every integer exactly.
+local HASH_MODULUS = 2147483647
+local HASH_BASE = 1000003
+local HASH_MIX = 48271
+local TIER_ROLL = 1000000
 
----@param random? fun(...: any): number
-function Model.SetRandom(random)
-	Model.random = random or math.random
+---@param tier string?
+---@return boolean
+function Model.IsTier(tier)
+	return tier == "bronze" or tier == "silver" or tier == "gold" or tier == "shiny"
+end
+
+-- A stable hash of the readable spawn GUID. No random source is involved, so two players looking at the same spawn
+-- always agree. The final multiply spreads sequence-looking GUID suffixes across the whole roll before the ladder
+-- reads it.
+---@param guid string?
+---@return integer
+local function HashGuid(guid)
+	if type(guid) ~= "string" or guid == "" then
+		return 0
+	end
+	local hash = 2166136261 % HASH_MODULUS
+	for index = 1, #guid do
+		hash = (hash * HASH_BASE + guid:byte(index)) % HASH_MODULUS
+	end
+	return (hash * HASH_MIX) % HASH_MODULUS
+end
+
+-- The ladder partitions the roll: shiny 1 in 1000, gold 1 in 100, silver 1 in 25, and every other spawn is bronze.
+-- A spawn without a readable GUID cannot be identified across clients, so it stays bronze.
+---@param guid string?
+---@return string
+function Model.SpawnTier(guid)
+	local hash = HashGuid(guid)
+	if hash == 0 then
+		return "bronze"
+	end
+	local roll = hash % TIER_ROLL
+	if roll < 1000 then
+		return "shiny"
+	elseif roll < 11000 then
+		return "gold"
+	elseif roll < 51000 then
+		return "silver"
+	end
+	return "bronze"
 end
 
 -- A fresh per-character state, flat enough that SavedVariables can serialise it without metatables.
 ---@return FGState
-function Model.NewState(random)
-	if random then
-		Model.SetRandom(random)
-	end
+function Model.NewState()
 	return { species = {}, encounters = {} }
 end
 
@@ -98,10 +124,10 @@ local function Entry(state, speciesId)
 			count = 0,
 			kills = 0,
 			killsEstimated = false,
-			rare = 0,
-			rareKills = 0,
+			bronze = 0,
+			silver = 0,
+			gold = 0,
 			shiny = 0,
-			shinyFinds = 0,
 		}
 		state.species[speciesId] = entry
 	end
@@ -110,45 +136,72 @@ local function Entry(state, speciesId)
 		entry.killsEstimated = true
 	end
 	entry.kills = entry.kills or entry.count or 0
-	entry.rare = entry.rare or 0
-	entry.rareKills = entry.rareKills or 0
-	entry.shiny = entry.shiny or 0
-	entry.shinyFinds = entry.shinyFinds or 0
+	for _, tier in ipairs(Model.TIERS) do
+		entry[tier] = entry[tier] or 0
+	end
 	return entry
 end
 
--- The default roll is an integer from 1 to SHINY_CHANCE, so 1 is the shiny. A spec supplies a function returning
--- a fraction in [0, 1), where 0 is the perfect roll; accepting both keeps the tests readable and the game's odds
--- exact.
----@param random fun(...: any): number
----@return boolean
-local function RollShiny(random)
-	if random == math.random then
-		return random(Model.SHINY_CHANCE) == 1
+-- Bring one old entry onto the tier ladder. A save from before schema 4 had a kill count, a rare form and a shiny
+-- flag, so its kills become bronze finds, a completed rare form becomes one silver and a found shiny stays shiny.
+-- Gold was never recorded, so it is never inferred.
+---@param old table?
+---@return table
+function Model.MigrateEntry(old)
+	if type(old) ~= "table" then
+		return { bronze = 0, silver = 0, gold = 0, shiny = 0 }
 	end
-	return random() < 1 / Model.SHINY_CHANCE
+	local entry = {}
+	for key, value in pairs(old) do
+		entry[key] = value
+	end
+	if old.bronze == nil then
+		local kills = tonumber(old.kills) or tonumber(old.count) or 0
+		local rare = tonumber(old.rare) or 0
+		local shiny = tonumber(old.shiny) or 0
+		entry.bronze = math.max(0, math.floor(kills))
+		entry.silver = rare >= Model.LEGACY_RARE_TARGET and 1 or 0
+		entry.gold = 0
+		entry.shiny = shiny >= 1 and 1 or 0
+		if entry.bronze > 0 and entry.firstBronze == nil then
+			entry.firstBronze = old.firstKill
+			entry.firstBronzeZone = old.firstKillZone
+		end
+		if entry.silver == 1 and entry.firstSilver == nil then
+			entry.firstSilver = old.firstRare
+			entry.firstSilverZone = old.firstRareZone
+		end
+	end
+	entry.rare = nil
+	entry.rareKills = nil
+	entry.shinyFinds = nil
+	entry.firstRare = nil
+	entry.firstRareZone = nil
+	return entry
 end
 
--- Record one specimen. `opts.rare` marks a rare sighting (or inherit it from `opts.species.rare`), and the roll is
--- per kill, not per species, because a shiny is a property of the individual encountered.
+-- Record one specimen. `opts.guid` is the readable spawn GUID the kill detector already dedupes on; a caller may
+-- pass an explicit `opts.tier` instead, which keeps the model testable without a client.
 ---@param state FGState
 ---@param speciesId integer
----@param opts? { rare?: boolean, species?: FGSpecies, time?: number, zone?: string, random?: fun(...: any): number }
----@return { count: integer, rank: integer, previousRank: integer, shiny: boolean, rare: boolean,
---- newlyDiscovered: boolean, firstRare: boolean, rareKnown: boolean, shinyKnown: boolean }
+---@param opts? { tier?: string, guid?: string, time?: number, zone?: string }
+---@return { count: integer, kills: integer, rank: integer, previousRank: integer, tier: string,
+--- newlyDiscovered: boolean, firstKill: boolean, firstTier: boolean, firstBronze: boolean, firstSilver: boolean,
+--- firstGold: boolean, firstShiny: boolean, bestTier: string? }
 function Model.Record(state, speciesId, opts)
-	if type(opts) == "boolean" then
-		opts = { rare = opts }
-	end
 	opts = opts or {}
 	local entry = Entry(state, speciesId)
+	local tier = Model.IsTier(opts.tier) and opts.tier or Model.SpawnTier(opts.guid)
+	local previouslyFound = entry[tier] or 0
 	local newlyDiscovered = entry.count == 0
 	local previousRank = Model.Rank(entry.count)
 	entry.count = math.min(entry.count + 1, Model.MASTERED_AT)
 	entry.kills = entry.kills + 1
+	entry[tier] = previouslyFound + 1
 	local recordedAt = tonumber(opts.time) or 0
 	entry.lastKill = recordedAt
 	local zone = type(opts.zone) == "string" and opts.zone or ""
+	entry.lastKillZone = zone
 	if entry.firstKill == nil then
 		entry.firstKill = recordedAt
 		entry.firstKillZone = zone
@@ -157,25 +210,18 @@ function Model.Record(state, speciesId, opts)
 		entry.firstSighting = recordedAt
 		entry.firstSightingZone = zone
 	end
-
-	local isRare = opts.rare
-	if isRare == nil and type(opts.species) == "table" then
-		isRare = opts.species.rare == true
-	end
-	if isRare then
-		entry.rare = math.min(entry.rare + 1, Model.RARE_TARGET)
-		entry.rareKills = entry.rareKills + 1
-		if entry.firstRare == nil then
-			entry.firstRare = recordedAt
-			entry.firstRareZone = zone
-		end
-	end
-
-	local shiny = RollShiny(opts.random or Model.random)
-	if shiny then
-		entry.shiny = math.min(entry.shiny + 1, Model.SHINY_TARGET)
-		entry.shinyFinds = entry.shinyFinds + 1
-		if entry.firstShiny == nil then
+	local firstTier = previouslyFound == 0
+	if firstTier then
+		if tier == "bronze" then
+			entry.firstBronze = recordedAt
+			entry.firstBronzeZone = zone
+		elseif tier == "silver" then
+			entry.firstSilver = recordedAt
+			entry.firstSilverZone = zone
+		elseif tier == "gold" then
+			entry.firstGold = recordedAt
+			entry.firstGoldZone = zone
+		elseif tier == "shiny" then
 			entry.firstShiny = recordedAt
 			entry.firstShinyZone = zone
 		end
@@ -186,13 +232,15 @@ function Model.Record(state, speciesId, opts)
 		kills = entry.kills,
 		rank = Model.Rank(entry.count),
 		previousRank = previousRank,
-		shiny = shiny,
-		rare = isRare == true,
+		tier = tier,
 		newlyDiscovered = newlyDiscovered,
 		firstKill = entry.kills == 1,
-		firstRare = isRare == true and entry.rareKills == 1,
-		rareKnown = entry.rare >= Model.RARE_TARGET,
-		shinyKnown = entry.shiny >= Model.SHINY_TARGET,
+		firstTier = firstTier,
+		firstBronze = tier == "bronze" and firstTier,
+		firstSilver = tier == "silver" and firstTier,
+		firstGold = tier == "gold" and firstTier,
+		firstShiny = tier == "shiny" and firstTier,
+		bestTier = Model.BestTier(entry),
 	}
 end
 
@@ -202,18 +250,33 @@ end
 function Model.Specimen(state, speciesId)
 	local entry = state and state.species and state.species[speciesId]
 	if not entry then
-		return { count = 0, kills = 0, rare = 0, rareKills = 0, shiny = 0, shinyFinds = 0 }
+		return { count = 0, kills = 0, bronze = 0, silver = 0, gold = 0, shiny = 0 }
 	end
 	entry.count = entry.count or 0
 	if entry.kills == nil and entry.count > 0 and entry.killsEstimated == nil then
 		entry.killsEstimated = true
 	end
 	entry.kills = entry.kills or entry.count or 0
-	entry.rare = entry.rare or 0
-	entry.rareKills = entry.rareKills or 0
-	entry.shiny = entry.shiny or 0
-	entry.shinyFinds = entry.shinyFinds or 0
+	for _, tier in ipairs(Model.TIERS) do
+		entry[tier] = entry[tier] or 0
+	end
 	return entry
+end
+
+-- The best coat this character has found on a species, or nil before its first recorded sighting.
+---@param entry FGSpeciesState?
+---@return string?
+function Model.BestTier(entry)
+	if type(entry) ~= "table" then
+		return nil
+	end
+	for index = #Model.TIERS, 1, -1 do
+		local tier = Model.TIERS[index]
+		if (tonumber(entry[tier]) or 0) > 0 then
+			return tier
+		end
+	end
+	return nil
 end
 
 -- Historical mastery counts are estimates. Only kills observed after that baseline belong on shared boards.
@@ -322,62 +385,36 @@ function Model.RecordEncounter(state, encounterId, name, difficultyId, timestamp
 	return { kills = encounter.kills, firstKill = firstKill, record = encounter }
 end
 
--- What a species has shown so far: common is known from the first specimen, rare needs RARE_TARGET sightings,
--- and shiny needs one lucky roll.
+-- What a species has shown so far: each coat is known once this character has found one spawn wearing it.
 ---@param state FGState?
 ---@param speciesId integer
----@return { common: FGVariant, rare: FGVariant, shiny: FGVariant }
+---@return { bronze: FGVariant, silver: FGVariant, gold: FGVariant, shiny: FGVariant }
 function Model.Variants(state, speciesId)
 	local entry = Model.Specimen(state, speciesId)
-	return {
-		common = { known = entry.count > 0, count = math.min(entry.count, 1), target = 1 },
-		rare = { known = entry.rare >= Model.RARE_TARGET, count = entry.rare, target = Model.RARE_TARGET },
-		shiny = { known = entry.shiny >= Model.SHINY_TARGET, count = entry.shiny, target = Model.SHINY_TARGET },
-	}
+	local variants = {}
+	for _, tier in ipairs(Model.TIERS) do
+		local count = tonumber(entry[tier]) or 0
+		variants[tier] = { known = count > 0, count = count, target = 1 }
+	end
+	return variants
 end
 
--- Only species the catalogue marks rare have a rare form. One recorded anyway (a creature that showed up rare) keeps
--- the rare it earned.
----@param state FGState?
----@param species FGSpecies
----@return boolean
-function Model.HasRareForm(state, species)
-	return species.rare == true or Model.Specimen(state, species.id).rare > 0
-end
-
--- Rare and shiny forms collected across a list of species. A species with no rare form adds nothing to the rare
--- total, so it never counts as missing.
+-- How many species in a list have each coat found. Bronze is every species and needs no total; the header counts the
+-- three that stand out.
 ---@param state FGState?
 ---@param speciesList FGSpecies[]
----@return { rare: integer, rareTotal: integer, shiny: integer, shinyTotal: integer }
-function Model.VariantTotals(state, speciesList)
-	local totals = { rare = 0, rareTotal = 0, shiny = 0, shinyTotal = 0 }
+---@return { silver: integer, gold: integer, shiny: integer }
+function Model.TierTotals(state, speciesList)
+	local totals = { silver = 0, gold = 0, shiny = 0 }
 	for _, species in ipairs(speciesList or {}) do
-		local variants = Model.Variants(state, species.id)
-		if Model.HasRareForm(state, species) then
-			totals.rareTotal = totals.rareTotal + 1
-			if variants.rare.known then
-				totals.rare = totals.rare + 1
+		local entry = Model.Specimen(state, species.id)
+		for _, tier in ipairs({ "silver", "gold", "shiny" }) do
+			if (tonumber(entry[tier]) or 0) > 0 then
+				totals[tier] = totals[tier] + 1
 			end
-		end
-		totals.shinyTotal = totals.shinyTotal + 1
-		if variants.shiny.known then
-			totals.shiny = totals.shiny + 1
 		end
 	end
 	return totals
-end
-
----@param state FGState?
----@param speciesId integer
----@param species? FGSpecies
----@return boolean
-function Model.IsComplete(state, speciesId, species)
-	local variants = Model.Variants(state, speciesId)
-	if not variants.common.known or not variants.shiny.known then
-		return false
-	end
-	return not (species and Model.HasRareForm(state, species)) or variants.rare.known
 end
 
 -- A zone is catalogued when a species has at least one specimen, not when it is mastered. `fraction` is between

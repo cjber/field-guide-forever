@@ -19,6 +19,20 @@ assert(harness.ns.db.window == nil, "no saved position")
 Window.Toggle()
 local frame = env.FieldGuideForeverFrame
 assert(frame and frame:IsShown() and Window.IsShown())
+assert(#Window.tabButtons == 2, "the side rail has two tabs")
+assert(Window.tabButtons[1].key == "creatures" and Window.tabButtons[2].key == "instances")
+-- Each tab's tooltip names it in plain case, with a line saying what it holds.
+local lines = {}
+local tooltip = {
+	SetText = function(_, text)
+		lines[#lines + 1] = text
+	end,
+	AddLine = function(_, text)
+		lines[#lines + 1] = text
+	end,
+}
+assert(Window.tabButtons[2]:GetTooltipTextSetupFunction()(tooltip), "the tab fills its own tooltip")
+assert(lines[1] == "Instances" and lines[2] == "Boss encounters recorded on this character", table.concat(lines, "|"))
 assert(Mock.panelSlot == frame and Mock.panelCalls[1] == "show")
 assert(
 	frame._scripts.OnDragStart == nil and frame._scripts.OnDragStop == nil,

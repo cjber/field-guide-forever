@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **One rarity ladder for every creature.** Every spawn is bronze, silver (1 in 25), gold (1 in 100) or shiny (1 in 1000), decided by a stable hash of the spawn GUID, so every player sees the same coat on the same spawn. The journal records how many of each coat you have found. Old kill counts migrate to bronze, an old shiny find stays shiny, a completed old rare form becomes one silver, and gold is never inferred. The separate rare form and the per-kill shiny roll are gone. Thanks to cjber for the idea (#138).
+- **The journal is rebuilt on the Pet Journal and Collections art.** Creatures and Instances share the side rail, with silver, gold, shiny and missing shiny as filters. List rows are Pet Journal buttons with a bordered portrait and the best coat's quality mark. An entry opens on the Pet Journal card with its name, rank and a sightings bar, then the four coat slots, the records and the zone's fully explored map with an Open map button. The bottom bar shows zone completion and how many species here have each coat. The Instances tab lists dungeons and raids on the left and the open one's bosses, kills and first clears on the right. Thanks to cjber for the idea (#139).
+- **The micro menu button wears a painted wolf glyph.** The Field Guide button now draws a frameless gold glyph on the native button plate, with a brighter hover variant and the native pressed offset. Thanks to cjber for the idea (#140).
+
 ## [0.3.34] - 2026-11-05
 
 - **Rarity marks no longer recolour health bars or names.** Field Guide leaves every target and nameplate health bar and name in the game's own reaction colours, and marks rarity with the glow and the RARE or SHINY tag only. A nameplate reused after a hostile rare now keeps its new unit's green, yellow or red reaction colour, and `/fg preview` off returns every plate to the game's own colour. Thanks to cjber for the report (#134).

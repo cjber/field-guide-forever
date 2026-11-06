@@ -1,6 +1,5 @@
--- The three collectible forms in the journal: the marks on every list row, the zone and all-zones totals in the
--- header, and the "Missing shiny" and "Missing rare" filters. A species that can never be rare has no rare form: an
--- empty slot, never missing, never counted.
+-- The journal's tier ladder: one best-coat marker per list row, the zone and all-zones header totals, and the
+-- silver, gold, shiny and missing-shiny filters.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
 local harness = Mock.Harness()
@@ -8,11 +7,13 @@ local npcFixture = {
 	[1001] = { name = "Plainstrider", minLevel = 1, maxLevel = 2, rank = 0, subName = "Beast", zoneID = 17 },
 	[1003] = { name = "Savannah Prowler", minLevel = 9, maxLevel = 10, rank = 0, subName = "Beast", zoneID = 17 },
 	[1019] = { name = "Dishu", minLevel = 13, maxLevel = 13, rank = 2, subName = "Beast", zoneID = 17 },
+	[1025] = { name = "Silver Test", minLevel = 4, maxLevel = 5, rank = 0, subName = "Beast", zoneID = 17 },
+	[1030] = { name = "Undiscovered Test", minLevel = 2, maxLevel = 3, rank = 0, subName = "Beast", zoneID = 17 },
 }
 harness.env.LibQuestieDB = {
 	Npc = {
 		GetAllIds = function()
-			return { 1001, 1003, 1019 }
+			return { 1001, 1003, 1019, 1025, 1030 }
 		end,
 		GetAll = function(id, fields)
 			local row, values = npcFixture[id], {}
@@ -28,17 +29,13 @@ harness:Fire("PLAYER_LOGIN")
 harness:RunTimers()
 local ns, Window, List = harness.ns, harness.ns.Window, harness.ns.List
 local state = ns.GetCharacterState(true)
-local function Kill(id, shiny)
-	ns.Model.Record(state, id, {
-		species = ns.SpeciesById[id],
-		random = function()
-			return shiny and 0 or 0.9
-		end,
-	})
+local function Record(id, tier)
+	ns.Model.Record(state, id, { tier = tier, species = ns.SpeciesById[id] })
 end
-Kill(1001, true)
-Kill(1019)
-assert(ns.GetCharacterState(false).species[1001].shiny == 1, "the fixture shiny is recorded")
+Record(1001, "shiny")
+Record(1003, "bronze")
+Record(1019, "gold")
+Record(1025, "silver")
 
 Window.Show()
 local function Row(name)
@@ -59,31 +56,30 @@ local function Names()
 	return table.concat(names, ",")
 end
 
--- Every row carries three marks: lit when collected, dark while missing, an empty slot with no rare form.
-local plainstrider, dishu = Row("Plainstrider"), Row("Dishu")
-assert(plainstrider and dishu, Names())
-assert(plainstrider.Marks.common:IsShown() and plainstrider.Marks.common.Icon._vertexColor[1] == 1)
-assert(not plainstrider.Marks.rare:IsShown(), "no rare form leaves the rare slot empty")
-assert(plainstrider.Marks.shiny.Star:IsShown() and plainstrider.Marks.shiny.Star._vertexColor[1] > 0.8)
-assert(dishu.Marks.rare:IsShown() and dishu.Marks.rare.Border.atlas == "loottoast-itemborder-blue")
-assert(dishu.Marks.rare.Icon._vertexColor[1] < 1, "a missing rare is dark")
-assert(dishu.Marks.shiny.Star._vertexColor[1] < 0.5, "a missing shiny is dark")
+-- Every row carries one marker: the quality mark of the best variant found. Bronze shows nothing.
+local plainstrider, prowler = Row("Plainstrider"), Row("Savannah Prowler")
+local dishu, silver = Row("Dishu"), Row("Silver Test")
+local undiscovered = Row("Undiscovered Test")
+assert(plainstrider and prowler and dishu and silver and undiscovered, Names())
+assert(plainstrider.Mark:GetAtlas() == "Professions-Icon-Quality-Tier4", "a shiny row carries the fourth mark")
+assert(silver.Mark:GetAtlas() == "Professions-Icon-Quality-Tier2", "a silver row carries the second mark")
+assert(dishu.Mark:GetAtlas() == "Professions-Icon-Quality-Tier3", "a gold row carries the third mark")
+assert(not prowler.Mark:IsShown(), "a bronze row leaves the marker empty")
+assert(not undiscovered.Mark:IsShown(), "an undiscovered row leaves the marker empty")
 
--- Totals: only Dishu can be rare; all three can be shiny.
-local zone = Window.totals.zone
-assert(zone.label:GetText() == "The Barrens", zone.label:GetText())
-assert(zone.values:GetText() == "Rare 0 / 1 · Shiny 1 / 3", zone.values:GetText())
-assert(Window.totals.all.values:GetText() == "Rare 0 / 1 · Shiny 1 / 3", Window.totals.all.values:GetText())
+-- The bottom bar counts this zone's species with each standout variant.
+assert(Window.totals.silver.value:GetText() == "1", Window.totals.silver.value:GetText())
+assert(Window.totals.gold.value:GetText() == "1", Window.totals.gold.value:GetText())
+assert(Window.totals.shiny.value:GetText() == "1", Window.totals.shiny.value:GetText())
 
--- Missing shiny keeps the two without one; missing rare keeps only Dishu, never a species with no rare form.
-Window.SetFilter("missingShiny")
-assert(Names() == "Dishu,Savannah Prowler", Names())
-Window.SetFilter("missingRare")
+-- Filters pick species by the coats this character has found.
+Window.SetFilter("silver")
+assert(Names() == "Silver Test", Names())
+Window.SetFilter("gold")
 assert(Names() == "Dishu", Names())
-Kill(1019)
-Kill(1019)
-Window.Refresh()
-assert(Names() == "", "a collected rare leaves the missing rare filter: " .. Names())
-assert(zone.values:GetText() == "Rare 1 / 1 · Shiny 1 / 3", zone.values:GetText())
+Window.SetFilter("shiny")
+assert(Names() == "Plainstrider", Names())
+Window.SetFilter("missingShiny")
+assert(Names() == "Dishu,Savannah Prowler,Silver Test,Undiscovered Test", Names())
 Window.SetFilter("all")
 print("variants: ok")
