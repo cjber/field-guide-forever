@@ -48,6 +48,12 @@ SOURCES = (
     "tools/ui_art.py",
     "tools/mockups.py",
     "tools/rarity.py",
+    "media/Rarity/Laurel-Silver.tga",
+    "media/Rarity/Laurel-Gold.tga",
+    "media/Rarity/Laurel-Shiny.tga",
+    "media/Rarity/Quill-Silver.tga",
+    "media/Rarity/Quill-Gold.tga",
+    "media/Rarity/Quill-Shiny.tga",
     "tools/discovery.py",
     "tools/minimap_mockups.py",
 )

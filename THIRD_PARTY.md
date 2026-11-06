@@ -11,7 +11,7 @@
 | [forever-core](https://github.com/cjber/forever-core) | The vendored shared files listed in `PATHS` in `tools/check_core_shared.py`, and the renderer `tools/mockups.py` draws the README scenes with | forever-core `main`, checked by `.github/workflows/core-shared-drift.yml` | GPL-3.0-or-later | The vendored Lua files, yes; the renderer, no |
 | Client art | Creature portraits, icons and window textures, drawn from the player's own client at runtime | The client the player runs | Blizzard Entertainment's | No |
 | Addon icon, made for this addon | `media/icon.svg`, rendered to `media/icon-400.png` and `media/Icon.tga` by forever-core's `wow-forever-addon/render_icon.py` | `media/icon.svg` | GPL-3.0-or-later | `Icon.tga` yes; the SVG and 400 px PNG no |
-| Micro menu glyph, made for this addon | `tools/gen_micro_glyph.py` paints `media/MicroGlyph.tga` and `media/MicroGlyphHover.tga` from the client wolf icon | `tools/gen_micro_glyph.py` | GPL-3.0-or-later | Yes |
+| Rarity frame ornaments, original art made for this addon with AI assistance, no Blizzard art | The silver, gold and shiny laurel and quill target-frame ornaments, in `media/Rarity/*.tga` | Drawn for this addon | GPL-3.0-or-later | Yes |
 
 ## Ideas and contributors
 

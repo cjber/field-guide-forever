@@ -15,12 +15,27 @@ Rarity.COLORS = {
 
 local PLATE_ACCENT_ALPHA = 0.72
 local WHITE = "Interface\\Buttons\\WHITE8X8"
--- The client's own classification art, at its own size. A normal bronze frame stays exactly as the client draws it;
--- the rare silver frame, the elite gold ring and the rare silver winged ring are the same pieces CheckClassification
--- and GetBossPortraitFrameData use, with no desaturation or tint of ours.
+-- The client's own rare silver frame, at its own size. A normal bronze frame stays exactly as the client draws it,
+-- and the rare frame is the piece CheckClassification uses, with no desaturation or tint of ours.
 local TARGET_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
-local TARGET_GOLD_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold"
-local TARGET_WING_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver-Winged"
+-- The addon's own ornaments, one per coat and design. Each file is 256 px square at 2 px per UI unit, with the
+-- portrait's 59-unit circle centred 48 units right and 80 units down from the texture's top-left, so the portrait's
+-- centre (55 left of and 48 below the container's top-right) is the ornament's round hole.
+local ORNAMENT_SIZE = 128
+local ORNAMENT_X, ORNAMENT_Y = -103, 32
+local ORNAMENT_TEXTURES = {
+	laurel = {
+		silver = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Silver.tga]],
+		gold = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Gold.tga]],
+		shiny = [[Interface\AddOns\FieldGuideForever\media\Rarity\Laurel-Shiny.tga]],
+	},
+	quill = {
+		silver = [[Interface\AddOns\FieldGuideForever\media\Rarity\Quill-Silver.tga]],
+		gold = [[Interface\AddOns\FieldGuideForever\media\Rarity\Quill-Gold.tga]],
+		shiny = [[Interface\AddOns\FieldGuideForever\media\Rarity\Quill-Shiny.tga]],
+	},
+}
+local DEFAULT_ORNAMENT_STYLE = "laurel"
 -- LootUpgradeFrame's sheen (Mainline/AlertFrameSystems.xml): the client's own loot-toast sweep, repeated after a hold.
 local SHEEN_ATLAS = "loottoast-sheen"
 local SHEEN_START = 1.1
@@ -67,11 +82,11 @@ local previewWasActive = false
 local targetPending = false
 
 -- The spawn's tier comes from its readable GUID, so every player who meets that spawn sees the same coat. A player
--- has no spawn tier, and a unit whose GUID the client hides stays bronze.
+-- and any unit the player cannot attack have no spawn tier, and a unit whose GUID the client hides stays bronze.
 ---@param unit string
 ---@return string
 local function UnitTier(unit)
-	if UnitIsPlayer and UnitIsPlayer(unit) then
+	if UnitIsPlayer and UnitIsPlayer(unit) or not UnitCanAttack("player", unit) then
 		return "bronze"
 	end
 	return ns.Model.SpawnTier(ns.Readable(UnitGUID(unit)))
@@ -109,7 +124,7 @@ local function TierFor(unit)
 	if not active then
 		return UnitTier(unit)
 	end
-	if UnitIsPlayer and UnitIsPlayer(unit) then
+	if UnitIsPlayer and UnitIsPlayer(unit) or not UnitCanAttack("player", unit) then
 		return "bronze"
 	end
 	local guid = ns.Readable(UnitGUID(unit))
@@ -155,13 +170,20 @@ local function MirrorFramePoints(texture, source)
 	end
 end
 
--- One sheen texture, masked by the client art it crosses so it can never spill outside that piece.
+-- The ornament design the player picked. A missing or unknown saved value reads as the laurel wreath.
+---@return table<string, string>
+local function OrnamentSet()
+	local style = ns.db and ns.db.options and ns.db.options.rarityFrameStyle
+	return ORNAMENT_TEXTURES[style] or ORNAMENT_TEXTURES[DEFAULT_ORNAMENT_STYLE]
+end
+
+-- One sheen texture, masked by the art it crosses so it can never spill outside that piece.
 ---@param container table
 ---@param maskTarget table
----@param maskAtlas string
 ---@param subLevel number
+---@param applyMask fun(mask: table)
 ---@return table, table
-local function CreateSheen(container, maskTarget, maskAtlas, subLevel)
+local function CreateSheen(container, maskTarget, subLevel, applyMask)
 	local sheen = container:CreateTexture(nil, "ARTWORK", nil, subLevel)
 	sheen:SetAtlas(SHEEN_ATLAS, true)
 	sheen:SetBlendMode("ADD")
@@ -169,7 +191,7 @@ local function CreateSheen(container, maskTarget, maskAtlas, subLevel)
 	sheen:SetAlpha(0)
 	sheen:Hide()
 	local mask = container:CreateMaskTexture(nil, "ARTWORK", nil, subLevel)
-	mask:SetAtlas(maskAtlas, true)
+	applyMask(mask)
 	mask:SetAllPoints(maskTarget)
 	mask:Hide()
 	sheen:AddMaskTexture(mask)
@@ -216,12 +238,11 @@ end
 
 ---@class FGFRarityTargetArt
 ---@field overlay Texture the rare silver frame
----@field gold Texture the elite gold portrait ring
----@field wing Texture the rare silver winged ring
+---@field ornament Texture the style's coat ornament
 ---@field sheen Texture the frame sheen
----@field wingSheen Texture the winged-ring sheen
+---@field ornamentSheen Texture the ornament sheen
 ---@field sheenMask MaskTexture
----@field wingMask MaskTexture
+---@field ornamentMask MaskTexture
 ---@field anim AnimationGroup
 
 ---@param target table?
@@ -241,30 +262,30 @@ local function CreateTargetArt(target)
 	overlay:SetAtlas(TARGET_FRAME_ATLAS, true)
 	MirrorFramePoints(overlay, source)
 
-	-- BossPortraitFrameTexture's layer, with CheckClassification's own offsets.
-	local gold = container:CreateTexture(nil, "ARTWORK", nil, 2)
-	gold:SetAtlas(TARGET_GOLD_ATLAS, true)
-	gold:SetPoint("TOPRIGHT", container, "TOPRIGHT", 0, 1)
-	local wing = container:CreateTexture(nil, "ARTWORK", nil, 2)
-	wing:SetAtlas(TARGET_WING_ATLAS, true)
-	wing:SetPoint("TOPRIGHT", container, "TOPRIGHT", 8, -7)
+	-- The ornament's round hole sits over the portrait, so the art is anchored from the container's top-right corner.
+	local ornament = container:CreateTexture(nil, "ARTWORK", nil, 2)
+	ornament:SetSize(ORNAMENT_SIZE, ORNAMENT_SIZE)
+	ornament:SetPoint("TOPLEFT", container, "TOPRIGHT", ORNAMENT_X, ORNAMENT_Y)
 
-	local sheen, sheenMask = CreateSheen(container, overlay, TARGET_FRAME_ATLAS, 3)
-	local wingSheen, wingMask = CreateSheen(container, wing, TARGET_WING_ATLAS, 4)
-	local anim = CreateSheenAnimation(target, container, { sheen, wingSheen })
+	local sheen, sheenMask = CreateSheen(container, overlay, 3, function(mask)
+		mask:SetAtlas(TARGET_FRAME_ATLAS, true)
+	end)
+	local ornamentSheen, ornamentMask = CreateSheen(container, ornament, 4, function(mask)
+		-- art-ok: the ornament is square 256 px art drawn at 128 units on both sides
+		mask:SetTexture(OrnamentSet().shiny, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+	end)
+	local anim = CreateSheenAnimation(target, container, { sheen, ornamentSheen })
 
 	overlay:Hide()
-	gold:Hide()
-	wing:Hide()
+	ornament:Hide()
 	target.FGFRarityFrame = overlay
 	local art = {
 		overlay = overlay,
-		gold = gold,
-		wing = wing,
+		ornament = ornament,
 		sheen = sheen,
-		wingSheen = wingSheen,
+		ornamentSheen = ornamentSheen,
 		sheenMask = sheenMask,
-		wingMask = wingMask,
+		ornamentMask = ornamentMask,
 		anim = anim,
 	}
 	target.FGFRarityArt = art
@@ -282,27 +303,33 @@ local function PaintTargetFrame(target, tier, color, native)
 	end
 	local show = color and not native
 	local silver = show and (tier == "silver" or tier == "shiny")
-	local gold = show and tier == "gold"
 	local shiny = show and tier == "shiny"
+	local ornaments = show and OrnamentSet()
+	local ornamentTexture = ornaments and ornaments[tier]
 	art.overlay:SetShown(silver)
-	art.gold:SetShown(gold)
-	art.wing:SetShown(shiny)
+	if ornaments and ornamentTexture then
+		art.ornament:SetTexture(ornamentTexture) -- art-ok: the ornament is square 256 px art drawn at 128 units on both sides
+		art.ornamentMask:SetTexture(ornaments.shiny, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+		art.ornament:Show()
+	else
+		art.ornament:Hide()
+	end
 	if shiny then
 		art.sheen:Show()
 		art.sheenMask:Show()
-		art.wingSheen:Show()
-		art.wingMask:Show()
+		art.ornamentSheen:Show()
+		art.ornamentMask:Show()
 		if not art.anim:IsPlaying() then
 			art.sheen:SetAlpha(0)
-			art.wingSheen:SetAlpha(0)
+			art.ornamentSheen:SetAlpha(0)
 			art.anim:Play()
 		end
 	else
 		art.anim:Stop()
 		art.sheen:Hide()
 		art.sheenMask:Hide()
-		art.wingSheen:Hide()
-		art.wingMask:Hide()
+		art.ornamentSheen:Hide()
+		art.ornamentMask:Hide()
 	end
 end
 

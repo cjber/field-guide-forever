@@ -335,6 +335,9 @@ function ns.Initialize()
 	if db.options.milestoneToasts == nil then
 		db.options.milestoneToasts = true
 	end
+	if db.options.rarityFrameStyle == nil then
+		db.options.rarityFrameStyle = "laurel"
+	end
 	if db.options.discoveryText == nil then
 		db.options.discoveryText = true
 	end

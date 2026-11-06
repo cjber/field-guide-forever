@@ -121,8 +121,9 @@ Mock.units.target = "Silver Test Creature"
 Mock.guids.target = "Creature-0-1-0-1-1025-0000000002"
 slash("preview")
 local RARE_FRAME = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
-local GOLD_RING = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold"
-local WING_RING = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver-Winged"
+local LAUREL_SILVER = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Silver.tga"
+local LAUREL_GOLD = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Gold.tga"
+local LAUREL_SHINY = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Shiny.tga"
 AssertTargetColoursUntouched("a silver preview")
 assert(
 	target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText():find("SILVER", 1, true),
@@ -134,6 +135,10 @@ assert(
 	"the preview draws the game's silver rare frame"
 )
 assert(previewArt.overlay.atlasUseSize, "the preview rare frame keeps the atlas's own size")
+assert(
+	previewArt.ornament:IsShown() and previewArt.ornament._texture == LAUREL_SILVER,
+	"a silver preview draws the silver laurel"
+)
 local previewR, previewG, previewB = previewArt.overlay:GetVertexColor()
 assert(
 	not previewArt.overlay:IsDesaturated() and previewR == 1 and previewG == 1 and previewB == 1,
@@ -154,20 +159,19 @@ AssertTargetColoursUntouched("a gold preview")
 assert(target.FGFRarityTag.text:GetText():find("GOLD", 1, true), "gold previews its size and GOLD")
 assert(not previewArt.overlay:IsShown(), "a gold preview adds no frame overlay")
 assert(
-	previewArt.gold:IsShown() and previewArt.gold:GetAtlas() == GOLD_RING,
-	"a gold preview draws the game's elite gold portrait ring"
+	previewArt.ornament:IsShown() and previewArt.ornament._texture == LAUREL_GOLD,
+	"a gold preview draws the gold laurel"
 )
-assert(previewArt.gold.atlasUseSize, "the gold ring keeps the atlas's own size")
 assert(not previewArt.anim:IsPlaying(), "a gold preview does not animate")
 targetCreature("Shiny Test Creature", "Creature-0-1-0-1-2000-0000000001")
 AssertTargetColoursUntouched("a shiny preview")
 assert(target.FGFRarityTag.text:GetText():find("SHINY", 1, true), "shiny previews its size and SHINY")
 assert(previewArt.overlay:IsShown(), "a shiny preview keeps the silver rare frame")
 assert(
-	previewArt.wing:IsShown() and previewArt.wing:GetAtlas() == WING_RING,
-	"a shiny preview draws the game's winged silver ring"
+	previewArt.ornament:IsShown() and previewArt.ornament._texture == LAUREL_SHINY,
+	"a shiny preview draws the shiny laurel"
 )
-assert(previewArt.wing.atlasUseSize, "the winged ring keeps the atlas's own size")
+assert(previewArt.ornamentMask._texture == LAUREL_SHINY, "the shiny laurel's sheen mask follows the same art")
 assert(previewArt.anim:IsPlaying(), "a shiny preview runs the sheen")
 assert(
 	target.FGFRarityIcon:GetAtlas() == ns.Art.TIER_ICONS.shiny,
@@ -227,5 +231,52 @@ slash("preview")
 assert(not ns.RarityPreviewActive(), "preview turns off again")
 AssertPlateColoursUntouched("a bronze nameplate once preview is off")
 assert(not unitFrame.FGFRarityMarker:IsShown(), "a bronze nameplate keeps no mark once preview is off")
+
+-- A friendly NPC has no spawn tier, so preview skips it and does not spend one of the three rotation tiers on it.
+local friendlyUnits = { target = true, nameplate3 = true }
+harness.env.UnitCanAttack = function(_, unit)
+	return not friendlyUnits[unit]
+end
+plateAttached = false
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
+targetCreature("Silver Test Creature", GuidFor("silver", "friendly-preview-target"))
+slash("preview")
+assert(ns.RarityPreviewActive(), "preview turns on for the friendly checks")
+assert(not previewArt.overlay:IsShown(), "a friendly preview target shows no rare frame")
+assert(not previewArt.ornament:IsShown(), "a friendly preview target shows no ornament")
+assert(not previewArt.anim:IsPlaying(), "a friendly preview target starts no sheen")
+assert(not target.FGFRarityIcon:IsShown(), "a friendly preview target shows no tier icon")
+local friendlyTag = target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() or ""
+for _, tier in ipairs({ "SILVER", "GOLD", "SHINY" }) do
+	assert(not friendlyTag:find(tier, 1, true), "a friendly preview target shows no " .. tier .. " tag")
+end
+
+friendlyUnits.target = false
+targetCreature("Gold Test Creature", GuidFor("bronze", "preview-after-friendly-target"))
+assert(
+	target.FGFRarityTag.text:GetText():find("SILVER", 1, true),
+	"a friendly target does not consume the first preview tier"
+)
+assert(previewArt.overlay:IsShown(), "the next attackable creature takes the first preview tier")
+
+plateAttached = true
+harness.env.UnitName = function(unit)
+	return unit == "nameplate3" and "Shiny Test Creature" or "Tester"
+end
+Mock.guids.nameplate3 = GuidFor("gold", "friendly-preview-plate")
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate3")
+assert(not unitFrame.FGFRarityMarker:IsShown(), "a friendly preview nameplate shows no tier mark")
+
+friendlyUnits.nameplate3 = false
+harness.env.UnitName = function(unit)
+	return unit == "nameplate4" and "Gold Test Creature" or "Tester"
+end
+Mock.guids.nameplate4 = GuidFor("bronze", "preview-after-friendly-plate")
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate4")
+assert(unitFrame.FGFRarityMarker:IsShown(), "an attackable preview plate shows its tier mark")
+assert(
+	unitFrame.FGFRarityMarker:GetAtlas() == ns.Art.TIER_ICONS.gold,
+	"a friendly nameplate does not consume a preview tier"
+)
 
 print("rarity preview: ok")

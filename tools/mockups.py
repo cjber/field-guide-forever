@@ -1296,19 +1296,20 @@ def main():
     filtered.composite(filter_menu.image, filtered.px(312), filtered.px(110))
     save(filtered, "search-filter.png")
     # Core/Settings.lua registers this content in the client's Settings canvas, not a journal popup.
-    settings = ui.canvas(620, 276)
+    settings = ui.canvas(620, 304)
     LAYOUT["widgets"] = []
     LAYOUT["canvas"] = {"width": settings.width, "height": settings.height, "scale": ui.scale}
-    LAYOUT["frame"] = {"x": 0, "y": 0, "w": 620, "h": 276}
-    note("Settings content", "pane", 12, 12, 596, 252)
+    LAYOUT["frame"] = {"x": 0, "y": 0, "w": 620, "h": 304}
+    note("Settings content", "pane", 12, 12, 596, 280)
     note("Settings title", "content", 16, 16, 380, 24)
-    settings.fill(0, 0, 620, 276, wowmock.rgb("0d0f12"))
+    settings.fill(0, 0, 620, 304, wowmock.rgb("0d0f12"))
     text(settings, 16, 16, "Field Guide Forever options", "GameFontHighlightHuge", FONTS["GameFontHighlightHuge"].color)
     labels = [
         "Show undiscovered species",
         "Show the records list",
         "Announce newly recorded creatures",
         "Show milestone toasts",
+        "Quill and journal rarity frames",
         "Share progress with guild and group addon users",
         "Minimap button",
     ]
@@ -1324,12 +1325,12 @@ def main():
     text(
         settings,
         36,
-        222,
+        250,
         "The Field Guide button can also be bound in Key Bindings > AddOns.",
         "GameFontDisableSmall",
         MUTED,
     )
-    note("Settings binding note", "content", 36, 222, 560, 16)
+    note("Settings binding note", "content", 36, 250, 560, 16)
     save(settings, "settings.png")
     save(render(barrens, search_species, "CREATURES"), "sighting-log.png")
     save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")

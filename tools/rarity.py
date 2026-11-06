@@ -1,15 +1,15 @@
 """Rarity mockups: the target frame and the nameplate at every collection tier.
 
-The client's own classification art does the work, at atlas size and the anchors the client uses. A silver creature
-draws the rare silver frame over its bronze frame, gold draws the elite gold portrait ring, and shiny draws the rare
-frame plus the winged silver ring and runs the client's loot-toast sheen across both. A tier icon sits in the free
-bottom-left corner, and the SILVER, GOLD or SHINY tag stays above the name. Nameplates carry the same quality icon to
-the right of the health bar. The health bar fill and name text keep the client's own colours, and BRONZE is the
-untouched client frame.
+The addon's own ornaments do the work. A silver creature draws the client's rare silver frame plus the silver laurel
+around its portrait, gold draws the gold laurel alone, and shiny draws the rare frame, the shiny laurel and the
+client's loot-toast sheen across both pieces. Each ornament is the addon's 256 px square TGA drawn at 2 px per UI
+unit, so 128 UI units a side and never stretched. A tier icon sits in the free bottom-left corner, and the SILVER,
+GOLD or SHINY tag stays above the name. Nameplates carry the same quality icon to the right of the health bar. The
+health bar fill and name text keep the client's own colours, and BRONZE is the untouched client frame.
 
-Rare, elite, boss and minus-mob units already get the client's own frame art, so our art is skipped for them while the
-tier icon and tag still read the coat. Every pixel that is not the addon's own layout comes from the pinned
-WoW: Forever build through wowmock, so what is approved here is what the addon paints.
+Rare, elite, boss and minus-mob units already get the client's own frame art, so our ornaments are skipped for them
+while the tier icon and tag still read the coat. Every pixel that is not the addon's own art or layout comes from the
+pinned WoW: Forever build through wowmock, so what is approved here is what the addon paints.
 
     python3 tools/rarity.py
 """
@@ -36,14 +36,22 @@ OUT = ROOT / "docs" / "screenshots"
 # all; the whole promise of the feature is that a bronze creature looks exactly as it always did.
 TIERS = (
     ("BRONZE", "every spawn", None, "the client's frame, untouched"),
-    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver rare frame, quality mark and SILVER tag"),
-    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "elite gold ring, quality mark and GOLD tag"),
-    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "silver frame, winged silver ring, sheen and SHINY tag"),
+    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver coat, quality mark and SILVER tag"),
+    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "gold coat, quality mark and GOLD tag"),
+    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "shiny coat, quality mark and SHINY tag"),
 )
+# The addon's own ornaments, one per coat. Each file is 256 px square at 2 px per UI unit, so 128 UI units a side.
+ORNAMENT_DIR = ROOT / "media" / "Rarity"
+ORNAMENT_SIZE = 128
+ORNAMENT_FILES = {
+    "SILVER": "Laurel-Silver",
+    "GOLD": "Laurel-Gold",
+    "SHINY": "Laurel-Shiny",
+}
+ORNAMENTS = {}
 TARGET_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn"
 RARE_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
 GOLD_RING_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold"
-WING_RING_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver-Winged"
 SHEEN_ATLAS = "loottoast-sheen"
 HEALTH_BAR_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Bar-Health"
 POWER_BAR_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Bar-Mana"
@@ -77,6 +85,11 @@ POWER_WINDOW = (2, 44, 136, 54)
 PORTRAIT_CENTER = (157, 36)
 PORTRAIT_RADIUS = 29
 LEVEL_CENTER = (188, 54)
+# UI/Rarity.lua anchors each ornament at TOPLEFT container TOPRIGHT -103, 32, which puts its round hole (centred 48
+# units right and 80 down from the ornament's top-left) over the portrait. The renderer draws from the frame art's own
+# origin, so it places that hole on the portrait centre it already measures.
+ORNAMENT_LEFT = PORTRAIT_CENTER[0] - 48
+ORNAMENT_TOP = PORTRAIT_CENTER[1] - 80
 
 # NumberFontNormalSmall is the client font object used by target-frame level text.
 FONTS["NumberFontNormalSmall"] = Font(wowmock.ARIALN, 10, wowmock.WHITE, None, True)
@@ -86,11 +99,25 @@ def text(canvas, x, y, value, font, colour=TEXT, **kwargs):
     canvas.text(x, y, value, FONTS[font], colour, **kwargs)
 
 
+def ornament(tier):
+    """The coat's ornament, loaded once as RGBA from the addon's own TGA."""
+    if tier not in ORNAMENTS:
+        ORNAMENTS[tier] = Image.open(ORNAMENT_DIR / f"{ORNAMENT_FILES[tier]}.tga").convert("RGBA")
+    return ORNAMENTS[tier]
+
+
+def draw_ornament(canvas, tier, x, y):
+    """The ornament at its native aspect: 256 px at 2 px per UI unit, uniform at every render scale."""
+    size = canvas.px(ORNAMENT_SIZE)
+    piece = ornament(tier).resize((size, size), Image.LANCZOS)
+    canvas.composite(piece, canvas.px(x + ORNAMENT_LEFT), canvas.px(y + ORNAMENT_TOP))
+
+
 def sheen_mask(canvas, pieces):
-    """The union of the client art's alpha, so the sheen can only paint inside that art."""
+    """The union of the art's alpha, so the sheen can only paint inside that art."""
     mask = Image.new("L", canvas.image.size, 0)
-    for atlas, left, top, width, height in pieces:
-        alpha = atlas.image.resize((canvas.px(width), canvas.px(height)), Image.LANCZOS).getchannel("A")
+    for image, left, top, width, height in pieces:
+        alpha = image.resize((canvas.px(width), canvas.px(height)), Image.LANCZOS).getchannel("A")
         layer = Image.new("L", mask.size, 0)
         layer.paste(alpha, (canvas.px(left), canvas.px(top)))
         mask = ImageChops.lighter(mask, layer)
@@ -98,7 +125,7 @@ def sheen_mask(canvas, pieces):
 
 
 def sheen(canvas, ui, x, y, pieces):
-    """Draw the loot-toast sheen still, clipped to the rare frame and winged ring it crosses."""
+    """Draw the loot-toast sheen still, clipped to the rare frame and ornament it crosses."""
     atlas = ui.atlas(SHEEN_ATLAS)
     layer = Image.new("RGBA", canvas.image.size)
     piece = atlas.image.resize((canvas.px(atlas.width), canvas.px(atlas.height)), Image.LANCZOS)
@@ -108,7 +135,7 @@ def sheen(canvas, ui, x, y, pieces):
 
 
 def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
-    """Compose the client target frame with its own classification art, the tier icon and the tag."""
+    """Compose the client target frame with the addon's ornament, the tier icon and the tag."""
     label, _, colour, _ = tier
     frame = ui.atlas(TARGET_FRAME_ATLAS)
     health_bar = ui.atlas(HEALTH_BAR_ATLAS)
@@ -125,25 +152,22 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
 
     canvas.draw(frame, x, y, FRAME_W, FRAME_H)
 
-    # Client art at atlas size and the client's own anchors. A rare, elite or boss unit keeps the art the client
+    # The client's rare frame under the addon's own ornament. A rare, elite or boss unit keeps the art the client
     # already drew there instead.
     if not native:
         if label in ("SILVER", "SHINY"):
             canvas.draw(ui.atlas(RARE_FRAME_ATLAS), x, y, FRAME_W, FRAME_H)
-        if label == "GOLD":
-            ring = ui.atlas(GOLD_RING_ATLAS)
-            canvas.draw(ring, x + 112, y - 17.5, ring.width, ring.height)
+        if label in ORNAMENT_FILES:
+            draw_ornament(canvas, label, x, y)
         if label == "SHINY":
-            wing = ui.atlas(WING_RING_ATLAS)
-            canvas.draw(wing, x + 111, y - 9.5, wing.width, wing.height)
             sheen(
                 canvas,
                 ui,
                 x,
                 y,
                 (
-                    (ui.atlas(RARE_FRAME_ATLAS), x, y, FRAME_W, FRAME_H),
-                    (wing, x + 111, y - 9.5, wing.width, wing.height),
+                    (ui.atlas(RARE_FRAME_ATLAS).image, x, y, FRAME_W, FRAME_H),
+                    (ornament(label), x + ORNAMENT_LEFT, y + ORNAMENT_TOP, ORNAMENT_SIZE, ORNAMENT_SIZE),
                 ),
             )
     else:
@@ -259,7 +283,7 @@ def sheet(ui, icons, name, native=False, plates=False):
     canvas = ui.canvas(cell_w * cols + m * 2, cell_h * rows + m * 2 + 64)
     canvas.fill(0, 0, canvas.width, canvas.height, BG)
     text(canvas, m, 18, "FIELD GUIDE  \u00b7  RARITY AT A GLANCE", "GameFontNormal", BRASS)
-    subtitle = "The client's own classification art at its own size, with the tier icon and tag"
+    subtitle = "Field Guide's own laurel ornaments around each portrait, with the tier icon and tag"
     if native:
         subtitle = "The client's own rare and elite frame art stays; the tier icon and tag still name the coat"
     text(canvas, m, 36, subtitle, "GameFontDisableSmall", MUTED)

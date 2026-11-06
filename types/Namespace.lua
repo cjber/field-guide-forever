@@ -97,6 +97,7 @@
 ---@field minimapButtonHidden? boolean hide the minimap button, shown by default
 ---@field discoveryText? boolean announce a first kill in the explored-area line
 ---@field milestoneToasts? boolean show the achievement toast for silver, gold, shiny, mastery and zone milestones
+---@field rarityFrameStyle? "laurel" | "quill" target-frame ornament design, laurel by default
 
 -- One shared figure a peer reported: the value and the time() it was recorded.
 ---@class FGStatRecord

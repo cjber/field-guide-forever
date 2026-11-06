@@ -88,6 +88,7 @@ harness.env.UnitName = function(unit)
 end
 Mock.guids.target = GuidFor("silver", "t")
 harness:Fire("ADDON_LOADED", "FieldGuideForever")
+assert(ns.db.options.rarityFrameStyle == "laurel", "the target frame ornaments default to laurel")
 
 local function AssertColour(region, expected, label)
 	local r, g, b = region:GetStatusBarColor()
@@ -109,20 +110,32 @@ local function AssertTargetColoursUntouched(label)
 end
 
 local RARE_FRAME = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
-local GOLD_RING = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold"
-local WING_RING = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver-Winged"
+local ORNAMENTS = {
+	laurel = {
+		silver = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Silver.tga",
+		gold = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Gold.tga",
+		shiny = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Shiny.tga",
+	},
+	quill = {
+		silver = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Quill-Silver.tga",
+		gold = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Quill-Gold.tga",
+		shiny = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Quill-Shiny.tga",
+	},
+}
 
 local function AssertNoTint(piece, label)
-	assert(not piece:IsDesaturated(), label .. ": the client art is never desaturated")
+	assert(not piece:IsDesaturated(), label .. ": the art is never desaturated")
 	local r, g, b = piece:GetVertexColor()
-	assert(r == 1 and g == 1 and b == 1, label .. ": the client art is never tinted")
+	assert(r == 1 and g == 1 and b == 1, label .. ": the art is never tinted")
 end
 
 ---@param tier string
 ---@param label string
-local function AssertTargetFrame(tier, label)
+---@param style string?
+local function AssertTargetFrame(tier, label, style)
+	style = style or "laurel"
 	local art = target.FGFRarityArt
-	assert(type(art) == "table", label .. ": the target frame gets the client's classification art")
+	assert(type(art) == "table", label .. ": the target frame gets the rarity art")
 	local hasSilver = tier == "silver" or tier == "shiny"
 	if hasSilver then
 		assert(art.overlay:IsShown(), label .. ": the silver rare frame is shown")
@@ -137,40 +150,33 @@ local function AssertTargetFrame(tier, label)
 	else
 		assert(not art.overlay:IsShown(), label .. ": no silver frame on this tier")
 	end
-	if tier == "gold" then
-		assert(art.gold:IsShown(), label .. ": the gold portrait ring is shown")
-		assert(art.gold:GetAtlas() == GOLD_RING, label .. ": it is the game's elite gold ring")
-		assert(art.gold.atlasUseSize, label .. ": the gold ring keeps the atlas's own size")
-		local point, relativeTo, relativePoint, x, y = art.gold:GetPoint(1)
-		assert(
-			point == "TOPRIGHT" and relativeTo == container and relativePoint == "TOPRIGHT" and x == 0 and y == 1,
-			label .. ": the gold ring takes GetBossPortraitFrameData's elite anchor"
-		)
-		AssertNoTint(art.gold, label)
-	else
-		assert(not art.gold:IsShown(), label .. ": no gold ring on this tier")
-	end
+	assert(art.ornament:IsShown(), label .. ": the " .. style .. " " .. tier .. " ornament is shown")
+	assert(
+		art.ornament._texture == ORNAMENTS[style][tier],
+		label .. ": it is the " .. style .. " " .. tier .. " ornament file"
+	)
+	local width, height = art.ornament:GetSize()
+	assert(width == 128 and height == 128, label .. ": the ornament keeps its square 128-unit size")
+	local point, relativeTo, relativePoint, x, y = art.ornament:GetPoint(1)
+	assert(
+		point == "TOPLEFT" and relativeTo == container and relativePoint == "TOPRIGHT" and x == -103 and y == 32,
+		label .. ": the ornament anchors its round hole over the portrait"
+	)
+	AssertNoTint(art.ornament, label)
 	if tier == "shiny" then
-		assert(art.wing:IsShown(), label .. ": the winged silver ring is shown")
-		assert(art.wing:GetAtlas() == WING_RING, label .. ": it is the game's rare winged silver ring")
-		assert(art.wing.atlasUseSize, label .. ": the winged ring keeps the atlas's own size")
-		local point, relativeTo, relativePoint, x, y = art.wing:GetPoint(1)
-		assert(
-			point == "TOPRIGHT" and relativeTo == container and relativePoint == "TOPRIGHT" and x == 8 and y == -7,
-			label .. ": the winged ring takes GetBossPortraitFrameData's shiny anchor"
-		)
-		AssertNoTint(art.wing, label)
 		assert(art.anim:IsPlaying(), label .. ": the shiny sheen animates")
-		assert(art.sheen:IsShown() and art.wingSheen:IsShown(), label .. ": both sheen textures are shown")
-		assert(art.sheenMask:IsShown() and art.wingMask:IsShown(), label .. ": both sheen masks are shown")
+		assert(art.sheen:IsShown() and art.ornamentSheen:IsShown(), label .. ": both sheen textures are shown")
+		assert(art.sheenMask:IsShown() and art.ornamentMask:IsShown(), label .. ": both sheen masks are shown")
 		assert(art.sheen.mask == art.sheenMask, label .. ": the frame sheen is masked")
-		assert(art.wingSheen.mask == art.wingMask, label .. ": the winged sheen is masked")
+		assert(art.ornamentSheen.mask == art.ornamentMask, label .. ": the ornament sheen is masked")
 		assert(art.sheenMask:GetAtlas() == RARE_FRAME, label .. ": the frame mask follows the rare frame")
-		assert(art.wingMask:GetAtlas() == WING_RING, label .. ": the winged mask follows the winged ring")
+		assert(
+			art.ornamentMask._texture == ORNAMENTS[style].shiny,
+			label .. ": the ornament mask is the shiny ornament file"
+		)
 	else
-		assert(not art.wing:IsShown(), label .. ": no winged ring on this tier")
 		assert(not art.anim:IsPlaying(), label .. ": only shiny animates")
-		assert(not art.sheen:IsShown() and not art.wingSheen:IsShown(), label .. ": the sheen hides with the art")
+		assert(not art.sheen:IsShown() and not art.ornamentSheen:IsShown(), label .. ": the sheen hides with the art")
 	end
 end
 
@@ -237,6 +243,7 @@ AssertTargetColoursUntouched("a bronze target")
 assert(target.FGFRarityTag:IsShown(), "a bronze target still shows its size tag")
 assert(target.FGFRarityTag.text:GetText() == ExpectedTag("bronze"), "bronze reads its size")
 assert(not target.FGFRarityFrame:IsShown(), "an uncatalogued target hides the frame recolour")
+assert(not target.FGFRarityArt.ornament:IsShown(), "an uncatalogued target hides the ornament")
 assert(not target.FGFRarityIcon:IsShown(), "an uncatalogued target hides the tier icon")
 chromeR, chromeG, chromeB, chromeA = chrome:GetVertexColor()
 assert(not chrome:IsDesaturated(), "the chrome stays untouched after cleanup")
@@ -261,8 +268,7 @@ for _, classification in ipairs({ "rare", "rareelite", "elite", "minus" }) do
 		not target.FGFRarityFrame:IsShown(),
 		"a " .. classification .. " target keeps the client's own frame without our art"
 	)
-	assert(not target.FGFRarityArt.gold:IsShown(), "a " .. classification .. " target adds no gold ring")
-	assert(not target.FGFRarityArt.wing:IsShown(), "a " .. classification .. " target adds no winged ring")
+	assert(not target.FGFRarityArt.ornament:IsShown(), "a " .. classification .. " target adds no ornament")
 	assert(not target.FGFRarityArt.anim:IsPlaying(), "a " .. classification .. " target starts no sheen")
 	assert(target.FGFRarityTag:IsShown(), "a " .. classification .. " target still shows its tier tag")
 	assert(target.FGFRarityIcon:IsShown(), "a " .. classification .. " target still shows its tier icon")
@@ -323,7 +329,58 @@ end
 Mock.guids.target = GuidFor("bronze", "t")
 Mock.Fire("PLAYER_TARGET_CHANGED")
 assert(not shinyArt.anim:IsPlaying(), "the sheen stops when the target art hides")
-assert(not shinyArt.sheen:IsShown() and not shinyArt.wingSheen:IsShown(), "hiding the art hides both sheen textures")
+assert(
+	not shinyArt.sheen:IsShown() and not shinyArt.ornamentSheen:IsShown(),
+	"hiding the art hides both sheen textures"
+)
+
+-- The ornaments are a saved setting: laurel by default, quill when the player ticks the box, and the current target
+-- repaints at once rather than waiting for the next target change.
+ns.Settings.Register()
+local quillBox
+for _, frame in ipairs(Mock.frames) do
+	if
+		frame._type == "CheckButton"
+		and frame.tooltipText
+			== "Draw rare creatures' target frames with the quill and journal design instead of the laurel wreath."
+	then
+		quillBox = frame
+	end
+end
+assert(quillBox, "the settings page has the quill rarity frame row")
+assert(quillBox:GetChecked() == false, "the quill box starts unchecked for the laurel ornaments")
+
+harness.env.UnitName = function(unit)
+	return unit == "target" and shiny.name or "Tester"
+end
+Mock.guids.target = GuidFor("shiny", "t")
+Mock.Fire("PLAYER_TARGET_CHANGED")
+AssertTargetFrame("shiny", "a shiny target on laurel")
+
+quillBox:SetChecked(true)
+quillBox:GetScript("OnClick")(quillBox)
+assert(ns.db.options.rarityFrameStyle == "quill", "ticking the box saves the quill design")
+AssertTargetFrame("shiny", "a shiny target repainted at once", "quill")
+
+harness.env.UnitName = function(unit)
+	return unit == "target" and silver.name or "Tester"
+end
+Mock.guids.target = GuidFor("silver", "t")
+Mock.Fire("PLAYER_TARGET_CHANGED")
+AssertTargetFrame("silver", "a silver target with quill", "quill")
+
+harness.env.UnitName = function(unit)
+	return unit == "target" and gold.name or "Tester"
+end
+Mock.guids.target = GuidFor("gold", "t")
+Mock.Fire("PLAYER_TARGET_CHANGED")
+assert(not target.FGFRarityArt.overlay:IsShown(), "a gold quill target shows no silver frame")
+AssertTargetFrame("gold", "a gold target with quill", "quill")
+
+quillBox:SetChecked(false)
+quillBox:GetScript("OnClick")(quillBox)
+assert(ns.db.options.rarityFrameStyle == "laurel", "unticking the box returns to laurel")
+AssertTargetFrame("gold", "a gold target back on laurel")
 
 -- A nameplate is recycled between units, so a tier is marked by its quality icon only and never by the plate's own
 -- health colour or name.
@@ -443,5 +500,30 @@ assert(freshNameCalls() == 0, "an untiered plate is never given a name colour")
 AssertColour(freshFrame.healthBar, friendlyReaction, "an untiered plate keeps the client's health colour")
 AssertTextColour(freshFrame.name, friendlyReaction, "an untiered plate keeps the client's name colour")
 assert(not freshFrame.FGFRarityMarker:IsShown(), "an untiered plate shows no tier mark")
+
+-- The kill path only counts units the player can attack, so a friendly vendor or quest giver has no spawn tier: a
+-- GUID that would roll silver, gold or shiny still paints the plain bronze frame, with no overlay, ornament, tag or
+-- plate mark.
+harness.env.UnitCanAttack = function(_, unit)
+	return unit ~= "target" and unit ~= "nameplate3"
+end
+harness.env.UnitName = function(unit)
+	return (unit == "target" or unit == "nameplate3") and silver.name or "Sentinel Kyra Starsong"
+end
+for _, tier in ipairs({ "silver", "gold", "shiny" }) do
+	local label = "a friendly " .. tier .. " target"
+	Mock.guids.target = GuidFor(tier, "friendly-target")
+	Mock.Fire("PLAYER_TARGET_CHANGED")
+	assert(not target.FGFRarityFrame:IsShown(), label .. ": no silver frame")
+	assert(not target.FGFRarityArt.ornament:IsShown(), label .. ": no ornament")
+	assert(not target.FGFRarityArt.anim:IsPlaying(), label .. ": no sheen")
+	assert(not target.FGFRarityIcon:IsShown(), label .. ": no tier icon")
+	local text = target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() or ""
+	assert(not text:find(tier:upper(), 1, true), label .. ": no " .. tier:upper() .. " tag")
+
+	Mock.guids.nameplate3 = GuidFor(tier, "friendly-plate")
+	Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate3")
+	assert(not freshFrame.FGFRarityMarker:IsShown(), label .. ": no plate mark")
+end
 
 print("rarity: ok")
