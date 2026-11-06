@@ -6,7 +6,7 @@ local API = harness.env.FieldGuideForever and harness.env.FieldGuideForever.API
 
 assert(API, "the public API is installed")
 assert(API.version >= 1, "the contract is versioned")
-assert(API.version == 2 and API.minor == 3, "the tier ladder is API version 2, with size records in 2.3")
+assert(API.version == 2 and API.minor == 4, "the tier ladder is API version 2, without the retired size records")
 
 local npcFixture = {
 	[1001] = {
@@ -74,10 +74,6 @@ local migrated = ns.Migrate({
 					rare = -4,
 					shiny = 4,
 					kills = 8,
-					sizeSmallest = 84,
-					sizeLargest = 127,
-					tiny = 1,
-					giant = 2,
 					injected = function() end,
 				},
 				[1002] = false,
@@ -94,13 +90,6 @@ local migratedEntry = migrated.chars["Old-Realm"].species[1001]
 assert(migratedEntry.count == ns.Model.MASTERED_AT and migratedEntry.bronze == 8)
 assert(migratedEntry.silver == 0 and migratedEntry.gold == 0 and migratedEntry.shiny == 1)
 assert(migratedEntry.rare == nil and migratedEntry.injected == nil and migrated.chars["Old-Realm"].unexpected == nil)
-assert(
-	migratedEntry.sizeSmallest == 84
-		and migratedEntry.sizeLargest == 127
-		and migratedEntry.tiny == 1
-		and migratedEntry.giant == 2,
-	"size records survive a reload"
-)
 assert(migrated.chars["Old-Realm"].species[1002] == nil, "invalid entries are discarded")
 assert(type(migrated.chars["Old-Realm"].encounters) == "table", "corrupt encounter data is repaired")
 assert(migrated.chars["Old-Realm"].tracked == 1003, "the tracked species survives a reload")
@@ -112,6 +101,33 @@ legacy.kills = 5
 local reloaded = ns.Migrate(migrated).chars["Old-Realm"].species[1003]
 assert(reloaded.sharedKillsBaseline == 3, "the estimated-kill baseline survives a reload")
 assert(reloaded.kills == 5, "reloading preserves observed kills after the baseline")
+-- A save written while spawn sizes existed (#153) loads cleanly and loses every size field.
+local sized = ns.Migrate({
+	version = ns.SCHEMA,
+	chars = {
+		["Sized-Realm"] = {
+			species = {
+				[1001] = {
+					count = 1,
+					kills = 1,
+					sizeSmallest = 65,
+					sizeLargest = 145,
+					tiny = 1,
+					giant = 1,
+				},
+			},
+		},
+	},
+})
+local sizedEntry = sized.chars["Sized-Realm"].species[1001]
+assert(sizedEntry.count == 1 and sizedEntry.kills == 1, "the rest of a sized save survives")
+assert(
+	sizedEntry.sizeSmallest == nil
+		and sizedEntry.sizeLargest == nil
+		and sizedEntry.tiny == nil
+		and sizedEntry.giant == nil,
+	"a save with spawn sizes loads cleanly and drops them"
+)
 local empty = ns.Migrate(false)
 assert(empty.version == ns.SCHEMA and type(empty.chars) == "table", "corrupt root data becomes valid empty state")
 
@@ -160,11 +176,6 @@ end
 local tiered = API.Specimen(1019)
 assert(tiered and tiered.silverCount == 1 and tiered.goldCount == 1 and tiered.shinyCount == 1, "each coat counts")
 assert(tiered.bestTier == "shiny", "the best coat is reported")
-assert(
-	type(tiered.sizeSmallest) == "number" and type(tiered.sizeLargest) == "number",
-	"the API exposes the species' size records"
-)
-assert(tiered.sizeSmallest <= tiered.sizeLargest and tiered.tiny >= 0 and tiered.giant >= 0, "size records are ordered")
 
 -- The detail page leads with the round portrait and the four ladder slots, read from the character's state.
 ns.Detail.Create(harness.env.CreateFrame("Frame"))
@@ -194,8 +205,8 @@ local recordKeys = {}
 for _, row in ipairs(detail.records) do
 	recordKeys[row.key:GetText()] = row.value:GetText()
 end
-assert(recordKeys.Largest and recordKeys.Smallest, "the records section keeps the size range")
-assert(recordKeys.Largest:match("^%d+%.%d%dx$") and recordKeys.Smallest:match("^%d+%.%d%dx$"), "sizes read as 1.12x")
+assert(recordKeys.Sightings and recordKeys["Best variant"], "the records section keeps its progress rows")
+assert(recordKeys.Largest == nil and recordKeys.Smallest == nil, "size records are gone from the Records section")
 detail.Show(nil, nil, nil)
 assert(not detail.portrait:IsShown(), "empty selection clears the portrait")
 assert(

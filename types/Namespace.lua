@@ -59,10 +59,6 @@
 ---@field firstGoldZone? string
 ---@field firstShiny? number
 ---@field firstShinyZone? string
----@field sizeSmallest? integer smallest recorded spawn size in hundredths
----@field sizeLargest? integer largest recorded spawn size in hundredths
----@field tiny integer Tiny spawns found
----@field giant integer Giant spawns found
 ---@field sharedKillsBaseline? integer kills already counted when an estimated save first shared (Core/Stats.lua)
 
 -- One boss encounter's saved record. Difficulty tables are keyed by the difficulty ID as a string.
@@ -272,15 +268,6 @@ function FGCreatureInfo.Get(npcID) end
 ---@field firstSilver boolean
 ---@field firstGold boolean
 ---@field firstShiny boolean
----@field size? integer the spawn's size in hundredths
----@field sizeSmallest? integer
----@field sizeLargest? integer
----@field newSmallest boolean
----@field newLargest boolean
----@field tiny boolean
----@field giant boolean
----@field firstTiny boolean
----@field firstGiant boolean
 
 ---@class FGNamespace
 ---@field L table<string, string> English phrases are the keys; an untranslated key reads as itself

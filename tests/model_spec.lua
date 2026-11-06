@@ -44,41 +44,6 @@ assert(Near(counts.silver, samples / 25, 0.25), "silver is roughly 1 in 25: " ..
 assert(Near(counts.gold, samples / 100, 0.25), "gold is roughly 1 in 100: " .. counts.gold)
 assert(Near(counts.shiny, samples / 1000, 0.35), "shiny is roughly 1 in 1000: " .. counts.shiny)
 
--- The size is the spawn's too: the same GUID gives the same size on every client, from a bell body and two tails
--- of about one spawn in 200 each.
-local sizeGuid = Mock.CreatureGUID(1001)
-assert(Model.SpawnSize(sizeGuid) == Model.SpawnSize(sizeGuid), "a spawn GUID always rolls the same size")
-assert(Model.SpawnSize(nil) == nil, "a spawn without a readable GUID has no size")
-assert(Model.SpawnSize("") == nil, "an empty GUID has no size")
-assert(Model.FormatSize(112) == "1.12x" and Model.FormatSize(84) == "0.84x", "sizes show two decimals")
-assert(Model.SizeBadge(65) == "TINY" and Model.SizeBadge(145) == "GIANT" and Model.SizeBadge(112) == nil)
-
-local sizes, tiny, giant, body = 100000, 0, 0, 0
-local sizeSum, bodySum, inSpread = 0, 0, 0
-for index = 1, sizes do
-	local value = Model.SpawnSize("Creature-0-1-0-1-1001-" .. string.format("%010X", index))
-	assert(value and value >= 60 and value <= 155, "a size stays inside its ladder: " .. tostring(value))
-	sizeSum = sizeSum + value / 100
-	if value < Model.SIZE_TINY then
-		tiny = tiny + 1
-	elseif value > Model.SIZE_GIANT then
-		giant = giant + 1
-	else
-		body = body + 1
-		bodySum = bodySum + value / 100
-		if value >= 80 and value <= 120 then
-			inSpread = inSpread + 1
-		end
-	end
-end
-assert(Near(tiny, sizes / 200, 0.35), "Tiny is roughly 1 in 200: " .. tiny)
-assert(Near(giant, sizes / 200, 0.35), "Giant is roughly 1 in 200: " .. giant)
-assert(body > sizes * 0.98, "almost every spawn is in the body")
-local mean = sizeSum / sizes
-assert(mean > 0.98 and mean < 1.02, "sizes average around 1.00x: " .. mean)
-assert(bodySum / body > 0.99 and bodySum / body < 1.01, "the body averages around 1.00x")
-assert(inSpread >= body * 0.9, "the body clusters in 0.80x to 1.20x: " .. inSpread / body)
-
 local state = Model.NewState()
 assert(type(state.species) == "table" and next(state.species) == nil, "a fresh state has no species")
 
@@ -113,27 +78,6 @@ local gold = Model.Record(state, 1002, { guid = goldGuid })
 assert(gold.tier == "gold" and state.species[1002].gold == 1, "the spawn GUID records its gold coat")
 local plain = Model.Record(state, 1002, {})
 assert(plain.tier == "bronze" and state.species[1002].bronze == 1, "a missing GUID falls back to bronze")
-
--- Each species keeps its smallest and largest kill per character, and the two tails count as finds.
-state = Model.NewState()
-local firstSize = Model.Record(state, 1003, { tier = "bronze", size = 112 })
-assert(
-	firstSize.sizeSmallest == 112 and firstSize.sizeLargest == 112 and firstSize.newSmallest and firstSize.newLargest,
-	"the first sized kill sets both records"
-)
-local smaller = Model.Record(state, 1003, { tier = "bronze", size = 84 })
-assert(smaller.newSmallest and not smaller.newLargest, "a smaller kill sets the smallest record")
-assert(smaller.sizeSmallest == 84 and smaller.sizeLargest == 112, "the largest record stays")
-local larger = Model.Record(state, 1003, { tier = "bronze", size = 127 })
-assert(larger.newLargest and not larger.newSmallest, "a larger kill sets the largest record")
-local middle = Model.Record(state, 1003, { tier = "bronze", size = 100 })
-assert(not middle.newLargest and not middle.newSmallest, "a size inside the range is not a record")
-local tinyKill = Model.Record(state, 1003, { tier = "bronze", size = 65 })
-assert(tinyKill.tiny and tinyKill.firstTiny and not tinyKill.giant, "under 0.70x is a Tiny find")
-local giantKill = Model.Record(state, 1003, { tier = "bronze", size = 145 })
-assert(giantKill.giant and giantKill.firstGiant and not giantKill.tiny, "over 1.40x is a Giant find")
-assert(state.species[1003].tiny == 1 and state.species[1003].giant == 1, "each tail keeps its own count")
-assert(state.species[1003].sizeSmallest == 65 and state.species[1003].sizeLargest == 145, "tails become records")
 
 -- Old saves migrate onto the ladder: kills become bronze, a completed rare form becomes one silver, a shiny
 -- stays one shiny, and gold is never inferred.

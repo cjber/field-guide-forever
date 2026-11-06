@@ -140,23 +140,6 @@ for _ = 1, 5 do
 	tick(h)
 end
 check(#Mock.sentAddonMessages == unchanged, "unchanged snapshots do not resend totals")
-state.species[1].sizeSmallest = 84
-state.species[1].sizeLargest = 127
-state.species[1].tiny = 1
-state.species[1].lastKill = 2000
-ns.FireProgress()
-for _ = 1, 5 do
-	tick(h)
-end
-local largest, smallest, tinyFinds
-for _, sent in ipairs(Mock.sentAddonMessages) do
-	largest = largest or sent.message:match("^1|fieldguide|size_largest|1|(%d+)|")
-	smallest = smallest or sent.message:match("^1|fieldguide|size_smallest|1|(%d+)|")
-	tinyFinds = tinyFinds or sent.message:match("^1|fieldguide|tiny_finds|1|(%d+)|")
-end
-check(largest == "127", "the largest size travels as its hundredths")
-check(smallest == "916", "the smallest size travels inverted so the wire's max semantics keep the smaller record")
-check(tinyFinds == "1", "Tiny finds travel with the rest of the totals")
 
 state.species[1].kills = 3
 ns.FireProgress()

@@ -60,10 +60,6 @@ local TAG_HEIGHT = 15
 local TAG_PAD = 4
 local TAG_TEXT = { 0.05, 0.06, 0.07 }
 local TARGET_TAGS = { silver = "SILVER", gold = "GOLD", shiny = "SHINY" }
-local SIZE_TAG_COLORS = {
-	TINY = { 0.58, 0.83, 1 },
-	GIANT = { 0.91, 0.74, 0.39 },
-}
 local PREVIEW_TIERS = { "silver", "gold", "shiny" }
 local discoveredThisSession = {}
 
@@ -85,17 +81,6 @@ local function UnitTier(unit)
 		return "bronze"
 	end
 	return ns.Model.SpawnTier(ns.Readable(UnitGUID(unit)))
-end
-
--- The spawn's size belongs to the same readable GUID as its coat, so every player sees the same size on the same
--- spawn. Players have none, and a unit whose GUID the client hides has no size to show.
----@param unit string
----@return integer?
-local function UnitSize(unit)
-	if UnitIsPlayer and UnitIsPlayer(unit) then
-		return nil
-	end
-	return ns.Model.SpawnSize(ns.Readable(UnitGUID(unit)))
 end
 
 -- Preview tiers are session state, never saved progress. Each creature gets one tier per session so retargeting it
@@ -415,7 +400,6 @@ local function UpdateTarget()
 	end
 	local tier = TierFor("target")
 	local color = Rarity.COLORS[tier]
-	local size = UnitSize("target")
 	local target = _G.TargetFrame
 	local name = target and (target.name or target.Name)
 	if type(name) ~= "table" then
@@ -423,23 +407,8 @@ local function UpdateTarget()
 	end
 
 	PaintTargetFrame(target, tier, color, NativeFrame("target"))
-	local parts = {}
-	local badge = ns.Model.SizeBadge(size)
-	if size then
-		parts[#parts + 1] = ns.Model.FormatSize(size)
-	end
-	if badge then
-		table.insert(parts, 1, L[badge])
-	end
-	if TARGET_TAGS[tier] then
-		parts[#parts + 1] = L[TARGET_TAGS[tier]]
-	end
-	local tagColor = color or (badge and SIZE_TAG_COLORS[badge])
-	if not tagColor and size then
-		local r, g, b = Art.RGBA("muted", 1)
-		tagColor = { r, g, b }
-	end
-	PaintTag(target, name, tagColor, #parts > 0 and table.concat(parts, " · ") or nil)
+	local label = TARGET_TAGS[tier] and L[TARGET_TAGS[tier]] or nil
+	PaintTag(target, name, color, label)
 end
 
 ---@param plate table

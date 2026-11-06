@@ -6,6 +6,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 ## [Unreleased]
 - **The rarity frame reads as one piece.** The tier gem and its socket are gone, so the ornament's six o'clock is plain and the tier shows in its colour alone, and the rare silver frame sits two units lower so the name lands in its name box exactly as on an ordinary target frame. (#169).
 - **Every rarity frame is a laurel.** The quill and journal frames and their setting are gone, so each tier wears its own laurel: a plain silver ring with one small oak sprig, the gold wreath as before, and a fuller crystal wreath in the shiny metal. An old saved style choice is ignored. (#171).
+- **Creature sizes are gone.** Spawns no longer roll a size, the target tag shows only the coat, and Records no longer keeps smallest and largest kills, Tiny and Giant badges or the size toasts. Old saves drop their size fields on load. (#170).
+
+### For addon authors
+- `Specimen` and `Specimens` no longer return `sizeSmallest`, `sizeLargest`, `tiny` or `giant`, and the API's minor version is 4. (#170).
 
 ## [0.5.1] - 2026-11-06
 - **Regenerating the shipped data now gives the same result on every machine.** The QuestieDB fixture that `tools/gen_creature_icons.py` builds `Data/CreatureIcons.lua` from is stamped with the extractor that wrote it, so a fixture left behind by an older tool is re-extracted instead of being silently pinned, and the recorded catalogue pin now hashes the fixture's normalised values rather than its bytes. Two LuaJIT builds that render the same catalogue can no longer disagree, so a locally regenerated file passes CI's `generated-data` gate. (#166).

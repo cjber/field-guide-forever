@@ -19,21 +19,9 @@ assert(ns.Model.SpawnTier(GuidFor("gold", "b")) == "gold", "a spawn GUID can be 
 assert(ns.Model.SpawnTier(GuidFor("silver", "c")) == "silver", "a spawn GUID can be silver")
 assert(ns.Model.SpawnTier(nil) == "bronze", "no readable GUID stays bronze")
 
--- The tag carries the spawn's size first, its Tiny/Giant badge if it has one, then the coat.
+-- The tag carries only the spawn's coat.
 local function ExpectedTag(tier)
-	local parts = {}
-	local size = ns.Model.SpawnSize(Mock.guids.target)
-	local badge = ns.Model.SizeBadge(size)
-	if badge then
-		parts[#parts + 1] = badge
-	end
-	if size then
-		parts[#parts + 1] = ns.Model.FormatSize(size)
-	end
-	if tier ~= "bronze" then
-		parts[#parts + 1] = tier:upper()
-	end
-	return table.concat(parts, " · ")
+	return tier ~= "bronze" and tier:upper() or ""
 end
 
 local chromeColour = { 0.8, 0.7, 0.6, 0.9 }
@@ -177,7 +165,7 @@ assert(
 )
 AssertTargetColoursUntouched("a silver target")
 assert(target.FGFRarityTag:IsShown(), "a tier tag sits above the target name")
-assert(target.FGFRarityTag.text:GetText() == ExpectedTag("silver"), "silver reads its size and SILVER")
+assert(target.FGFRarityTag.text:GetText() == ExpectedTag("silver"), "silver reads SILVER")
 local silverTag = target.FGFRarityTag.text:GetText()
 local tagR, tagG, tagB = target.FGFRarityTag.plate:GetVertexColor()
 assert(
@@ -192,7 +180,7 @@ Mock.guids.target = GuidFor("gold", "t")
 Mock.Fire("PLAYER_TARGET_CHANGED")
 local goldColour = ns.Rarity.COLORS.gold
 AssertTargetColoursUntouched("a gold target")
-assert(target.FGFRarityTag.text:GetText() == ExpectedTag("gold"), "gold reads its size and GOLD")
+assert(target.FGFRarityTag.text:GetText() == ExpectedTag("gold"), "gold reads GOLD")
 local goldTagR, goldTagG, goldTagB = target.FGFRarityTag.plate:GetVertexColor()
 assert(
 	goldTagR == goldColour[1] and goldTagG == goldColour[2] and goldTagB == goldColour[3],
@@ -206,8 +194,7 @@ end
 Mock.guids.target = GuidFor("bronze", "t")
 Mock.Fire("PLAYER_TARGET_CHANGED")
 AssertTargetColoursUntouched("a bronze target")
-assert(target.FGFRarityTag:IsShown(), "a bronze target still shows its size tag")
-assert(target.FGFRarityTag.text:GetText() == ExpectedTag("bronze"), "bronze reads its size")
+assert(not target.FGFRarityTag:IsShown(), "a bronze target shows no tag")
 assert(not target.FGFRarityFrame:IsShown(), "an uncatalogued target hides the frame recolour")
 assert(not target.FGFRarityArt.ornament:IsShown(), "an uncatalogued target hides the ornament")
 chromeR, chromeG, chromeB, chromeA = chrome:GetVertexColor()
@@ -270,7 +257,7 @@ end
 Mock.Fire("PLAYER_REGEN_ENABLED")
 AssertTargetColoursUntouched("a target change after combat")
 assert(target.FGFRarityTag:IsShown(), "the shiny tag applies after combat")
-assert(target.FGFRarityTag.text:GetText() == ExpectedTag("shiny"), "shiny reads its size and SHINY")
+assert(target.FGFRarityTag.text:GetText() == ExpectedTag("shiny"), "shiny reads SHINY")
 AssertTargetFrame("shiny", "a shiny target after combat")
 
 -- The sheen is cosmetic and animates nothing protected, so a fight does not stop it; hiding the art does.

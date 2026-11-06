@@ -494,18 +494,6 @@ def fraction_of_ranks(count):
     return sum(max(0, min(1, (count - low) / (high - low))) for low, high in zip(bounds, bounds[1:], strict=False)) / 4
 
 
-def size_records(species):
-    """Model.SpawnSize's shape in miniature: a bell body, with the odd Tiny or Giant tail for a readable badge."""
-    seed = (species["id"] * 1103515245 + 12345) % 2147483648
-    smallest = 76 + seed % 22
-    largest = 104 + (seed // 22) % 27
-    if seed % 37 == 0:
-        smallest = 62 + (seed // 7) % 8
-    if seed % 43 == 0:
-        largest = 141 + (seed // 11) % 15
-    return smallest, largest
-
-
 def cover(image, width, height):
     """Art.SetZoneMap: fill the inset at the layer's own aspect and crop the excess, never squash it."""
     ratio = width / height
@@ -912,19 +900,16 @@ def detail(canvas, rx, ry, zone, species, icons):
 
     header(canvas, rx + SECTION_X, ry + LOWER_Y, "Records")
     note("Records heading", "content", rx + SECTION_X, ry + LOWER_Y, 201, 32, parent="Detail pane")
-    size_smallest = size_largest = None
     if not known:
         pairs = [("Nothing recorded yet.", "")]
     else:
         top = best_tier(state)
-        size_smallest, size_largest = size_records(species)
         pairs = [("Sightings", str(count))]
         if state["kills"]:
             pairs.append(("Deaths recorded", str(state["kills"])))
         pairs += [("First seen", "22 Oct"), ("Last seen", "4 Nov")]
         if top:
             pairs.append(("Best variant", top.capitalize()))
-        pairs += [("Largest", f"{size_largest / 100:.2f}x"), ("Smallest", f"{size_smallest / 100:.2f}x")]
     for pair_index, (key, value) in enumerate(pairs):
         y = ry + LOWER_Y + 40 + pair_index * 18
         key_w = RECORDS_W - 24 if value == "" else 130
@@ -932,19 +917,6 @@ def detail(canvas, rx, ry, zone, species, icons):
         if value:
             right(canvas, rx + SECTION_X + RECORDS_W - 10, y, value, "GameFontHighlight", TEXT, width=RECORDS_W - 152)
     note("Records", "content", rx + SECTION_X, ry + LOWER_Y + 40, RECORDS_W, 18 * len(pairs), parent="Detail pane")
-    if size_smallest is not None and size_largest is not None:
-        badges = []
-        if size_smallest < 70:
-            badges.append("TINY")
-        if size_largest is not None and size_largest > 140:
-            badges.append("GIANT")
-        badge_right = rx + SECTION_X + RECORDS_W - 8
-        for badge in reversed(badges):
-            badge_width = canvas.text_width(badge, FONTS["GameFontNormalSmall"]) + 8
-            badge_x = badge_right - badge_width
-            canvas.fill(badge_x, ry + LOWER_Y + 7, badge_width, 15, GOLD if badge == "GIANT" else SILVER)
-            text(canvas, badge_x + 4, ry + LOWER_Y + 8, badge, "GameFontNormalSmall", TEXT)
-            badge_right = badge_x - 4
 
     hx = rx + HABITAT_X
     header(canvas, hx, ry + LOWER_Y, "Habitat")
