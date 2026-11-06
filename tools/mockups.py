@@ -314,7 +314,7 @@ def load_catalogue():
                 continue
             npc_id, name, minimum, maximum, rank, family, spawn_list = row
             packed = CREATURE_INFO.get(int(npc_id))
-            creature_type = CREATURE_TYPE_NAMES.get(packed >> 16, "Unknown") if packed else "Unknown"
+            creature_type = CREATURE_TYPE_NAMES.get((packed & 0xFFFFF) >> 16, "Unknown") if packed else "Unknown"
             species: MockSpecies = {
                 "id": int(npc_id),
                 "name": name,
