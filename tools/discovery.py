@@ -107,9 +107,9 @@ def list_panel(ui, rows):
             new_tag(canvas, ui, x + 52, y + 5, name)
         text(canvas, x + 52, y + 23, f"{family} · Lv {level}", "GameFontDisableSmall", MUTED)
         canvas.text(x + 290 - 64, y + 5, f"{kills} kills", FONTS["GameFontNormal"], TEXT, justify="RIGHT", width=64)
-        canvas.draw(ui.atlas("Profession-ProgressBar-BG"), x + 10, y + 40, 280, 3)
+        canvas.draw(ui.atlas("common-stat-bar-BG"), x + 10, y + 40, 280, 3)
         if count:
-            canvas.fill(x + 11, y + 41, 278 * count / 10, 1, GOLD)
+            canvas.draw(ui.atlas("common-stat-bar-white"), x + 10, y + 40, 280 * count / 10, 3, GOLD)
     return canvas
 
 

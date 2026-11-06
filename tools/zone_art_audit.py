@@ -26,7 +26,6 @@ candidates = [
     ("Uldaman LFG image", 136363, "Native dungeon illustration"),
     ("PetJournal-PetCard-BG", "PetJournal-PetCard-BG", "Creature-card surface candidate"),
     ("collections-background-tile", "collections-background-tile", "Collection surface candidate"),
-    ("Profession-ProgressBar-frame", "Profession-ProgressBar-frame", "Native progress frame candidate"),
     (
         "_GarrMissionLocation-NorthernBarrens-Mid",
         "_GarrMissionLocation-NorthernBarrens-Mid",

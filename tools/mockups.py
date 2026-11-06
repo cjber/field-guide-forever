@@ -476,12 +476,11 @@ def fraction_of_ranks(count):
 
 
 def status_bar(canvas, x, y, w, h, fraction):
-    """Art.StatusBar: the Professions skill bar, gold CoolDownManager bar fill inside the client's progress frame."""
-    canvas.draw(canvas.ui.atlas("Profession-ProgressBar-BG"), x, y, w, h)
+    """Art.StatusBar: the ColoredProgressBarTemplate art, the gold-tinted white fill over its background atlas."""
+    canvas.draw(canvas.ui.atlas("common-stat-bar-BG"), x, y, w, h)
     filled = w * max(0, min(1, fraction))
     if filled:
-        canvas.draw(canvas.ui.atlas("UI-HUD-CoolDownManager-Bar"), x, y, filled, h, GOLD)
-    canvas.draw(canvas.ui.atlas("Profession-ProgressBar-frame"), x, y, w, h)
+        canvas.draw(canvas.ui.atlas("common-stat-bar-white"), x, y, filled, h, GOLD)
 
 
 def card(canvas, x, y, w, h, border=None):
