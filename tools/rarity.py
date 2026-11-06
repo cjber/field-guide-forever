@@ -1,12 +1,15 @@
 """Rarity mockups: the target frame and the nameplate at every collection tier.
 
-Design C: the client frame keeps its own chrome and the game's own reaction colours. A silver, gold or shiny creature
-adds a soft tier-coloured aura around the bars and portrait, plus a SILVER, GOLD or SHINY tag above the target name;
-nameplates take a soft tier glow and the existing mark. The health bar fill and name text are never recoloured.
-BRONZE is the untouched client frame.
+The client's own classification art does the work, at atlas size and the anchors the client uses. A silver creature
+draws the rare silver frame over its bronze frame, gold draws the elite gold portrait ring, and shiny draws the rare
+frame plus the winged silver ring and runs the client's loot-toast sheen across both. A tier icon sits in the free
+bottom-left corner, and the SILVER, GOLD or SHINY tag stays above the name. Nameplates carry the same quality icon to
+the right of the health bar. The health bar fill and name text keep the client's own colours, and BRONZE is the
+untouched client frame.
 
-Every pixel that is not the addon's own layout comes from the pinned WoW: Forever build through
-wowmock, so what is approved here is what the addon paints.
+Rare, elite, boss and minus-mob units already get the client's own frame art, so our art is skipped for them while the
+tier icon and tag still read the coat. Every pixel that is not the addon's own layout comes from the pinned
+WoW: Forever build through wowmock, so what is approved here is what the addon paints.
 
     python3 tools/rarity.py
 """
@@ -15,7 +18,7 @@ import os
 import sys
 from pathlib import Path
 
-from PIL import Image  # ty: ignore[unresolved-import]  # Pillow is local only
+from PIL import Image, ImageChops  # ty: ignore[unresolved-import]  # Pillow is local only
 from ui_art import BUILD as ART_BUILD
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -33,22 +36,20 @@ OUT = ROOT / "docs" / "screenshots"
 # all; the whole promise of the feature is that a bronze creature looks exactly as it always did.
 TIERS = (
     ("BRONZE", "every spawn", None, "the client's frame, untouched"),
-    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver aura, quality mark and SILVER tag"),
-    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "gold aura, quality mark and GOLD tag"),
-    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "shiny aura, quality mark and SHINY tag"),
+    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver rare frame, quality mark and SILVER tag"),
+    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "elite gold ring, quality mark and GOLD tag"),
+    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "silver frame, winged silver ring, sheen and SHINY tag"),
 )
-BAR_GLOW_LEFT = "UI-Frame-Bar-GlowLeft"
-BAR_GLOW_CENTER = "UI-Frame-Bar-GlowCenter"
-BAR_GLOW_RIGHT = "UI-Frame-Bar-GlowRight"
-BAR_GLOW_LEFT_WIDTH = 35
-BAR_GLOW_RIGHT_WIDTH = 34
-TARGET_GLOW_LAYERS = ((9, 0.12), (5, 0.28), (2, 0.9))
-PLATE_GLOW_LAYERS = ((9, 0.22), (4, 0.55), (1, 1.0))
-TARGET_RING = "Portrait-Frame-Small"
-TARGET_PORTRAIT_GLOW_LAYERS = ((96, 0.12), (88, 0.28), (80, 0.6), (74, 1.0))
+TARGET_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn"
+RARE_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
+GOLD_RING_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold"
+WING_RING_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver-Winged"
+SHEEN_ATLAS = "loottoast-sheen"
+HEALTH_BAR_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Bar-Health"
+POWER_BAR_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Bar-Mana"
 TAG_HEIGHT = 15
 TAG_PAD = 4
-# Art.TIER_ICONS for the tiers whose nameplate carries its quality mark beside the name, at Rarity.lua's size and
+# Art.TIER_ICONS for the tiers whose target frame and nameplate carry their quality mark, at Rarity.lua's size and
 # resting alpha.
 PLATE_MARKS = {
     "SILVER": "Professions-Icon-Quality-Tier2",
@@ -57,6 +58,9 @@ PLATE_MARKS = {
 }
 PLATE_MARK_SIZE = 17
 PLATE_ACCENT_ALPHA = 0.72
+# UI/Rarity.lua's target-frame mark, in the free bottom-left corner under the power bar.
+TARGET_MARK_SIZE = 15
+TARGET_MARK_TOP = 54.5
 
 TEXT = wowmock.rgb("e3d9c2")
 MUTED = wowmock.rgb("9e998c")
@@ -65,12 +69,14 @@ BRASS = wowmock.rgb("b8a16b")
 BG = wowmock.rgb("0d0f12")
 TAG_TEXT = wowmock.rgb("0d0f12")
 
-FRAME_W, FRAME_H = 256, 128
-HEALTH_WINDOW = (32, 26, 143, 49)
-POWER_WINDOW = (33, 55, 143, 61)
-PORTRAIT_CENTER = (183, 44)
-PORTRAIT_RADIUS = 28
-LEVEL_CENTER = (201, 66)
+# The UI-HUD target frame's atlas is 192 by 67. These windows are the measured client regions inside it, in the same
+# units TargetFrame.xml anchors its health, power and portrait to.
+FRAME_W, FRAME_H = 192, 67
+HEALTH_WINDOW = (2, 22, 128, 42)
+POWER_WINDOW = (2, 44, 136, 54)
+PORTRAIT_CENTER = (157, 36)
+PORTRAIT_RADIUS = 29
+LEVEL_CENTER = (188, 54)
 
 # NumberFontNormalSmall is the client font object used by target-frame level text.
 FONTS["NumberFontNormalSmall"] = Font(wowmock.ARIALN, 10, wowmock.WHITE, None, True)
@@ -80,150 +86,92 @@ def text(canvas, x, y, value, font, colour=TEXT, **kwargs):
     canvas.text(x, y, value, FONTS[font], colour, **kwargs)
 
 
-def recolour(piece, colour):
-    """SetDesaturated then SetVertexColor: luminance only, multiplied by the tier colour."""
-    if colour is None:
-        return piece
-    grey = piece.convert("L").convert("RGBA")
-    grey.putalpha(piece.getchannel("A"))
-    return tint(grey, colour)
+def sheen_mask(canvas, pieces):
+    """The union of the client art's alpha, so the sheen can only paint inside that art."""
+    mask = Image.new("L", canvas.image.size, 0)
+    for atlas, left, top, width, height in pieces:
+        alpha = atlas.image.resize((canvas.px(width), canvas.px(height)), Image.LANCZOS).getchannel("A")
+        layer = Image.new("L", mask.size, 0)
+        layer.paste(alpha, (canvas.px(left), canvas.px(top)))
+        mask = ImageChops.lighter(mask, layer)
+    return mask
 
 
-def art(canvas, texture, x, y):
-    """Draw the complete client texture at native logical size, leaving the client's chrome untouched."""
-    piece = texture.resize((canvas.px(FRAME_W), canvas.px(FRAME_H)), Image.LANCZOS)
-    canvas.composite(piece, canvas.px(x), canvas.px(y))
+def sheen(canvas, ui, x, y, pieces):
+    """Draw the loot-toast sheen still, clipped to the rare frame and winged ring it crosses."""
+    atlas = ui.atlas(SHEEN_ATLAS)
+    layer = Image.new("RGBA", canvas.image.size)
+    piece = atlas.image.resize((canvas.px(atlas.width), canvas.px(atlas.height)), Image.LANCZOS)
+    layer.paste(piece, (canvas.px(x + 90), canvas.px(y - 4)))
+    layer.putalpha(ImageChops.multiply(layer.getchannel("A"), sheen_mask(canvas, pieces)))
+    canvas.composite(layer, 0, 0, blend="ADD")
 
 
-def mark(canvas, ui, name, x, y, height, colour):
-    """Draw a native atlas mark at its own aspect, centred on (x, y), as SetAtlas and SetVertexColor do."""
-    atlas = ui.atlas(name)
-    width = height * atlas.width / atlas.height
-    piece = atlas.image.resize((canvas.px(width), canvas.px(height)), Image.LANCZOS)
-    piece = tint(piece, colour)
-    canvas.composite(piece, canvas.px(x - width / 2), canvas.px(y - height / 2), "ADD")
-    return width
-
-
-def glow_piece(canvas, ui, name, x, y, width, height, colour, alpha):
-    """One native glow piece, desaturated and multiplied by the tier colour, as UI/Rarity.lua paints it."""
-    atlas = ui.atlas(name)
-    piece = atlas.image.resize((canvas.px(width), canvas.px(height)), Image.LANCZOS)
-    piece = recolour(piece, colour)
-    piece.putalpha(piece.getchannel("A").point(lambda value: round(value * alpha)))
-    canvas.composite(piece, canvas.px(x), canvas.px(y), "ADD")
-
-
-def bar_glow(canvas, ui, bounds, colour, layers):
-    """The client's three-piece bar glow, repeated at increasing padding to make a soft tier aura around the bars."""
-    source_left, source_top, source_right, source_bottom = bounds
-    for pad, alpha in layers:
-        left = source_left - pad
-        top = source_top - pad
-        right = source_right + pad
-        bottom = source_bottom + pad
-        height = bottom - top
-        glow_piece(canvas, ui, BAR_GLOW_LEFT, left, top, BAR_GLOW_LEFT_WIDTH, height, colour, alpha)
-        glow_piece(
-            canvas,
-            ui,
-            BAR_GLOW_RIGHT,
-            right - BAR_GLOW_RIGHT_WIDTH,
-            top,
-            BAR_GLOW_RIGHT_WIDTH,
-            height,
-            colour,
-            alpha,
-        )
-        glow_piece(
-            canvas,
-            ui,
-            BAR_GLOW_CENTER,
-            left + BAR_GLOW_LEFT_WIDTH,
-            top,
-            right - left - BAR_GLOW_LEFT_WIDTH - BAR_GLOW_RIGHT_WIDTH,
-            height,
-            colour,
-            alpha,
-        )
-
-
-def portrait_glow(canvas, ui, x, y, colour):
-    """The client's portrait-frame ring, repeated at increasing size to make a soft tier aura around the portrait."""
-    centre_x = x + PORTRAIT_CENTER[0]
-    centre_y = y + PORTRAIT_CENTER[1]
-    for size, alpha in TARGET_PORTRAIT_GLOW_LAYERS:
-        glow_piece(
-            canvas,
-            ui,
-            TARGET_RING,
-            centre_x - size / 2,
-            centre_y - size / 2,
-            size,
-            size,
-            colour,
-            alpha,
-        )
-
-
-def tag(canvas, x, y, label, colour):
-    """The SILVER, GOLD or SHINY plate above the name: tier colour with dark text and a thin dark edge."""
-    font = FONTS["GameFontNormalSmall"]
-    width = canvas.text_width(label, font) + TAG_PAD * 2
-    left = x + 32 + 111 / 2 - width / 2
-    top = y - 10
-    canvas.fill(left - 1, top - 1, width + 2, TAG_HEIGHT + 2, TAG_TEXT)
-    canvas.fill(left, top, width, TAG_HEIGHT, colour)
-    canvas.text(left + TAG_PAD, top + 1, label, font, TAG_TEXT)
-
-
-def status_bar(canvas, texture, bounds, fraction, colour):
-    """Crop the client's StatusBar texture to the visible fill fraction."""
-    left, top, right, bottom = bounds
-    fraction = max(0, min(1, fraction))
-    width = canvas.px(right - left)
-    height = canvas.px(bottom - top)
-    source_width = max(1, round(texture.width * fraction))
-    fill = texture.crop((0, 0, source_width, texture.height)).resize(
-        (max(1, round(width * fraction)), height), Image.LANCZOS
-    )
-    canvas.composite(tint(fill, colour), canvas.px(left), canvas.px(top))
-
-
-def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False):
-    """Compose the measured client target frame with design C's aura, tier tag and the client's health colours."""
+def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
+    """Compose the client target frame with its own classification art, the tier icon and the tag."""
     label, _, colour, _ = tier
-    stem = "targetframeelite" if elite else "targetframe"
-    frame = ui.texture(f"interface/targetingframe/{stem}.blp")
-    bar_texture = ui.atlas("UI-HUD-CoolDownManager-Bar").image
+    frame = ui.atlas(TARGET_FRAME_ATLAS)
+    health_bar = ui.atlas(HEALTH_BAR_ATLAS)
+    power_bar = ui.atlas(POWER_BAR_ATLAS)
     mask = ui.texture("interface/characterframe/tempportraitalphamask.blp")
-
-    health_bounds = tuple(v + (x if i % 2 == 0 else y) for i, v in enumerate(HEALTH_WINDOW))
-    power_bounds = tuple(v + (x if i % 2 == 0 else y) for i, v in enumerate(POWER_WINDOW))
 
     portrait_layer = ui.canvas(canvas.width, canvas.height)
     diameter = PORTRAIT_RADIUS * 2
-    portrait_left, portrait_top = x + PORTRAIT_CENTER[0] - PORTRAIT_RADIUS, y + PORTRAIT_CENTER[1] - PORTRAIT_RADIUS
+    portrait_left = x + PORTRAIT_CENTER[0] - PORTRAIT_RADIUS
+    portrait_top = y + PORTRAIT_CENTER[1] - PORTRAIT_RADIUS
     portrait_layer.draw(icon, portrait_left, portrait_top, diameter, diameter)
     portrait_layer.mask(mask, portrait_left, portrait_top, diameter, diameter)
     canvas.paste(portrait_layer, 0, 0)
 
-    # One native frame pass keeps the portrait rim, bar borders, and elite crest on the source coordinates.
-    art(canvas, frame, x, y)
-    if colour:
-        bar_glow(
-            canvas,
-            ui,
-            (x + 32, y + HEALTH_WINDOW[1], x + 143, y + POWER_WINDOW[3]),
-            colour,
-            TARGET_GLOW_LAYERS,
-        )
-    status_bar(canvas, bar_texture, health_bounds, 0.86, wowmock.rgb("3f7a34"))
-    status_bar(canvas, bar_texture, power_bounds, 0.62, wowmock.rgb("2f5a9e"))
-    if colour:
-        portrait_glow(canvas, ui, x, y, colour)
-        tag(canvas, x, y, label, colour)
-    text(canvas, x + 32, y + 8, name, "GameFontNormalSmall", TEXT, justify="CENTER", width=111)
+    canvas.draw(frame, x, y, FRAME_W, FRAME_H)
+
+    # Client art at atlas size and the client's own anchors. A rare, elite or boss unit keeps the art the client
+    # already drew there instead.
+    if not native:
+        if label in ("SILVER", "SHINY"):
+            canvas.draw(ui.atlas(RARE_FRAME_ATLAS), x, y, FRAME_W, FRAME_H)
+        if label == "GOLD":
+            ring = ui.atlas(GOLD_RING_ATLAS)
+            canvas.draw(ring, x + 112, y - 17.5, ring.width, ring.height)
+        if label == "SHINY":
+            wing = ui.atlas(WING_RING_ATLAS)
+            canvas.draw(wing, x + 111, y - 9.5, wing.width, wing.height)
+            sheen(
+                canvas,
+                ui,
+                x,
+                y,
+                (
+                    (ui.atlas(RARE_FRAME_ATLAS), x, y, FRAME_W, FRAME_H),
+                    (wing, x + 111, y - 9.5, wing.width, wing.height),
+                ),
+            )
+    else:
+        ring = ui.atlas(GOLD_RING_ATLAS)
+        canvas.draw(ring, x + 112, y - 17.5, ring.width, ring.height)
+
+    # The status bar art already carries the client's green and blue fills; crop it to the shown fraction.
+    for atlas, bounds, fraction in (
+        (health_bar, HEALTH_WINDOW, 0.86),
+        (power_bar, POWER_WINDOW, 0.62),
+    ):
+        left, top, right, bottom = bounds
+        width, height = canvas.px(right - left), canvas.px(bottom - top)
+        full = atlas.image.resize((width, height), Image.LANCZOS)
+        filled = max(1, round(width * fraction))
+        canvas.composite(full.crop((0, 0, filled, height)), canvas.px(x + left), canvas.px(y + top))
+
+    text(
+        canvas,
+        x + HEALTH_WINDOW[0],
+        y + HEALTH_WINDOW[1],
+        name,
+        "GameFontNormalSmall",
+        TEXT,
+        justify="CENTER",
+        width=HEALTH_WINDOW[2] - HEALTH_WINDOW[0],
+        box_height=HEALTH_WINDOW[3] - HEALTH_WINDOW[1],
+    )
     text(
         canvas,
         x + LEVEL_CENTER[0] - 15,
@@ -235,47 +183,85 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, elite=False):
         width=30,
     )
 
+    if colour:
+        tag(canvas, x, y, label, colour)
+        mark(
+            canvas,
+            ui,
+            PLATE_MARKS[label],
+            x + 4 + TARGET_MARK_SIZE / 2,
+            y + TARGET_MARK_TOP + TARGET_MARK_SIZE / 2,
+            TARGET_MARK_SIZE,
+            wowmock.WHITE,
+        )
+
+
+def tag(canvas, x, y, label, colour):
+    """The SILVER, GOLD or SHINY plate above the health bar: tier colour with dark text and a thin dark edge."""
+    font = FONTS["GameFontNormalSmall"]
+    width = canvas.text_width(label, font) + TAG_PAD * 2
+    bar_width = HEALTH_WINDOW[2] - HEALTH_WINDOW[0]
+    left = x + HEALTH_WINDOW[0] + (bar_width - width) / 2
+    top = y - TAG_HEIGHT - 3
+    canvas.fill(left - 1, top - 1, width + 2, TAG_HEIGHT + 2, TAG_TEXT)
+    canvas.fill(left, top, width, TAG_HEIGHT, colour)
+    canvas.text(left + TAG_PAD, top + 1, label, font, TAG_TEXT)
+
+
+def mark(canvas, ui, name, x, y, height, colour):
+    """Draw a native atlas mark at its own aspect, centred on (x, y), as SetAtlas and SetVertexColor do."""
+    atlas = ui.atlas(name)
+    width = height * atlas.width / atlas.height
+    piece = atlas.image.resize((canvas.px(width), canvas.px(height)), Image.LANCZOS)
+    piece = tint(piece, colour)
+    canvas.composite(piece, canvas.px(x - width / 2), canvas.px(y - height / 2))
+
 
 def nameplate(ui, canvas, x, y, tier, name):
-    """One nameplate: a soft tier aura and the ladder's mark, over the client's own reaction colours.
-    Every tier keeps the client's red fill and white name; only bronze has no aura or mark."""
+    """One nameplate: the ladder's mark to the right of the bar, over the client's own reaction colours.
+    Every tier keeps the client's red fill and white name; only bronze has no mark."""
     label, _, colour, _ = tier
     w, h = 116, 12
     fill_texture = ui.texture("interface/targetingframe/nameplatefill.blp")
-    if colour:
-        bar_glow(canvas, ui, (x, y, x + w, y + h), colour, PLATE_GLOW_LAYERS)
     trough_colour = tuple(component * 0.18 for component in BRASS)
     canvas.draw(fill_texture, x, y, w, h, trough_colour)
-    status_bar(canvas, fill_texture, (x, y, x + w, y + h), 0.9, wowmock.rgb("a3342c"))
-    font = FONTS["GameFontNormalSmall"]
-    label_width = canvas.text_width(name, font)
+    full = fill_texture.resize((canvas.px(w), canvas.px(h)), Image.LANCZOS)
+    full = tint(full, wowmock.rgb("a3342c"))
+    canvas.composite(full.crop((0, 0, canvas.px(w * 0.9), canvas.px(h))), canvas.px(x), canvas.px(y))
+    text(
+        canvas,
+        x,
+        y - 15,
+        name,
+        "GameFontNormalSmall",
+        TEXT,
+        justify="CENTER",
+        width=w,
+    )
     atlas_name = PLATE_MARKS.get(label)
-    mark_width = PLATE_MARK_SIZE if atlas_name else 0
-    gap = 2 if mark_width else 0
-    group_left = x + (w - label_width - gap - mark_width) / 2
-    text(canvas, group_left, y - 15, name, "GameFontNormalSmall", TEXT)
     if atlas_name:
-        # LEFT on the name's RIGHT, centred on its line.
-        canvas.draw(
-            ui.atlas(atlas_name),
-            group_left + label_width + gap,
-            y - 15 + (font.height - PLATE_MARK_SIZE) / 2,
-            PLATE_MARK_SIZE,
+        # LEFT on the health bar's RIGHT, centred on its line.
+        mark(
+            canvas,
+            ui,
+            atlas_name,
+            x + w + 2 + PLATE_MARK_SIZE / 2,
+            y + h / 2,
             PLATE_MARK_SIZE,
             (1, 1, 1, PLATE_ACCENT_ALPHA),
         )
 
 
-def sheet(ui, icons, name, elite=False, plates=False):
+def sheet(ui, icons, name, native=False, plates=False):
     cols, rows = 2, 2
     cell_w, cell_h = 330, 220
     m = 34
     canvas = ui.canvas(cell_w * cols + m * 2, cell_h * rows + m * 2 + 64)
     canvas.fill(0, 0, canvas.width, canvas.height, BG)
     text(canvas, m, 18, "FIELD GUIDE  \u00b7  RARITY AT A GLANCE", "GameFontNormal", BRASS)
-    subtitle = "Normal frame with a tier aura and a SILVER, GOLD or SHINY tag; the game keeps its health colours"
-    if elite:
-        subtitle = "Elite frame keeps its client dragon chrome; the rarity adds the aura and tag"
+    subtitle = "The client's own classification art at its own size, with the tier icon and tag"
+    if native:
+        subtitle = "The client's own rare and elite frame art stays; the tier icon and tag still name the coat"
     text(canvas, m, 36, subtitle, "GameFontDisableSmall", MUTED)
     folk = ["Savannah Prowler", "Bristleback Boar", "Prairie Wolf", "Plainstrider"]
     glyph = ["prowler", "boar", "wolf", "strider"]
@@ -288,7 +274,7 @@ def sheet(ui, icons, name, elite=False, plates=False):
         odds_x = cx + canvas.text_width(label, FONTS["GameFontNormal"]) + 8
         text(canvas, odds_x, cy + 1, odds, "GameFontDisableSmall", DIM)
         text(canvas, cx, cy + 16, note, "GameFontDisableSmall", MUTED)
-        target_frame(ui, canvas, cx + 14, cy + 52, tier, icons[glyph[index]], folk[index], 12 + index, elite=elite)
+        target_frame(ui, canvas, cx + 14, cy + 52, tier, icons[glyph[index]], folk[index], 12 + index, native=native)
         if plates:
             nameplate(ui, canvas, cx + 74, cy + 196, tier, folk[index])
     return canvas
@@ -308,7 +294,7 @@ def main():
     }
     sheet(ui, icons, "target frames").save(OUT / "rarity-target.png")
     sheet(ui, icons, "nameplates", plates=True).save(OUT / "rarity-nameplates.png")
-    sheet(ui, icons, "elite frames", elite=True, plates=True).save(OUT / "rarity-elite.png")
+    sheet(ui, icons, "elite frames", native=True, plates=True).save(OUT / "rarity-elite.png")
     print("wrote 3 rarity sheets")
 
 

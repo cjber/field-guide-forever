@@ -32,6 +32,15 @@ local HASH_MODULUS = 2147483647
 local HASH_BASE = 1000003
 local HASH_MIX = 48271
 local TIER_ROLL = 1000000
+-- Sizes ride the same stable GUID hash as the coats, with a salt of their own so the two rolls are not one another's
+-- residue. Sizes are kept in hundredths, which is exactly what the wire protocol carries and what the journal shows.
+local SIZE_SALT = 624544657
+local SIZE_TAIL_ROLL = 200
+local SIZE_BODY_MIN, SIZE_BODY_MAX = 70, 130
+local SIZE_TINY_MIN, SIZE_TINY_MAX = 60, 69
+local SIZE_GIANT_MIN, SIZE_GIANT_MAX = 141, 155
+Model.SIZE_TINY = 70
+Model.SIZE_GIANT = 140
 
 ---@param tier string?
 ---@return boolean
@@ -73,6 +82,57 @@ function Model.SpawnTier(guid)
 		return "silver"
 	end
 	return "bronze"
+end
+
+---@param hash integer
+---@return integer
+local function MixHash(hash)
+	return (hash * HASH_MIX + 12345) % HASH_MODULUS
+end
+
+-- A spawn's size in hundredths of its normal scale (112 is 1.12x), from the same stable GUID hash family as its
+-- coat with a salt of its own. The body is the sum of three uniform rolls, which is bell-shaped around 1.00x and
+-- stays within 0.70x-1.30x; two rolls in 200 are instead the rare tails: Tiny under 0.70x and Giant over 1.40x.
+---@param guid string?
+---@return integer?
+function Model.SpawnSize(guid)
+	local hash = HashGuid(guid)
+	if hash == 0 then
+		return nil
+	end
+	hash = (hash * HASH_BASE + SIZE_SALT) % HASH_MODULUS
+	local tail = hash % SIZE_TAIL_ROLL
+	hash = MixHash(hash)
+	if tail == 0 then
+		return SIZE_TINY_MIN + hash % (SIZE_TINY_MAX - SIZE_TINY_MIN + 1)
+	elseif tail == 1 then
+		return SIZE_GIANT_MIN + hash % (SIZE_GIANT_MAX - SIZE_GIANT_MIN + 1)
+	end
+	local sum = 0
+	for _ = 1, 3 do
+		hash = MixHash(hash)
+		sum = sum + hash % 1001
+	end
+	return SIZE_BODY_MIN + math.floor(sum * (SIZE_BODY_MAX - SIZE_BODY_MIN) / 3000 + 0.5)
+end
+
+---@param hundredths integer?
+---@return string
+function Model.FormatSize(hundredths)
+	return string.format("%.2fx", (tonumber(hundredths) or 0) / 100)
+end
+
+---@param hundredths integer?
+---@return string?
+function Model.SizeBadge(hundredths)
+	local value = tonumber(hundredths)
+	if not value then
+		return nil
+	elseif value < Model.SIZE_TINY then
+		return "TINY"
+	elseif value > Model.SIZE_GIANT then
+		return "GIANT"
+	end
 end
 
 -- A fresh per-character state, flat enough that SavedVariables can serialise it without metatables.
@@ -128,6 +188,8 @@ local function Entry(state, speciesId)
 			silver = 0,
 			gold = 0,
 			shiny = 0,
+			tiny = 0,
+			giant = 0,
 		}
 		state.species[speciesId] = entry
 	end
@@ -136,6 +198,8 @@ local function Entry(state, speciesId)
 		entry.killsEstimated = true
 	end
 	entry.kills = entry.kills or entry.count or 0
+	entry.tiny = entry.tiny or 0
+	entry.giant = entry.giant or 0
 	for _, tier in ipairs(Model.TIERS) do
 		entry[tier] = entry[tier] or 0
 	end
@@ -181,17 +245,42 @@ function Model.MigrateEntry(old)
 end
 
 -- Record one specimen. `opts.guid` is the readable spawn GUID the kill detector already dedupes on; a caller may
--- pass an explicit `opts.tier` instead, which keeps the model testable without a client.
+-- pass an explicit `opts.tier` or `opts.size` instead, which keeps the model testable without a client.
 ---@param state FGState
 ---@param speciesId integer
----@param opts? { tier?: string, guid?: string, time?: number, zone?: string }
+---@param opts? { tier?: string, guid?: string, size?: integer, time?: number, zone?: string }
 ---@return { count: integer, kills: integer, rank: integer, previousRank: integer, tier: string,
 --- newlyDiscovered: boolean, firstKill: boolean, firstTier: boolean, firstBronze: boolean, firstSilver: boolean,
---- firstGold: boolean, firstShiny: boolean, bestTier: string? }
+--- firstGold: boolean, firstShiny: boolean, bestTier: string?, size: integer?, sizeSmallest: integer?,
+--- sizeLargest: integer?, newSmallest: boolean, newLargest: boolean, tiny: boolean, giant: boolean,
+--- firstTiny: boolean, firstGiant: boolean }
 function Model.Record(state, speciesId, opts)
 	opts = opts or {}
 	local entry = Entry(state, speciesId)
 	local tier = Model.IsTier(opts.tier) and opts.tier or Model.SpawnTier(opts.guid)
+	local size = tonumber(opts.size) or Model.SpawnSize(opts.guid)
+	local previousSmallest, previousLargest = entry.sizeSmallest, entry.sizeLargest
+	local newSmallest, newLargest = false, false
+	local tiny, giant = false, false
+	if size and (size < 1 or size > 999 or size % 1 ~= 0) then
+		size = nil
+	end
+	if size then
+		if not previousSmallest or size < previousSmallest then
+			entry.sizeSmallest, newSmallest = size, true
+		end
+		if not previousLargest or size > previousLargest then
+			entry.sizeLargest, newLargest = size, true
+		end
+		tiny = size < Model.SIZE_TINY
+		giant = size > Model.SIZE_GIANT
+		if tiny then
+			entry.tiny = (entry.tiny or 0) + 1
+		end
+		if giant then
+			entry.giant = (entry.giant or 0) + 1
+		end
+	end
 	local previouslyFound = entry[tier] or 0
 	local newlyDiscovered = entry.count == 0
 	local previousRank = Model.Rank(entry.count)
@@ -241,6 +330,15 @@ function Model.Record(state, speciesId, opts)
 		firstGold = tier == "gold" and firstTier,
 		firstShiny = tier == "shiny" and firstTier,
 		bestTier = Model.BestTier(entry),
+		size = size,
+		sizeSmallest = entry.sizeSmallest,
+		sizeLargest = entry.sizeLargest,
+		newSmallest = newSmallest,
+		newLargest = newLargest,
+		tiny = tiny,
+		giant = giant,
+		firstTiny = tiny and entry.tiny == 1,
+		firstGiant = giant and entry.giant == 1,
 	}
 end
 
@@ -250,13 +348,15 @@ end
 function Model.Specimen(state, speciesId)
 	local entry = state and state.species and state.species[speciesId]
 	if not entry then
-		return { count = 0, kills = 0, bronze = 0, silver = 0, gold = 0, shiny = 0 }
+		return { count = 0, kills = 0, bronze = 0, silver = 0, gold = 0, shiny = 0, tiny = 0, giant = 0 }
 	end
 	entry.count = entry.count or 0
 	if entry.kills == nil and entry.count > 0 and entry.killsEstimated == nil then
 		entry.killsEstimated = true
 	end
 	entry.kills = entry.kills or entry.count or 0
+	entry.tiny = entry.tiny or 0
+	entry.giant = entry.giant or 0
 	for _, tier in ipairs(Model.TIERS) do
 		entry[tier] = entry[tier] or 0
 	end

@@ -170,6 +170,14 @@ function List.Create(parent, controller)
 	List.empty:Hide()
 end
 
+-- The list's message when no row matches. The window changes it for a journal with nothing discovered yet.
+---@param text string
+function List.SetEmptyText(text)
+	if List.empty then
+		List.empty:SetText(text)
+	end
+end
+
 -- Fill only the rows on screen, from the scroll frame's offset. Scrolling recycles this fixed pool; it never creates
 -- a row per creature, and nothing here runs from OnUpdate.
 function List.Update()

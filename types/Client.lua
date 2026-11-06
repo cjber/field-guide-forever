@@ -41,9 +41,15 @@ ForeverMinimapButtons = nil
 ---@field Refresh fun()
 ---@field SetShown fun(button: ForeverMinimapButton?, shown: boolean)
 
+-- The modern target frame's container, which UI/Rarity.lua reads for the frame art and portrait it overlays.
+---@class TargetFrameContainer
+---@field FrameTexture Texture
+---@field Portrait? Texture
+
 -- The classic target frame's layout, which UI/Rarity.lua reads alongside the modern TargetFrameContainer. Each is
 -- absent on a client with the other layout, so every read checks for nil.
 ---@class TargetFrame
+---@field TargetFrameContainer? TargetFrameContainer
 ---@field TargetFrameTextureFrameTexture? Texture
 ---@field name? FontString
 ---@field Name? FontString
@@ -55,6 +61,12 @@ ForeverMinimapButtons = nil
 ---@field PowerBar? StatusBar
 ---@field portrait? Texture
 ---@field Portrait? Texture
+---@field FGFRarityFrame? Texture
+---@field FGFRarityArt? FGFRarityTargetArt
+---@field FGFRaritySheenAnim? AnimationGroup
+---@field FGFRarityIcon? Texture
+---@field FGFRarityTag? Frame
+---@field FGFRarityMarker? Texture
 
 -- TargetFrame.xml: the classic target frame's portrait texture, drawn inside the frame chrome.
 ---@type Texture?

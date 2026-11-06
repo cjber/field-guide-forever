@@ -1,5 +1,6 @@
 ---@type string, FGNamespace
 local _, ns = ...
+local L = ns.L
 local Art = ns.Art
 
 ---@class FGRarity
@@ -14,38 +15,45 @@ Rarity.COLORS = {
 
 local PLATE_ACCENT_ALPHA = 0.72
 local WHITE = "Interface\\Buttons\\WHITE8X8"
-local BAR_GLOW_LEFT = "UI-Frame-Bar-GlowLeft"
-local BAR_GLOW_CENTER = "UI-Frame-Bar-GlowCenter"
-local BAR_GLOW_RIGHT = "UI-Frame-Bar-GlowRight"
-local BAR_GLOW_LEFT_WIDTH = 35
-local BAR_GLOW_RIGHT_WIDTH = 34
-local TARGET_RING = "Portrait-Frame-Small"
--- The tiers whose nameplate carries its quality mark beside the name.
+-- The client's own classification art, at its own size. A normal bronze frame stays exactly as the client draws it;
+-- the rare silver frame, the elite gold ring and the rare silver winged ring are the same pieces CheckClassification
+-- and GetBossPortraitFrameData use, with no desaturation or tint of ours.
+local TARGET_FRAME_ATLAS = "UI-HUD-UnitFrame-Target-Rare-PortraitOn"
+local TARGET_GOLD_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold"
+local TARGET_WING_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver-Winged"
+-- LootUpgradeFrame's sheen (Mainline/AlertFrameSystems.xml): the client's own loot-toast sweep, repeated after a hold.
+local SHEEN_ATLAS = "loottoast-sheen"
+local SHEEN_START = 1.1
+local SHEEN_FADE_IN = 0.18
+local SHEEN_FADE_OUT = 1.575
+local SHEEN_FADE_OUT_DURATION = 0.25
+local SHEEN_TRAVEL = 165
+local SHEEN_TRAVEL_DURATION = 0.725
+local SHEEN_HOLD = 2.4
+-- The target frame's tier mark lives in the free bottom-left corner, under the power bar and clear of the PvP badge.
+local TARGET_ICON_SIZE = 15
+local TARGET_ICON_X, TARGET_ICON_Y = 24, 14
+-- Classifications the client already draws its own frame art for, so our art would only double it up.
+local NATIVE_FRAME_CLASSIFICATIONS = {
+	rare = true,
+	rareelite = true,
+	elite = true,
+	minus = true,
+}
+-- The tiers whose nameplate carries its quality mark beside the bar.
 local PLATE_MARKS = {
 	silver = true,
 	gold = true,
 	shiny = true,
 }
-local PLATE_GLOW_LAYERS = {
-	{ pad = 9, alpha = 0.22 },
-	{ pad = 4, alpha = 0.55 },
-	{ pad = 1, alpha = 1 },
-}
-local TARGET_GLOW_LAYERS = {
-	{ pad = 9, alpha = 0.12 },
-	{ pad = 5, alpha = 0.28 },
-	{ pad = 2, alpha = 0.9 },
-}
-local TARGET_PORTRAIT_GLOW_LAYERS = {
-	{ size = 96, alpha = 0.12 },
-	{ size = 88, alpha = 0.28 },
-	{ size = 80, alpha = 0.6 },
-	{ size = 74, alpha = 1 },
-}
 local TAG_HEIGHT = 15
 local TAG_PAD = 4
 local TAG_TEXT = { 0.05, 0.06, 0.07 }
 local TARGET_TAGS = { silver = "SILVER", gold = "GOLD", shiny = "SHINY" }
+local SIZE_TAG_COLORS = {
+	TINY = { 0.58, 0.83, 1 },
+	GIANT = { 0.91, 0.74, 0.39 },
+}
 local PREVIEW_TIERS = { "silver", "gold", "shiny" }
 local discoveredThisSession = {}
 
@@ -67,6 +75,17 @@ local function UnitTier(unit)
 		return "bronze"
 	end
 	return ns.Model.SpawnTier(ns.Readable(UnitGUID(unit)))
+end
+
+-- The spawn's size belongs to the same readable GUID as its coat, so every player sees the same size on the same
+-- spawn. Players have none, and a unit whose GUID the client hides has no size to show.
+---@param unit string
+---@return integer?
+local function UnitSize(unit)
+	if UnitIsPlayer and UnitIsPlayer(unit) then
+		return nil
+	end
+	return ns.Model.SpawnSize(ns.Readable(UnitGUID(unit)))
 end
 
 -- Preview tiers are session state, never saved progress. Each creature gets one tier per session so retargeting it
@@ -109,180 +128,218 @@ local function InCombat()
 	return InCombatLockdown and InCombatLockdown() or false
 end
 
----@param target table?
----@return table?
-local function TargetPortrait(target)
-	return target and (target.portrait or target.Portrait) or TargetFramePortrait
+-- The client draws its own rare, elite, boss or minus-mob frame for these units, so our recolour would only double it.
+---@param unit string
+---@return boolean
+local function NativeFrame(unit)
+	if UnitIsBossMob and UnitIsBossMob(unit) then
+		return true
+	end
+	local classification = UnitClassification and UnitClassification(unit)
+	return classification ~= nil and NATIVE_FRAME_CLASSIFICATIONS[classification] == true
 end
 
----@param target table?
----@return table?
-local function TargetPowerBar(target)
-	if not target then
-		return nil
-	end
-	for _, key in ipairs({ "manabar", "ManaBar", "powerbar", "PowerBar" }) do
-		local bar = target[key]
-		if type(bar) == "table" then
-			return bar
-		end
-	end
-end
-
----@param owner table
----@param layers { pad: number, alpha: number }[]
----@return table?
-local function CreateBarGlow(owner, layers)
-	local glow = owner.FGFRarityBarGlow
-	if type(glow) == "table" then
-		return glow
-	end
-	if not owner.CreateTexture then
-		return nil
-	end
-	glow = {}
-	for index, layer in ipairs(layers) do
-		local textures = {}
-		for _, piece in ipairs({
-			{ "left", BAR_GLOW_LEFT },
-			{ "center", BAR_GLOW_CENTER },
-			{ "right", BAR_GLOW_RIGHT },
-		}) do
-			local texture = owner:CreateTexture(nil, "OVERLAY")
-			texture:SetAtlas(piece[2])
-			texture:SetBlendMode("ADD")
-			texture:SetDesaturated(true)
-			textures[piece[1]] = texture
-		end
-		glow[index] = { pad = layer.pad, alpha = layer.alpha, textures = textures }
-	end
-	owner.FGFRarityBarGlow = glow
-	return glow
-end
-
----@param glow table
----@param healthBar table
----@param bottomBar table
-local function AnchorBarGlow(glow, healthBar, bottomBar)
-	for _, layer in ipairs(glow) do
-		local pad = layer.pad
-		local left, center, right = layer.textures.left, layer.textures.center, layer.textures.right
-		left:ClearAllPoints()
-		left:SetPoint("TOPLEFT", healthBar, "TOPLEFT", -pad, pad)
-		left:SetPoint("BOTTOMLEFT", bottomBar, "BOTTOMLEFT", -pad, -pad)
-		left:SetWidth(BAR_GLOW_LEFT_WIDTH)
-		right:ClearAllPoints()
-		right:SetPoint("TOPRIGHT", healthBar, "TOPRIGHT", pad, pad)
-		right:SetPoint("BOTTOMRIGHT", bottomBar, "BOTTOMRIGHT", pad, -pad)
-		right:SetWidth(BAR_GLOW_RIGHT_WIDTH)
-		center:ClearAllPoints()
-		center:SetPoint("TOPLEFT", left, "TOPRIGHT", 0, 0)
-		center:SetPoint("BOTTOMRIGHT", right, "BOTTOMLEFT", 0, 0)
-	end
-end
-
----@param glow table?
----@param color number[]?
-local function PaintBarGlow(glow, color)
-	if type(glow) ~= "table" then
-		return
-	end
-	for _, layer in ipairs(glow) do
-		for _, texture in pairs(layer.textures) do
-			if color then
-				texture:SetVertexColor(color[1], color[2], color[3], 1)
-				texture:SetAlpha(layer.alpha)
-				texture:Show()
-			else
-				texture:Hide()
-			end
-		end
-	end
-end
-
----@param target table
----@param portrait table?
----@return table?
-local function CreatePortraitGlow(target, portrait)
-	local glow = target.FGFRarityPortraitGlow
-	if type(glow) == "table" then
-		return glow
-	end
-	if not portrait or not target.CreateTexture then
-		return nil
-	end
-	glow = {}
-	for index, layer in ipairs(TARGET_PORTRAIT_GLOW_LAYERS) do
-		local texture = target:CreateTexture(nil, "OVERLAY")
-		texture:SetAtlas(TARGET_RING)
-		texture:SetBlendMode("ADD")
-		texture:SetDesaturated(true)
-		texture:SetSize(layer.size, layer.size)
-		texture:SetPoint("CENTER", portrait, "CENTER", 0, 0)
-		glow[index] = { texture = texture, alpha = layer.alpha }
-	end
-	target.FGFRarityPortraitGlow = glow
-	return glow
-end
-
----@param layer table
-local function StopPulse(layer)
-	local pulse = layer.pulse
-	if type(pulse) == "table" then
-		pulse:Stop()
-	end
-	layer.texture:SetAlpha(layer.alpha)
-end
-
----@param layer table
-local function StartPulse(layer)
-	local texture = layer.texture
-	if not texture.CreateAnimationGroup then
-		texture:SetAlpha(layer.alpha)
-		return
-	end
-	local pulse = layer.pulse
-	if type(pulse) ~= "table" then
-		pulse = texture:CreateAnimationGroup()
-		pulse:SetLooping("REPEAT")
-		local fadeIn = pulse:CreateAnimation("Alpha")
-		fadeIn:SetFromAlpha(layer.alpha * 0.55)
-		fadeIn:SetToAlpha(layer.alpha)
-		fadeIn:SetDuration(1.2)
-		fadeIn:SetOrder(1)
-		local fadeOut = pulse:CreateAnimation("Alpha")
-		fadeOut:SetFromAlpha(layer.alpha)
-		fadeOut:SetToAlpha(layer.alpha * 0.55)
-		fadeOut:SetDuration(1.2)
-		fadeOut:SetOrder(2)
-		layer.pulse = pulse
-	end
-	texture:SetAlpha(layer.alpha)
-	pulse:Play()
-end
-
----@param glow table?
----@param color number[]?
----@param tier string
-local function PaintPortraitGlow(glow, color, tier)
-	if type(glow) ~= "table" then
-		return
-	end
-	for _, layer in ipairs(glow) do
-		if color then
-			layer.texture:SetVertexColor(color[1], color[2], color[3], 1)
-			layer.texture:SetAlpha(layer.alpha)
-			layer.texture:Show()
-			if tier == "shiny" then
-				StartPulse(layer)
-			else
-				StopPulse(layer)
-			end
+-- Read the client frame's own anchors, so the rare overlay sits exactly where it draws its bronze frame. The atlas
+-- itself supplies the size (SetAtlas(..., true)), never the normal frame's measured size.
+---@param texture table
+---@param source table
+local function MirrorFramePoints(texture, source)
+	texture:ClearAllPoints()
+	for index = 1, source:GetNumPoints() do
+		local point, relativeTo, relativePoint, x, y = source:GetPoint(index)
+		if relativeTo and relativePoint then
+			texture:SetPoint(point, relativeTo, relativePoint, x, y)
 		else
-			StopPulse(layer)
-			layer.texture:Hide()
+			texture:SetPoint(point, x or 0, y or 0)
 		end
 	end
+end
+
+-- One sheen texture, masked by the client art it crosses so it can never spill outside that piece.
+---@param container table
+---@param maskTarget table
+---@param maskAtlas string
+---@param subLevel number
+---@return table, table
+local function CreateSheen(container, maskTarget, maskAtlas, subLevel)
+	local sheen = container:CreateTexture(nil, "ARTWORK", nil, subLevel)
+	sheen:SetAtlas(SHEEN_ATLAS, true)
+	sheen:SetBlendMode("ADD")
+	sheen:SetPoint("CENTER", container, "CENTER", -80, 0)
+	sheen:SetAlpha(0)
+	sheen:Hide()
+	local mask = container:CreateMaskTexture(nil, "ARTWORK", nil, subLevel)
+	mask:SetAtlas(maskAtlas, true)
+	mask:SetAllPoints(maskTarget)
+	mask:Hide()
+	sheen:AddMaskTexture(mask)
+	return sheen, mask
+end
+
+-- LootUpgradeFrame's sheen timing, looping: the same fade in, travel and fade out, with a short hold between sweeps.
+-- The sheen is cosmetic and owns no protected frame, so it plays in combat too.
+---@param target table
+---@param container table
+---@param sheens table
+---@return table
+local function CreateSheenAnimation(target, container, sheens)
+	local group = container:CreateAnimationGroup()
+	group:SetLooping("REPEAT")
+	for _, sheen in ipairs(sheens) do
+		local fadeIn = group:CreateAnimation("Alpha")
+		fadeIn:SetTarget(sheen)
+		fadeIn:SetFromAlpha(0)
+		fadeIn:SetToAlpha(1)
+		fadeIn:SetStartDelay(SHEEN_START)
+		fadeIn:SetDuration(SHEEN_FADE_IN)
+		fadeIn:SetOrder(1)
+
+		local fadeOut = group:CreateAnimation("Alpha")
+		fadeOut:SetTarget(sheen)
+		fadeOut:SetFromAlpha(1)
+		fadeOut:SetToAlpha(0)
+		fadeOut:SetStartDelay(SHEEN_FADE_OUT)
+		fadeOut:SetDuration(SHEEN_FADE_OUT_DURATION)
+		fadeOut:SetEndDelay(SHEEN_HOLD)
+		fadeOut:SetOrder(1)
+
+		local travel = group:CreateAnimation("Translation")
+		travel:SetTarget(sheen)
+		travel:SetOffset(SHEEN_TRAVEL, 0)
+		travel:SetStartDelay(SHEEN_START)
+		travel:SetDuration(SHEEN_TRAVEL_DURATION)
+		travel:SetOrder(1)
+	end
+	target.FGFRaritySheenAnim = group
+	return group
+end
+
+---@class FGFRarityTargetArt
+---@field overlay Texture the rare silver frame
+---@field gold Texture the elite gold portrait ring
+---@field wing Texture the rare silver winged ring
+---@field sheen Texture the frame sheen
+---@field wingSheen Texture the winged-ring sheen
+---@field sheenMask MaskTexture
+---@field wingMask MaskTexture
+---@field anim AnimationGroup
+
+---@param target table?
+---@return FGFRarityTargetArt?
+local function CreateTargetArt(target)
+	local existing = target and target.FGFRarityArt
+	if type(existing) == "table" then
+		return existing --[[@as FGFRarityTargetArt]]
+	end
+	local container = target and target.TargetFrameContainer
+	local source = container and container.FrameTexture
+	if not target or not container or type(source) ~= "table" or not container.CreateTexture then
+		return nil
+	end
+
+	local overlay = container:CreateTexture(nil, "BACKGROUND", nil, 3)
+	overlay:SetAtlas(TARGET_FRAME_ATLAS, true)
+	MirrorFramePoints(overlay, source)
+
+	-- BossPortraitFrameTexture's layer, with CheckClassification's own offsets.
+	local gold = container:CreateTexture(nil, "ARTWORK", nil, 2)
+	gold:SetAtlas(TARGET_GOLD_ATLAS, true)
+	gold:SetPoint("TOPRIGHT", container, "TOPRIGHT", 0, 1)
+	local wing = container:CreateTexture(nil, "ARTWORK", nil, 2)
+	wing:SetAtlas(TARGET_WING_ATLAS, true)
+	wing:SetPoint("TOPRIGHT", container, "TOPRIGHT", 8, -7)
+
+	local sheen, sheenMask = CreateSheen(container, overlay, TARGET_FRAME_ATLAS, 3)
+	local wingSheen, wingMask = CreateSheen(container, wing, TARGET_WING_ATLAS, 4)
+	local anim = CreateSheenAnimation(target, container, { sheen, wingSheen })
+
+	overlay:Hide()
+	gold:Hide()
+	wing:Hide()
+	target.FGFRarityFrame = overlay
+	local art = {
+		overlay = overlay,
+		gold = gold,
+		wing = wing,
+		sheen = sheen,
+		wingSheen = wingSheen,
+		sheenMask = sheenMask,
+		wingMask = wingMask,
+		anim = anim,
+	}
+	target.FGFRarityArt = art
+	return art
+end
+
+---@param target table?
+---@param tier string
+---@param color number[]?
+---@param native boolean
+local function PaintTargetFrame(target, tier, color, native)
+	local art = target and CreateTargetArt(target)
+	if not art then
+		return
+	end
+	local show = color and not native
+	local silver = show and (tier == "silver" or tier == "shiny")
+	local gold = show and tier == "gold"
+	local shiny = show and tier == "shiny"
+	art.overlay:SetShown(silver)
+	art.gold:SetShown(gold)
+	art.wing:SetShown(shiny)
+	if shiny then
+		art.sheen:Show()
+		art.sheenMask:Show()
+		art.wingSheen:Show()
+		art.wingMask:Show()
+		if not art.anim:IsPlaying() then
+			art.sheen:SetAlpha(0)
+			art.wingSheen:SetAlpha(0)
+			art.anim:Play()
+		end
+	else
+		art.anim:Stop()
+		art.sheen:Hide()
+		art.sheenMask:Hide()
+		art.wingSheen:Hide()
+		art.wingMask:Hide()
+	end
+end
+
+---@param target table?
+---@return table?
+local function TargetIcon(target)
+	local icon = target and target.FGFRarityIcon
+	if type(icon) == "table" then
+		return icon
+	end
+	local owner = target and target.TargetFrameContainer
+	if not target or not owner or not owner.CreateTexture then
+		return nil
+	end
+	icon = owner:CreateTexture(nil, "OVERLAY")
+	-- Below the power bar in the free bottom-left corner: the PvP badge sits at the portrait's bottom right, the level
+	-- text at the bottom right, the raid marker above the portrait and the boss/quest icons below it.
+	icon:SetPoint("BOTTOMLEFT", owner, "BOTTOMLEFT", TARGET_ICON_X, TARGET_ICON_Y)
+	target.FGFRarityIcon = icon
+	return icon
+end
+
+---@param icon table?
+---@param tier string
+---@param color number[]?
+local function PaintTargetIcon(icon, tier, color)
+	if type(icon) ~= "table" then
+		return
+	end
+	if not color then
+		icon:Hide()
+		return
+	end
+	Art.PaintTierIcon(icon, tier, TARGET_ICON_SIZE)
+	icon:SetVertexColor(1, 1, 1, 1)
+	icon:SetAlpha(1)
+	icon:Show()
 end
 
 ---@param target table?
@@ -322,7 +379,7 @@ local function PaintTag(target, name, color, label)
 		return
 	end
 	if color and label then
-		tag.text:SetText(ns.L[label])
+		tag.text:SetText(label)
 		tag.plate:SetVertexColor(color[1], color[2], color[3], 1)
 		tag:SetSize(math.max(24, tag.text:GetStringWidth() + TAG_PAD * 2), TAG_HEIGHT)
 		tag:Show()
@@ -332,11 +389,10 @@ local function PaintTag(target, name, color, label)
 end
 
 ---@param owner table?
----@param name table?
 ---@param healthBar table?
 ---@param tier string
 ---@param discovery boolean?
-local function UpdateAccent(owner, name, healthBar, tier, discovery)
+local function UpdateAccent(owner, healthBar, tier, discovery)
 	if not owner then
 		return
 	end
@@ -346,9 +402,9 @@ local function UpdateAccent(owner, name, healthBar, tier, discovery)
 	if type(marker) == "function" then
 		marker = nil
 	end
-	if not marker and name and owner.CreateTexture then
+	if not marker and healthBar and owner.CreateTexture then
 		marker = owner:CreateTexture(nil, "OVERLAY")
-		marker:SetPoint("LEFT", name, "RIGHT", 2, 0)
+		marker:SetPoint("LEFT", healthBar, "RIGHT", 2, 0)
 		owner.FGFRarityMarker = marker
 	end
 	if marker then
@@ -368,15 +424,6 @@ local function UpdateAccent(owner, name, healthBar, tier, discovery)
 			marker:Hide()
 		end
 	end
-	local glow = CreateBarGlow(owner, PLATE_GLOW_LAYERS)
-	if type(glow) == "table" then
-		if color and healthBar then
-			AnchorBarGlow(glow, healthBar, healthBar)
-			PaintBarGlow(glow, color)
-		else
-			PaintBarGlow(glow, nil)
-		end
-	end
 end
 
 local function UpdateTarget()
@@ -386,30 +433,33 @@ local function UpdateTarget()
 	end
 	local tier = TierFor("target")
 	local color = Rarity.COLORS[tier]
+	local size = UnitSize("target")
 	local target = _G.TargetFrame
 	local name = target and (target.name or target.Name)
 	if type(name) ~= "table" then
 		name = nil
 	end
-	local healthBar = target and (target.healthbar or target.HealthBar)
-	if type(healthBar) ~= "table" then
-		healthBar = nil
-	end
-	local powerBar = TargetPowerBar(target)
-	local portrait = TargetPortrait(target)
 
-	local glow = target and CreateBarGlow(target, TARGET_GLOW_LAYERS)
-	if type(glow) == "table" then
-		if color and healthBar then
-			AnchorBarGlow(glow, healthBar, powerBar or healthBar)
-			PaintBarGlow(glow, color)
-		else
-			PaintBarGlow(glow, nil)
-		end
+	PaintTargetFrame(target, tier, color, NativeFrame("target"))
+	local icon = target and TargetIcon(target)
+	PaintTargetIcon(icon, tier, color)
+	local parts = {}
+	local badge = ns.Model.SizeBadge(size)
+	if size then
+		parts[#parts + 1] = ns.Model.FormatSize(size)
 	end
-	local portraitGlow = target and CreatePortraitGlow(target, portrait)
-	PaintPortraitGlow(portraitGlow, color, tier)
-	PaintTag(target, name, color, TARGET_TAGS[tier])
+	if badge then
+		table.insert(parts, 1, L[badge])
+	end
+	if TARGET_TAGS[tier] then
+		parts[#parts + 1] = L[TARGET_TAGS[tier]]
+	end
+	local tagColor = color or (badge and SIZE_TAG_COLORS[badge])
+	if not tagColor and size then
+		local r, g, b = Art.RGBA("muted", 1)
+		tagColor = { r, g, b }
+	end
+	PaintTag(target, name, tagColor, #parts > 0 and table.concat(parts, " · ") or nil)
 end
 
 ---@param plate table
@@ -417,7 +467,6 @@ end
 local function UpdatePlate(plate, unit)
 	local frame = plate and plate.UnitFrame
 	local healthBar = frame and frame.healthBar
-	local name = frame and (frame.name or frame.Name)
 	local unitName = ns.Readable(UnitName(unit))
 	local species = ns.FindSpecies(unitName, ns.CurrentZone())
 	local tier = TierFor(unit)
@@ -430,7 +479,7 @@ local function UpdatePlate(plate, unit)
 	if species and discovery then
 		discoveredThisSession[species.id] = true
 	end
-	UpdateAccent(frame, name, healthBar, tier, discovery)
+	UpdateAccent(frame, healthBar, tier, discovery)
 end
 
 -- Redraw every visible mark after the preview toggles, so the change is immediate rather than waiting for the next
@@ -475,8 +524,7 @@ events:SetScript("OnEvent", function(_, event, unit)
 			local frame = plate and plate.UnitFrame
 			if frame then
 				local bar = frame.healthBar
-				local name = frame.name or frame.Name
-				UpdateAccent(frame, type(name) == "table" and name or nil, bar, "bronze", false)
+				UpdateAccent(frame, bar, "bronze", false)
 			end
 		end
 	end

@@ -6,7 +6,7 @@ local API = harness.env.FieldGuideForever and harness.env.FieldGuideForever.API
 
 assert(API, "the public API is installed")
 assert(API.version >= 1, "the contract is versioned")
-assert(API.version == 2 and API.minor == 2, "the tier ladder is API version 2")
+assert(API.version == 2 and API.minor == 3, "the tier ladder is API version 2, with size records in 2.3")
 
 local npcFixture = {
 	[1001] = {
@@ -69,7 +69,17 @@ local migrated = ns.Migrate({
 	chars = {
 		["Old-Realm"] = {
 			species = {
-				[1001] = { count = 99, rare = -4, shiny = 4, kills = 8, injected = function() end },
+				[1001] = {
+					count = 99,
+					rare = -4,
+					shiny = 4,
+					kills = 8,
+					sizeSmallest = 84,
+					sizeLargest = 127,
+					tiny = 1,
+					giant = 2,
+					injected = function() end,
+				},
 				[1002] = false,
 				[1003] = { count = 3 },
 			},
@@ -84,6 +94,13 @@ local migratedEntry = migrated.chars["Old-Realm"].species[1001]
 assert(migratedEntry.count == ns.Model.MASTERED_AT and migratedEntry.bronze == 8)
 assert(migratedEntry.silver == 0 and migratedEntry.gold == 0 and migratedEntry.shiny == 1)
 assert(migratedEntry.rare == nil and migratedEntry.injected == nil and migrated.chars["Old-Realm"].unexpected == nil)
+assert(
+	migratedEntry.sizeSmallest == 84
+		and migratedEntry.sizeLargest == 127
+		and migratedEntry.tiny == 1
+		and migratedEntry.giant == 2,
+	"size records survive a reload"
+)
 assert(migrated.chars["Old-Realm"].species[1002] == nil, "invalid entries are discarded")
 assert(type(migrated.chars["Old-Realm"].encounters) == "table", "corrupt encounter data is repaired")
 assert(migrated.chars["Old-Realm"].tracked == 1003, "the tracked species survives a reload")
@@ -143,6 +160,11 @@ end
 local tiered = API.Specimen(1019)
 assert(tiered and tiered.silverCount == 1 and tiered.goldCount == 1 and tiered.shinyCount == 1, "each coat counts")
 assert(tiered.bestTier == "shiny", "the best coat is reported")
+assert(
+	type(tiered.sizeSmallest) == "number" and type(tiered.sizeLargest) == "number",
+	"the API exposes the species' size records"
+)
+assert(tiered.sizeSmallest <= tiered.sizeLargest and tiered.tiny >= 0 and tiered.giant >= 0, "size records are ordered")
 
 -- The detail page leads with the round portrait and the four ladder slots, read from the character's state.
 ns.Detail.Create(harness.env.CreateFrame("Frame"))
@@ -168,6 +190,12 @@ assert(
 	detail.recordsTitle:IsShown() and detail.records[1].key:GetText() == "Sightings",
 	"records show as key and value pairs"
 )
+local recordKeys = {}
+for _, row in ipairs(detail.records) do
+	recordKeys[row.key:GetText()] = row.value:GetText()
+end
+assert(recordKeys.Largest and recordKeys.Smallest, "the records section keeps the size range")
+assert(recordKeys.Largest:match("^%d+%.%d%dx$") and recordKeys.Smallest:match("^%d+%.%d%dx$"), "sizes read as 1.12x")
 detail.Show(nil, nil, nil)
 assert(not detail.portrait:IsShown(), "empty selection clears the portrait")
 assert(

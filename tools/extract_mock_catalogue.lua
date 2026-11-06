@@ -13,11 +13,21 @@ end
 for _, id in ipairs(ids) do
 	local values = lib.Npc.GetAll(id, fields)
 	if type(values) == "table" and type(values[1]) == "string" and values[1] ~= "" then
-		local spawns = {}
+		local spawns, spawnPoints = {}, {}
 		if type(values[7]) == "table" then
-			for zoneId in pairs(values[7]) do
+			for zoneId, points in pairs(values[7]) do
 				if tonumber(zoneId) then
 					spawns[#spawns + 1] = tonumber(zoneId)
+					-- The screenshots draw the same habitat pins the journal draws, so keep each point with its area.
+					if type(points) == "table" then
+						for _, point in ipairs(points) do
+							local x = type(point) == "table" and tonumber(point[1])
+							local y = type(point) == "table" and tonumber(point[2])
+							if x and y then
+								spawnPoints[#spawnPoints + 1] = string.format("%d:%.2f:%.2f", tonumber(zoneId), x, y)
+							end
+						end
+					end
 				end
 			end
 		end
@@ -26,6 +36,7 @@ for _, id in ipairs(ids) do
 			spawns[#spawns + 1] = zoneId
 		end
 		table.sort(spawns)
+		table.sort(spawnPoints)
 		local zones, previous = {}, nil
 		for _, spawnId in ipairs(spawns) do
 			if spawnId ~= previous then
@@ -42,6 +53,7 @@ for _, id in ipairs(ids) do
 				clean(values[4]),
 				clean(values[5]),
 				table.concat(zones, ","),
+				table.concat(spawnPoints, ";"),
 			}, "\t"),
 			"\n"
 		)

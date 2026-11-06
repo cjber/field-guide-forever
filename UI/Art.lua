@@ -882,6 +882,7 @@ end
 -- scaled to the frame's width and clipped to it.
 ---@class FGZoneMap : Frame
 ---@field tiles Texture[]
+---@field markers Texture[]
 
 ---@param parent Frame
 ---@param width number
@@ -892,13 +893,18 @@ function Art.ZoneMap(parent, width, height)
 	map:SetSize(width, height)
 	map:SetClipsChildren(true)
 	map.tiles = {}
+	map.markers = {}
 	return map
 end
 
+-- Fill the inset with the layer at its own aspect (cover, centred) so no zone is squashed into another's shape. Tiles
+-- are cropped to the layer's real extent, and the last column and row may be partial. `points` are 0..1 coordinates
+-- with north at y=0, drawn as the client's map pin.
 ---@param map FGZoneMap
 ---@param uiMapID integer?
+---@param points { [1]: number, [2]: number }[]?
 ---@return boolean drawn
-function Art.SetZoneMap(map, uiMapID)
+function Art.SetZoneMap(map, uiMapID, points)
 	local used = 0
 	local function Place(file, x, y, w, h, right, bottom, sublevel)
 		used = used + 1
@@ -918,16 +924,43 @@ function Art.SetZoneMap(map, uiMapID)
 	local layers = uiMapID and C_Map and C_Map.GetMapArtLayers and C_Map.GetMapArtLayers(uiMapID)
 	local info = layers and layers[1]
 	local files = info and uiMapID and C_Map.GetMapArtLayerTextures(uiMapID, 1)
+	local offsetX, offsetY, scale = 0, 0, 1
+	local drawn = false
 	if info and files and #files > 0 then
-		local scale = map:GetWidth() / info.layerWidth
+		drawn = true
+		scale = math.max(map:GetWidth() / info.layerWidth, map:GetHeight() / info.layerHeight)
+		offsetX = (map:GetWidth() - info.layerWidth * scale) / 2
+		offsetY = (map:GetHeight() - info.layerHeight * scale) / 2
 		local tileW, tileH = info.tileWidth, info.tileHeight
 		local columns = math.ceil(info.layerWidth / tileW)
-		for index, file in ipairs(files) do
+		for index = 1, #files do
+			local file = files[index]
 			local column, row = (index - 1) % columns, math.floor((index - 1) / columns)
-			Place(file, column * tileW * scale, row * tileH * scale, tileW * scale, tileH * scale, 1, 1, 0)
+			local pixelW = math.min(tileW, info.layerWidth - column * tileW)
+			local pixelH = math.min(tileH, info.layerHeight - row * tileH)
+			if pixelW > 0 and pixelH > 0 then
+				local fileW, fileH = 16, 16
+				while fileW < pixelW do
+					fileW = fileW * 2
+				end
+				while fileH < pixelH do
+					fileH = fileH * 2
+				end
+				Place(
+					file,
+					offsetX + column * tileW * scale,
+					offsetY + row * tileH * scale,
+					pixelW * scale,
+					pixelH * scale,
+					pixelW / fileW,
+					pixelH / fileH,
+					0
+				)
+			end
 		end
 		for _, overlay in ipairs(ns.ClientData.mapOverlays[uiMapID] or {}) do
-			local offsetX, offsetY, overlayW, overlayH, ids = overlay[1], overlay[2], overlay[3], overlay[4], overlay[5]
+			local overlayX, overlayY, overlayW, overlayH, ids =
+				overlay[1], overlay[2], overlay[3], overlay[4], overlay[5]
 			local wide, tall = math.ceil(overlayW / tileW), math.ceil(overlayH / tileH)
 			for row = 1, tall do
 				local pixelH = row < tall and tileH or (overlayH - (tall - 1) * tileH)
@@ -945,8 +978,8 @@ function Art.SetZoneMap(map, uiMapID)
 					if file then
 						Place(
 							file,
-							(offsetX + tileW * (column - 1)) * scale,
-							(offsetY + tileH * (row - 1)) * scale,
+							offsetX + (overlayX + tileW * (column - 1)) * scale,
+							offsetY + (overlayY + tileH * (row - 1)) * scale,
 							pixelW * scale,
 							pixelH * scale,
 							pixelW / fileW,
@@ -961,5 +994,30 @@ function Art.SetZoneMap(map, uiMapID)
 	for index = used + 1, #map.tiles do
 		map.tiles[index]:Hide()
 	end
-	return used > 0
+	local usedMarkers = 0
+	if drawn and info then
+		for _, point in ipairs(points or {}) do
+			usedMarkers = usedMarkers + 1
+			local marker = map.markers[usedMarkers]
+			if not marker then
+				marker = map:CreateTexture(nil, "OVERLAY")
+				marker:SetAtlas("Waypoint-MapPin-Tracked")
+				map.markers[usedMarkers] = marker
+			end
+			marker:SetSize(13, 16)
+			marker:ClearAllPoints()
+			marker:SetPoint(
+				"CENTER",
+				map,
+				"TOPLEFT",
+				offsetX + point[1] * info.layerWidth * scale,
+				-(offsetY + point[2] * info.layerHeight * scale)
+			)
+			marker:Show()
+		end
+	end
+	for index = usedMarkers + 1, #map.markers do
+		map.markers[index]:Hide()
+	end
+	return drawn or false
 end

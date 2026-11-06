@@ -27,6 +27,8 @@ harness:Fire("PLAYER_LOGIN")
 harness:RunTimers()
 local ns, Window, List = harness.ns, harness.ns.Window, harness.ns.List
 Window.Show()
+-- The journal opens on Discovered; this spec is about every icon, so show the whole zone.
+Window.SetFilter("all")
 
 local function Row(name)
 	for _, row in ipairs(List.rows) do

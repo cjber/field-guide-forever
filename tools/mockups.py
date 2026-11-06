@@ -63,6 +63,7 @@ class MockSpecies(TypedDict):
     rare: bool
     boss: bool
     zone: NotRequired[str]
+    spawns: NotRequired[dict[int, list[tuple[float, float]]]]
 
 
 class MockZone(TypedDict):
@@ -310,11 +311,17 @@ def load_catalogue():
     fixture = FIXTURE
     with fixture.open(encoding="utf-8", newline="") as stream:
         for row in csv.reader(stream, delimiter="\t"):
-            if len(row) != 7:
+            if len(row) != 8:
                 continue
-            npc_id, name, minimum, maximum, rank, family, spawn_list = row
+            npc_id, name, minimum, maximum, rank, family, spawn_list, point_list = row
             packed = CREATURE_INFO.get(int(npc_id))
             creature_type = CREATURE_TYPE_NAMES.get((packed & 0xFFFFF) >> 16, "Unknown") if packed else "Unknown"
+            spawns: dict[int, list[tuple[float, float]]] = {}
+            for item in point_list.split(";"):
+                if not item:
+                    continue
+                area_id, x, y = item.split(":")
+                spawns.setdefault(int(area_id), []).append((float(x), float(y)))
             species: MockSpecies = {
                 "id": int(npc_id),
                 "name": name,
@@ -323,6 +330,7 @@ def load_catalogue():
                 "max": int(maximum or minimum or 1),
                 "rare": int(rank or 0) == 2,
                 "boss": int(rank or 0) == 3,
+                "spawns": spawns,
             }
             for spawn in spawn_list.split(","):
                 if not spawn:
@@ -475,6 +483,42 @@ def fraction_of_ranks(count):
     return sum(max(0, min(1, (count - low) / (high - low))) for low, high in zip(bounds, bounds[1:], strict=False)) / 4
 
 
+def size_records(species):
+    """Model.SpawnSize's shape in miniature: a bell body, with the odd Tiny or Giant tail for a readable badge."""
+    seed = (species["id"] * 1103515245 + 12345) % 2147483648
+    smallest = 76 + seed % 22
+    largest = 104 + (seed // 22) % 27
+    if seed % 37 == 0:
+        smallest = 62 + (seed // 7) % 8
+    if seed % 43 == 0:
+        largest = 141 + (seed // 11) % 15
+    return smallest, largest
+
+
+def cover(image, width, height):
+    """Art.SetZoneMap: fill the inset at the layer's own aspect and crop the excess, never squash it."""
+    ratio = width / height
+    if image.width / image.height > ratio:
+        crop_width = round(image.height * ratio)
+        left = (image.width - crop_width) // 2
+        return image.crop((left, 0, left + crop_width, image.height))
+    crop_height = round(image.width / ratio)
+    top = (image.height - crop_height) // 2
+    return image.crop((0, top, image.width, top + crop_height))
+
+
+def habitat_markers(points):
+    """Detail.SpawnPoints: one marker per ten-percent cell, at the average of that cell's points."""
+    cells: dict[tuple[int, int], list[float]] = {}
+    for x, y in points:
+        if 0 <= x <= 100 and 0 <= y <= 100:
+            cell = cells.setdefault((int(x // 10), int(y // 10)), [0.0, 0.0, 0])
+            cell[0] += x
+            cell[1] += y
+            cell[2] += 1
+    return sorted((x / count / 100, y / count / 100) for x, y, count in cells.values())
+
+
 def status_bar(canvas, x, y, w, h, fraction):
     """Art.StatusBar: the ColoredProgressBarTemplate art, the gold-tinted white fill over its background atlas."""
     canvas.draw(canvas.ui.atlas("common-stat-bar-BG"), x, y, w, h)
@@ -528,7 +572,6 @@ def marker(canvas, cx, cy, size, colour):
 
 
 FILTER_LABELS = {
-    None: "All",
     "discovered": "Discovered",
     "undiscovered": "Undiscovered",
     "mastered": "Mastered",
@@ -584,6 +627,8 @@ def tab_tooltip(ui, index):
 def window(ui, zone, species, tab, icons, sigil, filter_key=None, tracked=False, unavailable=False, catalogue=None):
     """The journal as UI/Window.lua builds it: a real PortraitFrameTemplate (metal NineSlice, circular portrait,
     centred title, close button) around the addon's own list and detail panes at their own anchors."""
+    # The journal opens on Discovered; an explicit filter replaces it.
+    filter_key = filter_key or "discovered"
     m = 26
     strip_x, strip_y = m + W + 3, m + 28
     tip = tab_tooltip(ui, 1) if tab == "INSTANCES" else None
@@ -682,6 +727,17 @@ def window(ui, zone, species, tab, icons, sigil, filter_key=None, tracked=False,
     view_h = PANE_H - 12
     selected_row = next((i for i, row in enumerate(rows) if row["id"] == species["id"]), 0)
     first_row = max(0, min(selected_row - 4, len(rows) - view_h // ROW_H))
+    if not rows:
+        text(
+            canvas,
+            lx + 15,
+            ly + 36,
+            "Nothing discovered here yet. Defeat a creature or hover its nameplate to add it to your journal.",
+            "GameFontHighlight",
+            MUTED,
+            width=LEFT_W - 30,
+            justify="CENTER",
+        )
     draw_rows(
         canvas,
         lx,
@@ -863,23 +919,39 @@ def detail(canvas, rx, ry, zone, species, icons):
 
     header(canvas, rx + SECTION_X, ry + LOWER_Y, RECORDS_W, "Records")
     note("Records heading", "content", rx + SECTION_X, ry + LOWER_Y, RECORDS_W, 30, parent="Detail pane")
+    size_smallest = size_largest = None
     if not known:
         pairs = [("Nothing recorded yet.", "")]
     else:
         top = best_tier(state)
+        size_smallest, size_largest = size_records(species)
         pairs = [("Sightings", str(count))]
         if state["kills"]:
             pairs.append(("Deaths recorded", str(state["kills"])))
         pairs += [("First seen", "22 Oct"), ("Last seen", "4 Nov")]
         if top:
             pairs.append(("Best variant", top.capitalize()))
+        pairs += [("Largest", f"{size_largest / 100:.2f}x"), ("Smallest", f"{size_smallest / 100:.2f}x")]
     for pair_index, (key, value) in enumerate(pairs):
-        y = ry + LOWER_Y + 40 + pair_index * 22
+        y = ry + LOWER_Y + 40 + pair_index * 18
         key_w = RECORDS_W - 24 if value == "" else 130
         text(canvas, rx + SECTION_X + 12, y, key, "GameFontHighlight", MUTED, width=key_w)
         if value:
             right(canvas, rx + SECTION_X + RECORDS_W - 10, y, value, "GameFontHighlight", TEXT, width=RECORDS_W - 152)
-    note("Records", "content", rx + SECTION_X, ry + LOWER_Y + 40, RECORDS_W, 22 * len(pairs), parent="Detail pane")
+    note("Records", "content", rx + SECTION_X, ry + LOWER_Y + 40, RECORDS_W, 18 * len(pairs), parent="Detail pane")
+    if size_smallest is not None:
+        badges = []
+        if size_smallest < 70:
+            badges.append("TINY")
+        if size_largest > 140:
+            badges.append("GIANT")
+        badge_right = rx + SECTION_X + RECORDS_W - 8
+        for badge in reversed(badges):
+            badge_width = canvas.text_width(badge, FONTS["GameFontNormalSmall"]) + 8
+            badge_x = badge_right - badge_width
+            canvas.fill(badge_x, ry + LOWER_Y + 7, badge_width, 15, GOLD if badge == "GIANT" else SILVER)
+            text(canvas, badge_x + 4, ry + LOWER_Y + 8, badge, "GameFontNormalSmall", TEXT)
+            badge_right = badge_x - 4
 
     hx = rx + HABITAT_X
     header(canvas, hx, ry + LOWER_Y, HABITAT_W, "Habitat")
@@ -892,8 +964,12 @@ def detail(canvas, rx, ry, zone, species, icons):
         card(canvas, hx, ly, MAP_W + 6, MAP_H + 6)
         note("Habitat map", "card", hx, ly, MAP_W + 6, MAP_H + 6)
         if image:
-            scaled = image.resize((round(MAP_W * ui.scale), round(MAP_H * ui.scale)), Image.Resampling.LANCZOS)
+            fitted = cover(image, MAP_W, MAP_H)
+            scaled = fitted.resize((round(MAP_W * ui.scale), round(MAP_H * ui.scale)), Image.Resampling.LANCZOS)
             canvas.draw(scaled, hx + 3, ly + 3, MAP_W, MAP_H)
+            pin = ui.atlas("Waypoint-MapPin-Tracked")
+            for marker_x, marker_y in habitat_markers(species.get("spawns", {}).get(zone["id"], [])):
+                canvas.draw(pin, hx + 3 + marker_x * MAP_W - 6.5, ly + 3 + marker_y * MAP_H - 8, 13, 16)
         elif art_file:
             canvas.draw(ui.texture(int(art_file)), hx + 3, ly + 3, MAP_W, MAP_H)
     sx = rx + SIDE_X
@@ -1178,19 +1254,27 @@ def main():
     save(render(badlands, siege_golem, "CREATURES"), "field-guide.png")
     # Darnassus has the critters and treants from the icon report in one list: Deer, Squirrel, Toad, the Ancients.
     icons_zone = by_name["Darnassus"]
-    icons_species = next((species for species in icons_zone["species"] if species["name"] == "Deer"), None)
+    icons_species = next(
+        (species for species in icons_zone["species"] if species["name"] == "Deer" and progress(species)["count"]),
+        next((species for species in icons_zone["species"] if progress(species)["count"]), None),
+    )
     if icons_species:
         save(render(icons_zone, icons_species, "CREATURES"), "creature-icons.png")
     save(render(rich_zone, rich, "CREATURES", "silver"), "variants.png")
     save(render(shiny_zone, shiny, "CREATURES", "shiny"), "shiny.png")
 
     for zone in zone_pages(zones):
-        save(render(zone, zone["species"][0], "CREATURES"), f"zone-{zone['id']:04d}.png")
+        # The journal opens on Discovered, so a zone page opens on a creature that is actually in that list.
+        page_species = next((species for species in zone["species"] if progress(species)["count"]), zone["species"][0])
+        save(render(zone, page_species, "CREATURES"), f"zone-{zone['id']:04d}.png")
 
     search_zone = barrens
-    search_species = next((s for s in barrens["species"] if not progress(s)["shiny"]), prowler)
+    search_species = next(
+        (s for s in barrens["species"] if progress(s)["count"] and not progress(s)["shiny"]),
+        next((s for s in barrens["species"] if progress(s)["count"]), prowler),
+    )
 
-    save(render(search_zone, prowler, "CREATURES", tracked=True), "tracking.png")
+    save(render(search_zone, search_species, "CREATURES", tracked=True), "tracking.png")
     save(render(silver_zone, silver, "CREATURES", "silver"), "silver-record.png")
     # The record itself, on the full list rather than the Shiny filter shown in shiny.png, for a shiny that no zone
     # page opens on, so it is not the same picture as that zone's render.
@@ -1254,7 +1338,7 @@ def main():
     )
     note("Settings binding note", "content", 36, 222, 560, 16)
     save(settings, "settings.png")
-    save(render(barrens, prowler, "CREATURES"), "sighting-log.png")
+    save(render(barrens, search_species, "CREATURES"), "sighting-log.png")
     save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")
     save(render(barrens, prowler, "INSTANCES"), "instances-boss.png")
     output = subprocess.run(
@@ -1328,7 +1412,7 @@ def main():
         (ROOT / "docs" / "gallery.md").write_text("\n".join(header + gallery) + "\n", encoding="utf-8")
 
     demo = [
-        render(barrens, prowler, "CREATURES"),
+        render(barrens, search_species, "CREATURES"),
         render(barrens, prowler, "INSTANCES"),
         render(rich_zone, rich, "CREATURES", "silver"),
         render(silver_zone, silver, "CREATURES", "silver"),
@@ -1336,7 +1420,7 @@ def main():
         render(shiny_zone, shiny, "CREATURES", "shiny"),
         render(*pick("Teldrassil", lambda s: not progress(s)["silver"])),
         render(*pick("Westfall", lambda s: progress(s)["gold"])),
-        render(barrens, prowler, "CREATURES"),
+        render(barrens, search_species, "CREATURES"),
     ]
     # One palette shared by every frame, sampled from all of them: per-frame adaptive palettes shift the colour of the
     # shared chrome and backdrop from frame to frame, and optimisation then leaks the previous frame through the

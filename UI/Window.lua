@@ -29,7 +29,7 @@ local frame
 ---@type integer?
 local selectedId
 local tab = "creatures"
-local filter = "all"
+local filter = "discovered"
 local query = ""
 local zoneIndex = 1
 
@@ -148,7 +148,7 @@ local function BuildSearch(parent)
 		self:ClearFocus()
 	end)
 
-	local filterButton = MakeButton(parent, L["All"], 128, false)
+	local filterButton = MakeButton(parent, L["Discovered"], 128, false)
 	filterButton:SetPoint("TOPLEFT", 288, -62)
 	filterButton:SetHeight(24)
 	Window.filterButton = filterButton
@@ -325,8 +325,7 @@ local function UpdateProgress()
 end
 
 local function UpdateTrackButton()
-	local state = ns.GetCharacterState(false)
-	local tracked = selectedId and state and state.tracked == selectedId
+	local tracked = selectedId and ns.Tracker.IsTracked(selectedId)
 	Window.trackButton.Label:SetText(tracked and L["Tracking"] or L["Track Species"])
 end
 
@@ -412,6 +411,12 @@ function Window.Refresh(preserveScroll)
 	if not stillListed then
 		selectedId = entries[1] and entries[1].species.id or nil
 	end
+	local emptyText = L["No creatures match your search."]
+	if #entries == 0 and filter == "discovered" and query == "" then
+		emptyText =
+			L["Nothing discovered here yet. Defeat a creature or hover its nameplate to add it to your journal."]
+	end
+	ns.List.SetEmptyText(emptyText)
 	ns.List.Refresh(entries, selectedId, preserveScroll)
 	Window.UpdateDetail()
 	UpdateProgress()
@@ -452,15 +457,10 @@ function Window.SelectSpecies(speciesId)
 end
 
 function Window.ToggleTrack()
-	local state = ns.GetCharacterState(true)
-	if not state or not selectedId then
+	if not selectedId then
 		return
 	end
-	if state.tracked == selectedId then
-		state.tracked = nil
-	else
-		state.tracked = selectedId
-	end
+	ns.Tracker.Toggle(selectedId)
 	Window.Refresh(true)
 end
 

@@ -32,7 +32,8 @@ local LADDER = {
 	{ tier = "gold", label = "Gold", odds = 100 },
 	{ tier = "shiny", label = "Shiny", odds = 1000 },
 }
-local RECORD_ROWS = 5
+local RECORD_ROWS = 7
+local RECORD_ROW_HEIGHT = 18
 
 local currentMap
 
@@ -144,7 +145,7 @@ function Detail.Create(parent)
 	Detail.recordsBand:SetPoint("TOPLEFT", parent, "TOPLEFT", SECTION_X, LOWER_Y)
 	Detail.records = {}
 	for index = 1, RECORD_ROWS do
-		local y = LOWER_Y - 40 - (index - 1) * 22
+		local y = LOWER_Y - 40 - (index - 1) * RECORD_ROW_HEIGHT
 		local key = Art.Text(parent, "GameFontHighlight", "muted")
 		key:SetPoint("TOPLEFT", parent, "TOPLEFT", SECTION_X + 12, y)
 		key:SetWidth(130)
@@ -156,6 +157,27 @@ function Detail.Create(parent)
 		value:SetJustifyH("RIGHT")
 		value:SetWordWrap(false)
 		Detail.records[index] = { key = key, value = value }
+	end
+	-- Tiny and Giant finds wear a badge on the Records header, the way a quality mark sits on a card.
+	Detail.recordBadges = {}
+	for index, key in ipairs({ "TINY", "GIANT" }) do
+		local badge = CreateFrame("Frame", nil, parent)
+		badge:SetSize(42, 15)
+		if index == 1 then
+			badge:SetPoint("RIGHT", Detail.recordsBand, "RIGHT", -8, 0)
+		else
+			badge:SetPoint("RIGHT", Detail.recordBadges[index - 1], "LEFT", -4, 0)
+		end
+		local plate = badge:CreateTexture(nil, "BACKGROUND")
+		plate:SetTexture(Art.WHITE)
+		plate:SetAllPoints(badge)
+		plate:SetVertexColor(Art.RGBA(key == "TINY" and "shiny" or "gold", 1))
+		local text = Art.Text(badge, "GameFontNormalSmall", "text")
+		text:SetPoint("CENTER")
+		text:SetText(L[key])
+		badge.text = text
+		badge:Hide()
+		Detail.recordBadges[key] = badge
 	end
 
 	Detail.habitatBand, Detail.habitatTitle = Art.Header(parent, L["Habitat"], HABITAT_WIDTH)
@@ -181,13 +203,50 @@ function Detail.Create(parent)
 	Detail.mapButton:SetText(L["Open map"])
 	Detail.mapButton:SetScript("OnClick", function()
 		if currentMap then
-			C_Map.OpenWorldMap(currentMap)
+			ns.OpenMap(currentMap)
 		end
 	end)
 end
 
+-- Spawn points arrive as percentages with north at y=0. Bin them into ten-percent cells so a crowded species reads
+-- as a habitat rather than a pile of pins; each cell draws one marker at the average of its points.
+---@param species FGSpecies?
 ---@param zone FGZone
-local function UpdateLocation(zone)
+---@return { [1]: number, [2]: number }[]?
+local function SpawnPoints(species, zone)
+	local points = species and species.spawns and species.spawns[zone.id]
+	if type(points) ~= "table" then
+		return nil
+	end
+	local cells, result = {}, {}
+	for _, point in pairs(points) do
+		local x = type(point) == "table" and tonumber(point[1])
+		local y = type(point) == "table" and tonumber(point[2])
+		if x and y and x >= 0 and x <= 100 and y >= 0 and y <= 100 then
+			local key = math.floor(x / 10) * 100 + math.floor(y / 10)
+			local cell = cells[key]
+			if not cell then
+				cell = { x = 0, y = 0, count = 0 }
+				cells[key] = cell
+			end
+			cell.x, cell.y, cell.count = cell.x + x, cell.y + y, cell.count + 1
+		end
+	end
+	for _, cell in pairs(cells) do
+		result[#result + 1] = { cell.x / cell.count / 100, cell.y / cell.count / 100 }
+	end
+	table.sort(result, function(a, b)
+		if a[2] ~= b[2] then
+			return a[2] < b[2]
+		end
+		return a[1] < b[1]
+	end)
+	return result
+end
+
+---@param zone FGZone
+---@param species FGSpecies?
+local function UpdateLocation(zone, species)
 	local area, overrides = ns.QuestieDB.AreaMaps()
 	local map = (overrides and overrides[zone.id]) or (area and area[zone.id])
 	currentMap = map and map > 0 and map or nil
@@ -195,7 +254,7 @@ local function UpdateLocation(zone)
 	Detail.locationName:Show()
 	Detail.mapButton:SetEnabled(currentMap ~= nil)
 	Detail.mapButton:SetShown(currentMap ~= nil)
-	local drawn = Art.SetZoneMap(Detail.map, currentMap)
+	local drawn = Art.SetZoneMap(Detail.map, currentMap, SpawnPoints(species, zone))
 	local art = not drawn and Art.LOCATION_ART[zone.id] or nil
 	Detail.locationArt:SetTexture(art)
 	Detail.locationArt:SetShown(art ~= nil)
@@ -290,6 +349,9 @@ local function UpdateRecords(species, character)
 		row.key:Hide()
 		row.value:Hide()
 	end
+	for _, badge in pairs(Detail.recordBadges or {}) do
+		badge:Hide()
+	end
 	local options = ns.db and ns.db.options or {}
 	local show = options.showSightingLog ~= false
 	Detail.recordsTitle:SetShown(show)
@@ -318,6 +380,12 @@ local function UpdateRecords(species, character)
 		if best then
 			pairs[#pairs + 1] = { L["Best variant"], TierName(best) }
 		end
+		if entry.sizeLargest then
+			pairs[#pairs + 1] = { L["Largest"], ns.Model.FormatSize(entry.sizeLargest) }
+		end
+		if entry.sizeSmallest then
+			pairs[#pairs + 1] = { L["Smallest"], ns.Model.FormatSize(entry.sizeSmallest) }
+		end
 	end
 	for index, pair in ipairs(pairs) do
 		local row = Detail.records[index]
@@ -327,6 +395,15 @@ local function UpdateRecords(species, character)
 			row.value:SetText(pair[2])
 			row.key:Show()
 			row.value:Show()
+		end
+	end
+	if entry.count > 0 then
+		local smallest, largest = entry.sizeSmallest, entry.sizeLargest
+		if smallest and smallest < ns.Model.SIZE_TINY then
+			Detail.recordBadges.TINY:Show()
+		end
+		if largest and largest > ns.Model.SIZE_GIANT then
+			Detail.recordBadges.GIANT:Show()
 		end
 	end
 end
@@ -343,6 +420,9 @@ local function SetEntryShown(shown)
 	end
 	Detail.recordsBand:SetShown(shown)
 	Detail.recordsTitle:SetShown(shown)
+	for _, badge in pairs(Detail.recordBadges or {}) do
+		badge:SetShown(shown)
+	end
 	Detail.habitatBand:SetShown(shown)
 	Detail.habitatTitle:SetShown(shown)
 	for _, row in ipairs(Detail.records) do
@@ -397,5 +477,5 @@ function Detail.Show(species, character, zone)
 	UpdateResearch(entry)
 	UpdateVariants(character, species)
 	UpdateRecords(species, character)
-	UpdateLocation(zone)
+	UpdateLocation(zone, species)
 end
