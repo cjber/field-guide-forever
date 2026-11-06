@@ -4,6 +4,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
 ## [Unreleased]
+
+## [0.5.0] - 2026-11-06
 - **The journal opens on Discovered.** The creature list starts on what this character has actually met, with its filter button already reading Discovered, so a long zone does not open as a wall of unknown names. A character with nothing recorded yet gets a line saying how to add a creature instead of an empty list. (#152).
 - **Every spawn has a size.** The same stable hash that gives a spawn its coat, with a different salt, gives it a size: a bell around 1.00x, with rare Tiny (under 0.70x) and Giant (over 1.40x) spawns. Each species keeps the smallest and largest kill on this character, shown in its Records with TINY and GIANT badges. The target frame tag shows the spawn's size so it can be hunted, a new personal size record shows a small line, and a Tiny or Giant find gets the achievement toast through the existing discovery options. Size records travel with the shared totals, and old saves migrate without one. (#153).
 - **The habitat map reads as a native map inset.** The zone's art tiles now keep their own aspect and are cropped to the inset, and the selected species' spawn points appear as the client's map pins instead of a squashed picture. Open map uses Blizzard's own opener when the map is already shown and never runs in combat. (#154).
