@@ -5,6 +5,11 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.3.36] - 2026-11-06
+
+- **The Wago listing is wired up.** The TOC now carries `X-Wago-ID: QKyqLnK7` so the Wago packager tags the release to the field-guide-forever project. The CurseForge ID follows once that project exists.
+- **The record screenshot shows a record.** `shiny-record.png` was byte-identical to `shiny.png`, so two gallery images showed the same picture. It now renders the record on the unfiltered list.
+
 ## [0.3.35] - 2026-11-06
 
 - **One rarity ladder for every creature.** Every spawn is bronze, silver (1 in 25), gold (1 in 100) or shiny (1 in 1000), decided by a stable hash of the spawn GUID, so every player sees the same coat on the same spawn. The journal records how many of each coat you have found. Old kill counts migrate to bronze, an old shiny find stays shiny, a completed old rare form becomes one silver, and gold is never inferred. The separate rare form and the per-kill shiny roll are gone. Thanks to cjber for the idea (#138).
