@@ -276,26 +276,14 @@ def questie_ids(offline: bool) -> set[int]:
     return {int(line.split("\t", 1)[0]) for line in QUESTIE_TSV.read_text(encoding="utf-8").splitlines()}
 
 
-NUMBER = re.compile(r"-?\d+(?:\.\d+)?")
+def catalogue_hash(ids: set[int]) -> str:
+    """Hash only the NPC ids, the fixture data this generator consumes.
 
-
-def canonical_number(match: re.Match[str]) -> str:
-    value = float(match.group(0))
-    return str(int(value)) if value == int(value) else f"{value:.2f}"
-
-
-def questie_fixture_digest() -> str:
-    """Hash the fixture's values rather than its bytes.
-
-    The extractor renders numbers through Lua's own conversions, so two LuaJIT builds can write the
-    same catalogue with different spacing or float precision. Hashing the values keeps the recorded
-    pin tied to the catalogue, not to the machine that rendered it.
+    The fixture TSV bytes differ between Lua builds and locales, but the id set does not, and the header hash
+    must be identical on CI and on a developer machine.
     """
-    rows = []
-    for line in QUESTIE_TSV.read_text(encoding="utf-8").splitlines():
-        fields = [NUMBER.sub(canonical_number, field).strip() for field in line.split("\t")]
-        rows.append("\t".join(fields).rstrip())
-    return hashlib.sha256(("\n".join(rows) + "\n").encode()).hexdigest()
+    catalogue = "\n".join(str(npc_id) for npc_id in sorted(ids))
+    return hashlib.sha256(catalogue.encode("utf-8")).hexdigest()
 
 
 def sql_tuples(line: str):
@@ -372,7 +360,7 @@ def generate(offline: bool = False, output: Path = OUT) -> None:
     if missing_fallbacks:
         raise SystemExit(f"UI/Art.lua icon paths missing from pinned listfile: {', '.join(missing_fallbacks)}")
     icon_index = {path: index for index, path in enumerate(icon_paths, 1)}
-    questie_hash = questie_fixture_digest()
+    questie_hash = catalogue_hash(ids)
     lines = [
         "---@type string, FGNamespace",
         "local _, ns = ...",
