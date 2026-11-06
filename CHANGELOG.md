@@ -5,6 +5,9 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-06
+- **The minimap button now looks like the LibDBIcon buttons of other addons.** Field Guide draws its wolf icon on the same tracking border, background and hover glow that Questie, RXP and AtlasLoot use, in place of the old round plate.
+
 ## [0.4.0] - 2026-11-06
 - **The Field Guide button moves from the micro menu to the minimap.** The old button widened the micro menu row past the experience bar, so Field Guide now draws its own button on the minimap rim with the same wolf icon, title, Shift-F binding and click action. Drag it around the rim to move it, hide it with the new Minimap button option (shown by default), and an old hidden micro menu setting carries across.
 - **Progress bars use the game's plain progress bar art.** Every journal progress bar now draws the client's own coloured progress bar, tinted gold, in place of the 2004 loose status bar texture and the profession crafting bar frame, which read as a crafting cast bar. The colour and layout are unchanged.
