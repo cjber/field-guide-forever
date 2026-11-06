@@ -2,8 +2,8 @@
 """Draw the README scenes for Field Guide's minimap button with the client's own art.
 
 The layout follows forever-core's `docs/handoff/minimap-buttons/render.py`: the client's Minimap face and frame, then
-Field Guide's button on the rim at the shared module's first default angle. The icon is the client's wolf, the art the
-old painted micro-menu glyph was tinted from.
+Field Guide's LibDBIcon button on the rim at the shared module's first default angle. The icon is the client's wolf,
+the art the old painted micro-menu glyph was tinted from.
 
     FOREVER_CORE=/path/to/forever-core python3 tools/minimap_mockups.py
 
@@ -16,6 +16,8 @@ import os
 import sys
 from pathlib import Path
 
+from PIL import Image, ImageChops  # ty: ignore[unresolved-import]
+
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
 WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
 if not (WOWMOCK / "wowmock.py").is_file():
@@ -24,10 +26,16 @@ sys.path.insert(0, str(WOWMOCK))
 import wowmock as W  # noqa: E402  # ty: ignore[unresolved-import]
 from ui_art import BUILD as ART_BUILD  # noqa: E402
 
-BTN = 20
-ICON = 13
+# LibDBIcon's construction, the art every LibDBIcon addon button on the rim uses.
+BTN = 31
+OVERLAY = 50
+BACKGROUND = 24
+ICON = 18
 MINIMAP = 198
 RIM_OFFSET = 5
+HIGHLIGHT = 136477  # interface/minimap/ui-minimap-zoombutton-highlight.blp
+TRACKING_BORDER = 136430  # interface/minimap/minimap-trackingborder.blp
+MINIMAP_BACKGROUND = 136467  # interface/minimap/ui-minimap-background.blp
 # Core/MinimapButton.lua's first default angle: bottom-left.
 FIELD_GUIDE_ANGLE = 225
 FIELD_GUIDE_ICON = "interface/icons/ability_hunter_pet_wolf.blp"
@@ -35,35 +43,45 @@ FIELD_GUIDE_ICON = "interface/icons/ability_hunter_pet_wolf.blp"
 ui = W.Ui(build=ART_BUILD, scale=2)
 
 
-def round_icon(canvas_ui, icon):
-    """The icon as Core/MinimapButton.lua draws it: cropped to 0.08-0.92 and masked by CircleMaskScalable."""
+def icon_art(canvas_ui, icon):
+    """The icon as Core/MinimapButton.lua draws it: cropped to texcoords 0.05-0.95, unmasked."""
     art = canvas_ui.texture(icon)
     width, height = art.size
-    art = art.crop((round(width * 0.08), round(height * 0.08), round(width * 0.92), round(height * 0.92)))
+    art = art.crop((round(width * 0.05), round(height * 0.05), round(width * 0.95), round(height * 0.95)))
     out = canvas_ui.canvas(ICON, ICON)
     out.draw(art, 0, 0, ICON, ICON)
-    out.mask(canvas_ui.atlas("CircleMaskScalable").image, 0, 0, ICON, ICON)
     return out
 
 
+def add_glow(canvas, texture, left, top, size):
+    """Additive like the client's highlight: the texture's black backing adds nothing and stays transparent."""
+    box = (canvas.px(left), canvas.px(top), canvas.px(left + size), canvas.px(top + size))
+    region = canvas.image.crop(box)
+    piece = texture.resize((box[2] - box[0], box[3] - box[1]), Image.LANCZOS)
+    added = ImageChops.add(region.convert("RGB"), piece.convert("RGB"))
+    alpha = ImageChops.lighter(region.getchannel("A"), piece.convert("L"))
+    out = added.convert("RGBA")
+    out.putalpha(alpha)
+    canvas.image.paste(out, box[:2])
+
+
 def button(canvas, cx, cy, angle, icon, hover=False):
-    """The client's minimap plate, the addon's icon and the native round hover glow."""
+    """LibDBIcon's pieces at its own sizes: background under the icon, tracking border over it, highlight on top."""
     radius = MINIMAP / 2 + RIM_OFFSET
     x = cx + math.cos(math.radians(angle)) * radius
     y = cy - math.sin(math.radians(angle)) * radius
-    state = "UI-HUD-Minimap-Button-Down" if hover else "UI-HUD-Minimap-Button"
-    canvas.draw(canvas.ui.atlas(state), x - BTN / 2, y - BTN / 2, BTN, BTN)
-    canvas.paste(round_icon(canvas.ui, icon), x - ICON / 2, y - ICON / 2)
+    left, top = x - BTN / 2, y - BTN / 2
+    canvas.draw(
+        canvas.ui.texture(MINIMAP_BACKGROUND),
+        x - BACKGROUND / 2,
+        y - BACKGROUND / 2,
+        BACKGROUND,
+        BACKGROUND,
+    )
+    canvas.paste(icon_art(canvas.ui, icon), x - ICON / 2, y - ICON / 2)
+    canvas.draw(canvas.ui.texture(TRACKING_BORDER), left, top, OVERLAY, OVERLAY)
     if hover:
-        canvas.draw(
-            canvas.ui.atlas("bags-roundhighlight"),
-            x - BTN / 2,
-            y - BTN / 2,
-            BTN,
-            BTN,
-            color=(1, 1, 1, 0.55),
-            blend="ADD",
-        )
+        add_glow(canvas, canvas.ui.texture(HIGHLIGHT), left, top, BTN)
 
 
 def minimap(canvas, cx, cy):
