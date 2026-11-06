@@ -64,10 +64,10 @@ function Tooltip.Show(owner, entry)
 	tooltip:Show()
 end
 
--- The micro-menu button's tooltip: its title first, the way the shared button drew it, then the binding and what the
+-- The minimap button's tooltip: its title first, the way the shared button drew it, then the binding and what the
 -- button opens.
 ---@param owner Frame
----@param spec FGMicroButtonSpec
+---@param spec FGMinimapButtonSpec
 function Tooltip.ShowButton(owner, spec)
 	local tooltip = Open(owner, "ANCHOR_TOP", spec.title)
 	if not tooltip then

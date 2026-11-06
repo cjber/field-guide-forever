@@ -66,24 +66,24 @@ local function BuildPanel(panel, page)
 		end
 	end)
 
-	local microButtonRow = page.AddCheck(panel, L["Show the Field Guide micro menu button"], function()
-		return ns.db and ns.db.options.microButton ~= false
+	local minimapButtonRow = page.AddCheck(panel, L["Minimap button"], function()
+		return ns.db and ns.db.options.minimapButtonHidden ~= true
 	end, function(checked)
 		if ns.db then
-			ns.db.options.microButton = checked
+			ns.db.options.minimapButtonHidden = not checked
 		end
-		if ns.MicroButton then
-			ns.MicroButton.Refresh()
+		if ns.MinimapButton then
+			ns.MinimapButton.Refresh()
 		end
 		if ns.FireProgress then
 			ns.FireProgress()
 		end
-	end, L["Adds a Field Guide button to the micro menu bar."])
+	end, L["Adds a Field Guide button to the minimap."])
 
 	-- The one line the shared page has no row kind for, so the addon draws it itself, under the last row.
 	local bindingNote = panel:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-	bindingNote:SetPoint("TOPLEFT", microButtonRow, "BOTTOMLEFT", 20, -8)
-	bindingNote:SetText(L["Both buttons can also be bound in Key Bindings > AddOns."])
+	bindingNote:SetPoint("TOPLEFT", minimapButtonRow, "BOTTOMLEFT", 20, -8)
+	bindingNote:SetText(L["The Field Guide button can also be bound in Key Bindings > AddOns."])
 end
 
 function SettingsPanel.Register()
@@ -102,54 +102,19 @@ end
 
 ns.On("PLAYER_LOGIN", function()
 	ns.SafeCall("settings", SettingsPanel.Register)
-	ns.SafeCall("micro button", function()
-		local glyph = "Interface\\AddOns\\FieldGuideForever\\media\\MicroGlyph"
-		local glyphHover = "Interface\\AddOns\\FieldGuideForever\\media\\MicroGlyphHover"
+	ns.SafeCall("minimap button", function()
 		local spec = {
-			name = "FieldGuideForeverMicroButton",
-			atlas = "ButtonBG",
-			icon = glyph,
+			name = "FieldGuideForeverMinimapButton",
+			-- The client's own wolf icon, the art the old micro-menu glyph was tinted from.
+			icon = "Interface\\Icons\\ability_hunter_pet_wolf",
 			title = L["Field Guide"],
 			binding = "Shift-F",
 			subtext = L["Click to browse the field compendium"],
-			slot = "beforeGameMenu",
+			settings = ns.db.options,
 			host = ns,
-			getShown = function()
-				return ns.db and ns.db.options.microButton ~= false
-			end,
 			onClick = ns.OpenGuide,
 		}
-		local button = ns.MicroButton.Create(spec)
-		if button then
-			-- The shared button puts the glyph on the native plate. Hover and the pressed offset are the native
-			-- micro-menu behaviours, added here so the shared module stays in step with Forever Core.
-			local micro = button --[[@as ForeverMicroButton]]
-			local hover = micro:CreateTexture(nil, "HIGHLIGHT")
-			hover:SetTexture(glyphHover)
-			hover:SetSize(22, 22)
-			hover:SetPoint("CENTER", 0, 0.5)
-			hover:SetBlendMode("ADD")
-			local icon = micro.icon
-			-- The plate is the button's normal texture on ARTWORK, the glyph's own layer, so it could draw over the
-			-- glyph; OVERLAY keeps the glyph on top in every state.
-			icon:SetDrawLayer("OVERLAY")
-			local function Offset(down)
-				icon:ClearAllPoints()
-				icon:SetPoint("CENTER", 0, down and -0.5 or 0.5)
-			end
-			micro:HookScript("OnMouseDown", function()
-				Offset(true)
-			end)
-			micro:HookScript("OnMouseUp", function()
-				Offset(false)
-			end)
-			micro:HookScript("OnLeave", function()
-				Offset(false)
-			end)
-			micro:HookScript("OnHide", function()
-				Offset(false)
-			end)
-		end
+		local button = ns.MinimapButton.Create(spec)
 		if button and ns.Tooltip then
 			-- The shared button draws its own title-only tooltip; Field Guide then redraws it with the journal's minimum
 			-- width. Hooks keep the shared handler's own work rather than replacing it.

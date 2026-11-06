@@ -26,10 +26,10 @@ local L = {
 	["Best variant"] = "Best variant",
 	["%d / %d sightings"] = "%d / %d sightings",
 	["Open map"] = "Open map",
-	MICRO_MENU_UNAVAILABLE = "Micro menu unavailable; skipping custom button.",
-	["Show the Field Guide micro menu button"] = "Show the Field Guide micro menu button",
-	["Adds a Field Guide button to the micro menu bar."] = "Adds a Field Guide button to the micro menu bar.",
-	["Both buttons can also be bound in Key Bindings > AddOns."] = "Both buttons can also be bound in Key Bindings > AddOns.",
+	MINIMAP_UNAVAILABLE = "Minimap unavailable; skipping custom button.",
+	["Minimap button"] = "Minimap button",
+	["Adds a Field Guide button to the minimap."] = "Adds a Field Guide button to the minimap.",
+	["The Field Guide button can also be bound in Key Bindings > AddOns."] = "The Field Guide button can also be bound in Key Bindings > AddOns.",
 	["Field Guide"] = "Field Guide",
 	["Click to browse the field compendium"] = "Click to browse the field compendium",
 	["Field Guide Forever"] = "Field Guide Forever",
@@ -155,7 +155,7 @@ local L = {
 }
 
 _G.BINDING_HEADER_FIELDGUIDEFOREVER = "Field Guide Forever"
-_G["BINDING_NAME_CLICK FieldGuideForeverMicroButton:LeftButton"] = "Open Field Guide"
+_G["BINDING_NAME_CLICK FieldGuideForeverMinimapButton:LeftButton"] = "Open Field Guide"
 
 ns.L = setmetatable(L, {
 	__index = function(_, key)

@@ -550,7 +550,6 @@ local DATA_FIELDS = {
 	id = true,
 	atlas = true,
 	shadowColor = true,
-	FlashBorder = true,
 	fgfToast = true,
 	fgfHooked = true,
 }
@@ -813,15 +812,6 @@ function Mock.Harness(opts)
 			created.TitleContainer = { TitleText = NewRegion("FontString", nil, created) }
 			created.CloseButton = Mock.CreateFrame("Button", nil, created, "UIPanelCloseButton")
 		end
-		if template == "MainMenuBarMicroButton" then
-			created.FlashBorder = NewRegion("Texture", nil, created)
-			created.FlashBorder:Hide()
-			created.alert = {
-				Hide = function(self)
-					self.hidden = true
-				end,
-			}
-		end
 		if name then
 			env[name] = created
 		end
@@ -911,13 +901,11 @@ function Mock.Harness(opts)
 			return 0.5, 0.5, 0.5
 		end,
 	}
-	env.MicroMenu = env.CreateFrame("Frame", "MicroMenu")
-	env.MicroMenu.childXPadding, env.MicroMenu.isHorizontal, env.MicroMenu.layoutFramesGoingRight = -5, true, true
-	env.MicroMenu.stride = 12
-	env.MainMenuMicroButton = env.CreateFrame("Button", "MainMenuMicroButton", env.MicroMenu)
-	env.CollectionsMicroButton = env.CreateFrame("Button", "CollectionsMicroButton", env.MicroMenu)
-	env.AdventureGuideMicroButton = env.CreateFrame("Button", "AdventureGuideMicroButton", env.MicroMenu)
-	env.UpdateMicroButtons = function() end
+	env.Minimap = env.CreateFrame("Frame", "Minimap")
+	env.Minimap:SetSize(198, 198)
+	env.GetCursorPosition = function()
+		return 0, 0
+	end
 	-- hooksecurefunc([table,] name, callback): the hook runs after the original and its return is ignored.
 	env.hooksecurefunc = function(target, name, callback)
 		if callback == nil then

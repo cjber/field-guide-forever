@@ -272,8 +272,13 @@ function ns.Initialize()
 	if db.options.statsShare == nil then
 		db.options.statsShare = true
 	end
-	if db.options.microButton == nil then
-		db.options.microButton = true
+	-- The micro menu button is gone; a player who had hidden it keeps its minimap replacement hidden.
+	if db.options.microButton == false then
+		db.options.minimapButtonHidden = true
+	end
+	db.options.microButton = nil
+	if db.options.minimapButtonHidden == nil then
+		db.options.minimapButtonHidden = false
 	end
 	if db.options.milestoneToasts == nil then
 		db.options.milestoneToasts = true

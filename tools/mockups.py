@@ -74,13 +74,13 @@ class MockZone(TypedDict):
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "screenshots"
-MICRO_MENU_RENDER = ROOT / "tools" / "micro_menu_render.py"
+MINIMAP_MOCKUPS = ROOT / "tools" / "minimap_mockups.py"
 
 
-def render_micro_menu_scenes():
-    with tempfile.TemporaryDirectory(prefix="field-guide-micro-menu-") as directory:
-        subprocess.run([sys.executable, str(MICRO_MENU_RENDER)], cwd=directory, check=True)
-        for scene in ("micro-menu-field-guide.png", "micro-menu-options.png"):
+def render_minimap_scenes():
+    with tempfile.TemporaryDirectory(prefix="field-guide-minimap-") as directory:
+        subprocess.run([sys.executable, str(MINIMAP_MOCKUPS)], cwd=directory, check=True)
+        for scene in ("minimap-field-guide.png", "minimap-options.png"):
             shutil.copy2(Path(directory) / scene, OUT / scene)
 
 
@@ -476,11 +476,11 @@ def fraction_of_ranks(count):
 
 
 def status_bar(canvas, x, y, w, h, fraction):
-    """Art.StatusBar: the Professions skill bar, gold UI-StatusBar fill inside the client's progress frame."""
+    """Art.StatusBar: the Professions skill bar, gold CoolDownManager bar fill inside the client's progress frame."""
     canvas.draw(canvas.ui.atlas("Profession-ProgressBar-BG"), x, y, w, h)
     filled = w * max(0, min(1, fraction))
     if filled:
-        canvas.draw(canvas.ui.texture("interface/targetingframe/ui-statusbar.blp"), x, y, filled, h, GOLD)
+        canvas.draw(canvas.ui.atlas("UI-HUD-CoolDownManager-Bar"), x, y, filled, h, GOLD)
     canvas.draw(canvas.ui.atlas("Profession-ProgressBar-frame"), x, y, w, h)
 
 
@@ -1234,7 +1234,7 @@ def main():
         "Announce newly recorded creatures",
         "Show milestone toasts",
         "Share progress with guild and group addon users",
-        "Show the Field Guide micro menu button",
+        "Minimap button",
     ]
     for index, label in enumerate(labels):
         y = 48 + index * 28
@@ -1245,7 +1245,14 @@ def main():
         settings.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), 16, y, 26, 26)
         settings.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), 16, y, 26, 26)
         text(settings, 46, y + 6, label, "GameFontNormal", GOLD)
-    text(settings, 36, 222, "Both buttons can also be bound in Key Bindings > AddOns.", "GameFontDisableSmall", MUTED)
+    text(
+        settings,
+        36,
+        222,
+        "The Field Guide button can also be bound in Key Bindings > AddOns.",
+        "GameFontDisableSmall",
+        MUTED,
+    )
     note("Settings binding note", "content", 36, 222, 560, 16)
     save(settings, "settings.png")
     save(render(barrens, prowler, "CREATURES"), "sighting-log.png")
@@ -1267,7 +1274,7 @@ def main():
         chat.text(12, 8 + index * 22, line, font)
         note(f"Leaderboard line {index + 1}", "content", 12, 8 + index * 22, width - 24, 16)
     save(chat, "leaderboard.png")
-    render_micro_menu_scenes()
+    render_minimap_scenes()
     subprocess.run([sys.executable, str(ROOT / "tools" / "rarity.py")], check=True)
     subprocess.run([sys.executable, str(ROOT / "tools" / "discovery.py")], check=True)
 
@@ -1290,8 +1297,8 @@ def main():
             ("discovery-toast-mastered.png", "Mastery milestone toast"),
             ("discovery-toast-zone.png", "Zone milestone toast"),
             ("settings.png", "Settings canvas content"),
-            ("micro-menu-field-guide.png", "Field Guide micro menu button"),
-            ("micro-menu-options.png", "Micro menu button settings"),
+            ("minimap-field-guide.png", "Field Guide minimap button"),
+            ("minimap-options.png", "Minimap button setting"),
             ("sighting-log.png", "Sighting records"),
             ("rarity-target.png", "Target frame rarity"),
             ("rarity-nameplates.png", "Nameplate rarity"),

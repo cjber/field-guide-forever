@@ -1,4 +1,4 @@
--- What a kill shows (UI/Discovery.lua): a first kill's explored-area line, New tag and micro button pulse, the
+-- What a kill shows (UI/Discovery.lua): a first kill's explored-area line, New tag and minimap button pulse, the
 -- achievement toast for silver, gold, shiny, mastery and zone milestones, the burst cap, the toast's click and both
 -- settings.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
@@ -139,9 +139,9 @@ equal(Mock.messages[1].r == 1 and Mock.messages[1].g == 1 and Mock.messages[1].b
 equal(Count(Mock.sounds, PAGE_TURN), 1, "the page turns once")
 equal(#Mock.alerts, 0, "a common first kill has no toast")
 equal(ns.GetCharacterState(false).unseen[1001], true, "the species is tagged New")
-local border = ns.microButton.FlashBorder
-equal(border:IsShown(), true, "the micro button's flash border shows")
-equal(ns.Discovery.pulse:IsPlaying(), true, "the micro button pulses")
+local glow = ns.Discovery.pulseGlow
+equal(glow ~= nil and glow:IsShown(), true, "the minimap button's glow shows")
+equal(ns.Discovery.pulse:IsPlaying(), true, "the minimap button pulses")
 equal(ns.Discovery.pulse.looping, "REPEAT", "the pulse repeats until the journal opens")
 
 h:Kill("Plainstrider", 1001, bronzeGuid)
@@ -156,7 +156,7 @@ local migrated = ns.Migrate({
 equal(migrated.chars.x.unseen[1001], true, "the New tag is saved")
 equal(migrated.chars.x.unseen[9], nil, "a tag for a species with no record is dropped")
 ns.Window.Show()
-equal(border:IsShown(), false, "opening the journal hides the flash border")
+equal(glow:IsShown(), false, "opening the journal hides the glow")
 equal(ns.Discovery.pulse:IsPlaying(), false, "opening the journal stops the pulse")
 ns.Window.SelectSpecies(1001)
 equal(ns.GetCharacterState(false).unseen[1001], nil, "showing the species clears its New tag")
