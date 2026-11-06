@@ -16,21 +16,21 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [0.3.35] - 2026-11-06
 
-- **One rarity ladder for every creature.** Every spawn is bronze, silver (1 in 25), gold (1 in 100) or shiny (1 in 1000), decided by a stable hash of the spawn GUID, so every player sees the same coat on the same spawn. The journal records how many of each coat you have found. Old kill counts migrate to bronze, an old shiny find stays shiny, a completed old rare form becomes one silver, and gold is never inferred. The separate rare form and the per-kill shiny roll are gone. Thanks to cjber for the idea (#138).
-- **The journal is rebuilt on the Pet Journal and Collections art.** Creatures and Instances share the side rail, with silver, gold, shiny and missing shiny as filters. List rows are Pet Journal buttons with a bordered portrait and the best coat's quality mark. An entry opens on the Pet Journal card with its name, rank and a sightings bar, then the four coat slots, the records and the zone's fully explored map with an Open map button. The bottom bar shows zone completion and how many species here have each coat. The Instances tab lists dungeons and raids on the left and the open one's bosses, kills and first clears on the right. Thanks to cjber for the idea (#139).
-- **The micro menu button wears a painted wolf glyph.** The Field Guide button now draws a frameless gold glyph on the native button plate, with a brighter hover variant and the native pressed offset. Thanks to cjber for the idea (#140).
+- **One rarity ladder for every creature.** Every spawn is bronze, silver (1 in 25), gold (1 in 100) or shiny (1 in 1000), decided by a stable hash of the spawn GUID, so every player sees the same coat on the same spawn. The journal records how many of each coat you have found. Old kill counts migrate to bronze, an old shiny find stays shiny, a completed old rare form becomes one silver, and gold is never inferred. The separate rare form and the per-kill shiny roll are gone.
+- **The journal is rebuilt on the Pet Journal and Collections art.** Creatures and Instances share the side rail, with silver, gold, shiny and missing shiny as filters. List rows are Pet Journal buttons with a bordered portrait and the best coat's quality mark. An entry opens on the Pet Journal card with its name, rank and a sightings bar, then the four coat slots, the records and the zone's fully explored map with an Open map button. The bottom bar shows zone completion and how many species here have each coat. The Instances tab lists dungeons and raids on the left and the open one's bosses, kills and first clears on the right.
+- **The micro menu button wears a painted wolf glyph.** The Field Guide button now draws a frameless gold glyph on the native button plate, with a brighter hover variant and the native pressed offset.
 
 ## [0.3.34] - 2026-11-05
 
-- **Rarity marks no longer recolour health bars or names.** Field Guide leaves every target and nameplate health bar and name in the game's own reaction colours, and marks rarity with the glow and the RARE or SHINY tag only. A nameplate reused after a hostile rare now keeps its new unit's green, yellow or red reaction colour, and `/fg preview` off returns every plate to the game's own colour. Thanks to cjber for the report (#134).
+- **Rarity marks no longer recolour health bars or names.** Field Guide leaves every target and nameplate health bar and name in the game's own reaction colours, and marks rarity with the glow and the RARE or SHINY tag only. A nameplate reused after a hostile rare now keeps its new unit's green, yellow or red reaction colour, and `/fg preview` off returns every plate to the game's own colour.
 
 ## [0.3.33] - 2026-11-05
 
-- The discovery toasts now play the achievement chime instead of loot fanfares. Thanks to cjber for the report (#130).
+- The discovery toasts now play the achievement chime instead of loot fanfares.
 
 ## [0.3.32] - 2026-11-05
 
-- **Rare creatures and shinies stand out on the target frame and nameplates.** A silver, gold or shiny creature gives the target frame a soft tier-coloured aura, a tier-coloured health bar and name, and a RARE or SHINY tag above the name; its nameplate takes the tier colour, a soft glow and a small mark. Shiny creatures pulse gently. Copper creatures look exactly as before. `/fg preview` cycles all three tiers through every creature for the session without recording anything rare. Thanks to cjber for the idea (#123, #124).
+- **Rare creatures and shinies stand out on the target frame and nameplates.** A silver, gold or shiny creature gives the target frame a soft tier-coloured aura, a tier-coloured health bar and name, and a RARE or SHINY tag above the name; its nameplate takes the tier colour, a soft glow and a small mark. Shiny creatures pulse gently. Copper creatures look exactly as before. `/fg preview` cycles all three tiers through every creature for the session without recording anything rare.
 
 ## [0.3.31] - 2026-11-05
 
@@ -65,7 +65,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 - **The journal looks more like the game's own windows.** Every progress bar is the gold Professions bar, so zone completion no longer shows a lone green bar. Creature rows drop the gold underline, the zone path sits beside the portrait, and the "Creature portrait" caption and all-caps labels are gone: rewards read "Unlocked" or "Unlocks at Studied".
 - **The Field Guide micro-menu button gets its own slot.** With Adventure Guide Forever also installed, both buttons asked for the place before Game Menu and Field Guide's sat on top of Adventure Guide's. Each now gets its own place, and the game's buttons move aside instead of being covered.
 - **Field Guide has its own icon in the addon list.** The client's book icon gives way to the Forever family's gold frame around an open journal with a paw print, the same art as the store logo.
-- **A new creature now shows on screen when you kill it.** The first kill of a species is announced at the top of the screen in the line the game uses for a newly explored area, with a page-turn sound; the creature is tagged New in the journal and the Field Guide micro button pulses until you open it. The big moments, a rare's first kill, a shiny, a mastered species and a zone with every creature recorded, get the game's own achievement toast; left-click one to open the journal on that creature. A big pull shows at most three toasts. Two new options turn the line and the toasts off. Thanks to cjber for the idea.
+- **A new creature now shows on screen when you kill it.** The first kill of a species is announced at the top of the screen in the line the game uses for a newly explored area, with a page-turn sound; the creature is tagged New in the journal and the Field Guide micro button pulses until you open it. The big moments, a rare's first kill, a shiny, a mastered species and a zone with every creature recorded, get the game's own achievement toast; left-click one to open the journal on that creature. A big pull shows at most three toasts. Two new options turn the line and the toasts off.
 - **The settings page opens without an error.** Its title asked the game for a font Forever does not have, which logged a Lua error each time the page was built; it now uses the font the game's own settings pages title with.
 - **No more Bindings.xml warnings at login.** The addon list no longer loads the key bindings file a second time as a UI file, so the five `Unrecognized XML` warnings on every login are gone. The bindings still work.
 
@@ -79,7 +79,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [0.3.23] - 2026-11-04
 
-- **Kills are recorded again on Forever 1.60.1.** The client no longer lets addons read the combat log, so Field Guide now counts a kill when your target or a creature with a showing nameplate dies and nobody outside your group tagged it, and when a rare's map marker you saw alive turns dead nearby. Each death counts once, however many of these report it. A creature that dies with no nameplate and not targeted is not seen, so enemy nameplates (`V`) catch the most. Thanks to cjber for the report (#91).
+- **Kills are recorded again on Forever 1.60.1.** The client no longer lets addons read the combat log, so Field Guide now counts a kill when your target or a creature with a showing nameplate dies and nobody outside your group tagged it, and when a rare's map marker you saw alive turns dead nearby. Each death counts once, however many of these report it. A creature that dies with no nameplate and not targeted is not seen, so enemy nameplates (`V`) catch the most.
 
 ## [0.3.22] - 2026-11-04
 
@@ -100,8 +100,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [0.3.18] - 2026-11-03
 
-- **Creature entries use one native journal layout.** Detail tabs join the top of their panel, zone illustrations have complete native frames, and creature icons keep one border. Related facts sit closer together without changing your saved progress, thanks to cjber for the report.
-- **Rarity colours respect later frame updates.** Target and nameplate cleanup leaves colours changed by Blizzard or another addon untouched. Reused nameplates restore their current appearance instead of an earlier creature's colours, and the background tint now uses Forever's native texture field. Thanks to cjber for the report (#71).
+- **Creature entries use one native journal layout.** Detail tabs join the top of their panel, zone illustrations have complete native frames, and creature icons keep one border. Related facts sit closer together without changing your saved progress.
+- **Rarity colours respect later frame updates.** Target and nameplate cleanup leaves colours changed by Blizzard or another addon untouched. Reused nameplates restore their current appearance instead of an earlier creature's colours, and the background tint now uses Forever's native texture field.
 
 
 ## [0.3.17] - 2026-11-03

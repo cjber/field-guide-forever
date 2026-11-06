@@ -19,6 +19,5 @@ Credit for the ideas and reports behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
-| cjber | Asked for native journal composition and single-border icons, and reported shared-frame colour restoration conflicts (#71), kills going unrecorded once the client closed the combat log to addons (#91), generic creature list icons (#120), crowded detail spacing (#121), the loot fanfares on the discovery toasts (#130) and friendly nameplates keeping a stale red health colour (#134), asked for an on-screen moment when a new creature is killed, obvious rarity marks on target frames and nameplates, and a session preview (#123, #124), and for one rarity ladder for every spawn with a two-tab journal and a painted micro menu glyph (#138, #139, #140) | |
 
 Thanks also to everyone else who reported a bug or asked for a feature, here or on CurseForge.
