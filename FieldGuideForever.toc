@@ -27,6 +27,12 @@ Core\Kills.lua
 Core\PeerStats.lua
 Core\Stats.lua
 Core\API.lua
+UI\TrackerQuestie.lua
+UI\TrackerEqot.lua
+UI\TrackerLock.lua
+UI\TrackerOrder.lua
+UI\TrackerHost.lua
+UI\Tracker.lua
 UI\SettingsPage.lua
 Core\Settings.lua
 UI\Art.lua

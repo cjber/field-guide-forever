@@ -76,7 +76,8 @@ jobs:
   # Data/Client.lua and Data/CreatureIcons.lua are generated and hand-editing them is forbidden, so this job
   # regenerates both in a scratch tree from the pinned sources and fails on stale, byte-unstable or unlisted output.
   # tools/.cache starts empty on a cold runner and the generator downloads the sha256-pinned inputs itself; the
-  # cache below only saves the download on later runs, keyed by the generators that carry the pins.
+  # cache below only saves the download on later runs, keyed by every tool that shapes the cached inputs: the
+  # generators that carry the pins, and the extractor that writes the QuestieDB fixture's columns.
   generated-data:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -87,7 +88,7 @@ jobs:
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: tools/.cache
-          key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py') }}
+          key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py', 'tools/extract_*.lua') }}
           restore-keys: regeneration-${{ runner.os }}-
       # gen_creature_icons.py builds its QuestieDB fixture with gen_mock_catalogue.py, which shells out to luajit.
       # Ubuntu 24.04's release-pocket builds, which the archive never replaces.

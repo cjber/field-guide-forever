@@ -15,6 +15,7 @@ ignore = { "212/_.*" } -- unused arguments prefixed with _
 globals = {
 	"FieldGuideForever",
 	"FieldGuideForeverDB",
+	"ForeverTrackerHost",
 	"SLASH_FIELDGUIDEFOREVER1",
 	"SLASH_FIELDGUIDEFOREVER2",
 	"SLASH_FIELDGUIDEFOREVER3",
@@ -22,7 +23,20 @@ globals = {
 	"UIPanelWindows",
 }
 read_globals = {
+	-- The shared Forever tracker column (UI/Tracker*.lua, vendored from Forever Core) and the game's own tracker.
+	"C_XMLUtil",
+	"CreateFramePoolCollection",
+	"EditModeManagerFrame",
+	"EventRegistry",
+	"EventUtil",
+	"Mixin",
+	"ObjectiveTrackerFrame",
+	"ObjectiveTrackerManager",
+	"Minimap",
+
 	"C_Map",
+	"OpenWorldMap",
+	"WorldMapFrame",
 	"ShowUIPanel",
 	"HideUIPanel",
 	"PanelTemplates_SelectTab",
@@ -84,7 +98,9 @@ read_globals = {
 	"UIParent",
 	"UISpecialFrames",
 	"UnitClass",
+	"UnitClassification",
 	"UnitGUID",
+	"UnitIsBossMob",
 	"UnitLevel",
 	"UnitCanAttack",
 	"UnitIsDead",

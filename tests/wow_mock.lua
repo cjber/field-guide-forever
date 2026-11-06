@@ -15,6 +15,8 @@ Mock.combatLog = nil
 Mock.units = {}
 Mock.guids = {}
 Mock.dead = {}
+Mock.classification = {}
+Mock.boss = {}
 Mock.tapDenied = {}
 Mock.vignettes = {}
 Mock.spawnCounter = 0
@@ -25,6 +27,11 @@ Mock.inRaid = false
 Mock.sentAddonMessages = {}
 Mock.registeredPrefix = nil
 Mock.instanceGroup = false
+-- The objective tracker's sections, and the callbacks waiting for the client's load events.
+Mock.trackerSections = {}
+Mock.waiters = {}
+Mock.fired = {}
+Mock.eventCallbacks = {}
 
 ---@param path string
 ---@return boolean
@@ -66,6 +73,7 @@ end
 
 function Mock.Reset()
 	Mock.openedMap = nil
+	Mock.openedWorldMap = nil
 	Mock.zone = "The Barrens"
 	Mock.clock = 1000
 	Mock.frames = {}
@@ -76,6 +84,8 @@ function Mock.Reset()
 	Mock.units = {}
 	Mock.guids = {}
 	Mock.dead = {}
+	Mock.classification = {}
+	Mock.boss = {}
 	Mock.tapDenied = {}
 	Mock.vignettes = {}
 	Mock.spawnCounter = 0
@@ -85,6 +95,10 @@ function Mock.Reset()
 	Mock.sentAddonMessages = {}
 	Mock.registeredPrefix = nil
 	Mock.instanceGroup = false
+	Mock.trackerSections = {}
+	Mock.waiters = {}
+	Mock.fired = {}
+	Mock.eventCallbacks = {}
 end
 
 local methods = {}
@@ -139,8 +153,23 @@ function methods:GetModelFileID()
 	return rawget(self, "modelFileID")
 end
 
-function methods:SetAtlas(atlas)
+-- Native atlas sizes for the set-1 art the addon inherits, so useAtlasSize sets a real size in the headless client
+-- exactly as the template does in game.
+local ATLAS_SIZES = {
+	["UI-Character-Info-Title"] = { 201, 32 },
+	["Options_HorizontalDivider"] = { 630, 1 },
+	["common-stat-bar-BG"] = { 67, 29 },
+	["common-stat-bar-white"] = { 240, 15 },
+	["common-stat-bar-Mask"] = { 67, 29 },
+}
+
+function methods:SetAtlas(atlas, useAtlasSize)
 	self.atlas = atlas
+	self.atlasUseSize = useAtlasSize and true or false
+	local size = ATLAS_SIZES[atlas]
+	if useAtlasSize and size then
+		self._width, self._height = size[1], size[2]
+	end
 end
 
 function methods:GetAtlas()
@@ -240,7 +269,9 @@ function methods:CreateMaskTexture()
 	return NewRegion("MaskTexture", nil, self)
 end
 
-function methods.AddMaskTexture() end
+function methods:AddMaskTexture(mask)
+	self.mask = mask
+end
 
 function methods.SetMaskTexture() end
 
@@ -374,19 +405,45 @@ function methods:GetAlpha()
 	return self._alpha
 end
 
-function methods.SetBlendMode() end
+function methods:SetBlendMode(blend)
+	self.blendMode = blend
+end
 
-function methods.SetFromAlpha() end
+function methods:SetFromAlpha(value)
+	self.fromAlpha = value
+end
 
-function methods.SetToAlpha() end
+function methods:SetToAlpha(value)
+	self.toAlpha = value
+end
 
-function methods.SetDuration() end
+function methods:SetDuration(value)
+	self.duration = value
+end
 
-function methods.SetOrder() end
+function methods:SetOrder(value)
+	self.order = value
+end
 
-function methods.SetSmoothing() end
+function methods:SetSmoothing(value)
+	self.smoothing = value
+end
 
-function methods.SetStartDelay() end
+function methods:SetStartDelay(value)
+	self.startDelay = value
+end
+
+function methods:SetEndDelay(value)
+	self.endDelay = value
+end
+
+function methods:SetOffset(x, y)
+	self.offset = { x, y }
+end
+
+function methods:SetTarget(target)
+	self.target = target
+end
 
 function methods:SetScale(scale)
 	self._scale = scale
@@ -587,6 +644,16 @@ function Mock.Fire(event, ...)
 			script(frame, event, ...)
 		end
 	end
+	-- EventUtil.ContinueAfterAllEvents: a callback runs on the last of its events to arrive.
+	Mock.fired[event] = true
+	for index = #Mock.waiters, 1, -1 do
+		local waiter = Mock.waiters[index]
+		waiter.waiting[event] = nil
+		if next(waiter.waiting) == nil then
+			table.remove(Mock.waiters, index)
+			waiter.fn()
+		end
+	end
 end
 
 function Mock.RunTimers()
@@ -653,6 +720,12 @@ function Mock.Harness(opts)
 		end,
 		UnitIsDead = function(unit)
 			return Mock.dead[unit] == true
+		end,
+		UnitClassification = function(unit)
+			return Mock.classification[unit] or "normal"
+		end,
+		UnitIsBossMob = function(unit)
+			return Mock.boss[unit] == true
 		end,
 		UnitCanAttack = function()
 			return true
@@ -780,9 +853,106 @@ function Mock.Harness(opts)
 		end
 	end
 	env.ForeverPeerStats = false
+	-- A section of the objective tracker, as ObjectiveTrackerModuleTemplate draws one: a header, the blocks an
+	-- addon's LayoutContents lays out on each update, and the height it reports to the column it is attached to.
+	---@param module Frame
+	local function NewTrackerSection(module)
+		module.isDirty, module.headerText = true, ""
+		module.contentsHeight, module.availableHeight = 0, 0
+		module.usedBlocks, module.blocks = {}, {}
+		module.Header = Mock.CreateFrame("Frame", nil, module)
+		module.Header.Text = NewRegion("FontString", nil, module.Header)
+		module.ContentsFrame = Mock.CreateFrame("Frame", nil, module)
+		function module:SetHeader(text)
+			self.headerText = tostring(text or "")
+			self.Header.Text:SetText(self.headerText)
+		end
+		-- A block's own header and lines, counted the way the client counts them: a header line, then a line each.
+		local function Height(block)
+			return (block.headerText ~= "" and 14 or 0) + #block.objectives * 12
+		end
+		local function SetBlockHeader(block, text)
+			block.headerText = tostring(text or "")
+			block.height = Height(block)
+		end
+		local function AddBlockObjective(block, key, text)
+			block.objectives[#block.objectives + 1] = { key = key, text = tostring(text or "") }
+			block.height = Height(block)
+		end
+		function module:GetBlock(id)
+			local block = self.blocks[id]
+			if not block then
+				block = Mock.CreateFrame("Frame", nil, self.ContentsFrame)
+				block.id, block.objectives = id, {}
+				block.SetHeader, block.AddObjective = SetBlockHeader, AddBlockObjective
+				self.blocks[id] = block
+			end
+			block.headerText, block.objectives, block.height, block.inLayout = "", {}, 0, false
+			return block
+		end
+	end
 	env.CreateFrame = function(kind, name, parent, template)
 		local created = Mock.CreateFrame(kind, name, parent, template)
 		created.template = template
+		if template == "ObjectiveTrackerModuleTemplate" then
+			NewTrackerSection(created)
+			-- BeginLayout, LayoutContents and EndLayout, as the client runs them on a dirty module update.
+			function created:Update(available)
+				self.availableHeight = available or 0
+				if self.availableHeight <= 0 or not self.isDirty then
+					return
+				end
+				self.isDirty, self.contentsHeight = false, 0
+				for _, block in pairs(self.blocks) do
+					block.inLayout = false
+				end
+				self:LayoutContents()
+				for id, block in pairs(self.blocks) do
+					if not block.inLayout then
+						self.blocks[id] = nil
+					end
+				end
+			end
+			function created:LayoutBlock(block)
+				if self.contentsHeight + block.height > self.availableHeight then
+					return false
+				end
+				block.inLayout = true
+				self.contentsHeight = self.contentsHeight + block.height
+				return true
+			end
+			function created:GetContentsHeight()
+				return self.contentsHeight
+			end
+			function created:MarkDirty()
+				self.isDirty = true
+				if self.parentContainer then
+					self.parentContainer:MarkDirty()
+				end
+			end
+			function created.IsTruncated()
+				return false
+			end
+			Mock.trackerSections[#Mock.trackerSections + 1] = created
+		end
+		if template == "ColoredProgressBarTemplate" then
+			-- Blizzard_SharedXML/Camelot/ProgressBars/ColoredProgressBar.xml and .lua: the bar's own regions and the
+			-- mixin method that lengthens the fill.
+			created.Fill = NewRegion("Texture", nil, created)
+			created.Fill:SetAtlas("common-stat-bar-white", true)
+			created.Mask = NewRegion("Texture", nil, created)
+			created.Mask:SetAtlas("common-stat-bar-Mask", true)
+			created.Text = NewRegion("FontString", nil, created)
+			created.SetFillWidth = function(self, fillWidth)
+				self.Fill:SetWidth(fillWidth)
+			end
+			created.SetFillPercent = function(self, percent)
+				local fraction = math.min(1, math.max(0, percent or 0))
+				self.fillPercent = fraction
+				self:SetFillWidth(fraction * (self:GetWidth() or 0))
+				self.Fill:SetTexCoord(0, fraction, 1, 0)
+			end
+		end
 		if template == "LargeSideTabButtonTemplate" then
 			created.Icon = NewRegion("Texture", nil, created)
 			created.SelectedTexture = NewRegion("Texture", nil, created)
@@ -826,6 +996,10 @@ function Mock.Harness(opts)
 	env.PanelTemplates_TabResize = function(button, _padding, width)
 		button:SetSize(width, 32)
 	end
+	-- Blizzard's own map opener, which an addon may call when the shown map is moved to another zone.
+	env.OpenWorldMap = function(id)
+		Mock.openedWorldMap = id
+	end
 	-- The Barrens' world map art: one 1002 by 668 layer of 256 tiles, twelve files; no other map has art.
 	env.C_Map = {
 		OpenWorldMap = function(id)
@@ -847,6 +1021,114 @@ function Mock.Harness(opts)
 		end,
 	}
 	env.UIParent = env.CreateFrame("Frame", "UIParent")
+	env.UIParent:SetSize(1200, 675)
+	-- The game's own objective tracker, which the shared Forever column (UI/TrackerHost.lua) reads and never writes.
+	-- Questie and EQOT are not installed here, so the column takes its place below the native quests.
+	local objective = env.CreateFrame("Frame", "ObjectiveTrackerFrame", env.UIParent)
+	objective:SetSize(260, 300)
+	objective:SetPoint("TOPRIGHT", env.UIParent, "TOPRIGHT", 0, -100)
+	objective.NineSlice = {
+		GetBottom = function()
+			return 540
+		end,
+		GetEffectiveScale = function()
+			return 1
+		end,
+	}
+	objective.Header = env.CreateFrame("Frame", nil, objective)
+	objective.Header.MinimizeButton = env.CreateFrame("Button", nil, objective.Header)
+	objective.isCollapsed = false
+	function objective.GetTop()
+		return 640
+	end
+	function objective.GetBottom()
+		return 340
+	end
+	function objective.GetLeft()
+		return 940
+	end
+	function objective.GetRight()
+		return 1200
+	end
+	-- The native manager owns its own frame pool: the shared column never enters it, in or out of combat.
+	env.ObjectiveTrackerManager = setmetatable({}, {
+		__index = function(_, key)
+			error("the shared tracker used the native manager: " .. tostring(key))
+		end,
+	})
+	-- Blizzard's Edit Mode: open only when the player opens it.
+	env.EditModeManagerFrame = env.CreateFrame("Frame", nil, env.UIParent)
+	function env.EditModeManagerFrame.IsEditModeActive()
+		return false
+	end
+	function env.EditModeManagerFrame.IsShown()
+		return false
+	end
+	env.EventRegistry = {
+		RegisterCallback = function(_, event, callback, owner)
+			Mock.eventCallbacks[event] = Mock.eventCallbacks[event] or {}
+			table.insert(Mock.eventCallbacks[event], { callback = callback, owner = owner })
+		end,
+		TriggerEvent = function(_, event, ...)
+			for _, entry in ipairs(Mock.eventCallbacks[event] or {}) do
+				entry.callback(entry.owner, ...)
+			end
+		end,
+	}
+	env.EventUtil = {
+		-- Runs the callback on the last of its events to arrive, or at once when they all have.
+		ContinueAfterAllEvents = function(fn, ...)
+			local waiting = {}
+			for _, event in ipairs({ ... }) do
+				if not Mock.fired[event] then
+					waiting[event] = true
+				end
+			end
+			if next(waiting) == nil then
+				fn()
+				return
+			end
+			Mock.waiters[#Mock.waiters + 1] = { fn = fn, waiting = waiting }
+		end,
+	}
+	env.Mixin = function(target, mixin)
+		for key, value in pairs(mixin) do
+			target[key] = value
+		end
+		return target
+	end
+	env.C_XMLUtil = {
+		GetTemplateInfo = function()
+			return { type = "Frame" }
+		end,
+	}
+	-- Blizzard_SharedXML/Pool.lua: addon-owned pools, so the column never acquires from ObjectiveTrackerManager.
+	env.CreateFramePoolCollection = function()
+		local pools = {}
+		return {
+			GetOrCreatePool = function(_, kind, parent, template)
+				local pool = pools[template]
+				if not pool then
+					pool = { free = {} }
+					pools[template] = pool
+				end
+				return {
+					Acquire = function()
+						local frame = table.remove(pool.free)
+						if frame then
+							return frame, false
+						end
+						return env.CreateFrame(kind, nil, parent, template), true
+					end,
+					Release = function(_, frame)
+						pool.free[#pool.free + 1] = frame
+					end,
+				}
+			end,
+			ReleaseAll = function() end,
+		}
+	end
+
 	-- The panel manager as an addon sees it: it refuses addon calls in combat, and a registered panel is shown or
 	-- hidden by the manager, which remembers it in a slot.
 	Mock.panelCalls = {}

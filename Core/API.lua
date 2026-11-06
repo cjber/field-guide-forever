@@ -6,7 +6,7 @@ local _, ns = ...
 -- treating the silence as an empty field guide. Version 2 is the tier ladder: the old rare form and per-kill shiny
 -- roll are gone, so callers reading per-creature progress now get counts for bronze, silver, gold and shiny spawns.
 ---@class FGPublicAPI
-local API = { version = 2, minor = 2 }
+local API = { version = 2, minor = 3 }
 ---@type FGSpawnCache?
 local spawnCache
 local FIRST_METRICS = {
@@ -250,7 +250,8 @@ API.GetZoneProgress = API.Progress
 --- bronzeCount: integer, silverCount: integer, goldCount: integer, shinyCount: integer,
 --- firstSighting: number?, firstSightingZone: string?, firstKill: number?, firstKillZone: string?,
 --- firstBronze: number?, firstBronzeZone: string?, firstSilver: number?, firstSilverZone: string?,
---- firstGold: number?, firstGoldZone: string?, firstShiny: number?, firstShinyZone: string? }?
+--- firstGold: number?, firstGoldZone: string?, firstShiny: number?, firstShinyZone: string?,
+--- sizeSmallest: integer?, sizeLargest: integer?, tiny: integer, giant: integer }?
 function API.Specimen(speciesId)
 	if not Ready() or ns.catalogueStatus ~= "ok" then
 		return nil
@@ -280,6 +281,10 @@ function API.Specimen(speciesId)
 		firstGoldZone = entry.firstGoldZone,
 		firstShiny = entry.firstShiny,
 		firstShinyZone = entry.firstShinyZone,
+		sizeSmallest = entry.sizeSmallest,
+		sizeLargest = entry.sizeLargest,
+		tiny = entry.tiny or 0,
+		giant = entry.giant or 0,
 		rank = ns.Model.Rank(entry.count),
 		bronze = entry.bronze > 0,
 		silver = entry.silver > 0,
@@ -317,7 +322,8 @@ API.GetSightings = API.Sightings
 -- Every species with its current specimen row, for a caller drawing its own summary. A fresh table on each call keeps
 -- the saved state out of reach.
 ---@return { id: integer, name: string, zone: string, count: integer, kills: integer, rank: integer,
---- bestTier: string?, silver: boolean, gold: boolean, shiny: boolean }[]?
+--- bestTier: string?, silver: boolean, gold: boolean, shiny: boolean, sizeSmallest: integer?,
+--- sizeLargest: integer?, tiny: integer, giant: integer }[]?
 function API.Specimens()
 	if not Ready() or ns.catalogueStatus ~= "ok" then
 		return nil
@@ -338,6 +344,10 @@ function API.Specimens()
 				silver = entry.silver > 0,
 				gold = entry.gold > 0,
 				shiny = entry.shiny > 0,
+				sizeSmallest = entry.sizeSmallest,
+				sizeLargest = entry.sizeLargest,
+				tiny = entry.tiny or 0,
+				giant = entry.giant or 0,
 			}
 		end
 	end

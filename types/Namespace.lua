@@ -59,6 +59,10 @@
 ---@field firstGoldZone? string
 ---@field firstShiny? number
 ---@field firstShinyZone? string
+---@field sizeSmallest? integer smallest recorded spawn size in hundredths
+---@field sizeLargest? integer largest recorded spawn size in hundredths
+---@field tiny integer Tiny spawns found
+---@field giant integer Giant spawns found
 ---@field sharedKillsBaseline? integer kills already counted when an estimated save first shared (Core/Stats.lua)
 
 -- One boss encounter's saved record. Difficulty tables are keyed by the difficulty ID as a string.
@@ -93,6 +97,7 @@
 ---@field minimapButtonHidden? boolean hide the minimap button, shown by default
 ---@field discoveryText? boolean announce a first kill in the explored-area line
 ---@field milestoneToasts? boolean show the achievement toast for silver, gold, shiny, mastery and zone milestones
+---@field rarityFrameStyle? "laurel" | "quill" target-frame ornament design, laurel by default
 
 -- One shared figure a peer reported: the value and the time() it was recorded.
 ---@class FGStatRecord
@@ -104,6 +109,7 @@
 ---@field version integer
 ---@field chars table<string, FGState> keyed by "Name-Realm"
 ---@field options FGOptions
+---@field trackerHost? ForeverTrackerSettings the shared column's attach, lock, scale and detached position
 ---@field sharedStats? table<string, table<string, table<string, table<string, FGStatRecord>>>> peer -> addon -> subject -> metric
 ---@field peerStats table<string, table<string, table>> character -> source -> Core protocol store
 
@@ -172,7 +178,6 @@ function FGSightingLog.List() end
 ---@field Mark Texture the best variant's quality mark, or hidden for an undiscovered species
 ---@field Border Texture
 ---@field New FontString
----@field NewGlow Texture
 ---@field index? integer
 ---@field iconSpecies? integer
 ---@field species? FGSpecies
@@ -268,6 +273,15 @@ function FGCreatureInfo.Get(npcID) end
 ---@field firstSilver boolean
 ---@field firstGold boolean
 ---@field firstShiny boolean
+---@field size? integer the spawn's size in hundredths
+---@field sizeSmallest? integer
+---@field sizeLargest? integer
+---@field newSmallest boolean
+---@field newLargest boolean
+---@field tiny boolean
+---@field giant boolean
+---@field firstTiny boolean
+---@field firstGiant boolean
 
 ---@class FGNamespace
 ---@field L table<string, string> English phrases are the keys; an untranslated key reads as itself
@@ -299,6 +313,13 @@ function FGCreatureInfo.Get(npcID) end
 ---@field Detail FGDetail
 ---@field InstancesView FGInstancesView
 ---@field Window FGWindow
+---@field Tracker FGTracker the section UI/Tracker.lua puts in the shared Forever tracker column
+---@field TrackerHost? ForeverTrackerHostAPI the shared column, from the vendored UI/TrackerHost.lua
+---@field TrackerOrder? ForeverTrackerOrderAPI section order, from the vendored UI/TrackerOrder.lua
+---@field TrackerLock? table the grip and Lock switch, from the vendored UI/TrackerLock.lua
+---@field TrackerQuestie? table Questie's list, from the vendored UI/TrackerQuestie.lua
+---@field TrackerEqot? table EQOT's list, from the vendored UI/TrackerEqot.lua
+---@field TrackerHostSettings fun(): ForeverTrackerSettings the shared column's saved table
 ---@field Discovery FGDiscovery
 ---@field SafeCall fun(context: string, fn: function, ...: any): ok: boolean, result: any
 ---@field GetErrors fun(): FGError[]
@@ -321,6 +342,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field Usable fun(frame: Frame?): boolean false for nil or a forbidden frame
 ---@field RarityPreviewActive fun(): boolean true while /fg preview marks every creature
 ---@field OpenGuide fun()
+---@field OpenMap fun(mapID: integer?): boolean opens or moves the world map, never in combat
 
 ---@class FGGlobal
 ---@field API FGPublicAPI

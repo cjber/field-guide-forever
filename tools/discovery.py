@@ -2,9 +2,9 @@
 
 UI/Discovery.lua shows a first kill the way the client shows a newly explored area: one yellow line in UIErrorsFrame
 (Blizzard_UIErrorsFrame/Mainline/UIErrorsFrame.xml, ErrorFont over YELLOW_FONT_COLOR). The list row carries the mount
-journal's New tag (Blizzard_MountCollection.xml: GameFontHighlight NEW_CAPS over the collections-newglow atlas). The
-big moments use the client's own achievement toast (Mainline/AlertFrameSystems.xml:173) with the points shield hidden;
-a shiny takes the template's guild variant art, the larger frame the client already ships.
+journal's New tag (Blizzard_MountCollection.xml: GameFontHighlight NEW_CAPS after the name, with no glow). The
+big moments use the client's own achievement toast (Mainline/AlertFrameSystems.xml:173) with the points shield, glow
+and shine hidden; a shiny takes the template's guild variant art, the larger frame the client already ships.
 
 Every pixel that is not the addon's own text comes from the pinned WoW: Forever build through wowmock.
 
@@ -82,24 +82,22 @@ def discovery_line(ui, name):
 
 
 def new_tag(canvas, ui, name_x, y, name):
-    """The mount journal's New tag: NEW after the name's text, 8 units right, over collections-newglow."""
+    """The mount journal's New tag: NEW after the name's text, 8 units right, with no glow behind it."""
     left = name_x + canvas.text_width(name, FONTS["GameFontNormal"]) + 8
     label = "NEW"
-    width = canvas.text_width(label, FONTS["GameFontHighlight"])
-    canvas.draw(ui.atlas("collections-newglow"), left - 20, y - 10, width + 40, 12 + 20)
     shadow = ui.global_color("NEW_FEATURE_SHADOW_COLOR")[:3]
     canvas.text(left + 1, y + 1, label, Font(FRIZQT, 12, shadow))
     canvas.text(left, y, label, Font(FRIZQT, 12, wowmock.WHITE))
 
 
 def list_panel(ui, rows):
-    """The creature list as UI/List.lua lays it out: 304 x 46 rows of icon, name, family and level, kills, bar."""
+    """The creature list as UI/List.lua lays it out: 304 x 46 rows of icon, name, family and kills."""
     width, height = 304 + 36, len(rows) * 46 + 36
     canvas = ui.canvas(width, height)
     marble = ui.texture("interface/framegeneral/ui-background-marble.blp")
     tiled(canvas, marble, 0, 0, width, height, marble.width / ui.scale, marble.height / ui.scale)
     draw_nine_slice(canvas, INSET_FRAME_LAYOUT, 0, 0, width, height)
-    for index, (icon, name, family, level, kills, count, new) in enumerate(rows):
+    for index, (icon, name, family, level, kills, new) in enumerate(rows):
         x, y = 18, 18 + index * 46
         canvas.draw(ui.texture(icon), x + 10, y + 5, 32, 32)
         text(canvas, x + 52, y + 5, name, "GameFontNormal", TEXT, width=152)
@@ -107,9 +105,6 @@ def list_panel(ui, rows):
             new_tag(canvas, ui, x + 52, y + 5, name)
         text(canvas, x + 52, y + 23, f"{family} · Lv {level}", "GameFontDisableSmall", MUTED)
         canvas.text(x + 290 - 64, y + 5, f"{kills} kills", FONTS["GameFontNormal"], TEXT, justify="RIGHT", width=64)
-        canvas.draw(ui.atlas("common-stat-bar-BG"), x + 10, y + 40, 280, 3)
-        if count:
-            canvas.draw(ui.atlas("common-stat-bar-white"), x + 10, y + 40, 280 * count / 10, 3, GOLD)
     return canvas
 
 
@@ -140,10 +135,10 @@ def main(argv):
     ui = wowmock.Ui(build=ART_BUILD, scale=2)
     discovery_line(ui, "Nightsaber").save(out / "discovery-new-creature.png")
     rows = [
-        (CAT_ICON, "Young Nightsaber", "Beast", "1-2", 6, 6, False),
-        (CAT_ICON, "Nightsaber", "Beast", "4-5", 1, 1, True),
-        (BOAR_ICON, "Young Thistle Boar", "Beast", "1-2", 3, 3, False),
-        (SPIDER_ICON, "Webwood Spider", "Beast", "3-4", 0, 0, False),
+        (CAT_ICON, "Young Nightsaber", "Beast", "1-2", 6, False),
+        (CAT_ICON, "Nightsaber", "Beast", "4-5", 1, True),
+        (BOAR_ICON, "Young Thistle Boar", "Beast", "1-2", 3, False),
+        (SPIDER_ICON, "Webwood Spider", "Beast", "3-4", 0, False),
     ]
     wowmock.scene(ui, [(list_panel(ui, rows), 0, 0)]).save(out / "discovery-new-tag.png")
     toasts = [

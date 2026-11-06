@@ -38,6 +38,8 @@ Record(1019, "gold")
 Record(1025, "silver")
 
 Window.Show()
+-- The journal opens on Discovered; this spec also checks the undiscovered row and the coat filters.
+Window.SetFilter("all")
 local function Row(name)
 	for _, row in ipairs(List.rows) do
 		if row:IsShown() and row.species and row.species.name == name then

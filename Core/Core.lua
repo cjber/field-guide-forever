@@ -5,7 +5,7 @@ local L = ns.L
 ns.ready = false
 ns.Zones = ns.Zones or {}
 ns.Instances = ns.Instances or {}
-ns.SCHEMA = 4
+ns.SCHEMA = 5
 ---@type fun()[]
 local progressCallbacks = {}
 ---@type fun(species: FGSpecies, zone: FGZone, result: FGRecordResult)[]
@@ -82,6 +82,8 @@ local SPECIMEN_NUMBERS = {
 	silver = false,
 	gold = false,
 	shiny = false,
+	tiny = false,
+	giant = false,
 }
 
 local SPECIMEN_TIMES = {
@@ -148,6 +150,23 @@ local function NormalizeState(state)
 					entry[field] = old[field]
 				end
 			end
+			-- Sizes are hundredths. A save from before schema 5 has none, and one written by an unknown build keeps
+			-- only values the journal could have drawn.
+			for _, field in ipairs({ "sizeSmallest", "sizeLargest" }) do
+				local value = tonumber(old[field])
+				if value and value >= 1 and value <= 999 and value % 1 == 0 then
+					entry[field] = value
+				end
+			end
+			if entry.sizeSmallest and entry.sizeLargest and entry.sizeSmallest > entry.sizeLargest then
+				entry.sizeSmallest, entry.sizeLargest = entry.sizeLargest, entry.sizeSmallest
+			end
+			if old.tiny == nil and entry.sizeSmallest and entry.sizeSmallest < ns.Model.SIZE_TINY then
+				entry.tiny = 1
+			end
+			if old.giant == nil and entry.sizeLargest and entry.sizeLargest > ns.Model.SIZE_GIANT then
+				entry.giant = 1
+			end
 			clean.species[numericId] = entry
 		end
 	end
@@ -202,6 +221,38 @@ local function NormalizeState(state)
 	return clean
 end
 
+-- The shared tracker's saved switches and placement, in the same root-level shape Legacy Forever uses. A save from
+-- before the column existed simply gains the table; an old record without the Lock switch gains it off. The UI host
+-- reads this before the saved variables reach ns.db, so the global table is the fallback.
+---@param host any
+---@return ForeverTrackerSettings
+local function NormalizeTrackerHost(host)
+	if type(host) ~= "table" then
+		host = {}
+	end
+	if type(host.attached) ~= "boolean" then
+		host.attached = true
+	end
+	if type(host.locked) ~= "boolean" then
+		host.locked = false
+	end
+	return host
+end
+
+---@return ForeverTrackerSettings
+function ns.TrackerHostSettings()
+	---@type table?
+	local db = ns.db
+	if type(db) ~= "table" then
+		if type(FieldGuideForeverDB) ~= "table" then
+			FieldGuideForeverDB = {}
+		end
+		db = FieldGuideForeverDB
+	end
+	db.trackerHost = NormalizeTrackerHost(db.trackerHost)
+	return db.trackerHost
+end
+
 -- The saved variables brought up to ns.SCHEMA. A save from a newer version is left untouched and the second return
 -- is true: the caller then works on the fresh table it gets and must not save it over the newer data.
 ---@return table db
@@ -225,6 +276,7 @@ function ns.Migrate(db)
 	-- The journal is a UI panel the game places; the old dragged position is gone.
 	db.window = nil
 	db.options = type(db.options) == "table" and db.options or {}
+	db.trackerHost = NormalizeTrackerHost(db.trackerHost)
 	ns.Stats.Migrate(db)
 
 	db.version = ns.SCHEMA
@@ -282,6 +334,9 @@ function ns.Initialize()
 	end
 	if db.options.milestoneToasts == nil then
 		db.options.milestoneToasts = true
+	end
+	if db.options.rarityFrameStyle == nil then
+		db.options.rarityFrameStyle = "laurel"
 	end
 	if db.options.discoveryText == nil then
 		db.options.discoveryText = true
@@ -502,6 +557,26 @@ local function ToggleRarityPreview()
 	if ns.Rarity and ns.Rarity.Refresh then
 		ns.SafeCall("rarity preview", ns.Rarity.Refresh)
 	end
+end
+
+-- C_Map.OpenWorldMap is restricted; Blizzard's global OpenWorldMap is plain Lua, so an already shown map is moved
+-- through it. A closed map still opens through C_Map.OpenWorldMap, which has Blizzard open it without tainting it.
+-- Never in combat, as every map action in the suite: the button simply does nothing then.
+---@param mapID integer?
+---@return boolean opened
+function ns.OpenMap(mapID)
+	if InCombatLockdown and InCombatLockdown() then
+		return false
+	end
+	local map = mapID ~= nil and mapID ~= 0 and mapID or nil
+	if WorldMapFrame and WorldMapFrame:IsShown() and OpenWorldMap then
+		OpenWorldMap(map) -- taint-ok: Blizzard's opener on the map it shows; C_Map.OpenWorldMap is restricted (#154)
+	elseif C_Map and C_Map.OpenWorldMap then
+		C_Map.OpenWorldMap(map)
+	else
+		return false
+	end
+	return true
 end
 
 local function OpenGuide()

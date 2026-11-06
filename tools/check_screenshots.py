@@ -48,15 +48,21 @@ SOURCES = (
     "tools/ui_art.py",
     "tools/mockups.py",
     "tools/rarity.py",
+    "media/Rarity/Laurel-Silver.tga",
+    "media/Rarity/Laurel-Gold.tga",
+    "media/Rarity/Laurel-Shiny.tga",
+    "media/Rarity/Quill-Silver.tga",
+    "media/Rarity/Quill-Gold.tga",
+    "media/Rarity/Quill-Shiny.tga",
     "tools/discovery.py",
     "tools/minimap_mockups.py",
 )
 RARITY_GEOMETRY = {
-    "HEALTH_WINDOW": (32, 26, 143, 49),
-    "POWER_WINDOW": (33, 55, 143, 61),
-    "PORTRAIT_CENTER": (183, 44),
-    "PORTRAIT_RADIUS": 28,
-    "LEVEL_CENTER": (201, 66),
+    "HEALTH_WINDOW": (2, 22, 128, 42),
+    "POWER_WINDOW": (2, 44, 136, 54),
+    "PORTRAIT_CENTER": (157, 31.5),
+    "PORTRAIT_RADIUS": 29,
+    "LEVEL_CENTER": (188, 54),
 }
 
 

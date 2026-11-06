@@ -108,7 +108,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -117,11 +117,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -158,16 +158,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -176,11 +176,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -190,7 +190,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -199,7 +199,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -207,23 +207,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -231,7 +231,7 @@
           "role": "label",
           "w": 180.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -239,7 +239,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -247,7 +247,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -348,7 +348,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -357,11 +357,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -398,16 +398,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -416,11 +416,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -430,7 +430,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -439,7 +439,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -447,23 +447,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -471,7 +471,7 @@
           "role": "label",
           "w": 180.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -479,7 +479,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -487,7 +487,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -562,11 +562,11 @@
           "y": 150
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Bosses heading",
           "parent": "Instance pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 270
         },
@@ -634,20 +634,20 @@
           "y": 574
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Cleared progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         }
       ]
     },
@@ -898,7 +898,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -907,11 +907,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -948,16 +948,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -966,11 +966,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -980,7 +980,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -989,7 +989,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -997,23 +997,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -1021,7 +1021,7 @@
           "role": "label",
           "w": 199.9,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -1029,7 +1029,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -1037,25 +1037,25 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
     "settings.png": {
       "canvas": {
-        "height": 276,
+        "height": 304,
         "scale": 2,
         "width": 620
       },
       "frame": {
-        "h": 276,
+        "h": 304,
         "w": 620,
         "x": 0,
         "y": 0
       },
       "widgets": [
         {
-          "h": 252,
+          "h": 280,
           "name": "Settings content",
           "role": "pane",
           "w": 596,
@@ -1146,7 +1146,7 @@
           "h": 16,
           "name": "Settings label 5",
           "role": "content",
-          "w": 279.0,
+          "w": 167.0,
           "x": 46,
           "y": 166
         },
@@ -1162,9 +1162,25 @@
           "h": 16,
           "name": "Settings label 6",
           "role": "content",
-          "w": 91.5,
+          "w": 279.0,
           "x": 46,
           "y": 194
+        },
+        {
+          "h": 26,
+          "name": "Settings checkbox 7",
+          "role": "content",
+          "w": 26,
+          "x": 16,
+          "y": 216
+        },
+        {
+          "h": 16,
+          "name": "Settings label 7",
+          "role": "content",
+          "w": 91.5,
+          "x": 46,
+          "y": 222
         },
         {
           "h": 16,
@@ -1172,7 +1188,7 @@
           "role": "content",
           "w": 560,
           "x": 36,
-          "y": 222
+          "y": 250
         }
       ]
     },
@@ -1273,7 +1289,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -1282,11 +1298,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -1323,16 +1339,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -1341,11 +1357,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -1355,7 +1371,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 36,
@@ -1364,7 +1380,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -1372,23 +1388,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -1396,7 +1412,7 @@
           "role": "label",
           "w": 190.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -1404,7 +1420,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -1412,7 +1428,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -1513,7 +1529,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -1522,11 +1538,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -1563,16 +1579,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -1581,11 +1597,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -1595,7 +1611,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 36,
@@ -1604,7 +1620,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -1612,23 +1628,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -1636,7 +1652,7 @@
           "role": "label",
           "w": 190.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -1644,7 +1660,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -1652,7 +1668,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -1753,7 +1769,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -1762,11 +1778,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -1803,16 +1819,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -1821,11 +1837,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -1835,7 +1851,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -1844,7 +1860,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -1852,23 +1868,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -1876,7 +1892,7 @@
           "role": "label",
           "w": 199.9,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -1884,7 +1900,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -1892,7 +1908,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -1993,7 +2009,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -2002,11 +2018,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -2043,16 +2059,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -2061,11 +2077,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -2075,7 +2091,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 36,
@@ -2084,7 +2100,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -2092,23 +2108,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -2116,7 +2132,7 @@
           "role": "label",
           "w": 190.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -2124,7 +2140,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -2132,7 +2148,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -2233,7 +2249,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -2242,11 +2258,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -2283,16 +2299,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -2301,11 +2317,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -2315,7 +2331,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -2324,7 +2340,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -2332,23 +2348,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -2356,7 +2372,7 @@
           "role": "label",
           "w": 199.9,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -2364,7 +2380,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -2372,7 +2388,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -2473,7 +2489,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -2482,11 +2498,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -2523,16 +2539,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -2541,11 +2557,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -2555,7 +2571,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 36,
@@ -2564,7 +2580,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -2572,23 +2588,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -2596,7 +2612,7 @@
           "role": "label",
           "w": 190.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -2604,7 +2620,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -2612,7 +2628,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -2713,7 +2729,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -2722,11 +2738,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -2763,16 +2779,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -2781,11 +2797,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -2795,7 +2811,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 36,
@@ -2804,7 +2820,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -2812,23 +2828,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -2836,7 +2852,7 @@
           "role": "label",
           "w": 190.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -2844,7 +2860,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -2852,7 +2868,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -2953,7 +2969,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -2962,11 +2978,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -3003,16 +3019,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -3021,11 +3037,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -3035,7 +3051,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -3044,7 +3060,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -3052,23 +3068,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -3076,7 +3092,7 @@
           "role": "label",
           "w": 180.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -3084,7 +3100,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -3092,7 +3108,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -3193,7 +3209,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -3202,11 +3218,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -3243,16 +3259,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -3261,11 +3277,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -3275,7 +3291,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -3284,7 +3300,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -3292,23 +3308,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -3316,7 +3332,7 @@
           "role": "label",
           "w": 180.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -3324,7 +3340,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -3332,7 +3348,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -3433,7 +3449,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -3442,11 +3458,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -3483,16 +3499,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -3501,11 +3517,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -3515,7 +3531,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 36,
@@ -3524,7 +3540,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -3532,23 +3548,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -3556,7 +3572,7 @@
           "role": "label",
           "w": 189.9,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -3564,7 +3580,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -3572,7 +3588,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -3673,7 +3689,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -3682,11 +3698,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -3723,16 +3739,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -3741,11 +3757,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -3755,7 +3771,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 36,
@@ -3764,7 +3780,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -3772,23 +3788,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -3796,7 +3812,7 @@
           "role": "label",
           "w": 180.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -3804,7 +3820,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -3812,7 +3828,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -3913,7 +3929,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -3922,11 +3938,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -3963,16 +3979,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -3981,11 +3997,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -3995,7 +4011,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 36,
@@ -4004,7 +4020,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -4012,23 +4028,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -4036,7 +4052,7 @@
           "role": "label",
           "w": 180.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -4044,7 +4060,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -4052,7 +4068,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -4153,7 +4169,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -4162,11 +4178,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -4203,16 +4219,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -4221,11 +4237,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -4235,7 +4251,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -4244,7 +4260,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -4252,23 +4268,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -4276,7 +4292,7 @@
           "role": "label",
           "w": 199.9,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -4284,7 +4300,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -4292,7 +4308,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -4393,7 +4409,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -4402,11 +4418,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -4443,16 +4459,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -4461,11 +4477,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -4475,7 +4491,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -4484,7 +4500,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -4492,23 +4508,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -4516,7 +4532,7 @@
           "role": "label",
           "w": 190.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -4524,7 +4540,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -4532,7 +4548,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -4633,7 +4649,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -4642,11 +4658,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -4683,16 +4699,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -4701,11 +4717,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -4715,7 +4731,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -4724,7 +4740,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -4732,23 +4748,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -4756,7 +4772,7 @@
           "role": "label",
           "w": 180.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -4764,7 +4780,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -4772,7 +4788,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -4873,7 +4889,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -4882,11 +4898,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -4923,16 +4939,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -4941,11 +4957,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -4955,7 +4971,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -4964,7 +4980,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -4972,23 +4988,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -4996,7 +5012,7 @@
           "role": "label",
           "w": 200.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -5004,7 +5020,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -5012,7 +5028,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -5113,7 +5129,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -5122,11 +5138,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -5163,16 +5179,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -5181,11 +5197,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -5195,7 +5211,7 @@
           "role": "card",
           "w": 180,
           "x": 670,
-          "y": 508
+          "y": 510
         },
         {
           "h": 18,
@@ -5204,7 +5220,7 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
           "h": 24,
@@ -5212,23 +5228,23 @@
           "role": "button",
           "w": 94,
           "x": 860,
-          "y": 606
+          "y": 608
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -5236,7 +5252,7 @@
           "role": "label",
           "w": 200.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -5244,7 +5260,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -5252,7 +5268,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     },
@@ -5353,7 +5369,7 @@
           "y": 180
         },
         {
-          "h": 22,
+          "h": 29,
           "name": "Research bar",
           "parent": "Detail pane",
           "role": "progress",
@@ -5362,11 +5378,11 @@
           "y": 230
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Variants heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 300,
+          "w": 201,
           "x": 400,
           "y": 302
         },
@@ -5403,16 +5419,16 @@
           "y": 342
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Records heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 250,
+          "w": 201,
           "x": 400,
           "y": 470
         },
         {
-          "h": 110,
+          "h": 126,
           "name": "Records",
           "parent": "Detail pane",
           "role": "content",
@@ -5421,11 +5437,11 @@
           "y": 510
         },
         {
-          "h": 30,
+          "h": 32,
           "name": "Habitat heading",
           "parent": "Detail pane",
           "role": "content",
-          "w": 284,
+          "w": 201,
           "x": 670,
           "y": 470
         },
@@ -5436,23 +5452,23 @@
           "role": "content",
           "w": 94,
           "x": 860,
-          "y": 512
+          "y": 514
         },
         {
-          "h": 58,
+          "h": 66,
           "name": "bottom bar",
           "role": "bar",
           "w": 924,
           "x": 44,
-          "y": 656
+          "y": 648
         },
         {
-          "h": 12,
+          "h": 29,
           "name": "Bottom progress",
           "role": "progress",
           "w": 320,
           "x": 58,
-          "y": 688
+          "y": 677
         },
         {
           "h": 26,
@@ -5460,7 +5476,7 @@
           "role": "label",
           "w": 160.0,
           "x": 414,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -5468,7 +5484,7 @@
           "role": "button",
           "w": 120,
           "x": 708,
-          "y": 672
+          "y": 678
         },
         {
           "h": 26,
@@ -5476,7 +5492,7 @@
           "role": "button",
           "w": 120,
           "x": 836,
-          "y": 672
+          "y": 678
         }
       ]
     }
@@ -5593,7 +5609,7 @@
       "y": 180
     },
     {
-      "h": 22,
+      "h": 29,
       "name": "Research bar",
       "parent": "Detail pane",
       "role": "progress",
@@ -5602,11 +5618,11 @@
       "y": 230
     },
     {
-      "h": 30,
+      "h": 32,
       "name": "Variants heading",
       "parent": "Detail pane",
       "role": "content",
-      "w": 300,
+      "w": 201,
       "x": 400,
       "y": 302
     },
@@ -5643,16 +5659,16 @@
       "y": 342
     },
     {
-      "h": 30,
+      "h": 32,
       "name": "Records heading",
       "parent": "Detail pane",
       "role": "content",
-      "w": 250,
+      "w": 201,
       "x": 400,
       "y": 470
     },
     {
-      "h": 110,
+      "h": 126,
       "name": "Records",
       "parent": "Detail pane",
       "role": "content",
@@ -5661,11 +5677,11 @@
       "y": 510
     },
     {
-      "h": 30,
+      "h": 32,
       "name": "Habitat heading",
       "parent": "Detail pane",
       "role": "content",
-      "w": 284,
+      "w": 201,
       "x": 670,
       "y": 470
     },
@@ -5675,7 +5691,7 @@
       "role": "card",
       "w": 180,
       "x": 670,
-      "y": 508
+      "y": 510
     },
     {
       "h": 18,
@@ -5684,7 +5700,7 @@
       "role": "content",
       "w": 94,
       "x": 860,
-      "y": 512
+      "y": 514
     },
     {
       "h": 24,
@@ -5692,23 +5708,23 @@
       "role": "button",
       "w": 94,
       "x": 860,
-      "y": 606
+      "y": 608
     },
     {
-      "h": 58,
+      "h": 66,
       "name": "bottom bar",
       "role": "bar",
       "w": 924,
       "x": 44,
-      "y": 656
+      "y": 648
     },
     {
-      "h": 12,
+      "h": 29,
       "name": "Bottom progress",
       "role": "progress",
       "w": 320,
       "x": 58,
-      "y": 688
+      "y": 677
     },
     {
       "h": 26,
@@ -5716,7 +5732,7 @@
       "role": "label",
       "w": 199.9,
       "x": 414,
-      "y": 672
+      "y": 678
     },
     {
       "h": 26,
@@ -5724,7 +5740,7 @@
       "role": "button",
       "w": 120,
       "x": 708,
-      "y": 672
+      "y": 678
     },
     {
       "h": 26,
@@ -5732,7 +5748,7 @@
       "role": "button",
       "w": 120,
       "x": 836,
-      "y": 672
+      "y": 678
     }
   ]
 }

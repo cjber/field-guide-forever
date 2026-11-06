@@ -52,6 +52,17 @@ local function BuildPanel(panel, page)
 		end
 	end, L["Silver, gold, shiny, mastery and zone milestones show an achievement toast. Click it to open the journal."])
 
+	page.AddCheck(panel, L["Quill and journal rarity frames"], function()
+		return ns.db and ns.db.options.rarityFrameStyle == "quill"
+	end, function(checked)
+		if ns.db then
+			ns.db.options.rarityFrameStyle = checked and "quill" or "laurel"
+		end
+		if ns.Rarity then
+			ns.Rarity.Refresh()
+		end
+	end, L["Draw rare creatures' target frames with the quill and journal design instead of the laurel wreath."])
+
 	page.AddCheck(panel, L["Share progress with guild and group addon users"], function()
 		return ns.db and ns.db.options.statsShare ~= false
 	end, function(checked)

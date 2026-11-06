@@ -21,7 +21,7 @@ Pick a creature to see its level, zone and how far you are towards Mastered. The
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/variants.png" width="640" alt="The Creatures page filtered to Silver found, with Irradiated Invader selected and its bronze, silver, gold and shiny slots"></p>
 
-Creatures and Instances share the side rail. Silver, gold and shiny are filters, and each entry shows all four coats a spawn can wear.
+Creatures and Instances share the side rail. The list opens on Discovered. Silver, gold and shiny are filters, and each entry shows all four coats a spawn can wear.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/shiny-record.png" width="640" alt="The Records tab for Alamar Grimm with when it was first and last seen and the best coat found"></p>
 
@@ -29,12 +29,13 @@ Records keep when you first and last saw a creature, how many deaths you recorde
 
 ## Features
 
-- **Journal**: creatures across outdoor zones, dungeons and raids, with their level, rank and zone, read from QuestieDB as it updates. Search by name, filter by status or coat, and switch between the Creatures and Instances tabs.
+- **Journal**: creatures across outdoor zones, dungeons and raids, with their level, rank and zone, read from QuestieDB as it updates. It opens on Discovered, so a new character starts with what they have actually met. Search by name, filter by status or coat, and switch between the Creatures and Instances tabs.
 - **Research ranks**: kills move a species through Discovered (1), Observed (3), Studied (6) and Mastered (10). The kill count keeps going after that.
 - **Zone completion**: the share of a zone's species you have recorded. It counts recorded species, not mastered ones, so the bar moves with every new creature.
 - **The coat ladder**: every spawn is bronze, silver (1 in 25), gold (1 in 100) or shiny (1 in 1000), decided by a stable hash of its spawn GUID. Every player sees the same coat on the same spawn, and the journal keeps how many of each you have found.
-- **Rarity marks**: a silver, gold or shiny spawn shows a soft coat-coloured aura and a SILVER, GOLD or SHINY tag on the target frame. Its nameplate gets a soft glow and the coat's quality mark beside the name. Health bars and names keep the game's own colours. Shiny creatures pulse gently, and bronze creatures look exactly as they always did. `/fg preview` cycles the three higher coats for this session.
-- **Records**: first sighting and first kill for each creature, kept per character, and a sighting log for the current session.
+- **Rarity marks**: a silver, gold or shiny spawn wears the client's own classification art at its own size: the rare silver frame for silver, the elite gold portrait ring for gold, and the winged silver ring with a slow light sheen for shiny. The coat's quality gem sits in a socket at the foot of the ornament, with a SILVER, GOLD or SHINY tag above the name. Its nameplate gets the same quality mark to the right of the health bar. Health bars, names and the client's own rare, elite and boss art keep their colours. Bronze creatures look exactly as they always did, and `/fg preview` cycles the three higher coats for this session.
+- **Sizes**: a spawn is usually 0.80x to 1.30x its normal size on a bell curve, from the same stable hash as its coat with a different salt. About one spawn in 200 is Tiny (under 0.70x) or Giant (over 1.40x). The journal keeps its smallest and largest kill per species, the target frame tag shows the spawn's size to hunt, and Tiny and Giant finds get a badge and a toast.
+- **Records**: first sighting, first kill and the smallest and largest size for each creature, kept per character, and a sighting log for the current session.
 - **Tracking**: mark the species you are working on.
 - **Discoveries**: a first kill is announced at the top of the screen and tagged New in the journal. Silver, gold, shiny, mastery and zone milestones get the game's achievement toast; click one to open the journal there. Both can be turned off in the options.
 - **Instances**: bosses the game reports when an encounter ends, with first clears, attempts and kills by difficulty. It is a personal record, not a verified world-first board.

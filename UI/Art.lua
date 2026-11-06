@@ -678,22 +678,24 @@ function Art.Line(parent, key, alpha)
 	return line
 end
 
--- A plain status bar in the client's ColoredProgressBarTemplate art: the white fill, tinted gold, over the
--- background atlas that carries the bar's own border. Every progress figure in the journal uses this one style.
+-- The client's own progress bar, inherited from ColoredProgressBarTemplate: its white fill over the frame that carries
+-- the border, masked at both ends. The template is 29 high and its fill 15; only the width changes, through the
+-- template's SetFillPercent, which is the only way the client lengthens one of its bars.
+---@class FGProgressBar : Frame
+---@field Fill Texture
+---@field Mask Texture
+---@field Text FontString
+---@field SetFillPercent fun(self: FGProgressBar, percent: number)
+
 ---@param parent Frame
 ---@param width number
----@param height number
----@param maxValue number
----@return StatusBar
-function Art.StatusBar(parent, width, height, maxValue)
-	local bar = CreateFrame("StatusBar", nil, parent)
-	bar:SetSize(width, height)
-	bar:SetMinMaxValues(0, maxValue)
-	bar:SetStatusBarTexture("common-stat-bar-white")
-	bar:SetStatusBarColor(Art.RGBA("gold", 1))
-	local background = bar:CreateTexture(nil, "BACKGROUND")
-	background:SetAtlas("common-stat-bar-BG")
-	background:SetAllPoints()
+---@return FGProgressBar
+function Art.StatusBar(parent, width)
+	local bar = CreateFrame("Frame", nil, parent, "ColoredProgressBarTemplate") --[[@as FGProgressBar]]
+	bar:SetSize(width, 29)
+	bar.Text:SetText("")
+	bar.Fill:SetVertexColor(Art.RGBA("gold", 1))
+	bar:SetFillPercent(0)
 	return bar
 end
 
@@ -793,68 +795,47 @@ function Art.PaintTierIcon(texture, tier, size)
 	end
 end
 
--- A section heading as the quest tracker draws one: its header band at the atlas's own height, the title centred on
--- it 7 in from the left (ObjectiveTrackerModuleHeaderTemplate).
+-- A section heading as the character sheet draws one: the client's title plate at its own 201 by 32, the title
+-- centred on it 1 above the middle (CharacterStatFrameCategoryTemplate). Every heading shares that one plate size.
 ---@param parent Frame
 ---@param text string
----@param width number
 ---@return Texture band, FontString title
-function Art.Header(parent, text, width)
+function Art.Header(parent, text)
 	local band = parent:CreateTexture(nil, "BACKGROUND", nil, 2)
-	band:SetAtlas("UI-QuestTracker-Secondary-Objective-Header")
-	band:SetSize(width, 30)
+	band:SetAtlas("UI-Character-Info-Title", true)
 	local title = Art.Text(parent, "GameFontNormalLarge", "gold")
-	title:SetPoint("LEFT", band, "LEFT", 7, 0)
+	title:SetPoint("CENTER", band, "CENTER", 0, 1)
 	title:SetText(text)
 	return band, title
 end
 
--- The world quest progress bar: its dark track, the client's yellow fill and three-piece border, with a tick at each
--- quarter. SetFraction hides the fill at zero, since the client treats a width of 0 as unset.
----@class FGObjectiveBar : Frame
----@field Fill Texture
+-- The progress bar with a fraction instead of a value: the same client template, the fill hidden at zero because the
+-- client treats a zero width as unset.
+---@class FGObjectiveBar : FGProgressBar
 ---@field SetFraction fun(self: FGObjectiveBar, fraction: number)
 
 ---@param parent Frame
 ---@param width number
----@param ticks integer
 ---@return FGObjectiveBar
-function Art.ObjectiveBar(parent, width, ticks)
-	local bar = CreateFrame("Frame", nil, parent) --[[@as FGObjectiveBar]]
-	bar:SetSize(width, 22)
-	local track = bar:CreateTexture(nil, "BACKGROUND")
-	track:SetAtlas("objectivewidget-bar-background")
-	track:SetPoint("TOPLEFT", 4, -5)
-	track:SetPoint("BOTTOMRIGHT", -4, 5)
-	bar.Fill = bar:CreateTexture(nil, "ARTWORK")
-	bar.Fill:SetAtlas("ui-frame-bar-fill-yellow")
-	bar.Fill:SetPoint("TOPLEFT", 4, -5)
-	bar.Fill:SetHeight(12)
-	local left = bar:CreateTexture(nil, "OVERLAY")
-	left:SetAtlas("objectivewidget-bar-border-left")
-	left:SetPoint("TOPLEFT")
-	left:SetSize(8, 22)
-	local right = bar:CreateTexture(nil, "OVERLAY")
-	right:SetAtlas("objectivewidget-bar-border-right")
-	right:SetPoint("TOPRIGHT")
-	right:SetSize(8, 22)
-	local middle = bar:CreateTexture(nil, "OVERLAY")
-	middle:SetAtlas("objectivewidget-bar-border-middle")
-	middle:SetPoint("TOPLEFT", left, "TOPRIGHT")
-	middle:SetPoint("BOTTOMRIGHT", right, "BOTTOMLEFT")
-	for index = 1, ticks - 1 do
-		local tick = bar:CreateTexture(nil, "OVERLAY", nil, 1)
-		tick:SetAtlas("ui-frame-bar-bordertick")
-		tick:SetSize(10, 24)
-		tick:SetPoint("TOP", bar, "TOPLEFT", width * index / ticks, 1)
-	end
+function Art.ObjectiveBar(parent, width)
+	local bar = Art.StatusBar(parent, width) --[[@as FGObjectiveBar]]
 	function bar:SetFraction(fraction)
-		local filled = (width - 8) * math.max(0, math.min(1, fraction))
-		self.Fill:SetWidth(math.max(1, filled))
-		self.Fill:SetShown(filled > 0)
+		self:SetFillPercent(fraction)
+		self.Fill:SetShown(fraction > 0)
 	end
 	bar:SetFraction(0)
 	return bar
+end
+
+-- The options list's horizontal rule at its native one-pixel height, drawn to the width of the surface it closes.
+---@param parent Frame
+---@param width number
+---@return Texture
+function Art.Divider(parent, width)
+	local divider = parent:CreateTexture(nil, "BORDER")
+	divider:SetAtlas("Options_HorizontalDivider", true)
+	divider:SetWidth(width)
+	return divider
 end
 
 -- An icon in the Collections journal's item border: gold when collected, grey when not.
@@ -882,6 +863,7 @@ end
 -- scaled to the frame's width and clipped to it.
 ---@class FGZoneMap : Frame
 ---@field tiles Texture[]
+---@field markers Texture[]
 
 ---@param parent Frame
 ---@param width number
@@ -892,13 +874,18 @@ function Art.ZoneMap(parent, width, height)
 	map:SetSize(width, height)
 	map:SetClipsChildren(true)
 	map.tiles = {}
+	map.markers = {}
 	return map
 end
 
+-- Fill the inset with the layer at its own aspect (cover, centred) so no zone is squashed into another's shape. Tiles
+-- are cropped to the layer's real extent, and the last column and row may be partial. `points` are 0..1 coordinates
+-- with north at y=0, drawn as the client's map pin.
 ---@param map FGZoneMap
 ---@param uiMapID integer?
+---@param points { [1]: number, [2]: number }[]?
 ---@return boolean drawn
-function Art.SetZoneMap(map, uiMapID)
+function Art.SetZoneMap(map, uiMapID, points)
 	local used = 0
 	local function Place(file, x, y, w, h, right, bottom, sublevel)
 		used = used + 1
@@ -918,16 +905,43 @@ function Art.SetZoneMap(map, uiMapID)
 	local layers = uiMapID and C_Map and C_Map.GetMapArtLayers and C_Map.GetMapArtLayers(uiMapID)
 	local info = layers and layers[1]
 	local files = info and uiMapID and C_Map.GetMapArtLayerTextures(uiMapID, 1)
+	local offsetX, offsetY, scale = 0, 0, 1
+	local drawn = false
 	if info and files and #files > 0 then
-		local scale = map:GetWidth() / info.layerWidth
+		drawn = true
+		scale = math.max(map:GetWidth() / info.layerWidth, map:GetHeight() / info.layerHeight)
+		offsetX = (map:GetWidth() - info.layerWidth * scale) / 2
+		offsetY = (map:GetHeight() - info.layerHeight * scale) / 2
 		local tileW, tileH = info.tileWidth, info.tileHeight
 		local columns = math.ceil(info.layerWidth / tileW)
-		for index, file in ipairs(files) do
+		for index = 1, #files do
+			local file = files[index]
 			local column, row = (index - 1) % columns, math.floor((index - 1) / columns)
-			Place(file, column * tileW * scale, row * tileH * scale, tileW * scale, tileH * scale, 1, 1, 0)
+			local pixelW = math.min(tileW, info.layerWidth - column * tileW)
+			local pixelH = math.min(tileH, info.layerHeight - row * tileH)
+			if pixelW > 0 and pixelH > 0 then
+				local fileW, fileH = 16, 16
+				while fileW < pixelW do
+					fileW = fileW * 2
+				end
+				while fileH < pixelH do
+					fileH = fileH * 2
+				end
+				Place(
+					file,
+					offsetX + column * tileW * scale,
+					offsetY + row * tileH * scale,
+					pixelW * scale,
+					pixelH * scale,
+					pixelW / fileW,
+					pixelH / fileH,
+					0
+				)
+			end
 		end
 		for _, overlay in ipairs(ns.ClientData.mapOverlays[uiMapID] or {}) do
-			local offsetX, offsetY, overlayW, overlayH, ids = overlay[1], overlay[2], overlay[3], overlay[4], overlay[5]
+			local overlayX, overlayY, overlayW, overlayH, ids =
+				overlay[1], overlay[2], overlay[3], overlay[4], overlay[5]
 			local wide, tall = math.ceil(overlayW / tileW), math.ceil(overlayH / tileH)
 			for row = 1, tall do
 				local pixelH = row < tall and tileH or (overlayH - (tall - 1) * tileH)
@@ -945,8 +959,8 @@ function Art.SetZoneMap(map, uiMapID)
 					if file then
 						Place(
 							file,
-							(offsetX + tileW * (column - 1)) * scale,
-							(offsetY + tileH * (row - 1)) * scale,
+							offsetX + (overlayX + tileW * (column - 1)) * scale,
+							offsetY + (overlayY + tileH * (row - 1)) * scale,
 							pixelW * scale,
 							pixelH * scale,
 							pixelW / fileW,
@@ -961,5 +975,30 @@ function Art.SetZoneMap(map, uiMapID)
 	for index = used + 1, #map.tiles do
 		map.tiles[index]:Hide()
 	end
-	return used > 0
+	local usedMarkers = 0
+	if drawn and info then
+		for _, point in ipairs(points or {}) do
+			usedMarkers = usedMarkers + 1
+			local marker = map.markers[usedMarkers]
+			if not marker then
+				marker = map:CreateTexture(nil, "OVERLAY")
+				marker:SetAtlas("Waypoint-MapPin-Tracked")
+				map.markers[usedMarkers] = marker
+			end
+			marker:SetSize(13, 16)
+			marker:ClearAllPoints()
+			marker:SetPoint(
+				"CENTER",
+				map,
+				"TOPLEFT",
+				offsetX + point[1] * info.layerWidth * scale,
+				-(offsetY + point[2] * info.layerHeight * scale)
+			)
+			marker:Show()
+		end
+	end
+	for index = usedMarkers + 1, #map.markers do
+		map.markers[index]:Hide()
+	end
+	return drawn or false
 end

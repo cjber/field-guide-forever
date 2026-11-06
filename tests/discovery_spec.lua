@@ -119,6 +119,17 @@ local function GuidFor(ns, tier, salt, npcId)
 	error("no GUID rolls " .. tier)
 end
 
+local function GuidForSize(ns, salt, predicate, tier)
+	for index = 1, 1000000 do
+		local guid = "Creature-0-1-0-1-1001-" .. salt .. string.format("%010X", index)
+		local size = ns.Model.SpawnSize(guid)
+		if (tier == nil or ns.Model.SpawnTier(guid) == tier) and size and predicate(size) then
+			return guid
+		end
+	end
+	error("no GUID rolls the wanted size")
+end
+
 -- Every sound this view plays is either the first-kill line's page turn or a toast's achievement chime.
 local function OnlyJournalSounds(label)
 	for _, sound in ipairs(Mock.sounds) do
@@ -148,6 +159,29 @@ h:Kill("Plainstrider", 1001, bronzeGuid)
 h:RunTimers()
 equal(#Mock.messages, 1, "a second kill of a known creature shows nothing")
 
+-- A new personal size record is a small line through the same discovery path; a Tiny or Giant spawn is a toast.
+local firstSize = ns.Model.SpawnSize(bronzeGuid)
+local recordGuid = GuidForSize(ns, "record", function(size)
+	return size ~= firstSize and size >= ns.Model.SIZE_TINY and size <= ns.Model.SIZE_GIANT
+end, "bronze")
+h:Kill("Plainstrider", 1001, recordGuid)
+h:RunTimers()
+equal(#Mock.messages, 2, "a new size record shows a line")
+equal(
+	Mock.messages[2].text,
+	"New size record: Plainstrider " .. ns.Model.FormatSize(ns.Model.SpawnSize(recordGuid)),
+	"the line names the creature and its size"
+)
+local tinyGuid = GuidForSize(ns, "tiny", function(size)
+	return size < ns.Model.SIZE_TINY
+end, "bronze")
+h:Kill("Plainstrider", 1001, tinyGuid)
+h:RunTimers()
+equal(#Mock.alerts, 1, "a Tiny spawn gets the achievement toast")
+equal(Mock.alerts[1].Unlocked:GetText(), "Tiny found", "the toast names the tail")
+equal(Mock.alerts[1].Name:GetText(), "Tiny Plainstrider!", "the toast names the creature")
+Mock.alerts[1]:Hide()
+
 -- The New tag survives a reload, and the journal showing the species clears it; opening the journal stops the pulse.
 local migrated = ns.Migrate({
 	version = ns.SCHEMA,
@@ -166,7 +200,7 @@ for _, row in ipairs(ns.List.rows) do
 	end
 end
 
--- The list tags an unseen species with the mount journal's NEW over its glow.
+-- The list tags an unseen species with the mount journal's NEW, with no glow behind it.
 ns.GetCharacterState(false).unseen = { [1001] = true }
 ns.Window.Refresh()
 local tagged
@@ -176,7 +210,7 @@ for _, row in ipairs(ns.List.rows) do
 	end
 end
 equal(tagged.New:GetText(), "NEW", "the tag reads NEW")
-equal(tagged.NewGlow.atlas, "collections-newglow", "the tag sits on the collections glow")
+equal(rawget(tagged, "NewGlow"), nil, "the tag carries no glow")
 
 -- A burst of first kills is one line, naming two and counting the rest, with one sound.
 h = Start()
@@ -200,6 +234,8 @@ equal(silver.Name:GetText(), "Dishu", "silver toast names the creature")
 equal(silver.id, nil, "the toast carries no achievement")
 equal(silver.Shield:IsShown(), false, "the points shield is hidden")
 equal(silver.Background.atlas, "ui-achievement-alert-background", "silver uses the standard toast art")
+equal(silver.glow:IsShown(), false, "the toast has no glow")
+equal(silver.shine:IsShown(), false, "the toast has no shine")
 equal(silver.Icon.Texture._texture, ns.Art.SpeciesIcon("Dishu", 1019), "the toast shows the journal's icon")
 equal(zone.Unlocked:GetText(), "Zone complete", "zone heading")
 equal(zone.Name:GetText(), "The Barrens: every creature recorded", "zone toast names the zone")
@@ -244,6 +280,8 @@ local shiny = Mock.alerts[1]
 equal(shiny.Unlocked:GetText(), "Shiny found", "shiny heading")
 equal(shiny.Name:GetText(), "Shiny Plainstrider!", "shiny names the creature")
 equal(shiny.Background.atlas, "ui-achievement-guild-background", "a shiny takes the larger guild art")
+equal(shiny.glow:IsShown(), false, "the shiny toast has no glow")
+equal(shiny.shine:IsShown(), false, "the shiny toast has no shine")
 equal(shiny.GuildBanner:IsShown(), false, "without a guild banner")
 equal(Count(Mock.sounds, ACHIEVEMENT), 1, "the shiny toast plays the achievement chime once")
 OnlyJournalSounds("the shiny toast plays no loot sound")
