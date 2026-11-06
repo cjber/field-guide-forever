@@ -181,9 +181,11 @@ end
 
 ---@param parent Frame
 local function BuildBottom(parent)
+	-- The footer is two rows: the zone's name and count, then the client's 29-high progress bar with the variant
+	-- totals and the two buttons level with it.
 	local bar = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
 	bar:SetPoint("BOTTOMLEFT", 18, 12)
-	bar:SetSize(924, 58)
+	bar:SetSize(924, 66)
 	Window.bottomBar = bar
 
 	local label = Art.Text(bar, "GameFontNormalLarge", "gold")
@@ -198,8 +200,8 @@ local function BuildBottom(parent)
 	Window.progressCount:SetWidth(120)
 	Window.progressCount:SetJustifyH("RIGHT")
 
-	Window.progressBar = Art.StatusBar(bar, 320, 12, 1)
-	Window.progressBar:SetPoint("TOPLEFT", 14, -32)
+	Window.progressBar = Art.StatusBar(bar, 320)
+	Window.progressBar:SetPoint("TOPLEFT", 14, -29)
 
 	-- How many of this zone's species have each standout variant: its quality mark, then the count.
 	Window.totals = {}
@@ -210,7 +212,7 @@ local function BuildBottom(parent)
 		if previous then
 			icon:SetPoint("LEFT", previous, "RIGHT", 20, 0)
 		else
-			icon:SetPoint("LEFT", bar, "TOPLEFT", 370, -29)
+			icon:SetPoint("LEFT", bar, "TOPLEFT", 370, -30)
 		end
 		local value = Art.Text(bar, "GameFontHighlightLarge", "text")
 		value:SetPoint("LEFT", icon, "RIGHT", 4, 0)
@@ -219,14 +221,14 @@ local function BuildBottom(parent)
 	end
 
 	Window.openButton = MakeButton(bar, L["Open Journal"], 120, false)
-	Window.openButton:SetPoint("TOPRIGHT", -140, -16)
+	Window.openButton:SetPoint("TOPRIGHT", -140, -30)
 	Window.openButton:SetScript("OnClick", function()
 		Window.Show()
 		Window.SetTab("creatures")
 	end)
 
 	Window.trackButton = MakeButton(bar, L["Track Species"], 120, true)
-	Window.trackButton:SetPoint("TOPRIGHT", -12, -16)
+	Window.trackButton:SetPoint("TOPRIGHT", -12, -30)
 	Window.trackButton:SetScript("OnClick", function()
 		Window.ToggleTrack()
 	end)
@@ -317,7 +319,7 @@ local function UpdateProgress()
 	local percent = math.floor(progress.fraction * 100 + 0.5)
 	Window.progressText:SetText(string.format(L["%d%%"], percent))
 	Window.progressCount:SetText(string.format(L["%d of %d"], progress.catalogued, progress.total))
-	Window.progressBar:SetValue(progress.fraction)
+	Window.progressBar:SetFillPercent(progress.fraction)
 	local totals = ns.Model.TierTotals(state, zone.species)
 	for tier, widgets in pairs(Window.totals) do
 		widgets.value:SetText(tostring(totals[tier]))

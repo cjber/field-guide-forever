@@ -21,7 +21,6 @@ local SLOT_SPAN = (PANE_WIDTH - SECTION_X * 2) / 4
 local LOWER_Y = -340
 local RECORDS_WIDTH = 250
 local HABITAT_X = SECTION_X + RECORDS_WIDTH + 20
-local HABITAT_WIDTH = PANE_WIDTH - SECTION_X - HABITAT_X
 -- A zone map is 1002 by 668; the frame shows all of it at that aspect, inside the inset's 3 edge.
 local MAP_WIDTH, MAP_HEIGHT = 174, 116
 local SIDE_X = HABITAT_X + MAP_WIDTH + 16
@@ -38,7 +37,6 @@ local RECORD_ROW_HEIGHT = 18
 local currentMap
 
 ---@class FGVariantSlot : Frame
----@field Glow Texture
 ---@field Border Texture
 ---@field Icon Texture
 ---@field Title FontString
@@ -55,12 +53,6 @@ local function CreateSlot(parent, tier, index)
 	slot.Border = slot:CreateTexture(nil, "ARTWORK")
 	slot.Border:SetSize(SLOT_SIZE, SLOT_SIZE)
 	slot.Border:SetPoint("TOP", slot, "TOP", 0, 0)
-	slot.Glow = slot:CreateTexture(nil, "BACKGROUND")
-	slot.Glow:SetAtlas("collections-upgradeglow")
-	slot.Glow:SetBlendMode("ADD")
-	slot.Glow:SetSize(SLOT_SIZE + 52, SLOT_SIZE + 52)
-	slot.Glow:SetPoint("CENTER", slot.Border, "CENTER")
-	slot.Glow:Hide()
 	slot.Icon = slot:CreateTexture(nil, "OVERLAY")
 	slot.Icon:SetPoint("CENTER", slot.Border, "CENTER")
 	Art.PaintTierIcon(slot.Icon, tier, SLOT_MARK)
@@ -85,15 +77,13 @@ function Detail.Create(parent)
 	parent = content
 	currentMap = nil
 
-	-- The Pet Journal's own card behind the creature, closed by the Challenge Mode divider.
+	-- The Pet Journal's own card behind the creature, closed by the options list's rule.
 	local card = parent:CreateTexture(nil, "BACKGROUND", nil, 1)
 	card:SetAtlas("PetJournal-PetCard-BG")
 	card:SetPoint("TOPLEFT", 4, -4)
 	card:SetSize(PANE_WIDTH - 8, CARD_HEIGHT)
-	local divider = parent:CreateTexture(nil, "BORDER")
-	divider:SetAtlas("ChallengeMode-ThinDivider")
-	divider:SetPoint("TOPLEFT", 4, -4 - CARD_HEIGHT + 1)
-	divider:SetSize(PANE_WIDTH - 8, 3)
+	local divider = Art.Divider(parent, PANE_WIDTH - 8)
+	divider:SetPoint("TOPLEFT", 4, -4 - CARD_HEIGHT)
 
 	Detail.portrait, Detail.portraitBorder = Art.BorderedIcon(parent, PORTRAIT_BORDER)
 	Detail.portrait:SetPoint("TOPLEFT", parent, "TOPLEFT", 24, -22)
@@ -117,12 +107,12 @@ function Detail.Create(parent)
 	Detail.specimenCount:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -24, -80)
 	Detail.specimenCount:SetWidth(220)
 	Detail.specimenCount:SetJustifyH("RIGHT")
-	Detail.specimenBar = Art.ObjectiveBar(parent, BAR_WIDTH, #PIPS)
+	Detail.specimenBar = Art.ObjectiveBar(parent, BAR_WIDTH)
 	Detail.specimenBar:SetPoint("TOPLEFT", parent, "TOPLEFT", TEXT_X, -100)
 	Detail.pips = {}
 	for index, pip in ipairs(PIPS) do
 		local label = Art.Text(parent, "GameFontHighlightSmall", "muted")
-		label:SetPoint("TOPLEFT", parent, "TOPLEFT", TEXT_X + (index - 1) * BAR_WIDTH / #PIPS, -126)
+		label:SetPoint("TOPLEFT", parent, "TOPLEFT", TEXT_X + (index - 1) * BAR_WIDTH / #PIPS, -132)
 		label:SetWidth(BAR_WIDTH / #PIPS)
 		label:SetJustifyH("CENTER")
 		label:SetText(L[pip])
@@ -134,14 +124,14 @@ function Detail.Create(parent)
 	Detail.hint:SetJustifyH("LEFT")
 	Detail.hint:SetText(L["Defeat one to add it, then watch for its rarer variants."])
 
-	Detail.variantsBand, Detail.variantsTitle = Art.Header(parent, L["Variants"], 300)
+	Detail.variantsBand, Detail.variantsTitle = Art.Header(parent, L["Variants"])
 	Detail.variantsBand:SetPoint("TOPLEFT", parent, "TOPLEFT", SECTION_X, VARIANTS_Y)
 	Detail.slots = {}
 	for index, entry in ipairs(LADDER) do
 		Detail.slots[entry.tier] = CreateSlot(parent, entry.tier, index)
 	end
 
-	Detail.recordsBand, Detail.recordsTitle = Art.Header(parent, L["Records"], RECORDS_WIDTH)
+	Detail.recordsBand, Detail.recordsTitle = Art.Header(parent, L["Records"])
 	Detail.recordsBand:SetPoint("TOPLEFT", parent, "TOPLEFT", SECTION_X, LOWER_Y)
 	Detail.records = {}
 	for index = 1, RECORD_ROWS do
@@ -180,10 +170,10 @@ function Detail.Create(parent)
 		Detail.recordBadges[key] = badge
 	end
 
-	Detail.habitatBand, Detail.habitatTitle = Art.Header(parent, L["Habitat"], HABITAT_WIDTH)
+	Detail.habitatBand, Detail.habitatTitle = Art.Header(parent, L["Habitat"])
 	Detail.habitatBand:SetPoint("TOPLEFT", parent, "TOPLEFT", HABITAT_X, LOWER_Y)
 	Detail.location = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
-	Detail.location:SetPoint("TOPLEFT", HABITAT_X, LOWER_Y - 38)
+	Detail.location:SetPoint("TOPLEFT", HABITAT_X, LOWER_Y - 40)
 	Detail.location:SetSize(MAP_WIDTH + 6, MAP_HEIGHT + 6)
 	Detail.map = Art.ZoneMap(Detail.location, MAP_WIDTH, MAP_HEIGHT)
 	Detail.map:SetPoint("TOPLEFT", 3, -3)
@@ -193,12 +183,12 @@ function Detail.Create(parent)
 	Detail.locationArt:SetSize(MAP_WIDTH, MAP_HEIGHT)
 	Detail.locationArt:SetTexCoord(0, 1, 0, 1)
 	Detail.locationName = Art.Text(parent, "GameFontNormalLarge", "gold")
-	Detail.locationName:SetPoint("TOPLEFT", SIDE_X, LOWER_Y - 42)
+	Detail.locationName:SetPoint("TOPLEFT", SIDE_X, LOWER_Y - 44)
 	Detail.locationName:SetWidth(SIDE_WIDTH)
 	Detail.locationName:SetJustifyH("LEFT")
 	Detail.locationName:SetMaxLines(3)
 	Detail.mapButton = CreateFrame("Button", nil, parent, "SharedButtonSmallTemplate")
-	Detail.mapButton:SetPoint("TOPLEFT", SIDE_X, LOWER_Y - 38 - MAP_HEIGHT + 18)
+	Detail.mapButton:SetPoint("TOPLEFT", SIDE_X, LOWER_Y - 40 - MAP_HEIGHT + 18)
 	Detail.mapButton:SetSize(SIDE_WIDTH, 24)
 	Detail.mapButton:SetText(L["Open map"])
 	Detail.mapButton:SetScript("OnClick", function()
@@ -319,7 +309,6 @@ local function UpdateVariants(character, species)
 		slot.Icon:SetDesaturated(not variant.known)
 		local shade = variant.known and 1 or 0.35
 		slot.Icon:SetVertexColor(shade, shade, shade, variant.known and 1 or 0.8)
-		slot.Glow:SetShown(variant.known and info.tier == "shiny")
 		slot.Title:SetText(TierName(info.tier))
 		if variant.known then
 			local r, g, b = Art.RGBA(info.tier, 1)

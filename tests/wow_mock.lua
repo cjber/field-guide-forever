@@ -153,9 +153,23 @@ function methods:GetModelFileID()
 	return rawget(self, "modelFileID")
 end
 
+-- Native atlas sizes for the set-1 art the addon inherits, so useAtlasSize sets a real size in the headless client
+-- exactly as the template does in game.
+local ATLAS_SIZES = {
+	["UI-Character-Info-Title"] = { 201, 32 },
+	["Options_HorizontalDivider"] = { 630, 1 },
+	["common-stat-bar-BG"] = { 67, 29 },
+	["common-stat-bar-white"] = { 240, 15 },
+	["common-stat-bar-Mask"] = { 67, 29 },
+}
+
 function methods:SetAtlas(atlas, useAtlasSize)
 	self.atlas = atlas
 	self.atlasUseSize = useAtlasSize and true or false
+	local size = ATLAS_SIZES[atlas]
+	if useAtlasSize and size then
+		self._width, self._height = size[1], size[2]
+	end
 end
 
 function methods:GetAtlas()
@@ -920,6 +934,24 @@ function Mock.Harness(opts)
 				return false
 			end
 			Mock.trackerSections[#Mock.trackerSections + 1] = created
+		end
+		if template == "ColoredProgressBarTemplate" then
+			-- Blizzard_SharedXML/Camelot/ProgressBars/ColoredProgressBar.xml and .lua: the bar's own regions and the
+			-- mixin method that lengthens the fill.
+			created.Fill = NewRegion("Texture", nil, created)
+			created.Fill:SetAtlas("common-stat-bar-white", true)
+			created.Mask = NewRegion("Texture", nil, created)
+			created.Mask:SetAtlas("common-stat-bar-Mask", true)
+			created.Text = NewRegion("FontString", nil, created)
+			created.SetFillWidth = function(self, fillWidth)
+				self.Fill:SetWidth(fillWidth)
+			end
+			created.SetFillPercent = function(self, percent)
+				local fraction = math.min(1, math.max(0, percent or 0))
+				self.fillPercent = fraction
+				self:SetFillWidth(fraction * (self:GetWidth() or 0))
+				self.Fill:SetTexCoord(0, fraction, 1, 0)
+			end
 		end
 		if template == "LargeSideTabButtonTemplate" then
 			created.Icon = NewRegion("Texture", nil, created)

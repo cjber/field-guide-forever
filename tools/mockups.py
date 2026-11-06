@@ -29,7 +29,7 @@ from typing import Any, NotRequired, TypedDict
 
 from gen_creature_icons import model_paths
 from gen_mock_catalogue import EXTRACTED, FIXTURE
-from PIL import Image  # ty: ignore[unresolved-import]
+from PIL import Image, ImageChops  # ty: ignore[unresolved-import]
 from ui_art import BUILD as ART_BUILD
 
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
@@ -114,10 +114,11 @@ TAB_TOOLTIPS = (
 
 W, H = 960, 700
 # UI/Window.lua's shell geometry, and the only place these numbers live in this file: the bottom bar is 924 wide at
-# BOTTOMLEFT (18, 12), and each button is anchored to the bar's TOPRIGHT by its right inset, exactly as the addon
-# anchors them. Drawing from the same arithmetic the Lua does is what keeps a render from drifting off the frame.
-BAR_X, BAR_Y, BAR_W, BAR_H = 18, H - 12 - 58, 924, 58
-BUTTON_H, BUTTON_TOP = 26, 16
+# BOTTOMLEFT (18, 12), with the label row over the client's 29-high progress bar, and each button is anchored to the
+# bar's TOPRIGHT by its right inset, exactly as the addon anchors them. Drawing from the same arithmetic the Lua does
+# is what keeps a render from drifting off the frame.
+BAR_X, BAR_Y, BAR_W, BAR_H = 18, H - 12 - 66, 924, 66
+BUTTON_H, BUTTON_TOP = 26, 30
 OPEN_W, OPEN_RIGHT = 120, 140
 TRACK_W, TRACK_RIGHT = 120, 12
 OPEN_X = BAR_X + BAR_W - OPEN_RIGHT - OPEN_W
@@ -144,7 +145,6 @@ SLOT_SIZE, SLOT_MARK = 70, 46
 SLOT_SPAN = (PANE_W - SECTION_X * 2) / 4
 RECORDS_W = 250
 HABITAT_X = SECTION_X + RECORDS_W + 20
-HABITAT_W = PANE_W - SECTION_X - HABITAT_X
 MAP_W, MAP_H = 174, 116
 SIDE_X = HABITAT_X + MAP_W + 16
 SIDE_W = PANE_W - SECTION_X - SIDE_X
@@ -428,24 +428,35 @@ def bordered_icon(canvas, image, x, y, icon_size, border, collected, shade=1.0, 
     canvas.draw(canvas.ui.atlas(atlas), x - edge, y - edge, border, border)
 
 
-def header(canvas, x, y, width, label):
-    """Art.Header: the quest tracker's header band at its 30 height, the title centred on it 7 in."""
-    canvas.draw(canvas.ui.atlas("UI-QuestTracker-Secondary-Objective-Header"), x, y, width, 30)
-    text(canvas, x + 7, y, label, "GameFontNormalLarge", GOLD, box_height=30)
+def header(canvas, x, y, label):
+    """Art.Header: the character sheet's title plate at its own 201 by 32, the title centred."""
+    canvas.draw(canvas.ui.atlas("UI-Character-Info-Title"), x, y, 201, 32)
+    canvas.text(x, y + 1, label, FONTS["GameFontNormalLarge"], GOLD, box_height=32, justify="CENTER", width=201)
 
 
-def objective_bar(canvas, x, y, width, ticks, fraction):
-    """Art.ObjectiveBar: the world quest bar's track, yellow fill, three-piece border and a tick per quarter."""
+def divider(canvas, x, y, width):
+    """Art.Divider: the options list's one-pixel rule, drawn to the width of the surface it closes."""
+    canvas.draw(canvas.ui.atlas("Options_HorizontalDivider"), x, y, width, 1)
+
+
+def progress_bar(canvas, x, y, width, fraction):
+    """Art.StatusBar and Art.ObjectiveBar: ColoredProgressBarTemplate at its own 29 height. The white fill is
+    cropped to the fraction and masked by the bar's own mask, exactly as ColoredProgressBarMixin:SetFillPercent
+    lengthens it."""
     ui = canvas.ui
-    canvas.draw(ui.atlas("objectivewidget-bar-background"), x + 4, y + 5, width - 8, 12)
-    filled = (width - 8) * max(0, min(1, fraction))
-    if filled > 0:
-        canvas.draw(ui.atlas("ui-frame-bar-fill-yellow"), x + 4, y + 5, filled, 12)
-    canvas.draw(ui.atlas("objectivewidget-bar-border-left"), x, y, 8, 22)
-    canvas.draw(ui.atlas("objectivewidget-bar-border-middle"), x + 8, y, width - 16, 22)
-    canvas.draw(ui.atlas("objectivewidget-bar-border-right"), x + width - 8, y, 8, 22)
-    for index in range(1, ticks):
-        canvas.draw(ui.atlas("ui-frame-bar-bordertick"), x + width * index / ticks - 5, y - 1, 10, 24)
+    canvas.draw(ui.atlas("common-stat-bar-BG"), x, y, width, 29)
+    fraction = max(0.0, min(1.0, fraction))
+    if not fraction:
+        return
+    filled = width * fraction
+    white = ui.atlas("common-stat-bar-white")
+    source = white.image.crop((0, 0, round(white.image.width * fraction), white.image.height))
+    fill = ui.canvas(filled, 15)
+    fill.draw(source, 0, 0, filled, 15, GOLD)
+    mask = ui.atlas("common-stat-bar-Mask").image.resize((canvas.px(width), canvas.px(29)), Image.Resampling.LANCZOS)
+    cut = mask.crop((0, canvas.px(7), fill.image.width, canvas.px(7) + fill.image.height))
+    fill.image.putalpha(ImageChops.multiply(fill.image.getchannel("A"), cut.getchannel("A")))
+    canvas.paste(fill, x, y + 7)
 
 
 ZONE_MAPS: dict[int, Any] = {}
@@ -517,14 +528,6 @@ def habitat_markers(points):
             cell[1] += y
             cell[2] += 1
     return sorted((x / count / 100, y / count / 100) for x, y, count in cells.values())
-
-
-def status_bar(canvas, x, y, w, h, fraction):
-    """Art.StatusBar: the ColoredProgressBarTemplate art, the gold-tinted white fill over its background atlas."""
-    canvas.draw(canvas.ui.atlas("common-stat-bar-BG"), x, y, w, h)
-    filled = w * max(0, min(1, fraction))
-    if filled:
-        canvas.draw(canvas.ui.atlas("common-stat-bar-white"), x, y, filled, h, GOLD)
 
 
 def card(canvas, x, y, w, h, border=None):
@@ -773,15 +776,15 @@ def window(ui, zone, species, tab, icons, sigil, filter_key=None, tracked=False,
     label_w = canvas.text_width(label, FONTS["GameFontNormalLarge"])
     text(canvas, bx + 14 + label_w + 10, by + 8, f"{round(fraction * 100)}%", "GameFontNormalLarge", GOLD)
     right(canvas, bx + 334, by + 10, f"{catalogued} of {len(zone['species'])}", "GameFontHighlight", MUTED)
-    status_bar(canvas, bx + 14, by + 32, 320, 12, fraction)
-    note("Bottom progress", "progress", bx + 14, by + 32, 320, 12)
+    progress_bar(canvas, bx + 14, by + 29, 320, fraction)
+    note("Bottom progress", "progress", bx + 14, by + 29, 320, 29)
     x = bx + 370
     for tier in ("silver", "gold", "shiny"):
         value = str(sum(1 for s in zone["species"] if progress(s)[tier]))
-        tier_icon(canvas, tier, x, by + 16, 26)
-        text(canvas, x + 30, by + 16, value, "GameFontHighlightLarge", TEXT, box_height=26)
+        tier_icon(canvas, tier, x, by + 30, 26)
+        text(canvas, x + 30, by + 30, value, "GameFontHighlightLarge", TEXT, box_height=26)
         x += 30 + canvas.text_width(value, FONTS["GameFontHighlightLarge"]) + 20
-    note("Variant totals", "label", bx + 370, by + 16, x - 20 - bx - 370, 26)
+    note("Variant totals", "label", bx + 370, by + 30, x - 20 - bx - 370, 26)
     button_y = by + BUTTON_TOP
     ui_panel_button(canvas, px(OPEN_X), button_y, OPEN_W, BUTTON_H, "Open Journal")
     note("Open Journal", "button", px(OPEN_X), button_y, OPEN_W, BUTTON_H)
@@ -832,7 +835,7 @@ def detail(canvas, rx, ry, zone, species, icons):
     card(canvas, rx, ry, PANE_W, PANE_H)
     note("Detail pane", "pane", rx, ry, PANE_W, PANE_H)
     canvas.draw(ui.atlas("PetJournal-PetCard-BG"), rx + 4, ry + 4, PANE_W - 8, CARD_H)
-    canvas.draw(ui.atlas("ChallengeMode-ThinDivider"), rx + 4, ry + 4 + CARD_H - 1, PANE_W - 8, 3)
+    divider(canvas, rx + 4, ry + 4 + CARD_H, PANE_W - 8)
     bordered_icon(canvas, icons[species["id"]], rx + 24, ry + 22, 72, 90, known, 1 if known else 0.12, not known)
     note("Detail portrait", "content", rx + 15, ry + 13, 90, 90, parent="Detail pane")
 
@@ -845,15 +848,15 @@ def detail(canvas, rx, ry, zone, species, icons):
     if known:
         text(canvas, tx, ry + 78, PIPS[rank - 1], "GameFontNormalLarge", GOLD)
         right(canvas, rx + PANE_W - 24, ry + 80, f"{count} / {MASTERED_AT} sightings", "GameFontHighlight", width=220)
-        objective_bar(canvas, tx, ry + 100, BAR_WIDTH, len(PIPS), fraction_of_ranks(count))
-        note("Research bar", "progress", tx, ry + 100, BAR_WIDTH, 22, parent="Detail pane")
+        progress_bar(canvas, tx, ry + 100, BAR_WIDTH, fraction_of_ranks(count))
+        note("Research bar", "progress", tx, ry + 100, BAR_WIDTH, 29, parent="Detail pane")
         span = BAR_WIDTH / len(PIPS)
         for pip_index, label in enumerate(PIPS):
             colour = TEXT if rank > pip_index else MUTED
             text(
                 canvas,
                 tx + pip_index * span,
-                ry + 126,
+                ry + 132,
                 label,
                 "GameFontHighlightSmall",
                 colour,
@@ -872,22 +875,12 @@ def detail(canvas, rx, ry, zone, species, icons):
             width=BAR_WIDTH,
         )
 
-    header(canvas, rx + SECTION_X, ry + VARIANTS_Y, 300, "Variants")
-    note("Variants heading", "content", rx + SECTION_X, ry + VARIANTS_Y, 300, 30, parent="Detail pane")
+    header(canvas, rx + SECTION_X, ry + VARIANTS_Y, "Variants")
+    note("Variants heading", "content", rx + SECTION_X, ry + VARIANTS_Y, 201, 32, parent="Detail pane")
     for slot_index, (tier, label, _atlas, colour, odds, every) in enumerate(TIERS):
         sx, sy = rx + SECTION_X + slot_index * SLOT_SPAN, ry + VARIANTS_Y + 40
         cx = sx + SLOT_SPAN / 2
         found = bool(state[tier])
-        if found and tier == "shiny":
-            glow = SLOT_SIZE + 52
-            canvas.draw(
-                ui.atlas("collections-upgradeglow"),
-                cx - glow / 2,
-                sy + SLOT_SIZE / 2 - glow / 2,
-                glow,
-                glow,
-                blend="ADD",
-            )
         atlas = "collections-itemborder-collected" if found else "collections-itemborder-uncollected"
         canvas.draw(ui.atlas(atlas), cx - SLOT_SIZE / 2, sy, SLOT_SIZE, SLOT_SIZE)
         tier_icon(canvas, tier, cx - SLOT_MARK / 2, sy + (SLOT_SIZE - SLOT_MARK) / 2, SLOT_MARK, found)
@@ -917,8 +910,8 @@ def detail(canvas, rx, ry, zone, species, icons):
         )
         note(f"{label} variant", "card", sx + 4, sy, SLOT_SPAN - 8, 112)
 
-    header(canvas, rx + SECTION_X, ry + LOWER_Y, RECORDS_W, "Records")
-    note("Records heading", "content", rx + SECTION_X, ry + LOWER_Y, RECORDS_W, 30, parent="Detail pane")
+    header(canvas, rx + SECTION_X, ry + LOWER_Y, "Records")
+    note("Records heading", "content", rx + SECTION_X, ry + LOWER_Y, 201, 32, parent="Detail pane")
     size_smallest = size_largest = None
     if not known:
         pairs = [("Nothing recorded yet.", "")]
@@ -954,12 +947,12 @@ def detail(canvas, rx, ry, zone, species, icons):
             badge_right = badge_x - 4
 
     hx = rx + HABITAT_X
-    header(canvas, hx, ry + LOWER_Y, HABITAT_W, "Habitat")
-    note("Habitat heading", "content", hx, ry + LOWER_Y, HABITAT_W, 30, parent="Detail pane")
+    header(canvas, hx, ry + LOWER_Y, "Habitat")
+    note("Habitat heading", "content", hx, ry + LOWER_Y, 201, 32, parent="Detail pane")
     map_id = zone_map_id(zone)
     image = zone_map(ui, map_id) if map_id > 0 else None
     art_file = None if image else lua_table("LOCATION_ART", r"\[(\d+)\] = (\d+)").get(str(zone["id"]))
-    ly = ry + LOWER_Y + 38
+    ly = ry + LOWER_Y + 40
     if image or art_file:
         card(canvas, hx, ly, MAP_W + 6, MAP_H + 6)
         note("Habitat map", "card", hx, ly, MAP_W + 6, MAP_H + 6)
@@ -974,10 +967,10 @@ def detail(canvas, rx, ry, zone, species, icons):
             canvas.draw(ui.texture(int(art_file)), hx + 3, ly + 3, MAP_W, MAP_H)
     sx = rx + SIDE_X
     lines = wrap_pixels(zone["name"], FONTS["GameFontNormalLarge"], SIDE_W, 3, canvas)
-    text(canvas, sx, ry + LOWER_Y + 42, "\n".join(lines), "GameFontNormalLarge", GOLD)
-    note("Zone name", "content", sx, ry + LOWER_Y + 42, SIDE_W, 18 * len(lines), parent="Detail pane")
+    text(canvas, sx, ry + LOWER_Y + 44, "\n".join(lines), "GameFontNormalLarge", GOLD)
+    note("Zone name", "content", sx, ry + LOWER_Y + 44, SIDE_W, 18 * len(lines), parent="Detail pane")
     if map_id > 0:
-        button_y = ry + LOWER_Y + 38 + MAP_H - 18
+        button_y = ry + LOWER_Y + 40 + MAP_H - 18
         ui_panel_button(canvas, sx, button_y, SIDE_W, 24, "Open map")
         note("Open map", "button", sx, button_y, SIDE_W, 24)
 
@@ -1082,7 +1075,7 @@ def instances_view(ui, canvas, px, py, icons):
     card(canvas, rx, ry, PANE_W, PANE_H)
     note("Instance pane", "pane", rx, ry, PANE_W, PANE_H)
     canvas.draw(ui.atlas("PetJournal-PetCard-BG"), rx + 4, ry + 4, PANE_W - 8, 120)
-    canvas.draw(ui.atlas("ChallengeMode-ThinDivider"), rx + 4, ry + 3 + 120, PANE_W - 8, 3)
+    divider(canvas, rx + 4, ry + 4 + 120, PANE_W - 8)
     bordered_icon(canvas, instance_icon(open_group), rx + 24, ry + 22, 72, 90, True)
     tx = rx + TEXT_X
     text(canvas, tx, ry + 20, open_group["name"], "GameFontHighlightHuge", GOLD, width=BAR_WIDTH)
@@ -1094,8 +1087,8 @@ def instances_view(ui, canvas, px, py, icons):
     text(canvas, tx, ry + 50, sub, "GameFontHighlight", TEXT)
     rows = open_group["rows"]
     text(canvas, tx, ry + 78, f"{open_group['done']} of {len(rows)} bosses recorded", "GameFontNormalLarge", GOLD)
-    header(canvas, rx + 14, ry + 140, 300, "Bosses")
-    note("Bosses heading", "content", rx + 14, ry + 140, 300, 30, parent="Instance pane")
+    header(canvas, rx + 14, ry + 140, "Bosses")
+    note("Bosses heading", "content", rx + 14, ry + 140, 201, 32, parent="Instance pane")
     by_name = {s["name"].lower(): s for s in open_group["species"]}
     boss_w = PANE_W - 46
     for row_index, row in enumerate(rows):
@@ -1133,10 +1126,10 @@ def instances_view(ui, canvas, px, py, icons):
     text(canvas, bx + 14, by + 8, label, "GameFontNormalLarge", GOLD)
     label_w = canvas.text_width(label, FONTS["GameFontNormalLarge"])
     text(canvas, bx + 14 + label_w + 10, by + 8, f"{cleared} of {len(groups)}", "GameFontNormalLarge", GOLD)
-    status_bar(canvas, bx + 14, by + 32, 320, 12, cleared / len(groups))
-    note("Cleared progress", "progress", bx + 14, by + 32, 320, 12)
+    progress_bar(canvas, bx + 14, by + 29, 320, cleared / len(groups))
+    note("Cleared progress", "progress", bx + 14, by + 29, 320, 29)
     kills = sum(row["kills"] for group in groups for row in group["rows"])
-    text(canvas, bx + 370, by + 16, f"{kills} boss kills recorded", "GameFontHighlightLarge", TEXT, box_height=26)
+    text(canvas, bx + 370, by + 29, f"{kills} boss kills recorded", "GameFontHighlightLarge", TEXT, box_height=29)
 
 
 ZONE_PAGE_COUNT = 12

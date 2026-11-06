@@ -200,7 +200,7 @@ for _, row in ipairs(ns.List.rows) do
 	end
 end
 
--- The list tags an unseen species with the mount journal's NEW over its glow.
+-- The list tags an unseen species with the mount journal's NEW, with no glow behind it.
 ns.GetCharacterState(false).unseen = { [1001] = true }
 ns.Window.Refresh()
 local tagged
@@ -210,7 +210,7 @@ for _, row in ipairs(ns.List.rows) do
 	end
 end
 equal(tagged.New:GetText(), "NEW", "the tag reads NEW")
-equal(tagged.NewGlow.atlas, "collections-newglow", "the tag sits on the collections glow")
+equal(rawget(tagged, "NewGlow"), nil, "the tag carries no glow")
 
 -- A burst of first kills is one line, naming two and counting the rest, with one sound.
 h = Start()
@@ -234,6 +234,8 @@ equal(silver.Name:GetText(), "Dishu", "silver toast names the creature")
 equal(silver.id, nil, "the toast carries no achievement")
 equal(silver.Shield:IsShown(), false, "the points shield is hidden")
 equal(silver.Background.atlas, "ui-achievement-alert-background", "silver uses the standard toast art")
+equal(silver.glow:IsShown(), false, "the toast has no glow")
+equal(silver.shine:IsShown(), false, "the toast has no shine")
 equal(silver.Icon.Texture._texture, ns.Art.SpeciesIcon("Dishu", 1019), "the toast shows the journal's icon")
 equal(zone.Unlocked:GetText(), "Zone complete", "zone heading")
 equal(zone.Name:GetText(), "The Barrens: every creature recorded", "zone toast names the zone")
@@ -278,6 +280,8 @@ local shiny = Mock.alerts[1]
 equal(shiny.Unlocked:GetText(), "Shiny found", "shiny heading")
 equal(shiny.Name:GetText(), "Shiny Plainstrider!", "shiny names the creature")
 equal(shiny.Background.atlas, "ui-achievement-guild-background", "a shiny takes the larger guild art")
+equal(shiny.glow:IsShown(), false, "the shiny toast has no glow")
+equal(shiny.shine:IsShown(), false, "the shiny toast has no shine")
 equal(shiny.GuildBanner:IsShown(), false, "without a guild banner")
 equal(Count(Mock.sounds, ACHIEVEMENT), 1, "the shiny toast plays the achievement chime once")
 OnlyJournalSounds("the shiny toast plays no loot sound")

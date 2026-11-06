@@ -678,22 +678,24 @@ function Art.Line(parent, key, alpha)
 	return line
 end
 
--- A plain status bar in the client's ColoredProgressBarTemplate art: the white fill, tinted gold, over the
--- background atlas that carries the bar's own border. Every progress figure in the journal uses this one style.
+-- The client's own progress bar, inherited from ColoredProgressBarTemplate: its white fill over the frame that carries
+-- the border, masked at both ends. The template is 29 high and its fill 15; only the width changes, through the
+-- template's SetFillPercent, which is the only way the client lengthens one of its bars.
+---@class FGProgressBar : Frame
+---@field Fill Texture
+---@field Mask Texture
+---@field Text FontString
+---@field SetFillPercent fun(self: FGProgressBar, percent: number)
+
 ---@param parent Frame
 ---@param width number
----@param height number
----@param maxValue number
----@return StatusBar
-function Art.StatusBar(parent, width, height, maxValue)
-	local bar = CreateFrame("StatusBar", nil, parent)
-	bar:SetSize(width, height)
-	bar:SetMinMaxValues(0, maxValue)
-	bar:SetStatusBarTexture("common-stat-bar-white")
-	bar:SetStatusBarColor(Art.RGBA("gold", 1))
-	local background = bar:CreateTexture(nil, "BACKGROUND")
-	background:SetAtlas("common-stat-bar-BG")
-	background:SetAllPoints()
+---@return FGProgressBar
+function Art.StatusBar(parent, width)
+	local bar = CreateFrame("Frame", nil, parent, "ColoredProgressBarTemplate") --[[@as FGProgressBar]]
+	bar:SetSize(width, 29)
+	bar.Text:SetText("")
+	bar.Fill:SetVertexColor(Art.RGBA("gold", 1))
+	bar:SetFillPercent(0)
 	return bar
 end
 
@@ -793,68 +795,47 @@ function Art.PaintTierIcon(texture, tier, size)
 	end
 end
 
--- A section heading as the quest tracker draws one: its header band at the atlas's own height, the title centred on
--- it 7 in from the left (ObjectiveTrackerModuleHeaderTemplate).
+-- A section heading as the character sheet draws one: the client's title plate at its own 201 by 32, the title
+-- centred on it 1 above the middle (CharacterStatFrameCategoryTemplate). Every heading shares that one plate size.
 ---@param parent Frame
 ---@param text string
----@param width number
 ---@return Texture band, FontString title
-function Art.Header(parent, text, width)
+function Art.Header(parent, text)
 	local band = parent:CreateTexture(nil, "BACKGROUND", nil, 2)
-	band:SetAtlas("UI-QuestTracker-Secondary-Objective-Header")
-	band:SetSize(width, 30)
+	band:SetAtlas("UI-Character-Info-Title", true)
 	local title = Art.Text(parent, "GameFontNormalLarge", "gold")
-	title:SetPoint("LEFT", band, "LEFT", 7, 0)
+	title:SetPoint("CENTER", band, "CENTER", 0, 1)
 	title:SetText(text)
 	return band, title
 end
 
--- The world quest progress bar: its dark track, the client's yellow fill and three-piece border, with a tick at each
--- quarter. SetFraction hides the fill at zero, since the client treats a width of 0 as unset.
----@class FGObjectiveBar : Frame
----@field Fill Texture
+-- The progress bar with a fraction instead of a value: the same client template, the fill hidden at zero because the
+-- client treats a zero width as unset.
+---@class FGObjectiveBar : FGProgressBar
 ---@field SetFraction fun(self: FGObjectiveBar, fraction: number)
 
 ---@param parent Frame
 ---@param width number
----@param ticks integer
 ---@return FGObjectiveBar
-function Art.ObjectiveBar(parent, width, ticks)
-	local bar = CreateFrame("Frame", nil, parent) --[[@as FGObjectiveBar]]
-	bar:SetSize(width, 22)
-	local track = bar:CreateTexture(nil, "BACKGROUND")
-	track:SetAtlas("objectivewidget-bar-background")
-	track:SetPoint("TOPLEFT", 4, -5)
-	track:SetPoint("BOTTOMRIGHT", -4, 5)
-	bar.Fill = bar:CreateTexture(nil, "ARTWORK")
-	bar.Fill:SetAtlas("ui-frame-bar-fill-yellow")
-	bar.Fill:SetPoint("TOPLEFT", 4, -5)
-	bar.Fill:SetHeight(12)
-	local left = bar:CreateTexture(nil, "OVERLAY")
-	left:SetAtlas("objectivewidget-bar-border-left")
-	left:SetPoint("TOPLEFT")
-	left:SetSize(8, 22)
-	local right = bar:CreateTexture(nil, "OVERLAY")
-	right:SetAtlas("objectivewidget-bar-border-right")
-	right:SetPoint("TOPRIGHT")
-	right:SetSize(8, 22)
-	local middle = bar:CreateTexture(nil, "OVERLAY")
-	middle:SetAtlas("objectivewidget-bar-border-middle")
-	middle:SetPoint("TOPLEFT", left, "TOPRIGHT")
-	middle:SetPoint("BOTTOMRIGHT", right, "BOTTOMLEFT")
-	for index = 1, ticks - 1 do
-		local tick = bar:CreateTexture(nil, "OVERLAY", nil, 1)
-		tick:SetAtlas("ui-frame-bar-bordertick")
-		tick:SetSize(10, 24)
-		tick:SetPoint("TOP", bar, "TOPLEFT", width * index / ticks, 1)
-	end
+function Art.ObjectiveBar(parent, width)
+	local bar = Art.StatusBar(parent, width) --[[@as FGObjectiveBar]]
 	function bar:SetFraction(fraction)
-		local filled = (width - 8) * math.max(0, math.min(1, fraction))
-		self.Fill:SetWidth(math.max(1, filled))
-		self.Fill:SetShown(filled > 0)
+		self:SetFillPercent(fraction)
+		self.Fill:SetShown(fraction > 0)
 	end
 	bar:SetFraction(0)
 	return bar
+end
+
+-- The options list's horizontal rule at its native one-pixel height, drawn to the width of the surface it closes.
+---@param parent Frame
+---@param width number
+---@return Texture
+function Art.Divider(parent, width)
+	local divider = parent:CreateTexture(nil, "BORDER")
+	divider:SetAtlas("Options_HorizontalDivider", true)
+	divider:SetWidth(width)
+	return divider
 end
 
 -- An icon in the Collections journal's item border: gold when collected, grey when not.

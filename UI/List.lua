@@ -19,13 +19,12 @@ local OVERSCAN = 1
 -- A tagged name gives up room for the tag, so NEW never runs under the variant marks.
 local TAGGED_NAME_WIDTH = 150
 
--- The mount journal's New tag (Blizzard_MountCollection.xml): NEW after the name's text, over collections-newglow.
+-- The mount journal's New tag (Blizzard_MountCollection.xml): NEW after the name's text.
 ---@param row FGListRow
 ---@param shown boolean
 local function SetNew(row, shown)
 	row.Name:SetWidth(shown and TAGGED_NAME_WIDTH or NAME_WIDTH)
 	row.New:SetShown(shown)
-	row.NewGlow:SetShown(shown)
 	if shown then
 		row.New:ClearAllPoints()
 		row.New:SetPoint("LEFT", row.Name, "LEFT", math.min(row.Name:GetStringWidth(), TAGGED_NAME_WIDTH) + 8, 0)
@@ -103,11 +102,6 @@ local function CreateRow(index)
 		row.New:SetShadowColor(NEW_FEATURE_SHADOW_COLOR:GetRGBA())
 	end
 	row.New:Hide()
-	row.NewGlow = row:CreateTexture(nil, "OVERLAY")
-	row.NewGlow:SetAtlas("collections-newglow")
-	row.NewGlow:SetPoint("TOPLEFT", row.New, "TOPLEFT", -20, 10)
-	row.NewGlow:SetPoint("BOTTOMRIGHT", row.New, "BOTTOMRIGHT", 20, -10)
-	row.NewGlow:Hide()
 
 	row.Sub = Art.Text(row, "GameFontHighlight", "muted")
 	row.Sub:SetPoint("TOPLEFT", 58, -30)

@@ -107,7 +107,8 @@ end
 
 -- AchievementAlertFrame_SetUp's two branches, reset on every use because the pool hands frames back in any state:
 -- the shiny takes the guild branch's art (its larger frame) without the guild's name and banner, the rest the
--- standard art. The shield's points hide and the heading centres, as for an achievement already earned.
+-- standard art. The shield's points hide and the heading centres, as for an achievement already earned. The glow and
+-- shine layers stay hidden: the heading names the milestone instead.
 ---@param frame FGToastFrame
 ---@param guild boolean
 local function SetArt(frame, guild)
@@ -117,8 +118,8 @@ local function SetArt(frame, guild)
 	frame.GuildBorder:Hide()
 	frame.Background:SetAtlas(guild and "ui-achievement-guild-background" or "ui-achievement-alert-background", true)
 	frame.Icon.Overlay:SetAtlas(guild and "ui-achievement-guild-iconframe" or "ui-achievement-iconframe", true)
-	frame.glow:SetAtlas(guild and "ui-achievement-guild-glow" or "ui-achievement-glow-glow", true)
-	frame.shine:SetAtlas(guild and "ui-achievement-guild-shine" or "ui-achievement-glow-shine", true)
+	frame.glow:Hide()
+	frame.shine:Hide()
 	frame:SetHeight(guild and 104 or 101)
 	frame.Icon.Overlay:ClearAllPoints()
 	frame.Icon.Overlay:SetPoint("CENTER", guild and 0 or -1, guild and 0 or 1)
@@ -126,8 +127,6 @@ local function SetArt(frame, guild)
 	frame.Icon:SetPoint("TOPLEFT", guild and 0 or -4, guild and -25 or -15)
 	frame.Icon.Texture:ClearAllPoints()
 	frame.Icon.Texture:SetPoint("CENTER", guild and -1 or 0, guild and -2 or 0)
-	frame.shine:ClearAllPoints()
-	frame.shine:SetPoint("BOTTOMLEFT", 0, guild and 16 or 8)
 	frame.Unlocked:ClearAllPoints()
 	frame.Unlocked:SetPoint("TOP", guild and 0 or 27, guild and -38 or -23)
 end

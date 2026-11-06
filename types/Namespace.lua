@@ -177,7 +177,6 @@ function FGSightingLog.List() end
 ---@field Mark Texture the best variant's quality mark, or hidden for an undiscovered species
 ---@field Border Texture
 ---@field New FontString
----@field NewGlow Texture
 ---@field index? integer
 ---@field iconSpecies? integer
 ---@field species? FGSpecies
