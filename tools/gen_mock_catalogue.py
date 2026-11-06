@@ -17,6 +17,8 @@ URL = f"https://github.com/Questie/QuestieDB/releases/download/{TAG}/QuestieDB-F
 ARCHIVE = CACHE / f"QuestieDB-Forever-{TAG}.zip"
 EXTRACTED = CACHE / f"questiedb-{TAG}"
 FIXTURE = CACHE / f"questiedb-mock-catalogue-{TAG}.tsv"
+STAMP = CACHE / f"questiedb-mock-catalogue-{TAG}.stamp"
+EXTRACTOR = ROOT / "tools" / "extract_mock_catalogue.lua"
 
 
 def main() -> None:
@@ -37,6 +39,7 @@ def main() -> None:
         cwd=ROOT,
         check=True,
     )
+    STAMP.write_text(hashlib.sha256(EXTRACTOR.read_bytes()).hexdigest(), encoding="utf-8")
     rows = sum(1 for _ in FIXTURE.open(encoding="utf-8"))
     print(f"Extracted {rows} mock NPC rows from QuestieDB {TAG} ({digest}) into ignored cache.")
 

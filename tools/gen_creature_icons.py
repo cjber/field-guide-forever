@@ -19,6 +19,9 @@ ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / "tools" / ".cache"
 OUT = ROOT / "Data" / "CreatureIcons.lua"
 QUESTIE_TSV = CACHE / "questiedb-mock-catalogue-v1.0.6.tsv"
+QUESTIE_STAMP = CACHE / "questiedb-mock-catalogue-v1.0.6.stamp"
+QUESTIE_ARCHIVE = CACHE / "QuestieDB-Forever-v1.0.6.zip"
+EXTRACTOR = ROOT / "tools" / "extract_mock_catalogue.lua"
 CMANGOS_COMMIT = "77b848e78fe31bdd0c5562922be49a4e8e5e79df"
 CMANGOS_FILE = "ClassicDB_1_12_1_z2815.sql.gz"
 CMANGOS_SHA256 = "4f92db520868ab4e566726f68b5b2e380ae781209beaf22237b4f7f04600d0c0"
@@ -251,12 +254,48 @@ def stem_icon(path: str) -> str | None:
     return None
 
 
+def questie_fixture_is_current() -> bool:
+    """Only reuse the cached fixture when this exact extractor wrote it.
+
+    tools/.cache is restored from the CI cache, and that cache falls back to an older key, so a
+    fixture left by a previous extractor can otherwise survive a tool change and silently become
+    the pin recorded in Data/CreatureIcons.lua.
+    """
+    try:
+        recorded = QUESTIE_STAMP.read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        return False
+    return recorded == hashlib.sha256(EXTRACTOR.read_bytes()).hexdigest()
+
+
 def questie_ids(offline: bool) -> set[int]:
-    if not QUESTIE_TSV.is_file():
-        if offline:
-            raise SystemExit(f"Missing cached QuestieDB mock catalogue: {QUESTIE_TSV}")
+    if not QUESTIE_TSV.is_file() or not questie_fixture_is_current():
+        if offline and not QUESTIE_ARCHIVE.is_file():
+            raise SystemExit(f"Missing cached QuestieDB release: {QUESTIE_ARCHIVE}")
         subprocess.run([sys.executable, "tools/gen_mock_catalogue.py"], cwd=ROOT, check=True)
     return {int(line.split("\t", 1)[0]) for line in QUESTIE_TSV.read_text(encoding="utf-8").splitlines()}
+
+
+NUMBER = re.compile(r"-?\d+(?:\.\d+)?")
+
+
+def canonical_number(match: re.Match[str]) -> str:
+    value = float(match.group(0))
+    return str(int(value)) if value == int(value) else f"{value:.2f}"
+
+
+def questie_fixture_digest() -> str:
+    """Hash the fixture's values rather than its bytes.
+
+    The extractor renders numbers through Lua's own conversions, so two LuaJIT builds can write the
+    same catalogue with different spacing or float precision. Hashing the values keeps the recorded
+    pin tied to the catalogue, not to the machine that rendered it.
+    """
+    rows = []
+    for line in QUESTIE_TSV.read_text(encoding="utf-8").splitlines():
+        fields = [NUMBER.sub(canonical_number, field).strip() for field in line.split("\t")]
+        rows.append("\t".join(fields).rstrip())
+    return hashlib.sha256(("\n".join(rows) + "\n").encode()).hexdigest()
 
 
 def sql_tuples(line: str):
@@ -333,7 +372,7 @@ def generate(offline: bool = False, output: Path = OUT) -> None:
     if missing_fallbacks:
         raise SystemExit(f"UI/Art.lua icon paths missing from pinned listfile: {', '.join(missing_fallbacks)}")
     icon_index = {path: index for index, path in enumerate(icon_paths, 1)}
-    questie_hash = hashlib.sha256(QUESTIE_TSV.read_bytes()).hexdigest()
+    questie_hash = questie_fixture_digest()
     lines = [
         "---@type string, FGNamespace",
         "local _, ns = ...",
