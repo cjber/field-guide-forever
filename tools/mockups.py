@@ -932,7 +932,7 @@ def detail(canvas, rx, ry, zone, species, icons):
         if value:
             right(canvas, rx + SECTION_X + RECORDS_W - 10, y, value, "GameFontHighlight", TEXT, width=RECORDS_W - 152)
     note("Records", "content", rx + SECTION_X, ry + LOWER_Y + 40, RECORDS_W, 18 * len(pairs), parent="Detail pane")
-    if size_smallest is not None:
+    if size_smallest is not None and size_largest is not None:
         badges = []
         if size_smallest < 70:
             badges.append("TINY")
