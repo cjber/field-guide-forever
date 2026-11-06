@@ -6,7 +6,7 @@ local _, ns = ...
 -- CMaNGOS source sha256 4f92db520868ab4e566726f68b5b2e380ae781209beaf22237b4f7f04600d0c0.
 -- CreatureModelData build 1.60.1.70450 sha256 8b05d7de99d4ebdd34d8001bfde0f4c9c75af44bcd6dfc627bb405e09b94509d.
 -- wow-listfile release 202610202236 sha256 4af8062799478d6f7a038ac9b9f3df1d9d519230e369e1bb399ff0ab41507fd6.
--- Pinned QuestieDB catalogue sha256 5581965f31474a99fba740378d51cf9cc9dc800b8f22548c0c7e3fbd27e3c1c0.
+-- Pinned QuestieDB catalogue sha256 49a7a3e567340ab4cf0f4e01bf200f4854f8d05ebec7484347f779354d61b139.
 -- 8511 of 13391 catalogue NPCs have a model-derived icon; 48 distinct icons.
 -- 10112 of 13391 catalogue NPCs have a client display ID for a live portrait.
 ns.CreatureInfo = {
