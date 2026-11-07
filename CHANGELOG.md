@@ -4,6 +4,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
 ## [Unreleased]
+
+## [0.5.6] - 2026-11-07
 - **The kill leaderboard is part of the shared Forever Leaderboards window.** `/fgf leaderboard` opens that window on the Field Guide tab, where you can switch between this week's progress and the all-time total, see your own row pinned in place and read player-reported values without a line of chat. `/forever` and `/flb` open the window too, and the unit tooltip shows the player's overall place across every installed Forever addon. Sharing stays on unless you turn it off, and the window's Share my progress box and the settings checkbox both switch it.
 
 ## [0.5.5] - 2026-11-06
