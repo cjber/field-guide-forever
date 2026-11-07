@@ -1502,7 +1502,31 @@ def main():
     # Half the scene scale (960 px wide), so the GIF stays under the stores' 2 MB limit per image.
     rgb_frames = [getattr(frame, "image", frame).convert("RGB") for frame in demo]
     demo_size = (960, round(rgb_frames[0].height * 960 / rgb_frames[0].width))
-    rgb_frames = [frame.resize(demo_size, Image.Resampling.LANCZOS) for frame in rgb_frames]
+
+    def backdrop_colour(frame):
+        """The scene backdrop, sampled from the frame's outer edge: no window or tooltip reaches the margin."""
+        edge = [frame.getpixel((x, 0)) for x in range(frame.width)]
+        edge += [frame.getpixel((x, frame.height - 1)) for x in range(frame.width)]
+        edge += [frame.getpixel((0, y)) for y in range(1, frame.height - 1)]
+        edge += [frame.getpixel((frame.width - 1, y)) for y in range(1, frame.height - 1)]
+        return tuple(sorted(channel)[len(channel) // 2] for channel in zip(*edge, strict=True))
+
+    def fit_frame(frame, size):
+        """Scale uniformly to fit inside `size`, then centre on that canvas over the scene backdrop.
+        The Instances frame is wider because its canvas holds the tab tooltip; shrinking it to the common
+        width must keep its native aspect, never squash its art."""
+        if size[0] / frame.width <= size[1] / frame.height:
+            fitted_size = (size[0], max(1, round(frame.height * size[0] / frame.width)))
+        else:
+            fitted_size = (max(1, round(frame.width * size[1] / frame.height)), size[1])
+        fitted = frame.resize(fitted_size, Image.Resampling.LANCZOS)
+        # A fit preserves the source aspect to within a pixel of rounding.
+        assert abs(fitted.width - frame.width * fitted.height / frame.height) <= 1, (frame.size, fitted.size)
+        canvas = Image.new("RGB", size, backdrop_colour(frame))
+        canvas.paste(fitted, ((size[0] - fitted.width) // 2, (size[1] - fitted.height) // 2))
+        return canvas
+
+    rgb_frames = [fit_frame(frame, demo_size) for frame in rgb_frames]
     palette_source = Image.new("RGB", (512, len(rgb_frames) * 395))
     for index, frame in enumerate(rgb_frames):
         palette_source.paste(frame.resize((512, 395)), (0, index * 395))
