@@ -162,7 +162,7 @@ check(own and own.value == 601, "the all-time board ranks the player's observed 
 check(own.class == nil, "rows leave class for the shared window to resolve")
 local alice
 for _, row in ipairs(all) do
-	if row.name == "Alice-Other" then
+	if row.name == "Alice" then
 		alice = row
 	end
 end
@@ -174,7 +174,7 @@ h:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|all|120|900", 
 h:RunTimers()
 check(spec.revision() > revision, "a new peer row moves the board's revision")
 local weekly = spec.board("week")
-check(weekly[1].name == "Alice-Other" and weekly[1].value == 21, "the weekly board ranks progress since the reset")
+check(weekly[1].name == "Alice" and weekly[1].value == 21, "the weekly board ranks progress since the reset")
 check(weekly[1].extra == "120 total", "the weekly row keeps the cumulative total in grey")
 local opened
 ns.Leaderboards.Open = function(_, key)
