@@ -1183,12 +1183,12 @@ def leaderboard_window(ui):
     note("Forever Leaderboards window", "pane", margin, margin, width, height)
     note("Board list", "card", margin + 14, margin + 92, width - 28, height - 92 - 74)
 
-    # LargeSideTabButtonTemplate: the overall trophy, then the addon's own icon, selected.
-    addon_icon = Image.open(ROOT / "media" / "Icon.tga").convert("RGBA")
+    # LargeSideTabButtonTemplate: the overall trophy, then the game's tracking icon, selected.
+    tab_icon = ui.texture("interface/icons/ability_tracking.blp")
     tab_left = px(width - 4)
     tabs = (
         ("Overall", ui.texture("interface/icons/inv_misc_trophy_argent.blp"), False),
-        ("Field Guide", addon_icon, True),
+        ("Field Guide", tab_icon, True),
     )
     for index, (label, icon, selected) in enumerate(tabs):
         tab_top = py(30 + index * 58)

@@ -4,6 +4,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
 ## [Unreleased]
+- **The Forever Leaderboards tab wears a game icon.** The Field Guide tab in the shared window now draws the client's own tracking icon in place of the addon's wolf, so it matches the game's art and the other addons' tabs. (cjber/forever-core#180)
 
 ## [0.5.8] - 2026-11-07
 - **Leaderboards show full names.** The Forever Leaderboards rows and tooltips show a player's first name and surname, such as "Dirtyjoke Lovetties", instead of one run-together word or the first name alone. (cjber/forever-core#179)
