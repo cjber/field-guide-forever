@@ -1,16 +1,16 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
--- Generated from wago.tools Forever build 1.60.1.70790; do not edit.
--- AreaTable: 1375 rows; sha256 e7ccbde2cd084329ff0cccaa5af7f33facc42079d410bb1d2569dc9bce10a379
--- Map: 73 rows; sha256 392e2f6e2cb338570c9e5e6368d59e65525c18d99c3b4e89c27fdcd123923099
+-- Generated from wago.tools Forever build 1.60.1.70862; do not edit.
+-- AreaTable: 1404 rows; sha256 42280ffb99cedb21ad7420744df20a0678914d6d8f448dca0b41ca3d05e02c51
+-- Map: 78 rows; sha256 a4fa6474f5bba3dc815f0e78943b3a907840b8f44bba605d4ff0680048994908
 -- CreatureFamily: 27 rows; sha256 7ba620ec805373038287cce591422996d963b85868c2e1f41a4b89d4e0713a6c
--- CreatureDisplayInfo: 14221 rows; sha256 f136f9fed8c892719145d65d09b86cd02ec336e4985d089cf2434864ae2716c8
+-- CreatureDisplayInfo: 14226 rows; sha256 236cd14ccd732bf28b754fa8679cf2cb31246ad50231cf689be2c76e70004234
 -- UiMapXMapArt: 60 rows; sha256 81092d619701f0b31a3537129ec5667b38630b5291e211034971a1dde05678dc
 -- WorldMapOverlay: 1081 rows; sha256 d8c884864504ab54d7dc1e048fd4e49e41177bee5cce3d43d8ee3c339e284d85
 -- WorldMapOverlayTile: 1739 rows; sha256 31d8b8c4cae7a1afd312f13a74ba75a461042e00b6e69e2b63809ce9809df02f
 ns.ClientData =
-	{ build = "1.60.1.70790", continents = {}, zones = {}, maps = {}, families = {}, portraits = {}, mapOverlays = {} }
+	{ build = "1.60.1.70862", continents = {}, zones = {}, maps = {}, families = {}, portraits = {}, mapOverlays = {} }
 ns.ClientData.continents[0] = "Eastern Kingdoms"
 ns.ClientData.continents[1] = "Kalimdor"
 ns.ClientData.zones[1] = { name = "Dun Morogh", continent = 0 }
@@ -1247,6 +1247,8 @@ ns.ClientData.zones[16524] = { name = "Goldshire", continent = 2940 }
 ns.ClientData.zones[16532] = { name = "Tyler's Test Map (Desolace)", continent = 2908 }
 ns.ClientData.zones[16537] = { name = "Northshire Valley - Camelot", continent = 2940 }
 ns.ClientData.zones[16544] = { name = "City of Dalaran", continent = 2959 }
+ns.ClientData.zones[16550] = { name = "The Drowned City", continent = 2970 }
+ns.ClientData.zones[16554] = { name = "Blackmaw Hold", continent = 2974 }
 ns.ClientData.zones[16558] = { name = "Dalaran", continent = 2959 }
 ns.ClientData.zones[16559] = { name = "Fel Grove", continent = 2959 }
 ns.ClientData.zones[16560] = { name = "City of Dalaran", continent = 2959 }
@@ -1269,6 +1271,8 @@ ns.ClientData.zones[16614] = { name = "Lordaeron Graveyard", continent = 2999 }
 ns.ClientData.zones[16615] = { name = "Lordamere Overlook", continent = 2999 }
 ns.ClientData.zones[16616] = { name = "Whispering Forest", continent = 0 }
 ns.ClientData.zones[16617] = { name = "Market Street", continent = 2999 }
+ns.ClientData.zones[16619] = { name = "Excavation Site - Bael Modan", continent = 3001 }
+ns.ClientData.zones[16620] = { name = "Alcaz Prison", continent = 2994 }
 ns.ClientData.zones[16622] = { name = "Thendal Grove", continent = 2991 }
 ns.ClientData.zones[16623] = { name = "Shen'dar Highlands", continent = 2991 }
 ns.ClientData.zones[16624] = { name = "Shen'dar Village", continent = 2991 }
@@ -1296,6 +1300,7 @@ ns.ClientData.zones[16660] = { name = "Gilnean Coast", continent = 3005 }
 ns.ClientData.zones[16661] = { name = "Beneath the Double Rainbow", continent = 3005 }
 ns.ClientData.zones[16662] = { name = "Stormr's Test Map", continent = 3006 }
 ns.ClientData.zones[16663] = { name = "Windfield Orchard", continent = 2991 }
+ns.ClientData.zones[16667] = { name = "The Shaper's Terrace", continent = 3001 }
 ns.ClientData.zones[16672] = { name = "Shriekling Den", continent = 2991 }
 ns.ClientData.zones[16673] = { name = "Thendal Cave", continent = 2991 }
 ns.ClientData.zones[16674] = { name = "Bandit Hideout", continent = 2991 }
@@ -1338,6 +1343,7 @@ ns.ClientData.zones[16765] = { name = "Hayward Fishery", continent = 0 }
 ns.ClientData.zones[16772] = { name = "Unused", continent = 0 }
 ns.ClientData.zones[16820] = { name = "The Forbidding Sea", continent = 0 }
 ns.ClientData.zones[16833] = { name = "Ruins of Ban'aethal", continent = 2991 }
+ns.ClientData.zones[16842] = { name = "Krol'dok Stronghold", continent = 3039 }
 ns.ClientData.zones[16848] = { name = "Elderwild", continent = 1 }
 ns.ClientData.zones[16849] = { name = "Summit of Eternity", continent = 1 }
 ns.ClientData.zones[16853] = { name = "Tainted Foothills", continent = 1 }
@@ -1352,12 +1358,30 @@ ns.ClientData.zones[16880] = { name = "Lost Dig Site", continent = 2998 }
 ns.ClientData.zones[16881] = { name = "Shadowvale", continent = 0 }
 ns.ClientData.zones[16916] = { name = "Stormrage Barrow Dens", continent = 1 }
 ns.ClientData.zones[16919] = { name = "The Hall of Thanes", continent = 3065 }
+ns.ClientData.zones[16928] = { name = "Shaper's Plateau", continent = 3001 }
+ns.ClientData.zones[16929] = { name = "Pillar of Assimilation", continent = 3001 }
+ns.ClientData.zones[16930] = { name = "The Verdant Plains", continent = 3001 }
+ns.ClientData.zones[16931] = { name = "Lost Tar Pits", continent = 3001 }
+ns.ClientData.zones[16932] = { name = "Ruby Spring", continent = 3001 }
+ns.ClientData.zones[16933] = { name = "Walk of Communion", continent = 3001 }
+ns.ClientData.zones[16934] = { name = "The Highlands Causeway", continent = 3001 }
+ns.ClientData.zones[16935] = { name = "Watcher's Overlook", continent = 3001 }
+ns.ClientData.zones[16937] = { name = "Botanical Grounds", continent = 3001 }
 ns.ClientData.zones[16941] = { name = "Crafting", continent = 0 }
 ns.ClientData.zones[16985] = { name = "The Shaper's Terrace", continent = 1 }
 ns.ClientData.zones[16986] = { name = "Pillar of Assimilation", continent = 1 }
 ns.ClientData.zones[16988] = { name = "Rise of Spirits", continent = 2991 }
+ns.ClientData.zones[17036] = { name = "Crystalline Highlands", continent = 3001 }
+ns.ClientData.zones[17037] = { name = "Sunken Hollow", continent = 2970 }
+ns.ClientData.zones[17038] = { name = "Flooded Shrine", continent = 2970 }
+ns.ClientData.zones[17039] = { name = "Deep Archives", continent = 2970 }
+ns.ClientData.zones[17040] = { name = "Altar of the Serpent", continent = 2970 }
+ns.ClientData.zones[17041] = { name = "Eternal Amphitheater", continent = 2970 }
+ns.ClientData.zones[17042] = { name = "Abyssal Dais", continent = 2970 }
+ns.ClientData.zones[17043] = { name = "The Unsinkable", continent = 2970 }
 ns.ClientData.zones[17044] = { name = "Gloomrise", continent = 1 }
 ns.ClientData.zones[17045] = { name = "Skywatcher Plateau", continent = 1 }
+ns.ClientData.zones[17046] = { name = "Ataal'Byzal", continent = 2970 }
 ns.ClientData.zones[17050] = { name = "Felblood Scar", continent = 1 }
 ns.ClientData.zones[17052] = { name = "Scalding Ridge", continent = 1 }
 ns.ClientData.zones[17065] = { name = "Gilneas", continent = 0 }
@@ -1368,6 +1392,11 @@ ns.ClientData.zones[17191] = { name = "Manor Mistmantle", continent = 3109 }
 ns.ClientData.zones[17203] = { name = "Stormwind Harbor", continent = 0 }
 ns.ClientData.zones[17221] = { name = "Skywall", continent = 2991 }
 ns.ClientData.zones[17223] = { name = "Camp Gev'rek", continent = 1 }
+ns.ClientData.zones[17309] = { name = "Defiled Peak", continent = 2974 }
+ns.ClientData.zones[17310] = { name = "Festering Grotto", continent = 2974 }
+ns.ClientData.zones[17311] = { name = "Blackmaw Grove", continent = 2974 }
+ns.ClientData.zones[17312] = { name = "Blackmaw Stillwater", continent = 2974 }
+ns.ClientData.zones[17313] = { name = "Bonesnout's Thicket", continent = 2974 }
 ns.ClientData.zones[17674] = { name = "West Pylon Watchtower", continent = 2991 }
 ns.ClientData.zones[17675] = { name = "East Pylon Watchtower", continent = 2991 }
 ns.ClientData.zones[17676] = { name = "Windsong Standing Stones", continent = 2991 }
@@ -1447,15 +1476,20 @@ ns.ClientData.maps[2875] = { name = "Karazhan Crypts", instanceType = 1 }
 ns.ClientData.maps[2902] = { name = "The Scarab Dais", instanceType = 1 }
 ns.ClientData.maps[2921] = { name = "Naxxramas", instanceType = 1 }
 ns.ClientData.maps[2959] = { name = "City of Dalaran", instanceType = 1 }
+ns.ClientData.maps[2970] = { name = "The Drowned City", instanceType = 1 }
+ns.ClientData.maps[2974] = { name = "Blackmaw Hold", instanceType = 1 }
 ns.ClientData.maps[2980] = { name = "Dalaran City", instanceType = 0 }
 ns.ClientData.maps[2991] = { name = "Zephras Isle", instanceType = 0 }
+ns.ClientData.maps[2994] = { name = "Alcaz Prison", instanceType = 1 }
 ns.ClientData.maps[2995] = { name = "Hyjal Crater", instanceType = 0 }
 ns.ClientData.maps[2996] = { name = "Warsong Gulch (Winter)", instanceType = 0 }
 ns.ClientData.maps[2997] = { name = "Darkspear Islands", instanceType = 3 }
 ns.ClientData.maps[2998] = { name = "Excavation Site: Wetlands", instanceType = 1 }
 ns.ClientData.maps[2999] = { name = "Ruins of Lordaeron", instanceType = 1 }
+ns.ClientData.maps[3001] = { name = "The Shaper's Terrace", instanceType = 1 }
 ns.ClientData.maps[3005] = { name = "Battle for Gilneas", instanceType = 3 }
 ns.ClientData.maps[3021] = { name = "Eastern Kingdoms Preserved", instanceType = 0 }
+ns.ClientData.maps[3039] = { name = "Krol'dok Stronghold", instanceType = 1 }
 ns.ClientData.maps[3065] = { name = "The Hall of Thanes", instanceType = 1 }
 ns.ClientData.maps[3104] = { name = "nothing to see here", instanceType = 0 }
 ns.ClientData.maps[3109] = { name = "Manor Mistmantle", instanceType = 1 }
@@ -12165,6 +12199,7 @@ ns.ClientData.portraits[62128] = 0
 ns.ClientData.portraits[64799] = 0
 ns.ClientData.portraits[64802] = 0
 ns.ClientData.portraits[64965] = 0
+ns.ClientData.portraits[71933] = 0
 ns.ClientData.portraits[73093] = 0
 ns.ClientData.portraits[75078] = 0
 ns.ClientData.portraits[75079] = 0
@@ -13464,6 +13499,7 @@ ns.ClientData.portraits[136996] = 0
 ns.ClientData.portraits[136997] = 0
 ns.ClientData.portraits[137015] = 0
 ns.ClientData.portraits[137019] = 0
+ns.ClientData.portraits[137041] = 0
 ns.ClientData.portraits[137059] = 0
 ns.ClientData.portraits[137098] = 0
 ns.ClientData.portraits[137105] = 0
@@ -15337,8 +15373,10 @@ ns.ClientData.portraits[147399] = 0
 ns.ClientData.portraits[147403] = 0
 ns.ClientData.portraits[147417] = 0
 ns.ClientData.portraits[147444] = 0
+ns.ClientData.portraits[147450] = 0
 ns.ClientData.portraits[147461] = 0
 ns.ClientData.portraits[147507] = 0
+ns.ClientData.portraits[147509] = 0
 ns.ClientData.portraits[147563] = 0
 ns.ClientData.portraits[147565] = 0
 ns.ClientData.portraits[147589] = 0
@@ -15359,6 +15397,7 @@ ns.ClientData.portraits[147664] = 0
 ns.ClientData.portraits[147665] = 0
 ns.ClientData.portraits[147669] = 0
 ns.ClientData.portraits[147670] = 0
+ns.ClientData.portraits[147677] = 0
 ns.ClientData.portraits[147688] = 0
 ns.ClientData.portraits[147689] = 0
 ns.ClientData.portraits[147690] = 0

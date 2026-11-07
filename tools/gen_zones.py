@@ -11,7 +11,7 @@ from forever_tools.wago import db2_rows
 
 # The Forever client build every generated constant comes from. .github/workflows/refresh-data.yml moves it to the
 # newest data build; tools/check_generated.py and tests/data_spec.lua read it from here.
-BUILD = "1.60.1.70790"
+BUILD = "1.60.1.70862"
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / "tools" / ".cache"
 OUT = ROOT / "Data" / "Client.lua"
