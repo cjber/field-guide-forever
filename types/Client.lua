@@ -22,6 +22,37 @@ LE_PARTY_CATEGORY_INSTANCE = nil
 ---@field getShown? fun(): boolean an addon-owned visibility rule, which wins over the hide flag
 ---@field host? table receives the frame as its minimapButton
 
+-- UI/Leaderboards.lua publishes the window every Forever addon registers into.
+---@type ForeverLeaderboardsAPI?
+ForeverLeaderboards = nil
+
+---@class FGClassColor
+---@field GetRGB fun(self: FGClassColor): number, number, number
+---@type table<string, FGClassColor>?
+RAID_CLASS_COLORS = nil
+
+---@class FGDataProvider
+---@field entries any[]
+---@param entries? any[]
+---@return FGDataProvider
+function CreateDataProvider(entries) end
+
+---@class FGScrollBoxView
+---@field SetElementInitializer fun(self: FGScrollBoxView, template: string, initializer: fun(button: Button, element: any))
+---@field SetPadding fun(self: FGScrollBoxView, ...: number)
+---@return FGScrollBoxView
+function CreateScrollBoxListLinearView() end
+
+---@class FGScrollUtil
+---@field InitScrollBoxListWithScrollBar fun(box: Frame, bar: any, view: FGScrollBoxView)
+---@type FGScrollUtil
+ScrollUtil = nil
+
+---@class FGScrollBoxConstants
+---@field RetainScrollPosition integer
+---@type FGScrollBoxConstants
+ScrollBoxConstants = nil
+
 -- The registry every vendored copy of Core/MinimapButton.lua shares, published by the first to load.
 ---@class ForeverMinimapButtonRegistry
 ---@field buttons ForeverMinimapButton[] every addon button, in creation order

@@ -653,120 +653,204 @@
     },
     "leaderboard.png": {
       "canvas": {
-        "height": 302,
+        "height": 612,
         "scale": 2,
-        "width": 349.5
+        "width": 572
       },
       "frame": {
-        "h": 302,
-        "w": 349.5,
-        "x": 0,
-        "y": 0
+        "h": 560,
+        "w": 460,
+        "x": 26,
+        "y": 26
       },
       "widgets": [
         {
-          "h": 16,
-          "name": "Leaderboard line 1",
-          "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 8
+          "h": 560,
+          "name": "Forever Leaderboards window",
+          "role": "pane",
+          "w": 460,
+          "x": 26,
+          "y": 26
         },
         {
-          "h": 16,
-          "name": "Leaderboard line 2",
-          "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 30
-        },
-        {
-          "h": 16,
-          "name": "Leaderboard line 3",
-          "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 52
-        },
-        {
-          "h": 16,
-          "name": "Leaderboard line 4",
-          "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 74
-        },
-        {
-          "h": 16,
-          "name": "Leaderboard line 5",
-          "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 96
-        },
-        {
-          "h": 16,
-          "name": "Leaderboard line 6",
-          "role": "content",
-          "w": 325.5,
-          "x": 12,
+          "h": 394,
+          "name": "Board list",
+          "role": "card",
+          "w": 432,
+          "x": 40,
           "y": 118
         },
         {
-          "h": 16,
-          "name": "Leaderboard line 7",
+          "h": 55,
+          "name": "Overall tab",
+          "role": "tabs",
+          "w": 55,
+          "x": 482,
+          "y": 56
+        },
+        {
+          "h": 55,
+          "name": "Field Guide tab",
+          "role": "tabs",
+          "w": 55,
+          "x": 482,
+          "y": 114
+        },
+        {
+          "h": 24,
+          "name": "Metric heading",
           "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 140
+          "w": 200,
+          "x": 88,
+          "y": 60
         },
         {
           "h": 16,
-          "name": "Leaderboard line 8",
+          "name": "Board subtitle",
           "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 162
+          "w": 200,
+          "x": 88,
+          "y": 80
+        },
+        {
+          "h": 18,
+          "name": "Scope dropdown",
+          "role": "input",
+          "w": 116.0,
+          "x": 354.0,
+          "y": 86
+        },
+        {
+          "h": 30,
+          "name": "Board row 1",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 144
+        },
+        {
+          "h": 30,
+          "name": "Board row 2",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 174
+        },
+        {
+          "h": 30,
+          "name": "Board row 3",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 204
+        },
+        {
+          "h": 30,
+          "name": "Board row 4",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 234
+        },
+        {
+          "h": 30,
+          "name": "Board row 5",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 264
+        },
+        {
+          "h": 30,
+          "name": "Board row 6",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 294
+        },
+        {
+          "h": 30,
+          "name": "Board row 7",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 324
+        },
+        {
+          "h": 30,
+          "name": "Board row 8",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 354
+        },
+        {
+          "h": 30,
+          "name": "Board row 9",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 384
+        },
+        {
+          "h": 30,
+          "name": "Board row 10",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 414
+        },
+        {
+          "h": 18,
+          "name": "Board row 11",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 444
+        },
+        {
+          "h": 30,
+          "name": "Pinned own row",
+          "parent": "Board list",
+          "role": "content",
+          "w": 404,
+          "x": 44,
+          "y": 478
+        },
+        {
+          "h": 26,
+          "name": "Share my progress",
+          "role": "input",
+          "w": 26,
+          "x": 42,
+          "y": 526
         },
         {
           "h": 16,
-          "name": "Leaderboard line 9",
+          "name": "Share label",
           "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 184
+          "w": 150,
+          "x": 70,
+          "y": 531
         },
         {
-          "h": 16,
-          "name": "Leaderboard line 10",
+          "h": 14,
+          "name": "Reported values note",
           "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 206
-        },
-        {
-          "h": 16,
-          "name": "Leaderboard line 11",
-          "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 228
-        },
-        {
-          "h": 16,
-          "name": "Leaderboard line 12",
-          "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 250
-        },
-        {
-          "h": 16,
-          "name": "Leaderboard line 13",
-          "role": "content",
-          "w": 325.5,
-          "x": 12,
-          "y": 272
+          "w": 220,
+          "x": 44,
+          "y": 560
         }
       ]
     },

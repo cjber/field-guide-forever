@@ -38,7 +38,7 @@ Records keep when you first and last saw a creature, how many deaths you recorde
 - **Track Species**: put the species you are working on in the Forever tracker column every Forever addon shares, with its zone, sightings toward Mastered and kills.
 - **Discoveries**: a first kill is announced at the top of the screen and tagged New in the journal. Silver, gold, shiny, mastery and zone milestones get the game's achievement toast; click one to open the journal there. Both can be turned off in the options.
 - **Instances**: bosses the game reports when an encounter ends, with first clears, attempts and kills by difficulty. It is a personal record, not a verified world-first board.
-- **Sharing**: totals and first records are exchanged with guild and group members who run the addon. `/fgf leaderboard` ranks kills, with peer totals marked as reported. Turn sharing off in the options; local tracking carries on.
+- **Sharing**: totals and first records are exchanged with guild and group members who run the addon. `/fgf leaderboard` opens the shared Forever Leaderboards window on the Field Guide tab, with this week's progress, the all-time total and peer values marked as reported. Sharing is on unless you turn it off in the options or the window; local tracking carries on.
 
 ## Install
 
@@ -54,7 +54,7 @@ Type `/fg`, press Shift-F, or click the Field Guide button on the minimap rim; d
 |---|---|
 | `/fg`, `/fieldguide` | Open or close the journal |
 | `/fg preview` | Show every creature as silver, gold or shiny for this session; run it again to turn it off |
-| `/fgf leaderboard` | Print the kill leaderboard: you, plus the top ten guild and group members who share |
+| `/fgf leaderboard` | Open Forever Leaderboards on the Field Guide tab: your kills against guild and group members who share |
 | `/fgf help` | List the commands |
 
 ## How kills are counted

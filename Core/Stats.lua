@@ -1,6 +1,8 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+local L = ns.L
+
 ---@class FGStatsModule
 local Stats = {}
 ns.Stats = Stats
@@ -171,6 +173,85 @@ for source, metrics in pairs(SOURCES) do
 	else
 		instances[addon] = ns.PeerStats.Listen("fieldguide", config)
 	end
+end
+
+-- This character's observed kill total and its latest kill, the local half of the board.
+---@return integer value
+---@return number|nil eventUnix
+local function LocalKills()
+	local state = ns.GetCharacterState(false)
+	if not state then
+		return 0, nil
+	end
+	local total, latest = 0, nil
+	for _, entry in pairs(state.species) do
+		total = total + ns.Model.ObservedKills(entry)
+		if type(entry.lastKill) == "number" and entry.lastKill > 0 and (not latest or entry.lastKill > latest) then
+			latest = entry.lastKill
+		end
+	end
+	return total, latest
+end
+
+-- One row per ranked player, in the shape the shared window draws. The all-time board keeps the cumulative total in
+-- the value column; the weekly board draws the progress since the reset there and the cumulative total in grey.
+---@param scope ForeverLeaderboardsScope
+---@return ForeverLeaderboardsRow[]
+local function Board(scope)
+	local value, eventUnix = LocalKills()
+	local weekly = scope == "week"
+	local ranked
+	local totals
+	if weekly then
+		ranked = instances.fieldguide:WeekBoard("creature_kills", "all", value, eventUnix)
+		totals = {}
+		for _, row in ipairs(instances.fieldguide:Board("creature_kills", "all", value, eventUnix)) do
+			totals[row.identity] = row.value
+			totals[row.name:lower()] = row.value
+		end
+	else
+		ranked = instances.fieldguide:Board("creature_kills", "all", value, eventUnix)
+	end
+	local rows = {}
+	for _, row in ipairs(ranked) do
+		local total = totals and (totals[row.identity] or totals[row.name:lower()])
+		rows[#rows + 1] = {
+			name = row.name,
+			value = row.value,
+			extra = total and (total .. " " .. L["total"]) or nil,
+			you = row.self == true,
+		}
+	end
+	return rows
+end
+
+--- Open the shared Forever Leaderboards window on this addon's tab.
+function Stats.Open()
+	if ns.Leaderboards then
+		ns.Leaderboards:Open("fieldguide")
+	end
+end
+
+if ns.Leaderboards then
+	ns.Leaderboards:Register("fieldguide", {
+		title = L["Field Guide Forever"],
+		icon = "Interface\\AddOns\\FieldGuideForever\\media\\Icon",
+		metric = L["Creature kills"],
+		board = Board,
+		revision = function()
+			return instances.fieldguide:Revision()
+		end,
+		sharing = Enabled,
+		setSharing = function(shared)
+			if ns.db then
+				ns.db.options.statsShare = shared == true
+			end
+			Stats.SetEnabled(shared == true)
+			if ns.FireProgress then
+				ns.FireProgress()
+			end
+		end,
+	})
 end
 
 local function Schedule()

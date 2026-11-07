@@ -144,6 +144,44 @@ check(#Mock.sentAddonMessages == unchanged, "unchanged snapshots do not resend t
 state.species[1].kills = 3
 ns.FireProgress()
 h:RunTimers()
+local spec = ns.Leaderboards and ns.Leaderboards.boards.fieldguide
+check(spec ~= nil, "the shared Forever Leaderboards window is published")
+check(spec.title == "Field Guide Forever", "the tab carries the addon's title")
+check(spec.metric == "Creature kills", "the board names its metric")
+check(spec.icon == "Interface\\AddOns\\FieldGuideForever\\media\\Icon", "the tab carries the addon's icon")
+check(type(spec.revision) == "function", "the board has a revision callback")
+check(spec.sharing() == true, "sharing reads the addon's on setting")
+local all = spec.board("all")
+local own
+for _, row in ipairs(all) do
+	if row.you then
+		own = row
+	end
+end
+check(own and own.value == 601, "the all-time board ranks the player's observed kills")
+check(own.class == nil, "rows leave class for the shared window to resolve")
+local alice
+for _, row in ipairs(all) do
+	if row.name == "Alice-Other" then
+		alice = row
+	end
+end
+check(alice and alice.value == 99, "the all-time board ranks a peer's reported total")
+check(alice.class == nil, "a peer's class stays unknown")
+local revision = spec.revision()
+spec.board("week")
+h:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|all|120|900", "GUILD", "Alice-Other")
+h:RunTimers()
+check(spec.revision() > revision, "a new peer row moves the board's revision")
+local weekly = spec.board("week")
+check(weekly[1].name == "Alice-Other" and weekly[1].value == 21, "the weekly board ranks progress since the reset")
+check(weekly[1].extra == "120 total", "the weekly row keeps the cumulative total in grey")
+local opened
+ns.Leaderboards.Open = function(_, key)
+	opened = key
+end
+h.env.SlashCmdList.FIELDGUIDEFOREVER("leaderboard")
+check(opened == "fieldguide", "the leaderboard command opens the shared window on this addon's tab")
 ns.db.options.statsShare = false
 ns.Stats.SetEnabled(false)
 local before = #Mock.sentAddonMessages
