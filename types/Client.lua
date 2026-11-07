@@ -39,6 +39,7 @@ function CreateDataProvider(entries) end
 
 ---@class FGScrollBoxView
 ---@field SetElementInitializer fun(self: FGScrollBoxView, template: string, initializer: fun(button: Button, element: any))
+---@field SetElementExtent fun(self: FGScrollBoxView, extent: number)
 ---@field SetPadding fun(self: FGScrollBoxView, ...: number)
 ---@return FGScrollBoxView
 function CreateScrollBoxListLinearView() end
