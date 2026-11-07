@@ -28,7 +28,7 @@ Records keep when you first and last saw a creature, how many deaths you recorde
 - **Records**: first sighting, first kill and best coat for each creature, kept per character, and a sighting log for the current session.
 - **Track Species**: put the species you are working on in the Forever tracker column every Forever addon shares, with its zone, sightings toward Mastered and kills.
 - **Instances**: bosses the game reports when an encounter ends, with first clears, attempts and kills by difficulty. It is a personal record, not a verified world-first board.
-- **Sharing**: totals and first records are exchanged with guild and group members who run the addon. `/fgf leaderboard` ranks kills, with peer totals marked as reported. Turn sharing off in the options; local tracking carries on.
+- **Sharing**: totals and first records are exchanged with guild and group members who run the addon. `/fgf leaderboard` opens the shared Forever Leaderboards window on the Field Guide tab, with this week's progress, the all-time total and peer values marked as reported. Sharing is on unless you turn it off in the options or the window; local tracking carries on.
 
 ## How kills are counted
 
@@ -38,7 +38,7 @@ A creature that dies with no nameplate showing and not targeted is not counted. 
 
 ## Usage
 
-Type `/fg` or `/fieldguide`, press Shift-F, or click the Field Guide button on the minimap rim; drag it around the rim to move it, or hide it in the options. `/fg preview` shows every creature as silver, gold or shiny for this session, `/fgf leaderboard` prints the kill leaderboard and `/fgf help` lists the commands. Options are under Options > AddOns > Field Guide Forever.
+Type `/fg` or `/fieldguide`, press Shift-F, or click the Field Guide button on the minimap rim; drag it around the rim to move it, or hide it in the options. `/fg preview` shows every creature as silver, gold or shiny for this session, `/fgf leaderboard` opens Forever Leaderboards on the Field Guide tab and `/fgf help` lists the commands. Options are under Options > AddOns > Field Guide Forever.
 
 Field Guide needs [Questie](https://www.curseforge.com/wow/addons/questie) or the standalone QuestieDB addon for its creature list. Without one, the window says what to install.
 

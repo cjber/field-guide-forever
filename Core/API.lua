@@ -483,7 +483,7 @@ function API.Leaderboard(metric, subject)
 	return rows
 end
 
--- A compact kill leaderboard for the slash command. Peer values are reports received from addon users and are not
+-- A compact kill leaderboard for other addons. Peer values are reports received from addon users and are not
 -- independently verified; local records remain visible when sharing is disabled.
 ---@return { player: string, value: integer, source: string }[]?
 function API.LeaderboardSummary()

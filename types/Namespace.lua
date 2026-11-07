@@ -288,6 +288,8 @@ function FGCreatureInfo.Get(npcID) end
 ---@field API FGPublicAPI
 ---@field Stats FGStatsModule
 ---@field PeerStats table shared Core peer transport factories
+---@field LeaderboardsData? ForeverLeaderboardsData the shared leaderboards' data half (Core/LeaderboardsData.lua)
+---@field Leaderboards? ForeverLeaderboardsAPI the shared Forever Leaderboards window (UI/Leaderboards.lua)
 ---@field QuestieDB FGQuestieDBModule
 ---@field Settings FGSettingsModule
 ---@field SettingsPage FGSettingsPageModule

@@ -52,6 +52,7 @@ local function BuildPanel(panel, page)
 		end
 	end, L["Silver, gold, shiny, mastery and zone milestones show an achievement toast. Click it to open the journal."])
 
+	local shareTooltip = L["On unless you turn it off. Shares your totals and puts you on Forever Leaderboards."]
 	page.AddCheck(panel, L["Share progress with guild and group addon users"], function()
 		return ns.db and ns.db.options.statsShare ~= false
 	end, function(checked)
@@ -64,7 +65,7 @@ local function BuildPanel(panel, page)
 		if ns.FireProgress then
 			ns.FireProgress()
 		end
-	end)
+	end, shareTooltip)
 
 	local minimapButtonRow = page.AddCheck(panel, L["Minimap button"], function()
 		return ns.db and ns.db.options.minimapButtonHidden ~= true

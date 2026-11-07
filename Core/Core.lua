@@ -570,7 +570,7 @@ SLASH_FIELDGUIDEFOREVER3 = "/fgf"
 SlashCmdList["FIELDGUIDEFOREVER"] = function(message)
 	local command = type(message) == "string" and message:lower():match("^%s*(.-)%s*$") or ""
 	if command == "help" then
-		local help = "Open your field guide with /fieldguide or /fg. Use /fgf leaderboard to view recorded kills, "
+		local help = "Open your field guide with /fieldguide or /fg. Use /fgf leaderboard to open Forever Leaderboards, "
 			.. "or /fg preview to show every creature as silver, gold or shiny for this session."
 		print(L[help])
 		return
@@ -580,18 +580,8 @@ SlashCmdList["FIELDGUIDEFOREVER"] = function(message)
 		return
 	end
 	if command == "leaderboard" then
-		local rows = ns.API and ns.API.LeaderboardSummary()
-		if not rows then
-			print(L["Leaderboard data is not ready yet."])
-			return
-		end
-		print(L["Field Guide recorded kills (peer totals are reported, not verified):"])
-		print(L["Reports come from guild and group addon users."])
-		for index, row in ipairs(rows) do
-			if index <= 10 or row.source == "local" then
-				local label = row.source == "local" and L["local"] or L["reported"]
-				print(string.format(L["%d. %s - %d kills (%s)"], index, row.player, row.value, label))
-			end
+		if ns.Stats then
+			ns.Stats.Open()
 		end
 		return
 	end

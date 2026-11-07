@@ -25,6 +25,8 @@ Core\LegacyIds.lua
 Core\Core.lua
 Core\Kills.lua
 Core\PeerStats.lua
+Core\LeaderboardsData.lua
+UI\Leaderboards.lua
 Core\Stats.lua
 Core\API.lua
 UI\TrackerQuestie.lua

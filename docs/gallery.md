@@ -6,7 +6,7 @@ Every scene `tools/mockups.py` renders. Written by that script; do not edit by h
 
 ## Feature previews
 
-![Recorded kills leaderboard](screenshots/leaderboard.png)
+![Forever Leaderboards on the Field Guide tab](screenshots/leaderboard.png)
 
 ![Creatures journal](screenshots/field-guide.png)
 

@@ -45,6 +45,7 @@ from wowmock import (  # noqa: E402  # ty: ignore[unresolved-import]
     MenuTitle,
     context_menu,
     draw_nine_slice,
+    filter_dropdown,
     minimal_scrollbar,
     portrait_frame_art,
     search_box,
@@ -1148,6 +1149,126 @@ def zone_pages(zones):
     return pages
 
 
+def leaderboard_window(ui):
+    """Forever Core's shared window as UI/Leaderboards.lua builds it, on the Field Guide tab.
+
+    The scene shows the weekly board: the addon's metric heading, the scope dropdown, the inset list with medals,
+    grey cumulative totals and the player's pinned row, plus the share switch and the reported-values note.
+    """
+    width, height = 460, 560
+    margin = 26
+    canvas = ui.canvas(width + margin * 2 + 60, height + margin * 2)
+    LAYOUT["widgets"] = []
+    LAYOUT["canvas"] = {"width": canvas.width, "height": canvas.height, "scale": ui.scale}
+    LAYOUT["frame"] = {"x": margin, "y": margin, "w": width, "h": height}
+
+    def px(x):
+        return margin + x
+
+    def py(y):
+        return margin + y
+
+    rock = ui.texture("interface/framegeneral/ui-background-rock.blp")
+    tiled(canvas, rock, px(2), py(21), width - 4, height - 23, rock.width / ui.scale, rock.height / ui.scale)
+    canvas.draw(ui.atlas("_UI-Frame-TopTileStreaks"), px(6), py(21), width - 8, 43)
+    portrait_frame_art(
+        canvas,
+        margin,
+        margin,
+        width,
+        height,
+        ui.texture("interface/icons/inv_misc_trophy_argent.blp"),
+        "Forever Leaderboards",
+    )
+    note("Forever Leaderboards window", "pane", margin, margin, width, height)
+    note("Board list", "card", margin + 14, margin + 92, width - 28, height - 92 - 74)
+
+    # LargeSideTabButtonTemplate: the overall trophy, then the addon's own icon, selected.
+    addon_icon = Image.open(ROOT / "media" / "Icon.tga").convert("RGBA")
+    tab_left = px(width - 4)
+    tabs = (
+        ("Overall", ui.texture("interface/icons/inv_misc_trophy_argent.blp"), False),
+        ("Field Guide", addon_icon, True),
+    )
+    for index, (label, icon, selected) in enumerate(tabs):
+        tab_top = py(30 + index * 58)
+        side_tab(canvas, tab_left, tab_top, icon, selected=selected)
+        note(f"{label} tab", "tabs", tab_left, tab_top, 55, 55)
+
+    text(canvas, px(62), py(34), "Creature kills", "GameFontNormalLarge", GOLD)
+    note("Metric heading", "content", px(62), py(34), 200, 24)
+    text(canvas, px(62), py(54), "Your guild and group", "GameFontHighlightSmall", TEXT)
+    note("Board subtitle", "content", px(62), py(54), 200, 16)
+
+    dropdown_x, dropdown_y, dropdown_w, dropdown_h = filter_dropdown(canvas, px(width - 16), py(60), "This week")
+    note("Scope dropdown", "input", dropdown_x, dropdown_y, dropdown_w, dropdown_h)
+
+    inset_x, inset_y = px(14), py(92)
+    inset_w, inset_h = width - 28, height - 92 - 74
+    card(canvas, inset_x, inset_y, inset_w, inset_h)
+    text(canvas, inset_x + 12, inset_y + 8, "Rank", "GameFontNormalSmall", GOLD)
+    text(canvas, inset_x + 76, inset_y + 8, "Player", "GameFontNormalSmall", GOLD)
+    right(canvas, inset_x + inset_w - 12, inset_y + 8, "This week", "GameFontNormalSmall", GOLD, width=80)
+    canvas.draw(ui.atlas("_UI-Frame-InnerTopTile"), inset_x + 4, inset_y + 24, inset_w - 8, 3)
+
+    row_x, row_top = inset_x + 4, inset_y + 26
+    row_w, row_h = inset_w - 28, 30
+    value_width = 80
+    value_left = row_x + row_w - 12 - value_width
+    extra_left = value_left - 10 - 90
+    name_left = row_x + 76
+    name_width = extra_left - 10 - name_left
+    rows = (
+        (1, "Ymira", 264, "1842 total"),
+        (2, "Brannoc", 211, "1510 total"),
+        (3, "Sable", 180, "1287 total"),
+        (4, "Kestrel", 156, "1104 total"),
+        (5, "Durn", 142, "986 total"),
+        (6, "Fen", 130, "901 total"),
+        (7, "Tamsin", 118, "845 total"),
+        (8, "Orrin", 104, "733 total"),
+        (9, "Vela", 96, "690 total"),
+        (10, "Rook", 84, "612 total"),
+        (11, "Wren", 72, "588 total"),
+    )
+    medals = ("challenges-medal-gold", "challenges-medal-silver", "challenges-medal-bronze")
+    pinned_y = inset_y + inset_h - 4 - row_h
+    scroll_bottom = pinned_y - 16
+    clip = canvas.px(scroll_bottom)
+    below = canvas.image.crop((0, clip, canvas.image.width, canvas.image.height))
+    for index, (rank, name, value, extra) in enumerate(rows):
+        y = row_top + index * row_h
+        if rank <= 3:
+            canvas.draw(ui.atlas(medals[rank - 1]), row_x + 12, y + 3, 24, 24)
+        else:
+            canvas.text(row_x + 12, y + 7, str(rank), FONTS["GameFontHighlight"], TEXT, justify="CENTER", width=24)
+        text(canvas, name_left, y + 7, truncate(canvas, name, "GameFontHighlight", name_width), "GameFontHighlight")
+        right(canvas, extra_left + 90, y + 7, extra, "GameFontHighlightSmall", DIM, width=90)
+        right(canvas, value_left + value_width, y + 7, f"+{value}", "GameFontHighlight", GREEN, width=value_width)
+        note(f"Board row {rank}", "content", row_x, y, row_w, min(row_h, scroll_bottom - y), parent="Board list")
+    canvas.image.paste(below, (0, clip))
+
+    canvas.draw(ui.atlas("auctionhouse-ui-row-select"), row_x, pinned_y, row_w, row_h)
+    canvas.text(row_x + 12, pinned_y + 7, "15", FONTS["GameFontHighlight"], TEXT, justify="CENTER", width=24)
+    canvas.draw(ui.atlas("groupfinder-icon-class-warrior"), row_x + 45, pinned_y + 4, 22, 22)
+    text(canvas, name_left, pinned_y + 7, "Aveline (you)", "GameFontHighlight", wowmock.rgb("c79c6e"))
+    right(canvas, extra_left + 90, pinned_y + 7, "377 total", "GameFontHighlightSmall", DIM, width=90)
+    right(canvas, value_left + value_width, pinned_y + 7, "+21", "GameFontHighlight", GREEN, width=value_width)
+    note("Pinned own row", "content", row_x, pinned_y, row_w, row_h, parent="Board list")
+    text(canvas, row_x + row_w / 2 - 4, pinned_y - 12, "...", "GameFontDisableSmall", DIM)
+    minimal_scrollbar(canvas, inset_x + inset_w - 20, row_top, scroll_bottom - row_top, visible=0.8, offset=0.1)
+
+    checkbox_x, checkbox_y = px(16), py(height - 34 - 26)
+    canvas.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), checkbox_x, checkbox_y, 26, 26)
+    canvas.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), checkbox_x, checkbox_y, 26, 26)
+    note("Share my progress", "input", checkbox_x, checkbox_y, 26, 26)
+    text(canvas, checkbox_x + 28, checkbox_y + 5, "Share my progress", "GameFontHighlight", TEXT)
+    note("Share label", "content", checkbox_x + 28, checkbox_y + 5, 150, 16)
+    text(canvas, px(18), py(height - 26), "Others' values are player-reported.", "GameFontDisableSmall", DIM)
+    note("Reported values note", "content", px(18), py(height - 26), 220, 14)
+    return canvas
+
+
 def main():
     ui = wowmock.Ui(build=ART_BUILD, scale=2)
     OUT.mkdir(parents=True, exist_ok=True)
@@ -1309,29 +1430,14 @@ def main():
     save(render(barrens, search_species, "CREATURES"), "sighting-log.png")
     save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")
     save(render(barrens, prowler, "INSTANCES"), "instances-boss.png")
-    output = subprocess.run(
-        ["luajit", "tools/leaderboard_scene.lua"], cwd=ROOT, capture_output=True, text=True, check=True
-    ).stdout.splitlines()
-    font = wowmock.Font("fonts/arialn.ttf", 14, wowmock.rgb("ffffff"), (1, -1))
-    measure = ui.canvas(1, 1)
-    width = max(measure.text_width(line, font) for line in output) + 24
-    height = len(output) * 22 + 16
-    chat = ui.canvas(width, height)
-    chat.fill(0, 0, width, height, wowmock.rgb("0d0f12"))
-    LAYOUT["widgets"] = []
-    LAYOUT["canvas"] = {"width": width, "height": height, "scale": ui.scale}
-    LAYOUT["frame"] = {"x": 0, "y": 0, "w": width, "h": height}
-    for index, line in enumerate(output):
-        chat.text(12, 8 + index * 22, line, font)
-        note(f"Leaderboard line {index + 1}", "content", 12, 8 + index * 22, width - 24, 16)
-    save(chat, "leaderboard.png")
+    save(wowmock.scene(ui, [(leaderboard_window(ui), 0, 0)]), "leaderboard.png")
     render_minimap_scenes()
     subprocess.run([sys.executable, str(ROOT / "tools" / "rarity.py")], check=True)
     subprocess.run([sys.executable, str(ROOT / "tools" / "discovery.py")], check=True)
 
     def write_gallery():
         features = [
-            ("leaderboard.png", "Recorded kills leaderboard"),
+            ("leaderboard.png", "Forever Leaderboards on the Field Guide tab"),
             ("field-guide.png", "Creatures journal"),
             ("creature-icons.png", "Creature list icons in Darnassus"),
             ("variants.png", "Silver and gold coat filters"),
