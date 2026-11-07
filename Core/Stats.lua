@@ -235,7 +235,7 @@ end
 if ns.Leaderboards then
 	ns.Leaderboards:Register("fieldguide", {
 		title = L["Field Guide Forever"],
-		icon = "Interface\\AddOns\\FieldGuideForever\\media\\Icon",
+		icon = "Interface\\Icons\\Ability_Tracking",
 		metric = L["Creature kills"],
 		board = Board,
 		revision = function()
