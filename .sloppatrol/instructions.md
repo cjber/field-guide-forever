@@ -7,7 +7,7 @@ loads; `tests/*_spec.lua` load them in that order inside a stubbed client.
 - Generated data, `Locales/` and `tools/forever_tools/` are never edited by hand.
 - Never replace a Blizzard global, hook a secure function, or write a field on a Blizzard table: it
   taints the default UI.
-- Never launch the game, Battle.net, Lutris or Wine, and never use the network.
+- Never use the network, and never start the game, Battle.net, Lutris or Wine. The headless client (forever-core's `wow-forever-addon/in-game.md`) tests the build linked into the game, not this checkout, so in-game checks belong to the agent that ships a change.
 
 ## Live roots
 
