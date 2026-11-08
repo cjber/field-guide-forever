@@ -115,6 +115,7 @@ read_globals = {
 	"UISpecialFrames",
 	"UnitClass",
 	"UnitClassification",
+	"UnitFactionGroup",
 	"UnitGUID",
 	"UnitIsBossMob",
 	"UnitLevel",
@@ -124,8 +125,11 @@ read_globals = {
 	"UnitIsTapDenied",
 	"UnitIsPlayer",
 	"UnitName",
+	"UnitRace",
 	"date",
+	"debugstack",
 	"geterrorhandler",
+	"strtrim",
 	"time",
 }
 

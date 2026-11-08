@@ -2,6 +2,7 @@
 local addonName, ns = ...
 local L = ns.L
 
+ns.ReportTitle = L["Field Guide Forever report"]
 ns.ready = false
 ns.Zones = ns.Zones or {}
 ns.Instances = ns.Instances or {}
@@ -320,6 +321,16 @@ function ns.Initialize()
 		db.options.discoveryText = true
 	end
 	ns.db = db
+	-- The shared error journal and debug log (Core/SafeCall.lua, Core/Log.lua) live in the saved table, so a report
+	-- lists what led to a bug after a reload. They are attached once, after the saved variables exist.
+	if type(FieldGuideForeverDB.errors) ~= "table" then
+		FieldGuideForeverDB.errors = {}
+	end
+	if type(FieldGuideForeverDB.log) ~= "table" then
+		FieldGuideForeverDB.log = { lines = {}, pinned = false }
+	end
+	ns.AttachErrorJournal(FieldGuideForeverDB.errors)
+	ns.AttachLog(FieldGuideForeverDB.log)
 	ns.ready = true
 	ns.GetCharacterState(true)
 	ns.QuestieDB.Start(function()
@@ -569,6 +580,9 @@ SLASH_FIELDGUIDEFOREVER2 = "/fg"
 SLASH_FIELDGUIDEFOREVER3 = "/fgf"
 SlashCmdList["FIELDGUIDEFOREVER"] = function(message)
 	local command = type(message) == "string" and message:lower():match("^%s*(.-)%s*$") or ""
+	if ns.Report and ns.Report.Command and ns.Report.Command(command) then
+		return
+	end
 	if command == "help" then
 		local help = "Open your field guide with /fieldguide or /fg. Use /fgf leaderboard to open Forever Leaderboards, "
 			.. "or /fg preview to show every creature as silver, gold or shiny for this session."

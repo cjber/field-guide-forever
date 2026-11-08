@@ -107,6 +107,8 @@
 ---@field trackerHost? ForeverTrackerSettings the shared column's attach, lock, scale and detached position
 ---@field sharedStats? table<string, table<string, table<string, table<string, FGStatRecord>>>> peer -> addon -> subject -> metric
 ---@field peerStats table<string, table<string, table>> character -> source -> Core protocol store
+---@field errors? ForeverCaughtError[] the shared error journal: earlier sessions' errors, for the report
+---@field log? ForeverDebugLogStore the shared debug log ring: recent lines, for the report
 
 -- How many spawns of one coat this character has found, one entry for each rung of the ladder.
 ---@class FGVariant
@@ -120,12 +122,6 @@
 ---@field zone string
 ---@field species string
 ---@field kind string "kill", "silver", "gold", "shiny", "sighting", "boss-first", "boss-kill" or "boss-sighting"
-
--- A failure SafeCall caught.
----@class FGError
----@field context string
----@field message string
----@field time number
 
 -- A record the public API's spawn queries return: one QuestieDB spawn point resolved to a uiMapID.
 ---@class FGSpawn
@@ -309,9 +305,19 @@ function FGCreatureInfo.Get(npcID) end
 ---@field TrackerEqot? table EQOT's list, from the vendored UI/TrackerEqot.lua
 ---@field TrackerHostSettings fun(): ForeverTrackerSettings the shared column's saved table
 ---@field Discovery FGDiscovery
----@field SafeCall fun(context: string, fn: function, ...: any): ok: boolean, result: any
----@field GetErrors fun(): FGError[]
----@field ClearErrors fun()
+---@field SafeCall fun(label: string, fn: function, ...: any): boolean, ...any
+---@field RecordError fun(label: string, message: any, stack?: string)
+---@field CaughtErrors fun(): ForeverCaughtError[] this session's caught errors, oldest first
+---@field AttachErrorJournal fun(store: table) keep the journal in the saved table, so a /reload keeps it
+---@field CutText fun(text: string, limit: integer): string text cut to limit bytes on a UTF-8 boundary
+---@field Log fun(level: string, topic: string, message: any, ...: any) one line in the shared ring
+---@field LogLines fun(count?: integer): string[] the newest log lines, oldest first
+---@field AttachLog fun(store: table) keep the log ring in the saved table, so a /reload keeps it
+---@field DebugEnabled fun(): boolean the shared debug switch, for guarding expensive debug building
+---@field DebugCommand fun(argument?: string): boolean the /forever debug subcommands
+---@field ReportTitle string the localized title shown by the shared report window
+---@field Report ForeverReportModule the shared report and issue window
+---@field ReportLines fun(): string[] this addon's own lines in the report
 ---@field BuildCatalogue fun()
 ---@field FindZone fun(name: string?): FGZone?
 ---@field CurrentZone fun(): FGZone?
