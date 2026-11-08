@@ -14,15 +14,17 @@
 ## OptionalDeps: QuestieDB, Questie
 
 Locales\enUS.lua
+Core\SafeCall.lua
+Core\Log.lua
 Data\Client.lua
 Data\CreatureIcons.lua
 Integrations\QuestieDB.lua
-Core\SafeCall.lua
 Core\Secret.lua
 Core\MinimapButton.lua
 Core\Model.lua
 Core\LegacyIds.lua
 Core\Core.lua
+Core\Report.lua
 Core\Kills.lua
 Core\PeerStats.lua
 Core\LeaderboardsData.lua
@@ -38,6 +40,7 @@ UI\Tracker.lua
 UI\SettingsPage.lua
 Core\Settings.lua
 UI\Art.lua
+UI\Report.lua
 UI\Tooltip.lua
 UI\List.lua
 UI\Detail.lua

@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Errors are kept across reloads.** The errors Field Guide Forever catches, blocked actions and Lua warnings now survive a reload, and `/fg report` shows a report to copy into a bug report. (cjber/field-guide-forever#214)
+
 ## [0.5.10] - 2026-11-08
 
 - **The Forever Leaderboards window and `/forever` come from the newest addon installed.** Whichever Forever addon loaded first used to keep its own copy of the window, even an older one, so recent fixes such as full Forever names reached you only by chance. The newest copy now takes over. Reported in game (cjber/forever-core#235).
