@@ -34,8 +34,7 @@ Use the user's existing authorization. A preparation-only request ends before ta
 
 ## Verify and publish
 
-7. Run the full gate from `AGENTS.md`. Record user `/reload` checks separately: agents never drive
-   the game, and headless specs do not prove client behaviour.
+7. Run the full gate from `AGENTS.md`. Headless specs do not prove client behaviour: check it in the headless client (forever-core's `wow-forever-addon/in-game.md`), and record what waits on the user as `/reload` checks.
 8. Ship the release PR signed and green. Merge only within the user's authorization, then wait for
    the full `ci.yml` push run on main at the exact commit to be tagged: `tools/release_check.py`
    accepts nothing else.
