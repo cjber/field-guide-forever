@@ -43,6 +43,8 @@ frame, when two controls overlap or sit closer than 8 units apart, or when the r
 manifest says it is. Runtime anchors and native template behavior are the source of truth. Fix the runtime producer and
 matching renderer together, then re-render; never fix only a PNG or silently diverge the mock from the addon.
 
+`tools/forever_sim/` is forever-core's client simulator, vendored the same way (`python3 tools/forever_sim/sync.py check`, `update --source <checkout>`). `luajit tools/forever_sim/run.lua` runs the scenarios in `tests/sim` under the client's real Blizzard UI source, fetched once with `python3 tools/forever_sim/fetch.py`; `tests/sim/exercise_scenario.lua` runs every slash command, the world map, combat and a `/reload` through `sim:exercise()`.
+
 Before handing off any README or mockup change, open every screenshot the README references and inspect the rendered
 images directly at full resolution, and step through the frames of `docs/screenshots/demo.gif`. Check for overlapping text or controls,
 widgets or markers clipped at a frame or card edge, content drawn outside its panel, misaligned rows, and truncated
