@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.5.11] - 2026-11-09
+
 - **Errors are kept across reloads.** The errors Field Guide Forever catches, blocked actions and Lua warnings now survive a reload, and `/fg report` shows a report to copy into a bug report. (cjber/field-guide-forever#214)
 - **The Forever Leaderboards period menu works with a gamepad.** With the gamepad interface on, a press on it steps through this week or all time, for your guild and group or for players you've met, instead of opening a game menu that later had the client block `SetPreferredGamepadInteractTarget()` (cjber/forever-core#267).
 
