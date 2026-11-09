@@ -48,7 +48,7 @@ Every scene `tools/mockups.py` renders. Written by that script; do not edit by h
 
 ![Target frame rarity](screenshots/rarity-target.png)
 
-![Nameplate rarity](screenshots/rarity-nameplates.png)
+![Nameplate rarity](screenshots/rarity-nameplates.gif)
 
 ![Elite rarity chrome](screenshots/rarity-elite.png)
 

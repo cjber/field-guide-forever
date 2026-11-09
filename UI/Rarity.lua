@@ -1,6 +1,5 @@
 ---@type string, FGNamespace
 local _, ns = ...
-local L = ns.L
 local Art = ns.Art
 
 ---@class FGRarity
@@ -14,7 +13,6 @@ Rarity.COLORS = {
 }
 
 local PLATE_ACCENT_ALPHA = 0.72
-local WHITE = "Interface\\Buttons\\WHITE8X8"
 -- The client's own rare silver frame, at its own size, for its portrait ring alone. A normal bronze frame stays
 -- exactly as the client draws it, and the ring is the piece CheckClassification uses, with no desaturation or tint of
 -- ours. The rare atlas's bar piece is not drawn: it paints a rectangular border over the name and health bar that
@@ -57,10 +55,6 @@ local PLATE_MARKS = {
 	gold = true,
 	shiny = true,
 }
-local TAG_HEIGHT = 15
-local TAG_PAD = 4
-local TAG_TEXT = { 0.05, 0.06, 0.07 }
-local TARGET_TAGS = { silver = "SILVER", gold = "GOLD", shiny = "SHINY" }
 local PREVIEW_TIERS = { "silver", "gold", "shiny" }
 local discoveredThisSession = {}
 
@@ -314,52 +308,6 @@ local function PaintTargetFrame(target, tier, color, native)
 	end
 end
 
----@param target table?
----@param name table?
----@return table?
-local function TargetTag(target, name)
-	if not target or not name then
-		return nil
-	end
-	local tag = target.FGFRarityTag
-	if type(tag) == "table" then
-		return tag
-	end
-	if not target.CreateFrame then
-		return nil
-	end
-	tag = CreateFrame("Frame", nil, target)
-	tag.plate = tag:CreateTexture(nil, "BACKGROUND")
-	tag.plate:SetTexture(WHITE)
-	tag.plate:SetAllPoints(tag)
-	tag.text = tag:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	tag.text:SetPoint("CENTER", tag, "CENTER", 0, 0)
-	tag.text:SetTextColor(TAG_TEXT[1], TAG_TEXT[2], TAG_TEXT[3], 1)
-	tag:SetPoint("BOTTOM", name, "TOP", 0, 2)
-	tag:Hide()
-	target.FGFRarityTag = tag
-	return tag
-end
-
----@param target table?
----@param name table?
----@param color number[]?
----@param label string?
-local function PaintTag(target, name, color, label)
-	local tag = TargetTag(target, name)
-	if not tag then
-		return
-	end
-	if color and label then
-		tag.text:SetText(label)
-		tag.plate:SetVertexColor(color[1], color[2], color[3], 1)
-		tag:SetSize(math.max(24, tag.text:GetStringWidth() + TAG_PAD * 2), TAG_HEIGHT)
-		tag:Show()
-	else
-		tag:Hide()
-	end
-end
-
 ---@param owner table?
 ---@param healthBar table?
 ---@param tier string
@@ -405,15 +353,7 @@ local function UpdateTarget()
 	end
 	local tier = TierFor("target")
 	local color = Rarity.COLORS[tier]
-	local target = _G.TargetFrame
-	local name = target and (target.name or target.Name)
-	if type(name) ~= "table" then
-		name = nil
-	end
-
-	PaintTargetFrame(target, tier, color, NativeFrame("target"))
-	local label = TARGET_TAGS[tier] and L[TARGET_TAGS[tier]] or nil
-	PaintTag(target, name, color, label)
+	PaintTargetFrame(_G.TargetFrame, tier, color, NativeFrame("target"))
 end
 
 ---@param plate table

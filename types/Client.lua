@@ -97,7 +97,6 @@ ForeverMinimapButtons = nil
 ---@field FGFRarityArt? FGFRarityTargetArt
 ---@field FGFRaritySheenAnim? AnimationGroup
 ---@field FGFRarityIcon? Texture
----@field FGFRarityTag? Frame
 ---@field FGFRarityMarker? Texture
 
 -- TargetFrame.xml: the classic target frame's portrait texture, drawn inside the frame chrome.
