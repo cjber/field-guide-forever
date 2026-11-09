@@ -9,7 +9,11 @@ A cosmetic journal of the creatures you kill in WoW: Forever, zone by zone.<br>
 <a href="https://ko-fi.com/cjber"><img src="https://img.shields.io/badge/Ko--fi-tip-ff5e5b?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
 </p>
 
-Field Guide Forever keeps a journal of the creatures you kill in Azeroth, zone by zone. It is cosmetic only: it never grants power, changes combat or calls a protected function.
+Field Guide Forever gives every creature in WoW: Forever a coat. Most are bronze, but 1 in 25 spawns is silver, 1 in 100 gold and 1 in 1000 shiny, and the target frame and nameplate show it the moment you see one. Every kill goes into a journal of Azeroth's creatures, zone by zone. It is cosmetic only: it never grants power, changes combat or calls a protected function.
+
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/rarity-nameplates.png" width="640" alt="Silver, gold and shiny laurel ornaments on the target frame, with the matching nameplate mark under each"></p>
+
+A silver, gold or shiny spawn wears a laurel ornament around its target portrait, from a single silver sprig up to a crystal wreath on shiny, with a tag naming the coat. Its nameplate gets the same mark beside the health bar. Every player sees the same coat on the same spawn, so a gold in your group is gold for everyone.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/demo.gif" width="640" alt="The Field Guide stepping through creatures, instances and the coat filters in several zones"></p>
 
@@ -27,13 +31,21 @@ Creatures and Instances share the side rail. The list opens on Discovered. Silve
 
 Records keep when you first and last saw a creature, how many deaths you recorded and the best coat you have found. [docs/gallery.md](docs/gallery.md) has every rendered scene.
 
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/discovery-toast-shiny.png" width="640" alt="The game's achievement toast announcing a Shiny Nightsaber"></p>
+
+Your first silver, gold or shiny of a species, a species reaching Mastered and a zone with every creature recorded each get the game's achievement toast. Click one to open the journal there.
+
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/leaderboard.png" width="640" alt="Forever Leaderboards on the Field Guide tab, ranking guild and group members by creature kills this week"></p>
+
+Guild and group members who run the addon share their totals. `/fgf leaderboard` ranks everyone by kills this week or all time.
+
 ## Features
 
+- **Rarity marks**: a silver, gold or shiny spawn wears a laurel ornament around its portrait that grows from a plain silver ring with one oak sprig through the gold wreath to a fuller crystal wreath. Silver and shiny also keep the client's rare silver frame, and shiny sweeps with a slow light sheen. The tier shows in the ornament's colour, with a SILVER, GOLD or SHINY tag above the name. Its nameplate gets the same quality mark to the right of the health bar. Health bars, names and the client's own rare, elite and boss art keep their colours. Bronze creatures look exactly as they always did, and `/fg preview` cycles the three higher coats for this session.
 - **Journal**: creatures across outdoor zones, dungeons and raids, with their level, rank and zone, read from QuestieDB as it updates. It opens on Discovered, so a new character starts with what they have actually met. Search by name, filter by status or coat, and switch between the Creatures and Instances tabs.
 - **Research ranks**: kills move a species through Discovered (1), Observed (3), Studied (6) and Mastered (10). The kill count keeps going after that.
 - **Zone completion**: the share of a zone's species you have recorded. It counts recorded species, not mastered ones, so the bar moves with every new creature.
 - **The coat ladder**: every spawn is bronze, silver (1 in 25), gold (1 in 100) or shiny (1 in 1000), decided by a stable hash of its spawn GUID. Every player sees the same coat on the same spawn, and the journal keeps how many of each you have found.
-- **Rarity marks**: a silver, gold or shiny spawn wears a laurel ornament around its portrait that grows from a plain silver ring with one oak sprig through the gold wreath to a fuller crystal wreath. Silver and shiny also keep the client's rare silver frame, and shiny sweeps with a slow light sheen. The tier shows in the ornament's colour, with a SILVER, GOLD or SHINY tag above the name. Its nameplate gets the same quality mark to the right of the health bar. Health bars, names and the client's own rare, elite and boss art keep their colours. Bronze creatures look exactly as they always did, and `/fg preview` cycles the three higher coats for this session.
 - **Records**: first sighting, first kill and best coat for each creature, kept per character, and a sighting log for the current session.
 - **Track Species**: put the species you are working on in the Forever tracker column every Forever addon shares, with its zone, sightings toward Mastered and kills.
 - **Discoveries**: a first kill is announced at the top of the screen and tagged New in the journal. Silver, gold, shiny, mastery and zone milestones get the game's achievement toast; click one to open the journal there. Both can be turned off in the options.
