@@ -6,6 +6,8 @@ A silver, gold or shiny spawn wears a laurel ornament around its target portrait
 
 Free, with nothing locked behind it. If you enjoy it, you can [buy me a coffee on Ko-fi](https://ko-fi.com/cjber).
 
+[![Support me on Ko-fi](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/kofi-button.png)](https://ko-fi.com/cjber)
+
 ![The Field Guide stepping through creatures, instances and the coat filters in several zones](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/demo.gif)
 
 Every catalogued zone has its own page of creatures, with your kills and research rank for each.
