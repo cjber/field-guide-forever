@@ -6,7 +6,7 @@
 A cosmetic journal of the creatures you kill in WoW: Forever, zone by zone.<br>
 <a href="https://github.com/cjber/field-guide-forever/actions/workflows/ci.yml"><img src="https://github.com/cjber/field-guide-forever/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 <a href="https://github.com/cjber/field-guide-forever/releases/latest"><img src="https://img.shields.io/github/v/release/cjber/field-guide-forever" alt="Latest release"></a>
-<br><br><a href="https://ko-fi.com/cjber"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi"></a>
+<br><br><a href="https://github.com/sponsors/cjber"><img src="docs/github-sponsors-button.png" width="223" alt="Sponsor me on GitHub"></a> <a href="https://ko-fi.com/cjber"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi"></a>
 </p>
 
 Field Guide Forever gives every creature in WoW: Forever a coat. Most are bronze, but 1 in 25 spawns is silver, 1 in 100 gold and 1 in 1000 shiny, and the target frame and nameplate show it the moment you see one. Every kill goes into a journal of Azeroth's creatures, zone by zone. It is cosmetic only: it never grants power or changes combat.
@@ -150,7 +150,7 @@ repository's [AGENTS.md](AGENTS.md). Report security problems privately, as
 
 ## Support
 
-The addon is free and stays GPL-3.0. If you enjoy it, you can [buy me a coffee on Ko-fi](https://ko-fi.com/cjber);
+The addon is free and stays GPL-3.0. If you enjoy it, you can [sponsor me on GitHub](https://github.com/sponsors/cjber), which takes no fees, or [buy me a coffee on Ko-fi](https://ko-fi.com/cjber);
 nothing is locked behind it and there is no paid version.
 
 ## Credits
