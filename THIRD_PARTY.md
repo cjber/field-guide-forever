@@ -12,6 +12,8 @@
 | Client art | Creature portraits, icons and window textures, drawn from the player's own client at runtime | The client the player runs | Blizzard Entertainment's | No |
 | Addon icon, made for this addon | `media/icon.svg`, rendered to `media/icon-400.png` and `media/Icon.tga` by forever-core's `wow-forever-addon/render_icon.py` | `media/icon.svg` | GPL-3.0-or-later | `Icon.tga` yes; the SVG and 400 px PNG no |
 | Rarity frame ornaments, original art made for this addon with AI assistance, no Blizzard art | The silver, gold and shiny laurel target-frame ornaments, in `media/Rarity/*.tga` | Drawn for this addon | GPL-3.0-or-later | Yes |
+| Ko-fi's Support me on Ko-fi button | The support button in the README (`ko-fi.com/img/githubbutton_sm.svg`) and its PNG render, `docs/kofi-button.png`, in the store description | None: the README links Ko-fi's live file; the PNG is rendered from it | Ko-fi's brand asset, used as Ko-fi provides it for linking to a Ko-fi page | No |
+| `docs/github-sponsors-button.png` | The GitHub Sponsors button in the README and store description; drawn here to match the Ko-fi button, with the heart from GitHub's [Octicons](https://github.com/primer/octicons) and the Adwaita Sans font | None | Octicons: MIT; Adwaita Sans: SIL OFL 1.1 | No |
 
 ## Ideas and contributors
 
