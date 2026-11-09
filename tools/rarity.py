@@ -2,13 +2,13 @@
 
 The addon's own ornaments do the work. A silver creature draws the client's rare silver portrait ring plus the silver
 laurel around its portrait, gold draws the gold laurel alone, and shiny draws the rare ring, the shiny laurel and the
-client's loot-toast sheen across both pieces. Each ornament is the addon's 256 px square TGA drawn at 2 px per UI
-unit, so 128 UI units a side and never stretched. The SILVER, GOLD or SHINY tag stays above the name. Nameplates carry
-the same quality icon to the right of the health bar. The health bar fill and name text keep the client's own colours,
-and BRONZE is the untouched client frame.
+client's loot-toast sheen across the ornament. Each ornament is the addon's 256 px square TGA drawn at 2 px per UI
+unit, so 128 UI units a side and never stretched. Nameplates carry the same quality icon to the right of the health
+bar. The health bar fill and name text keep the client's own colours, and BRONZE is the untouched client frame.
 
 Rare, elite, boss and minus-mob units already get the client's own frame art, so our ornaments are skipped for them
-while the tag still reads the coat. Every pixel that is not the addon's own art or layout comes from the pinned WoW:
+and the nameplate mark alone reads the coat. The nameplate sheet is an animated GIF that plays the shiny sheen on
+UI/Rarity.lua's own timing. Every pixel that is not the addon's own art or layout comes from the pinned WoW:
 Forever build through wowmock, so what is approved here is what the addon paints.
 
     python3 tools/rarity.py
@@ -36,9 +36,9 @@ OUT = ROOT / "docs" / "screenshots"
 # all; the whole promise of the feature is that a bronze creature looks exactly as it always did.
 TIERS = (
     ("BRONZE", "every spawn", None, "the client's frame, untouched"),
-    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver coat and SILVER tag"),
-    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "gold coat and GOLD tag"),
-    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "shiny coat and SHINY tag"),
+    ("SILVER", "1 in 25", wowmock.rgb("c9d2dc"), "silver ring and a single oak sprig"),
+    ("GOLD", "1 in 100", wowmock.rgb("e8bd63"), "the gold laurel"),
+    ("SHINY", "1 in 1000", wowmock.rgb("b9e6ff"), "a pearl laurel with a passing sheen"),
 )
 # The addon's own ornaments, one per coat. Each file is 256 px square at 2 px per UI unit, so 128 UI units a side.
 ORNAMENT_DIR = ROOT / "media" / "Rarity"
@@ -56,8 +56,6 @@ SHEEN_ATLAS = "loottoast-sheen"
 HEALTH_BAR_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Bar-Health"
 POWER_BAR_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Bar-Mana"
 NAME_BAR_ATLAS = "UI-HUD-UnitFrame-Target-PortraitOn-Type"
-TAG_HEIGHT = 15
-TAG_PAD = 4
 # Art.TIER_ICONS for the tiers whose target frame and nameplate carry their quality mark, at Rarity.lua's size and
 # resting alpha.
 PLATE_MARKS = {
@@ -73,7 +71,6 @@ MUTED = wowmock.rgb("9e998c")
 DIM = wowmock.rgb("7c786f")
 BRASS = wowmock.rgb("b8a16b")
 BG = wowmock.rgb("0d0f12")
-TAG_TEXT = wowmock.rgb("0d0f12")
 
 # The UI-HUD target frame's atlas is 192 by 67. These windows are the measured client regions inside it, in the same
 # units TargetFrame.xml anchors its health, power and portrait to.
@@ -103,6 +100,20 @@ LEVEL_CENTER = (188, 54)
 # and 80 down from its top-left, so the renderer places that hole on the portrait centre it already measures.
 ORNAMENT_LEFT = PORTRAIT_CENTER[0] - 48
 ORNAMENT_TOP = PORTRAIT_CENTER[1] - 80
+
+# UI/Rarity.lua anchors the sheen's CENTER on TargetFrameContainer's CENTER at -80, 0 and translates it 165 units right.
+# The 232 by 100 container centres the 192 by 67 frame art, so its centre is (96, 33.5) in frame-art units.
+SHEEN_START_CENTER = (96 - 80, 33.5)
+SHEEN_TRAVEL = 165
+# UI/Rarity.lua's sheen timing in seconds: fade in from START, travel from START, fade out from FADE_OUT, then HOLD.
+SHEEN_START = 1.1
+SHEEN_FADE_IN = 0.18
+SHEEN_FADE_OUT = 1.575
+SHEEN_FADE_OUT_DURATION = 0.25
+SHEEN_TRAVEL_DURATION = 0.725
+SHEEN_HOLD = 2.4
+# GIF frame time while the sheen moves; GIF delays are whole hundredths of a second.
+SHEEN_FRAME = 0.04
 
 # NumberFontNormalSmall is the client font object used by target-frame level text.
 FONTS["NumberFontNormalSmall"] = Font(wowmock.ARIALN, 10, wowmock.WHITE, None, True)
@@ -152,19 +163,36 @@ def sheen_mask(canvas, pieces):
     return mask
 
 
-def sheen(canvas, ui, x, y, pieces):
-    """Draw the loot-toast sheen still, clipped to the ring and ornament it crosses."""
+def sheen(canvas, ui, x, y, pieces, travelled, alpha):
+    """Draw the loot-toast sheen `travelled` units along its sweep at `alpha`, clipped to the art it crosses."""
+    if alpha <= 0:
+        return
     atlas = ui.atlas(SHEEN_ATLAS)
     layer = Image.new("RGBA", canvas.image.size)
     piece = atlas.image.resize((canvas.px(atlas.width), canvas.px(atlas.height)), Image.LANCZOS)
-    layer.paste(piece, (canvas.px(x + 90), canvas.px(y - 4)))
-    layer.putalpha(ImageChops.multiply(layer.getchannel("A"), sheen_mask(canvas, pieces)))
+    left = x + SHEEN_START_CENTER[0] + travelled - atlas.width / 2
+    top = y + SHEEN_START_CENTER[1] - atlas.height / 2
+    layer.paste(piece, (canvas.px(left), canvas.px(top)))
+    mask = sheen_mask(canvas, pieces).point(lambda value: round(value * alpha))
+    layer.putalpha(ImageChops.multiply(layer.getchannel("A"), mask))
     canvas.composite(layer, 0, 0, blend="ADD")
 
 
-def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
-    """Compose the client target frame with the addon's ornament and the tag."""
-    label, _, colour, _ = tier
+def sheen_state(t):
+    """The sheen's travel and alpha `t` seconds into one loop, as UI/Rarity.lua's animation group plays it."""
+    travel = SHEEN_TRAVEL * min(1, max(0, (t - SHEEN_START) / SHEEN_TRAVEL_DURATION))
+    if t < SHEEN_START:
+        return travel, 0.0
+    if t < SHEEN_START + SHEEN_FADE_IN:
+        return travel, (t - SHEEN_START) / SHEEN_FADE_IN
+    if t < SHEEN_FADE_OUT:
+        return travel, 1.0
+    return travel, max(0.0, 1 - (t - SHEEN_FADE_OUT) / SHEEN_FADE_OUT_DURATION)
+
+
+def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False, sheen_at=None):
+    """Compose the client target frame with the addon's ornament; `sheen_at` is the time into the shiny sheen loop."""
+    label = tier[0]
     frame = ui.atlas(TARGET_FRAME_ATLAS)
     health_bar = ui.atlas(HEALTH_BAR_ATLAS)
     power_bar = ui.atlas(POWER_BAR_ATLAS)
@@ -188,17 +216,10 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
             canvas.draw(ring, x, y, FRAME_W, FRAME_H)
         if label in ORNAMENT_FILES:
             draw_ornament(canvas, label, x, y)
-        if label == "SHINY":
-            sheen(
-                canvas,
-                ui,
-                x,
-                y,
-                (
-                    (ring, x, y, FRAME_W, FRAME_H),
-                    (ornament(label), x + ORNAMENT_LEFT, y + ORNAMENT_TOP, ORNAMENT_SIZE, ORNAMENT_SIZE),
-                ),
-            )
+        if label == "SHINY" and sheen_at is not None:
+            # UI/Rarity.lua masks the sheen by the shiny ornament alone.
+            pieces = ((ornament(label), x + ORNAMENT_LEFT, y + ORNAMENT_TOP, ORNAMENT_SIZE, ORNAMENT_SIZE),)
+            sheen(canvas, ui, x, y, pieces, *sheen_state(sheen_at))
     else:
         ring = ui.atlas(GOLD_RING_ATLAS)
         canvas.draw(ring, x + 112, y - 17.5, ring.width, ring.height)
@@ -238,21 +259,6 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False):
         justify="CENTER",
         width=30,
     )
-
-    if colour:
-        tag(canvas, x, y, label, colour)
-
-
-def tag(canvas, x, y, label, colour):
-    """The SILVER, GOLD or SHINY plate above the health bar: tier colour with dark text and a thin dark edge."""
-    font = FONTS["GameFontNormalSmall"]
-    width = canvas.text_width(label, font) + TAG_PAD * 2
-    bar_width = HEALTH_WINDOW[2] - HEALTH_WINDOW[0]
-    left = x + HEALTH_WINDOW[0] + (bar_width - width) / 2
-    top = y - TAG_HEIGHT - 3
-    canvas.fill(left - 1, top - 1, width + 2, TAG_HEIGHT + 2, TAG_TEXT)
-    canvas.fill(left, top, width, TAG_HEIGHT, colour)
-    canvas.text(left + TAG_PAD, top + 1, label, font, TAG_TEXT)
 
 
 def mark(canvas, ui, name, x, y, height, colour):
@@ -299,16 +305,16 @@ def nameplate(ui, canvas, x, y, tier, name):
         )
 
 
-def sheet(ui, icons, name, native=False, plates=False):
+def sheet(ui, icons, name, native=False, plates=False, sheen_at=None):
     cols, rows = 2, 2
     cell_w, cell_h = 330, 220
     m = 34
     canvas = ui.canvas(cell_w * cols + m * 2, cell_h * rows + m * 2 + 64)
     canvas.fill(0, 0, canvas.width, canvas.height, BG)
     text(canvas, m, 18, "FIELD GUIDE  \u00b7  RARITY AT A GLANCE", "GameFontNormal", BRASS)
-    subtitle = "Field Guide's own laurel ornaments around each portrait, with the tag"
+    subtitle = "Field Guide's own laurel ornaments around each portrait"
     if native:
-        subtitle = "The client's own rare and elite frame art stays; the tag still names the coat"
+        subtitle = "The client's own rare and elite frame art stays; the nameplate mark names the coat"
     text(canvas, m, 36, subtitle, "GameFontDisableSmall", MUTED)
     folk = ["Savannah Prowler", "Bristleback Boar", "Prairie Wolf", "Plainstrider"]
     glyph = ["prowler", "boar", "wolf", "strider"]
@@ -321,7 +327,7 @@ def sheet(ui, icons, name, native=False, plates=False):
         odds_x = cx + canvas.text_width(label, FONTS["GameFontNormal"]) + 8
         text(canvas, odds_x, cy + 1, odds, "GameFontDisableSmall", DIM)
         text(canvas, cx, cy + 16, note, "GameFontDisableSmall", MUTED)
-        target_frame(ui, canvas, cx + 14, cy + 52, tier, icons[glyph[index]], folk[index], 12 + index, native=native)
+        target_frame(ui, canvas, cx + 14, cy + 52, tier, icons[glyph[index]], folk[index], 12 + index, native, sheen_at)
         if plates:
             nameplate(ui, canvas, cx + 74, cy + 196, tier, folk[index])
     return canvas
@@ -339,10 +345,43 @@ def main():
             ("strider", "ability_hunter_pet_tallstrider"),
         )
     }
-    sheet(ui, icons, "target frames").save(OUT / "rarity-target.png")
-    sheet(ui, icons, "nameplates", plates=True).save(OUT / "rarity-nameplates.png")
+    # The still sheets catch the sheen mid-sweep, so a static image still shows that shiny shines.
+    still = SHEEN_START + SHEEN_TRAVEL_DURATION / 2
+    sheet(ui, icons, "target frames", sheen_at=still).save(OUT / "rarity-target.png")
     sheet(ui, icons, "elite frames", native=True, plates=True).save(OUT / "rarity-elite.png")
+    nameplates_gif(ui, icons)
     print("wrote 3 rarity sheets")
+
+
+def nameplates_gif(ui, icons):
+    """The nameplate sheet as one loop of the shiny sheen: a hold frame, the sweep at SHEEN_FRAME, then the hold."""
+    sweep_end = SHEEN_FADE_OUT + SHEEN_FADE_OUT_DURATION
+    times = [0.0]
+    t = SHEEN_START
+    while t < sweep_end - SHEEN_FRAME / 2:
+        times.append(t)
+        t = round(t + SHEEN_FRAME, 6)
+    times.append(sweep_end)
+    loop = sweep_end + SHEEN_HOLD
+    durations = [round((b - a) * 1000) for a, b in zip(times, times[1:] + [loop], strict=True)]
+    frames = [sheet(ui, icons, "nameplates", plates=True, sheen_at=t).image.convert("RGB") for t in times]
+    # One palette from the first frame and the sheen mid-sweep, so the static art keeps one colour through the loop.
+    # No dither, which would flicker between frames and defeat GIF compression.
+    palette_source = Image.new("RGB", (frames[0].width, frames[0].height * 2))
+    palette_source.paste(frames[0], (0, 0))
+    palette_source.paste(frames[len(frames) // 2], (0, frames[0].height))
+    # libimagequant keeps the small hues (the teal shiny mark, the laurel's violet) that median cut merges away.
+    palette = palette_source.quantize(colors=256, method=Image.Quantize.LIBIMAGEQUANT)
+    quantised = [frame.quantize(palette=palette, dither=Image.Dither.NONE) for frame in frames]
+    quantised[0].save(
+        OUT / "rarity-nameplates.gif",
+        save_all=True,
+        append_images=quantised[1:],
+        duration=durations,
+        loop=0,
+        optimize=False,
+        disposal=1,
+    )
 
 
 if __name__ == "__main__":

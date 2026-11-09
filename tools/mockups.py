@@ -1458,7 +1458,7 @@ def main():
             ("minimap-options.png", "Minimap button setting"),
             ("sighting-log.png", "Sighting records"),
             ("rarity-target.png", "Target frame rarity"),
-            ("rarity-nameplates.png", "Nameplate rarity"),
+            ("rarity-nameplates.gif", "Nameplate rarity"),
             ("rarity-elite.png", "Elite rarity chrome"),
             ("instances-boss.png", "Instance boss record"),
             ("missing-questiedb.png", "QuestieDB install prompt"),

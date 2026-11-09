@@ -126,10 +126,7 @@ local LAUREL_SILVER = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laur
 local LAUREL_GOLD = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Gold.tga"
 local LAUREL_SHINY = "Interface\\AddOns\\FieldGuideForever\\media\\Rarity\\Laurel-Shiny.tga"
 AssertTargetColoursUntouched("a silver preview")
-assert(
-	target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText():find("SILVER", 1, true),
-	"silver previews its size and SILVER"
-)
+assert(rawget(target, "FGFRarityTag") == nil, "the preview draws no tier tag")
 local previewArt = target.FGFRarityArt
 local function PreviewFrameShown()
 	return previewArt.ring:IsShown()
@@ -156,7 +153,6 @@ local function targetCreature(name, guid)
 end
 targetCreature("Gold Test Creature", "Creature-0-1-0-1-1100-0000000001")
 AssertTargetColoursUntouched("a gold preview")
-assert(target.FGFRarityTag.text:GetText():find("GOLD", 1, true), "gold previews its size and GOLD")
 assert(not PreviewFrameShown(), "a gold preview adds no rare frame")
 assert(
 	previewArt.ornament:IsShown() and previewArt.ornament._texture == LAUREL_GOLD,
@@ -165,7 +161,6 @@ assert(
 assert(not previewArt.anim:IsPlaying(), "a gold preview does not animate")
 targetCreature("Shiny Test Creature", "Creature-0-1-0-1-2000-0000000001")
 AssertTargetColoursUntouched("a shiny preview")
-assert(target.FGFRarityTag.text:GetText():find("SHINY", 1, true), "shiny previews its size and SHINY")
 assert(PreviewFrameShown(), "a shiny preview keeps the silver rare frame")
 assert(
 	previewArt.ornament:IsShown() and previewArt.ornament._texture == LAUREL_SHINY,
@@ -241,15 +236,11 @@ assert(ns.RarityPreviewActive(), "preview turns on for the friendly checks")
 assert(not PreviewFrameShown(), "a friendly preview target shows no rare frame")
 assert(not previewArt.ornament:IsShown(), "a friendly preview target shows no ornament")
 assert(not previewArt.anim:IsPlaying(), "a friendly preview target starts no sheen")
-local friendlyTag = target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() or ""
-for _, tier in ipairs({ "SILVER", "GOLD", "SHINY" }) do
-	assert(not friendlyTag:find(tier, 1, true), "a friendly preview target shows no " .. tier .. " tag")
-end
 
 friendlyUnits.target = false
 targetCreature("Gold Test Creature", GuidFor("bronze", "preview-after-friendly-target"))
 assert(
-	target.FGFRarityTag.text:GetText():find("SILVER", 1, true),
+	previewArt.ornament:IsShown() and previewArt.ornament._texture == LAUREL_SILVER,
 	"a friendly target does not consume the first preview tier"
 )
 assert(PreviewFrameShown(), "the next attackable creature takes the first preview tier")

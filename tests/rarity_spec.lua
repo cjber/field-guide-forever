@@ -19,11 +19,6 @@ assert(ns.Model.SpawnTier(GuidFor("gold", "b")) == "gold", "a spawn GUID can be 
 assert(ns.Model.SpawnTier(GuidFor("silver", "c")) == "silver", "a spawn GUID can be silver")
 assert(ns.Model.SpawnTier(nil) == "bronze", "no readable GUID stays bronze")
 
--- The tag carries only the spawn's coat.
-local function ExpectedTag(tier)
-	return tier ~= "bronze" and tier:upper() or ""
-end
-
 local chromeColour = { 0.8, 0.7, 0.6, 0.9 }
 local healthColour = { 0.2, 0.6, 0.2, 1 }
 local powerColour = { 0.1, 0.2, 0.8, 1 }
@@ -176,7 +171,6 @@ local function AssertTargetFrame(tier, label)
 end
 
 Mock.Fire("PLAYER_TARGET_CHANGED")
-local silverColour = ns.Rarity.COLORS.silver
 local chromeR, chromeG, chromeB, chromeA = chrome:GetVertexColor()
 assert(not chrome:IsDesaturated(), "a rare tier leaves the client chrome untouched")
 assert(
@@ -187,28 +181,14 @@ assert(
 	"the original chrome tint survives"
 )
 AssertTargetColoursUntouched("a silver target")
-assert(target.FGFRarityTag:IsShown(), "a tier tag sits above the target name")
-assert(target.FGFRarityTag.text:GetText() == ExpectedTag("silver"), "silver reads SILVER")
-local silverTag = target.FGFRarityTag.text:GetText()
-local tagR, tagG, tagB = target.FGFRarityTag.plate:GetVertexColor()
-assert(
-	tagR == silverColour[1] and tagG == silverColour[2] and tagB == silverColour[3],
-	"the tag plate takes the tier colour"
-)
+assert(rawget(target, "FGFRarityTag") == nil, "no tier tag is drawn above the target name")
 AssertTargetFrame("silver", "a silver target")
 harness.env.UnitName = function(unit)
 	return unit == "target" and gold.name or "Tester"
 end
 Mock.guids.target = GuidFor("gold", "t")
 Mock.Fire("PLAYER_TARGET_CHANGED")
-local goldColour = ns.Rarity.COLORS.gold
 AssertTargetColoursUntouched("a gold target")
-assert(target.FGFRarityTag.text:GetText() == ExpectedTag("gold"), "gold reads GOLD")
-local goldTagR, goldTagG, goldTagB = target.FGFRarityTag.plate:GetVertexColor()
-assert(
-	goldTagR == goldColour[1] and goldTagG == goldColour[2] and goldTagB == goldColour[3],
-	"the tag plate follows a tier change"
-)
 AssertTargetFrame("gold", "a gold target")
 
 harness.env.UnitName = function()
@@ -217,7 +197,6 @@ end
 Mock.guids.target = GuidFor("bronze", "t")
 Mock.Fire("PLAYER_TARGET_CHANGED")
 AssertTargetColoursUntouched("a bronze target")
-assert(not target.FGFRarityTag:IsShown(), "a bronze target shows no tag")
 assert(not FrameShown(), "an uncatalogued target hides the frame recolour")
 assert(not target.FGFRarityArt.ornament:IsShown(), "an uncatalogued target hides the ornament")
 chromeR, chromeG, chromeB, chromeA = chrome:GetVertexColor()
@@ -231,7 +210,7 @@ assert(
 )
 
 -- Rare, elite, boss and minus-mob units already get the client's own silver, gold or reduced frame art. Our ornament
--- stays out of the way, while the tag still tells the player which coat this spawn rolled.
+-- stays out of the way; the nameplate mark still tells the player which coat this spawn rolled.
 harness.env.UnitName = function(unit)
 	return unit == "target" and silver.name or "Tester"
 end
@@ -242,7 +221,6 @@ for _, classification in ipairs({ "rare", "rareelite", "elite", "minus" }) do
 	assert(not FrameShown(), "a " .. classification .. " target keeps the client's own frame without our art")
 	assert(not target.FGFRarityArt.ornament:IsShown(), "a " .. classification .. " target adds no ornament")
 	assert(not target.FGFRarityArt.anim:IsPlaying(), "a " .. classification .. " target starts no sheen")
-	assert(target.FGFRarityTag:IsShown(), "a " .. classification .. " target still shows its tier tag")
 end
 Mock.classification.target = "normal"
 Mock.boss.target = true
@@ -267,17 +245,12 @@ end
 Mock.guids.target = GuidFor("shiny", "t")
 Mock.Fire("PLAYER_TARGET_CHANGED")
 AssertTargetColoursUntouched("a target change in combat")
-assert(
-	target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() == silverTag,
-	"combat leaves the previous tier untouched"
-)
+AssertTargetFrame("silver", "combat leaves the previous tier untouched")
 harness.env.InCombatLockdown = function()
 	return false
 end
 Mock.Fire("PLAYER_REGEN_ENABLED")
 AssertTargetColoursUntouched("a target change after combat")
-assert(target.FGFRarityTag:IsShown(), "the shiny tag applies after combat")
-assert(target.FGFRarityTag.text:GetText() == ExpectedTag("shiny"), "shiny reads SHINY")
 AssertTargetFrame("shiny", "a shiny target after combat")
 
 -- The sheen is cosmetic and animates nothing protected, so a fight does not stop it; hiding the art does.
@@ -435,8 +408,6 @@ for _, tier in ipairs({ "silver", "gold", "shiny" }) do
 	assert(not FrameShown(), label .. ": no silver frame")
 	assert(not target.FGFRarityArt.ornament:IsShown(), label .. ": no ornament")
 	assert(not target.FGFRarityArt.anim:IsPlaying(), label .. ": no sheen")
-	local text = target.FGFRarityTag:IsShown() and target.FGFRarityTag.text:GetText() or ""
-	assert(not text:find(tier:upper(), 1, true), label .. ": no " .. tier:upper() .. " tag")
 
 	Mock.guids.nameplate3 = GuidFor(tier, "friendly-plate")
 	Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate3")

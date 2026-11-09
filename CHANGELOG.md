@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **A calmer shiny frame.** A shiny creature now wears the gold laurel's shape in pearl instead of the larger crystal wreath, and its light sweep does the shining. The SILVER, GOLD and SHINY labels above the target's name are gone: the laurel and the nameplate mark already show the coat.
+
 ## [0.5.11] - 2026-11-09
 
 - **Errors are kept across reloads.** The errors Field Guide Forever catches, blocked actions and Lua warnings now survive a reload, and `/fg report` shows a report to copy into a bug report. (cjber/field-guide-forever#214)
