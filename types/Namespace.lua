@@ -285,6 +285,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field Discovery FGDiscovery
 ---@field core ForeverCoreAddon the addon's own ForeverCore services: journal, log, report and map canvas
 ---@field broken? boolean set when an installed ForeverCore is too old, so the addon's files stop
+---@field icon string the client icon every in-game identity surface draws, read from ## X-Forever-Icon
 ---@field ReportTitle string the localized title shown by the shared report window
 ---@field ReportLines fun(): string[] this addon's own lines in the report
 ---@field BuildCatalogue fun()

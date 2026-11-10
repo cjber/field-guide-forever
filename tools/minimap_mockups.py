@@ -2,8 +2,8 @@
 """Draw the README scenes for Field Guide's minimap button with the client's own art.
 
 The layout follows forever-core's `docs/handoff/minimap-buttons/render.py`: the client's Minimap face and frame, then
-Field Guide's LibDBIcon button on the rim at the shared module's first default angle. The icon is the client's wolf,
-the art the old painted micro-menu glyph was tinted from.
+Field Guide's LibDBIcon button on the rim at the shared module's first default angle. The icon is the client's book,
+the addon's declared `## X-Forever-Icon`.
 
     FOREVER_CORE=/path/to/forever-core python3 tools/minimap_mockups.py
 
@@ -38,7 +38,7 @@ TRACKING_BORDER = 136430  # interface/minimap/minimap-trackingborder.blp
 MINIMAP_BACKGROUND = 136467  # interface/minimap/ui-minimap-background.blp
 # Core/MinimapButton.lua's first default angle: bottom-left.
 FIELD_GUIDE_ANGLE = 225
-FIELD_GUIDE_ICON = "interface/icons/ability_hunter_pet_wolf.blp"
+FIELD_GUIDE_ICON = "interface/icons/inv_misc_book_09.blp"
 
 ui = W.Ui(build=ART_BUILD, scale=2)
 
