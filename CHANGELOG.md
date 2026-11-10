@@ -5,8 +5,12 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-10
+
 - **Needs Forever Core.** The shared tracker column, bug report and leaderboards now come from one Forever Core addon that installs with it, so every Forever addon's tracker scale, lock and position stay in step. Your tracker settings carry over.
 - **The creature catalogue loads in slices, and an unsupported QuestieDB says so.** Reading every creature in one frame could stall the journal's first load, and a QuestieDB outside the supported contract was either read blindly or shown as missing. The catalogue is now read over a few frames through QuestieDB's public API, a ZoneDB without map overrides still places creatures, and an install for another flavour or contract says it is not supported instead of asking you to install it (#264).
+
+<!-- discord-image: docs/screenshots/field-guide.png -->
 
 ## [0.5.12] - 2026-11-10
 
