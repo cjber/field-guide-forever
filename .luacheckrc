@@ -33,7 +33,6 @@ read_globals = {
 
 	"C_Map",
 	"LibQuestieDB",
-	"QuestieDB",
 	"Questie",
 
 	"C_NamePlate",
@@ -103,6 +102,7 @@ read_globals = {
 	"UnitName",
 	"UnitRace",
 	"date",
+	"debugprofilestop",
 	"debugstack",
 	"geterrorhandler",
 	"strtrim",

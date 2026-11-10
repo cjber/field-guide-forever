@@ -91,6 +91,9 @@ assert(catalogued[1].catalogued, "catalogued reports this character's specimen p
 
 local withoutSupport = Mock.Harness()
 withoutSupport.env.LibQuestieDB = {
+	RequireContract = function()
+		return true
+	end,
 	Npc = {
 		GetAllIds = function()
 			return { 1001 }
@@ -111,7 +114,12 @@ assert(withoutSupport.env.FieldGuideForever.API.Spawns(1001) == nil, "missing Qu
 creature.zoneID = 2917
 creature.spawns = { [2917] = { { 50, 50 } } }
 local barracks = Mock.Harness()
-barracks.env.LibQuestieDB = { Npc = harness.env.LibQuestieDB.Npc }
+barracks.env.LibQuestieDB = {
+	RequireContract = function()
+		return true
+	end,
+	Npc = harness.env.LibQuestieDB.Npc,
+}
 barracks:Fire("ADDON_LOADED", "FieldGuideForever")
 barracks:RunTimers()
 assert(

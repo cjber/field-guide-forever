@@ -72,6 +72,9 @@ local fixture = {
 	},
 }
 harness.env.LibQuestieDB = {
+	RequireContract = function()
+		return true
+	end,
 	Npc = {
 		GetAllIds = function()
 			return { 50003, 50002, 50001 }

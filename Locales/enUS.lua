@@ -81,6 +81,7 @@ local L = {
 	["Defeat one to add it, then watch for its rarer variants."] = "Defeat one to add it, then watch for its rarer variants.",
 	["Nothing recorded yet."] = "Nothing recorded yet.",
 	["Loading QuestieDB catalogue…"] = "Loading QuestieDB catalogue…",
+	["The installed QuestieDB is not supported. Update QuestieDB and Field Guide Forever."] = "The installed QuestieDB is not supported. Update QuestieDB and Field Guide Forever.",
 	["Install QuestieDB or Questie to load the creature catalogue.\nhttps://www.curseforge.com/wow/addons/questie"] = "Install QuestieDB or Questie to load the creature catalogue.\nhttps://www.curseforge.com/wow/addons/questie",
 	["Boss encounters recorded on this character"] = "Boss encounters recorded on this character",
 	["No completed boss encounters recorded yet."] = "No completed boss encounters recorded yet.",

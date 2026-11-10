@@ -9,8 +9,20 @@ end
 local DB = {}
 ns.QuestieDB = DB
 local status = "missing"
+-- Questie can load and then never report ready, when its own startup stops on an error for one character. Waiting
+-- longer than this would leave the journal on its loading line for the whole session, so the catalogue is read
+-- without Questie's live policy instead.
 local WAIT = 60
+-- The addon whose metadata the contract and flavour checks read.
+local ADDON = "QuestieDB"
+-- The contract this file was written against. QuestieDB checks a range, so a newer additive release keeps working.
+local CONTRACT = 2
+-- A build is sliced across frames: reading every NPC with all seven fields in one frame stalls it. A few frames a
+-- second for a couple of seconds is the smaller cost.
+local SLICE_MS = 2
 local REQUIRED = { "name", "minLevel", "maxLevel", "rank", "subName", "zoneID", "spawns" }
+-- A build in progress, so a late ready callback or the wait fallback never starts a second one over it.
+local building = false
 
 local function IsJournalInstance(map)
 	return map and (map.instanceType == 1 or map.instanceType == 2)
@@ -29,6 +41,23 @@ function DB.State()
 	return status
 end
 
+-- QuestieDB as this file reads it: on a contract this file understands and carrying the Forever rows. A version
+-- outside the range, or another flavour, has a different shape, so its state is unsupported rather than read.
+---@return boolean
+local function Fit()
+	local lib = LibQuestieDB
+	if type(lib) ~= "table" or type(lib.RequireContract) ~= "function" then
+		return false
+	end
+	local called, fits = pcall(lib.RequireContract, CONTRACT)
+	if not (called and fits) then
+		return false
+	end
+	local get = C_AddOns and C_AddOns.GetAddOnMetadata
+	local read, flavour = pcall(get, ADDON, "X-Flavor")
+	return read and flavour == "Forever"
+end
+
 ---@param source any
 ---@return table?
 local function ReadSupportTable(source)
@@ -44,7 +73,7 @@ end
 local cachedAreaSource, cachedOverrideSource, cachedArea, cachedOverride
 
 -- QuestieDB's own ZoneDB tables from AreaTable ID to uiMapID: the base table and its overrides. nil when the lib,
--- contract 2 or ZoneDB is missing.
+-- contract 2 or ZoneDB is missing. The override table is optional, so a ZoneDB without one returns an empty table.
 ---@return table<integer, integer>? area
 ---@return table<integer, integer>? override
 function DB.AreaMaps()
@@ -57,7 +86,7 @@ function DB.AreaMaps()
 	then
 		return nil
 	end
-	local ok, contract = pcall(lib.RequireContract, 2)
+	local ok, contract = pcall(lib.RequireContract, CONTRACT)
 	if not ok or not contract then
 		return nil
 	end
@@ -69,8 +98,9 @@ function DB.AreaMaps()
 		return cachedArea, cachedOverride
 	end
 	local area = ReadSupportTable(areaSource)
-	local override = ReadSupportTable(overrideSource)
-	if not area or not override then
+	-- The override table is optional: ZoneDB ships without one when no area needs remapping.
+	local override = ReadSupportTable(overrideSource) or {}
+	if not area then
 		return nil
 	end
 	cachedAreaSource, cachedOverrideSource = areaSource, overrideSource
@@ -78,37 +108,36 @@ function DB.AreaMaps()
 	return area, override
 end
 
+-- One NPC's required fields, in REQUIRED's order, through QuestieDB's public reader.
+---@param id integer
+---@param lib table
+---@return table?
 local function ReadNpc(id, lib)
-	if lib and lib.Npc and type(lib.Npc.GetAll) == "function" then
-		local values = lib.Npc.GetAll(id, REQUIRED)
-		if type(values) == "table" then
-			local row = {}
-			for i, key in ipairs(REQUIRED) do
-				row[key] = values[i]
-			end
-			return row
-		end
+	local values = lib.Npc.GetAll(id, REQUIRED)
+	if type(values) ~= "table" then
+		return nil
 	end
-	local raw = type(QuestieDB) == "table" and QuestieDB.NpcDB
-	return type(raw) == "table" and raw[id] or nil
+	local row = {}
+	for i, key in ipairs(REQUIRED) do
+		row[key] = values[i]
+	end
+	return row
 end
 
-local function Build()
+-- The catalogue, as a coroutine body: `yield` runs between NPCs so no frame reads the whole database.
+---@param yield fun()
+---@return boolean
+local function Build(yield)
 	local lib = LibQuestieDB
-	local raw = type(QuestieDB) == "table" and QuestieDB.NpcDB
-	local sourceIds
-	if type(lib) == "table" and type(lib.Npc) == "table" and type(lib.Npc.GetAllIds) == "function" then
-		sourceIds = lib.Npc.GetAllIds()
-	elseif type(raw) == "table" then
-		sourceIds = {}
-		for id in pairs(raw) do
-			if tonumber(id) then
-				sourceIds[#sourceIds + 1] = tonumber(id)
-			end
-		end
-	else
+	if
+		type(lib) ~= "table"
+		or type(lib.Npc) ~= "table"
+		or type(lib.Npc.GetAllIds) ~= "function"
+		or type(lib.Npc.GetAll) ~= "function"
+	then
 		return false
 	end
+	local sourceIds = lib.Npc.GetAllIds()
 	local ids = {}
 	for _, id in ipairs(type(sourceIds) == "table" and sourceIds or {}) do
 		if tonumber(id) then
@@ -216,6 +245,7 @@ local function Build()
 				zonesById[zoneId].species[#zonesById[zoneId].species + 1] = species
 			end
 		end
+		yield()
 	end
 	for index = #zones, 1, -1 do
 		local zone = zones[index]
@@ -265,19 +295,45 @@ local function Build()
 end
 
 function DB.Start(onReady)
-	local function settle()
-		local ok, built = pcall(Build)
-		if ok and built then
-			State("ok")
-			onReady()
-		elseif type(LibQuestieDB) == "table" or type(QuestieDB) == "table" then
-			State("unsupported")
-		else
-			State("missing")
+	local started
+	-- Runs between NPCs: a slice lasts SLICE_MS, then the next frame resumes the build.
+	local function Yield()
+		if debugprofilestop() - started >= SLICE_MS then
+			coroutine.yield()
 		end
 	end
-	if type(LibQuestieDB) ~= "table" and type(QuestieDB) ~= "table" then
+	local function settle()
+		if building then
+			return
+		end
+		building = true
+		State("loading")
+		local thread = coroutine.create(function()
+			return Build(Yield)
+		end)
+		local function step()
+			started = debugprofilestop()
+			local ok, built = coroutine.resume(thread)
+			if ok and coroutine.status(thread) ~= "dead" then
+				C_Timer.After(0, step)
+				return
+			end
+			building = false
+			if ok and built then
+				State("ok")
+				onReady()
+			else
+				State("unsupported")
+			end
+		end
+		step()
+	end
+	if type(LibQuestieDB) ~= "table" then
 		State("missing")
+		return
+	end
+	if not Fit() then
+		State("unsupported")
 		return
 	end
 	if
