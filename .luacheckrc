@@ -135,3 +135,5 @@ read_globals = {
 
 -- A translation's lines are as long as its phrases.
 files["Locales/*.lua"] = { max_line_length = false }
+-- Core/OpenMap.lua: the client's secure world map opener.
+read_globals[#read_globals + 1] = "CreateSecureDelegate"
