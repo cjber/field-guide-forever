@@ -336,6 +336,8 @@ function FGCreatureInfo.Get(npcID) end
 ---@field Usable fun(frame: Frame?): boolean false for nil or a forbidden frame
 ---@field RarityPreviewActive fun(): boolean true while /fg preview marks every creature
 ---@field OpenGuide fun()
+---@field GamepadUI fun(): boolean whether the gamepad interface is on
+---@field ContextMenu fun(owner: Frame, generator: fun(owner: Frame, root: any)): any a menu, or a line under the gamepad interface
 ---@field OpenMap fun(mapID: integer?): boolean opens or moves the world map, never in combat
 
 ---@class FGGlobal

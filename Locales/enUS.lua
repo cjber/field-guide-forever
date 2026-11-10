@@ -28,6 +28,7 @@ local L = {
 	["Minimap button"] = "Minimap button",
 	["Adds a Field Guide button to the minimap."] = "Adds a Field Guide button to the minimap.",
 	["The Field Guide button can also be bound in Key Bindings > AddOns."] = "The Field Guide button can also be bound in Key Bindings > AddOns.",
+	["This menu needs mouse and keyboard."] = "This menu needs mouse and keyboard.",
 	["Field Guide"] = "Field Guide",
 	["Click to browse the field compendium"] = "Click to browse the field compendium",
 	["Field Guide Forever"] = "Field Guide Forever",

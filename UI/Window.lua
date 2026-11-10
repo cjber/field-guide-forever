@@ -12,14 +12,10 @@ local LEFT_WIDTH = 330
 local PANEL_HEIGHT = 514
 local FRAME_NAME = "FieldGuideForeverFrame"
 
--- A UI panel like the Adventure Guide: the game places it on the left, slides it beside other panels, and closes it
--- with Escape or when another left panel opens. Registered at load, before anything can show it. The special frames
--- entry closes it with Escape when it was opened in combat, outside the manager.
--- Blizzard reads UIPanelWindows only by a frame's name and never walks it, so the addon's entry taints nothing else.
-local PANEL = { area = "left", pushable = 0, whileDead = 1, width = WIDTH }
-if type(UIPanelWindows) == "table" then
-	UIPanelWindows[FRAME_NAME] = PANEL -- taint-ok: an entry read only for this addon's own frame
-end
+-- An addon-owned window drawn with the Adventure Guide's portrait frame. It opens itself rather than through the
+-- panel manager: any addon ShowUIPanel or HideUIPanel taints the gamepad frame bookkeeping, even with the gamepad
+-- interface off, and the client's next secure gamepad call is then blocked and blamed on this addon (#253).
+-- UISpecialFrames lets Escape close it.
 if type(UISpecialFrames) == "table" then
 	table.insert(UISpecialFrames, FRAME_NAME)
 end
@@ -470,7 +466,7 @@ function Window.ToggleZoneMenu()
 	if not frame or not Window.breadcrumb then
 		return
 	end
-	MenuUtil.CreateContextMenu(Window.breadcrumb, function(_, root)
+	ns.ContextMenu(Window.breadcrumb, function(_, root)
 		-- Every zone is a row: past 20 rows of 20 px the menu scrolls rather than running off the screen (WFA-36).
 		root:SetScrollMode(20 * 20)
 		root:CreateTitle(L["Choose a zone"])
@@ -490,7 +486,7 @@ function Window.ToggleFilterMenu()
 	if not frame or not Window.filterButton then
 		return
 	end
-	MenuUtil.CreateContextMenu(Window.filterButton, function(_, root)
+	ns.ContextMenu(Window.filterButton, function(_, root)
 		root:CreateTitle(L["Filter species"])
 		for _, info in ipairs(filters) do -- menu-scroll-ok: filters is eight fixed species filters
 			local key = info.key
@@ -564,9 +560,13 @@ local function Create()
 	return frame
 end
 
--- The panel manager refuses addon calls in combat. Then the journal opens where the manager puts a left panel, but
--- outside it; the manager drops a frame hidden behind its back from its slots on its own.
-local function ShowInCombat(panel)
+-- The panel manager refuses addon calls in combat, and any addon call to its ShowUIPanel or HideUIPanel writes the
+-- gamepad frame bookkeeping (and the event registry it runs through) under the addon's taint. The client's next
+-- secure SetPreferredGamepadInteractTarget call is then refused and blamed on Field Guide Forever, even when the
+-- gamepad interface was off at the time and is turned on later (#253). The journal is an addon-owned frame, so it
+-- opens where the manager puts a left panel and closes itself, as it already does in combat; UISpecialFrames keeps
+-- Escape closing it.
+local function ShowOutsideManager(panel)
 	panel:ClearAllPoints()
 	panel:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 16, -116)
 	panel:Show()
@@ -575,11 +575,7 @@ end
 function Window.Show()
 	local panel = Create()
 	if not panel:IsShown() then
-		if InCombatLockdown() then
-			ShowInCombat(panel)
-		else
-			ShowUIPanel(panel)
-		end
+		ShowOutsideManager(panel)
 	end
 	Window.Refresh()
 end
@@ -588,11 +584,7 @@ function Window.Hide()
 	if not frame or not frame:IsShown() then
 		return
 	end
-	if InCombatLockdown() then
-		frame:Hide()
-	else
-		HideUIPanel(frame)
-	end
+	frame:Hide()
 end
 
 function Window.Toggle()
