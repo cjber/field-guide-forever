@@ -804,6 +804,18 @@ function Mock.Harness(opts)
 		GetBuildInfo = function()
 			return "1.15.0", "16001"
 		end,
+		-- Milliseconds for a frame budget: the mock clock, which a spec can advance to force a sliced build.
+		debugprofilestop = function()
+			return Mock.clock
+		end,
+		-- The addon metadata QuestieDB's contract and flavour checks read, as the client reports the Forever build.
+		C_AddOns = {
+			GetAddOnMetadata = function(name, key)
+				if name == "QuestieDB" and key == "X-Flavor" then
+					return "Forever"
+				end
+			end,
+		},
 		SetPortraitTextureFromCreatureDisplayID = function(texture, displayID)
 			texture.portraitDisplayID = displayID
 		end,

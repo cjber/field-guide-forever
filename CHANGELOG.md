@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **The creature catalogue loads in slices, and an unsupported QuestieDB says so.** Reading every creature in one frame could stall the journal's first load, and a QuestieDB outside the supported contract was either read blindly or shown as missing. The catalogue is now read over a few frames through QuestieDB's public API, a ZoneDB without map overrides still places creatures, and an install for another flavour or contract says it is not supported instead of asking you to install it (#264).
+
 ## [0.5.12] - 2026-11-10
 
 - **Opening the map from a creature's habitat no longer ends in a blocked-action error naming the addon.** The client refuses its own map open request when an addon makes it, so choosing Open map on a creature could leave you with an error instead of the map you asked for. It now opens the way the client expects (cjber/forever-core#333).
