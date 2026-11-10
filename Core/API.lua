@@ -8,8 +8,9 @@ end
 -- Public addon-to-addon interface (docs/api.md). Version 2 is the tier ladder: the old rare form and per-kill shiny
 -- roll are gone, so callers reading per-creature progress now get counts for bronze, silver, gold and shiny spawns.
 -- `minor` rises with each addition (1: Spawns and ZoneSpawns, 2: version 2's tier ladder, 3: the size fields, 4:
--- their removal, 5: SuiteLeaderboard and each read's not-ready answer); a caller checks a member before using it.
-local API = { version = 2, minor = 5 }
+-- their removal, 5: SuiteLeaderboard and each read's not-ready answer, 6: SpawnTier, TrackedSpecies, SetTrackedSpecies,
+-- Subscribe and Stats); a caller checks a member before using it.
+local API = { version = 2, minor = 6 }
 
 -- The shared shape every Forever addon's API follows: the not-ready answer a read gives while there is nothing to
 -- answer (ForeverCore's docs/api-conventions.md). Core/Require.lua stops the addon before this file on an older
@@ -42,6 +43,41 @@ local function NotReady(reason)
 	local _, answer = APIKit.NotReady(reason)
 	return nil, answer --[[@as FGAPIReason]]
 end
+
+-- Subscribe's change counters (ForeverCore's docs/api-conventions.md). Each one is bumped where the event is first
+-- produced, in Core's record paths and the tracker's saved switch, never in the toast UI, so it counts whether or not
+-- a player has toasts on. A counter is the channel's comparable key: zero reads as false, so a value only changes
+-- when the event happens.
+local changes = { sighting = 0, tier = 0, zone = 0, specimen = 0, tracked = 0 }
+
+---@param name "sighting"|"tier"|"zone"|"specimen"|"tracked"
+---@return fun(): integer|false
+local function Counter(name)
+	return function()
+		return changes[name] ~= 0 and changes[name] or false
+	end
+end
+
+local hub = APIKit.Hub("FieldGuideForever", {
+	sighting = Counter("sighting"),
+	tier = Counter("tier"),
+	zone = Counter("zone"),
+	specimen = Counter("specimen"),
+	tracked = Counter("tracked"),
+}, function()
+	return ns.GetCharacterState(false) ~= nil
+end)
+
+-- Internal: Core and UI/Tracker bump a channel here. The counters are not part of the published API.
+---@param name "sighting"|"tier"|"zone"|"specimen"|"tracked"
+function ns.NotifyAPIChange(name)
+	if changes[name] then
+		changes[name] = changes[name] + 1
+		hub.Queue()
+	end
+end
+
+API.Subscribe = hub.Subscribe
 
 -- QuestieDB stores AreaTable IDs and 0–100 coordinates. Resolve them only through its own ZoneDB tables; an
 -- unknown mapping is omitted instead of drawing the creature on a guessed map.
@@ -173,6 +209,24 @@ function API.Ready()
 end
 
 API.IsReady = API.Ready
+
+-- The spawn's coat as the nameplate and target frame draw it, for a unit token such as "target", "nameplate3" or
+-- "mouseover". A unit that does not exist, a player and a unit the player cannot attack have no spawn tier, so they
+-- answer nil, "none"; this is deliberately not the bronze the art falls back to. Preview tiers are session-only UI
+-- state and never leave UI/Rarity.lua.
+---@param unit string
+---@return string?
+---@return FGAPIReason?
+function API.SpawnTier(unit)
+	if type(unit) ~= "string" then
+		return NotReady("none")
+	end
+	local tier = ns.UnitTier(unit)
+	if not tier then
+		return NotReady("none")
+	end
+	return tier
+end
 
 ---@param species FGSpecies
 ---@return FGSpecies
@@ -325,6 +379,39 @@ end
 
 API.GetSpecimen = API.Specimen
 API.SpeciesState = API.Specimen
+
+-- The species the shared tracker column follows, as the saved switch that survives a reload. nil with "loading"
+-- before this character's state exists, and nil with "none" while nothing is tracked.
+---@return integer?
+---@return FGAPIReason?
+function API.TrackedSpecies()
+	local state = ns.GetCharacterState(false)
+	if not state then
+		return NotReady("loading")
+	end
+	local speciesId = ns.Tracker.TrackedSpecies()
+	if not speciesId then
+		return NotReady("none")
+	end
+	return speciesId
+end
+
+-- Set the tracked species, or clear it with nil. It writes the same saved switch as the journal's button, with no
+-- sound and no chat line, and refreshes the section. False for an id the catalogue does not hold and for a call that
+-- changes nothing.
+---@param speciesId integer?
+---@return boolean
+function API.SetTrackedSpecies(speciesId)
+	if not Ready() then
+		return false
+	end
+	if speciesId ~= nil then
+		if type(speciesId) ~= "number" or speciesId % 1 ~= 0 or not ns.SpeciesById[speciesId] then
+			return false
+		end
+	end
+	return ns.Tracker.SetTracked(speciesId)
+end
 
 ---@return FGSighting[]?
 ---@return FGAPIReason?
@@ -626,6 +713,18 @@ function API.LeaderboardSummary()
 end
 
 API.GetLeaderboardSummary = API.LeaderboardSummary
+
+-- This character's own totals in the suite's activity-row shape: one row per metric SharedStats publishes, with the
+-- subject "all" because the row is a total rather than one species or encounter. It is a local read, so sharing being
+-- off changes nothing here; eventUnix is present only when a real timestamp exists.
+---@return { addon: string, metric: string, subject: string, value: number, eventUnix?: number }[]?
+---@return FGAPIReason?
+function API.Stats()
+	if not Ready() or not ns.db then
+		return NotReady("loading")
+	end
+	return ns.Stats.Activity()
+end
 
 ---@return table<string, table>?
 ---@return FGAPIReason?

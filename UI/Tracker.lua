@@ -24,6 +24,12 @@ local function Tracked()
 	end
 end
 
+-- The species the section follows, as the public API reads it too.
+---@return integer?
+function Tracker.TrackedSpecies()
+	return Tracked()
+end
+
 ---@param speciesId integer
 ---@return boolean
 function Tracker.IsTracked(speciesId)
@@ -41,20 +47,41 @@ function Tracker.Refresh()
 	end
 end
 
+-- Write the one saved switch both the journal's button and the public API use, then refresh the section and tell API
+-- subscribers. Returns whether it changed anything: false for the species already tracked, no species while one is
+-- tracked, or a malformed id.
+---@param speciesId integer?
+---@return boolean
+function Tracker.SetTracked(speciesId)
+	local state = ns.GetCharacterState(true)
+	if not state then
+		return false
+	end
+	local id
+	if speciesId ~= nil then
+		id = tonumber(speciesId)
+		if not id or id <= 0 or id % 1 ~= 0 then
+			return false
+		end
+	end
+	if (state.tracked or nil) == id then
+		return false
+	end
+	state.tracked = id
+	Tracker.Refresh()
+	ns.NotifyAPIChange("tracked")
+	return true
+end
+
 -- The journal's button: track the species it shows, or stop tracking it. The saved switch is the whole state, so a
 -- reload, a zone change and the next log in all keep the section as the player left it.
 ---@param speciesId integer
 function Tracker.Toggle(speciesId)
-	local state = ns.GetCharacterState(true)
-	if not state then
-		return
-	end
-	if state.tracked == speciesId then
-		state.tracked = nil
+	if Tracked() == speciesId then
+		Tracker.SetTracked(nil)
 	else
-		state.tracked = speciesId
+		Tracker.SetTracked(speciesId)
 	end
-	Tracker.Refresh()
 end
 
 -- The species' lines, in the order the detail pane reads them: where it lives, what this character has recorded of
