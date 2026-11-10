@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-10
+
+- **Forever Core now comes in the same download.** This addon needs Forever Core, and until Forever Core has its own CurseForge page every Forever addon's download carries a copy of it, so the addon loads with nothing else to install.
+
 ### For addon authors
 
 - **`FieldGuideForever.API` is minor 5: `SuiteLeaderboard(limit)` returns the suite's leaderboard shape, and every read that has nothing to answer returns `nil, reason`.** `SuiteLeaderboard(limit)` ranks the same creature-kill rows as `Leaderboard("creature_kills", "all")` as `metric`, `scope`, `sharing`, `total` and `rows` of `rank`, `name`, `value`, `eventUnix` and `self`, with the personal row kept below the limit. The reasons `"loading"`, `"disabled"` and `"none"` say whether to ask again, which feature is off or that nothing matches, and `nil` alone still means the same. `docs/api.md` and `types/API.lua` now list every published function, the deprecated aliases, each read's reasons and the minor history (#247).
