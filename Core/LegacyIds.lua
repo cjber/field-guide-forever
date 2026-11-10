@@ -1,6 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- One-release migration map from the former synthetic catalogue ids to names.
 ns.LegacyIds = {
 	[1001] = "Plainstrider",

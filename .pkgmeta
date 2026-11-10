@@ -1,5 +1,8 @@
 package-as: FieldGuideForever
 
+required-dependencies:
+  - forevercore
+
 manual-changelog:
   filename: .release-notes.md
   markup-type: markdown
@@ -17,6 +20,7 @@ ignore:
   - AGENTS.md
   - CHANGELOG.md
   - docs
+  - forever-core
   - media/icon.svg
   - media/icon-400.png
   - reference

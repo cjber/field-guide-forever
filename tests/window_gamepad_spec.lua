@@ -1,5 +1,6 @@
--- UI/Window.lua under the gamepad interface: the window still opens and closes, but never through the panel manager
--- or a Blizzard menu, whose gamepad bookkeeping would carry the addon's taint (#253).
+-- UI/Window.lua under the gamepad interface: the window still opens and closes, but never through the panel manager.
+-- Its pickers go through ForeverCore's own context menu, which draws in frames of its own and leaves the gamepad focus
+-- alone (#253).
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
 local harness = Mock.Harness()
@@ -15,9 +16,12 @@ env.InputUtil = {
 	end,
 }
 local menus = 0
+env.ForeverCore.ContextMenu = function()
+	menus = menus + 1
+end
 env.MenuUtil = {
 	CreateContextMenu = function()
-		menus = menus + 1
+		error("the addon opened a Blizzard menu")
 	end,
 }
 
@@ -29,15 +33,12 @@ assert(#Mock.panelCalls == 0, "the gamepad interface opens the window without Sh
 local point, relativeTo, relativePoint, x, y = frame:GetPoint(1)
 assert(point == "TOPLEFT" and relativeTo == env.UIParent and relativePoint == "TOPLEFT" and x == 16 and y == -116)
 
--- The zone and filter pickers open no menu, so they leave the gamepad focus untouched; the player gets a line.
+-- The zone and filter pickers use ForeverCore's menu, so they leave the gamepad focus untouched.
 Mock.messages = {}
 Window.ToggleZoneMenu()
 Window.ToggleFilterMenu()
-assert(menus == 0, "the gamepad interface opens no Blizzard menu")
-assert(#Mock.messages == 2, "each picker explains that it needs a mouse and keyboard")
-for _, message in ipairs(Mock.messages) do
-	assert(message.text == "This menu needs mouse and keyboard.", message.text)
-end
+assert(menus == 2, "the gamepad interface opens the shared context menu twice")
+assert(#Mock.messages == 0, "the pickers need no mouse and keyboard line")
 
 -- Closing stays outside the manager too, and Escape still closes the window.
 Window.Hide()
@@ -45,15 +46,16 @@ assert(not frame:IsShown() and #Mock.panelCalls == 0, "the gamepad interface clo
 Window.Show()
 assert(env.CloseAllWindows() and not frame:IsShown(), "Escape closes the gamepad window")
 
--- With the gamepad interface off the window still opens and closes itself; only the menus return to the client.
+-- With the gamepad interface off the window still opens and closes itself; the pickers use the same shared menu.
 gamepad = false
 Mock.messages = {}
+menus = 0
 Window.Show()
 assert(Mock.panelCalls[1] == nil, "the window never asks the panel manager, gamepad on or off")
 Window.ToggleZoneMenu()
 Window.ToggleFilterMenu()
-assert(menus == 2, "without the gamepad interface both pickers open their menu")
-assert(#Mock.messages == 0, "the pickers open without the mouse and keyboard line")
+assert(menus == 2, "without the gamepad interface both pickers open the shared menu")
+assert(#Mock.messages == 0, "the pickers open without a fallback line")
 Window.Hide()
 assert(not frame:IsShown() and Mock.panelCalls[1] == nil)
 print("window gamepad: ok")

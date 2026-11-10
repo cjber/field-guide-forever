@@ -1,9 +1,13 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- The settings page's chrome -- the panel, its title, the rows that stack down it and the category registration -- is
--- Forever Core's UI/SettingsPage.lua, vendored byte for byte. What stays here is Field Guide's own rows, every phrase
--- they show and what each one writes to the saved variables.
+-- ForeverCore's UI/SettingsPage.lua. What stays here is Field Guide's own rows, every phrase they show and what each
+-- one writes to the saved variables.
 local L = ns.L
 
 ---@class FGSettingsModule
@@ -73,9 +77,7 @@ local function BuildPanel(panel, page)
 		if ns.db then
 			ns.db.options.minimapButtonHidden = not checked
 		end
-		if ns.MinimapButton then
-			ns.MinimapButton.Refresh()
-		end
+		ForeverCore.MinimapButton.Refresh()
 		if ns.FireProgress then
 			ns.FireProgress()
 		end
@@ -91,10 +93,11 @@ function SettingsPanel.Register()
 	if SettingsPanel.panel then
 		return SettingsPanel.panel
 	end
-	local category, panel = ns.SettingsPage.Register(L["Field Guide Forever"], BuildPanel)
+	local category, panel = ForeverCore.SettingsPage.Register(L["Field Guide Forever"], BuildPanel, L, ns.core.SafeCall)
 	if not panel then
 		return nil
 	end
+	---@cast panel ForeverSettingsPanel
 	-- The page's own heading keeps the words it has always shown; the category and the frame carry the addon's name.
 	panel.title:SetText(L["Field Guide Forever options"])
 	SettingsPanel.panel, SettingsPanel.category = panel, category
@@ -102,8 +105,8 @@ function SettingsPanel.Register()
 end
 
 ns.On("PLAYER_LOGIN", function()
-	ns.SafeCall("settings", SettingsPanel.Register)
-	ns.SafeCall("minimap button", function()
+	ns.core.SafeCall("settings", SettingsPanel.Register)
+	ns.core.SafeCall("minimap button", function()
 		local spec = {
 			name = "FieldGuideForeverMinimapButton",
 			-- The client's own wolf icon, the art the old micro-menu glyph was tinted from.
@@ -113,9 +116,10 @@ ns.On("PLAYER_LOGIN", function()
 			subtext = L["Click to browse the field compendium"],
 			settings = ns.db.options,
 			host = ns,
+			safeCall = ns.core.SafeCall,
 			onClick = ns.OpenGuide,
 		}
-		local button = ns.MinimapButton.Create(spec)
+		local button = ForeverCore.MinimapButton.Create(spec)
 		if button and ns.Tooltip then
 			-- The shared button draws its own title-only tooltip; Field Guide then redraws it with the journal's minimum
 			-- width. Hooks keep the shared handler's own work rather than replacing it.

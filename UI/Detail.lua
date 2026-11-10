@@ -1,5 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
+
 local L = ns.L
 local Art = ns.Art
 
@@ -172,7 +177,7 @@ function Detail.Create(parent)
 	Detail.mapButton:SetText(L["Open map"])
 	Detail.mapButton:SetScript("OnClick", function()
 		if currentMap then
-			ns.OpenMap(currentMap)
+			ForeverCore.OpenMap(currentMap)
 		end
 	end)
 end

@@ -1,6 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- Pure catalogue state. Nothing here reads a frame, a saved variable or the client: Core owns the world, the UI
 -- owns the pixels, and this file owns the arithmetic the specs can pin down.
 ---@class FGModel

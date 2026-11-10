@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Needs Forever Core.** The shared tracker column, bug report and leaderboards now come from one Forever Core addon that installs with it, so every Forever addon's tracker scale, lock and position stay in step. Your tracker settings carry over.
+
 ## [0.5.12] - 2026-11-10
 
 - **Opening the map from a creature's habitat no longer ends in a blocked-action error naming the addon.** The client refuses its own map open request when an addon makes it, so choosing Open map on a creature could leave you with an error instead of the map you asked for. It now opens the way the client expects (cjber/forever-core#333).

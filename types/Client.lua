@@ -8,24 +8,6 @@
 ---@type number
 LE_PARTY_CATEGORY_INSTANCE = nil
 
--- The saved table a consumer hands the shared minimap button: the angle and the hide flag live in it.
----@class ForeverMinimapButtonSpec
----@field name string the frame name, unique in the addon
----@field icon string|number the addon's own content icon
----@field title string the tooltip title
----@field binding? string shown under the title, e.g. "Shift-F"
----@field subtext? string the tooltip's one line about what a click does
----@field onClick? fun(button: Frame, mouseButton: string) what a left click runs
----@field settings? table the saved table holding the angle and hide flag
----@field angleKey? string the settings key holding the angle, default "minimapButtonAngle"
----@field hiddenKey? string the settings key whose true value hides the button, default "minimapButtonHidden"
----@field getShown? fun(): boolean an addon-owned visibility rule, which wins over the hide flag
----@field host? table receives the frame as its minimapButton
-
--- UI/Leaderboards.lua publishes the window every Forever addon registers into.
----@type ForeverLeaderboardsAPI?
-ForeverLeaderboards = nil
-
 ---@class FGClassColor
 ---@field GetRGB fun(self: FGClassColor): number, number, number
 ---@type table<string, FGClassColor>?
@@ -53,25 +35,6 @@ ScrollUtil = nil
 ---@field RetainScrollPosition integer
 ---@type FGScrollBoxConstants
 ScrollBoxConstants = nil
-
--- The registry every vendored copy of Core/MinimapButton.lua shares, published by the first to load.
----@class ForeverMinimapButtonRegistry
----@field buttons ForeverMinimapButton[] every addon button, in creation order
----@type ForeverMinimapButtonRegistry?
-ForeverMinimapButtons = nil
-
--- The frame Core/MinimapButton.lua builds: the client's minimap plate, the addon's icon and the angle on the rim.
----@class ForeverMinimapButton : Button
----@field minimapButtonSpec ForeverMinimapButtonSpec the spec the consumer passed to Create
----@field icon Texture the addon's icon drawn on the plate
----@field angle number the angle around the Minimap, in degrees
----@field dragging boolean? true while the player drags the button around the rim
-
----@class ForeverMinimapButtonAPI
----@field Create fun(spec: ForeverMinimapButtonSpec): ForeverMinimapButton?
----@field Destroy fun(button: ForeverMinimapButton?)
----@field Refresh fun()
----@field SetShown fun(button: ForeverMinimapButton?, shown: boolean)
 
 -- The modern target frame's container, which UI/Rarity.lua reads for the frame art and portrait it overlays.
 ---@class TargetFrameContainer

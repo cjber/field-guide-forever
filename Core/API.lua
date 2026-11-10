@@ -1,6 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- Public addon-to-addon interface. nil means the answer is not known yet: before the saved variables load there is
 -- no catalogue state to read, and a caller such as a map addon should ask again after PLAYER_LOGIN rather than
 -- treating the silence as an empty field guide. Version 2 is the tier ladder: the old rare form and per-kill shiny

@@ -1,6 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- The suite's palette in one place. Values are the approved mockup's, written as RGB triples so a texture colour
 -- and a font colour can never drift apart.
 ---@class FGArt

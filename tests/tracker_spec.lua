@@ -1,5 +1,5 @@
 -- The Track Species button puts the selected species in the shared Forever tracker column and takes it out again
--- (issue #149). The column is Forever Core's, vendored in UI/Tracker*.lua: this spec presses the journal's own button
+-- (issue #149). The column is ForeverCore's: this spec presses the journal's own button
 -- and reads the section it hands over, the way a player reads it on screen.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
@@ -51,7 +51,7 @@ harness:RunTimers()
 -- At load the journal hands its section to the shared column, with nothing to draw until a species is tracked.
 local section = assert(Mock.trackerSections[1], "the journal adds a section to the shared tracker column")
 assert(section.headerText == "Field Guide", "the section names the addon, as Legacy's names its challenges")
-assert(ns.TrackerHost and ns.TrackerHost.IsAttached(section), "the shared column owns the section")
+assert(harness.env.ForeverCore.TrackerHost.IsAttached(section), "the shared column owns the section")
 assert(section:GetContentsHeight() == 0, "a journal that tracks nothing has no section to draw")
 
 local Window = ns.Window
@@ -105,3 +105,17 @@ assert(not section.blocks[1003], "the untracked species' block is released")
 assert(not column:IsShown(), "the column hides when it has no section")
 
 print("tracker: ok")
+
+-- Field Guide kept the column's scale, lock and position before ForeverCore did. The first section offers that old
+-- table once, so the player keeps the layout they chose, then the key goes.
+local migrated = Mock.Harness()
+migrated.env.FieldGuideForeverDB = { trackerHost = { attached = false, locked = true, scale = 1.5 } }
+migrated:Fire("ADDON_LOADED", "FieldGuideForever")
+migrated:Fire("PLAYER_LOGIN")
+local settings = migrated.env.ForeverCore.TrackerHost.GetSettings()
+assert(
+	settings.scale == 1.5 and settings.locked == true and settings.attached == false,
+	"the old tracker settings carry over"
+)
+assert(migrated.env.FieldGuideForeverDB.trackerHost == nil, "the old tracker table is offered once")
+print("tracker settings: ok")

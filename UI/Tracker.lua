@@ -1,12 +1,16 @@
 ---@type string, FGNamespace
-local _, ns = ...
+local addonName, ns = ...
+
+if ns.broken then
+	return
+end
+
 local L = ns.L
 
--- A tracked species gets a section in the shared Forever tracker column, the one Forever Core owns and every Forever
--- addon vendors in UI/Tracker*.lua: this file supplies only the section, as Legacy Forever supplies its challenges.
--- One species is tracked at a time, the one the journal's button shows, and that switch is saved as state.tracked
--- (Core/Migrate keeps it). The column draws the section under the game's own objectives and hides it while the
--- character tracks nothing.
+-- A tracked species gets a section in the shared Forever tracker column, the one ForeverCore owns: this file supplies
+-- only the section, as Legacy Forever supplies its challenges. One species is tracked at a time, the one the journal's
+-- button shows, and that switch is saved as state.tracked (Core/Migrate keeps it). The column draws the section under
+-- the game's own objectives and hides it while the character tracks nothing.
 ---@class FGTracker
 local Tracker = {}
 ns.Tracker = Tracker
@@ -96,10 +100,10 @@ local function Available()
 	return ObjectiveTrackerFrame ~= nil and ObjectiveTrackerManager ~= nil
 end
 
--- A column section is the game's own ObjectiveTrackerModuleTemplate. The host takes it over in Attach: it parents
--- the section into its column, orders it, and gives its header the column's right-click switches.
-local function Attach()
-	if not Available() or not ns.TrackerHost then
+-- A column section is the game's own ObjectiveTrackerModuleTemplate. ForeverCore's host takes it over in Attach: it
+-- parents the section into its column, orders it, and gives its header the column's right-click switches.
+local function Create()
+	if not Available() then
 		return
 	end
 	local section =
@@ -110,9 +114,27 @@ local function Attach()
 	-- After the Forever sections that were here first, so the journal's species follows a player's challenges.
 	section.uiOrder = 10
 	module = section
-	ns.TrackerHost.Attach(section)
+end
+
+-- The column's scale, Lock and position were Field Guide's before ForeverCore kept them; the host copies this table
+-- once, so the player keeps the layout they chose. Saved variables load with the addon, so attach happens after them.
+local function Attach()
+	if not module then
+		return
+	end
+	module.legacySettings = ns.db and ns.db.trackerHost or nil
+	module.safeCall = ns.core.SafeCall
+	ForeverCore.TrackerHost.Attach(module)
+	if ns.db then
+		ns.db.trackerHost = nil
+	end
 	Tracker.Refresh()
 end
 
-Attach()
+Create()
+ns.On("ADDON_LOADED", function(name)
+	if name == addonName then
+		Attach()
+	end
+end)
 ns.OnProgress(Tracker.Refresh)

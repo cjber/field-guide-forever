@@ -1,6 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- Kill detection from the signals the Forever client gives addons.
 --
 -- Forever 1.60.1 keeps the combat log to Blizzard's secure code: C_CombatLog has no GetCurrentEventInfo, the only

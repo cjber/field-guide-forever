@@ -2,6 +2,8 @@
 
 Field Guide Forever targets the WoW: Forever client (Interface 16001). It keeps a cosmetic journal of creatures a character has encountered, with local progress and shared catalogue facts. It never grants player power, changes combat, or calls protected functions.
 
+It requires ForeverCore (`## Dependencies: ForeverCore`), the standalone addon that owns the shared tracker column, report window, error journal and debug log, Forever Leaderboards, the minimap button, the quest log side tabs, the settings-page chrome, the family page and the map canvas. CurseForge and Wago install ForeverCore with it through `.pkgmeta`'s `required-dependencies`; nothing shared is vendored here.
+
 The shared suite standards follow forever-core `main`. For UI work, read the [wow-retail-ui-style skill](https://github.com/cjber/forever-core/blob/main/.agents/skills/wow-retail-ui-style/SKILL.md), [asset registry](https://github.com/cjber/forever-core/blob/main/docs/asset-registry.md), and [asset audit](https://github.com/cjber/forever-core/blob/main/docs/asset-audit.md) before changing layouts or assets. Use native Blizzard templates and approved atlas textures, and check the blacklist even when an asset matches a broad native prefix.
 
 ## Commands
@@ -9,8 +11,8 @@ The shared suite standards follow forever-core `main`. For UI work, read the [wo
 ```sh
 stylua --check .
 luacheck .
-bash tools/typecheck.sh   # TOC/XML load graph, secret-value lint and LuaLS 3.19.1, which must report nothing
-for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
+FOREVER_CORE=../forever-core bash tools/typecheck.sh   # TOC/XML load graph, secret-value lint and LuaLS 3.19.1, which must report nothing
+for spec in tests/*_spec.lua; do FOREVER_CORE=../forever-core luajit "$spec" || exit 1; done
 uvx ruff@0.16.8 check tools && uvx ruff@0.16.8 format --check tools
 python3 tools/check_generated.py
 python3 tools/check_core_shared.py
@@ -25,14 +27,18 @@ python3 tools/repo_rules.py # rules no linter covers; CI runs it in project-rule
 
 Specs are Lua 5.1 scripts run with LuaJIT through `tests/wow_mock.lua`. `FOREVER_CORE=/path/to/forever-core python3 tools/mockups.py` renders the README scenes from WoW client assets and a disposable fixture extracted from the pinned QuestieDB Forever release. The fixture lives only in an ignored cache directory under `tools/`.
 
+`FOREVER_CORE` names the cjber/forever-core checkout the specs load, defaulting to the sibling `../forever-core`.
+`tools/forever-core.txt` holds the git ref CI checks out for them; it is a branch while this addon adopts the
+dependency and becomes `v1.0.0` at release.
+
 `tools/` holds the development tooling, which `.pkgmeta` keeps out of the package: `tools/mockups.py` uses the
 shared renderer in the sibling `forever-core` checkout (`FOREVER_CORE` overrides its location) to render
 `docs/screenshots/` against the pinned client build, `tools/check_screenshots.py` fails when an image is
 older than the sources it is drawn from (`--record` after a render), `tools/changelog.py` prints or checks a
 release's entry, `tools/check_package.py` checks what the packager built, and `tools/release_check.py` gates the
 release on a green full CI run. `tools/check_core_shared.py` is the Field Guide side of the suite's core drift gate: it
-checks this repo's vendored copies against public forever-core main, and `.github/workflows/core-shared-drift.yml`
-runs it on a schedule. `tools/typecheck.sh` verifies the vendored `tools/forever_tools/` (copied byte for byte from
+checks this repo's vendored development tooling against public forever-core main, and
+`.github/workflows/core-shared-drift.yml` runs it on a schedule. Runtime files are ForeverCore's alone. `tools/typecheck.sh` verifies the vendored `tools/forever_tools/` (copied byte for byte from
 forever-core: refresh it only with `python3 tools/forever_tools/sync.py update --source <forever-core checkout>`),
 checks that the TOC/XML load graph reaches every runtime Lua file (`tools/typecheck_coverage.py`), then runs LuaLS
 over every TOC-loaded file against the pinned WoW API and FrameXML annotations. CI runs the gate in the jobs
@@ -62,9 +68,9 @@ picture looks right, so trace a visible defect to its runtime or renderer produc
 - `types/` holds LuaLS declarations for the namespace and for client globals the pinned annotations lack. It is never loaded by the TOC or shipped.
 - `Core/LegacyIds.lua` is a one-release migration map from old synthetic ids to names. It is only used to re-key existing records after QuestieDB loads; remove it in the release after schema 2.
 - `Core/Model.lua` contains pure state arithmetic and variant classification. It has no WoW API, I/O, or globals beyond `ns.Model`.
-- `Core/Core.lua` owns SavedVariables, character identity, catalogue lookup, kill and sighting recording, progress callbacks, and slash commands. `Core/Kills.lua` detects kills from the signals the client lets addons read (target and nameplate deaths, rare map markers; the combat log only where a client still allows it) and counts each death once. `Core/Secret.lua` holds `ns.Readable`, through which every possibly secret value (unit GUIDs and names) is read. Event handlers use `Core/SafeCall.lua`.
+- `Core/Require.lua` is the API floor: an installed ForeverCore older than API 1 stops the addon's own files with one line in `UIErrorsFrame`. `Core/Core.lua` owns SavedVariables, character identity, catalogue lookup, kill and sighting recording, progress callbacks, and slash commands. `Core/Kills.lua` detects kills from the signals the client lets addons read (target and nameplate deaths, rare map markers; the combat log only where a client still allows it) and counts each death once. `Core/Secret.lua` holds `ns.Readable`, through which every possibly secret value (unit GUIDs and names) is read. Event handlers use `ns.core.SafeCall`.
 - `Core/API.lua` is the versioned addon-to-addon contract. It returns nil until saved state and catalogue data are ready.
-- `Core/Settings.lua` registers options. `UI/Art.lua` owns frame helpers and palette; `UI/Window.lua` owns the shell and selection; other files in `UI/` own focused views.
+- `Core/Settings.lua` registers options. `UI/Art.lua` owns frame helpers and palette; `UI/Window.lua` owns the shell and selection; other files in `UI/` own focused views. `UI/Tracker.lua` supplies one section to `ForeverCore.TrackerHost` and offers the addon's old `trackerHost` table to it once.
 - `tests/` contains the mock client and model, data, rarity, and API specs. `docs/screenshots/` holds every rendered scene and `docs/gallery.md`, written by `tools/mockups.py`, lists them; README and `docs/curseforge.md` (the store description) pick their headline images by hand. None of these ship in the addon package.
 - `media/icon.svg` is the family icon (WFA-7); `python3 <forever-core>/.agents/skills/wow-forever-addon/render_icon.py` renders `media/icon-400.png` (README and store logo) and `media/Icon.tga` (the TOC icon).
 

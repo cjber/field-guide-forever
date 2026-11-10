@@ -1,6 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 local L = ns.L
 
 ---@class FGStatsModule
@@ -160,6 +164,7 @@ for source, metrics in pairs(SOURCES) do
 		addon = addon,
 		enabled = Enabled,
 		metrics = {},
+		safeCall = ns.core.SafeCall,
 		db = function()
 			return Store(addon)
 		end,
@@ -169,9 +174,9 @@ for source, metrics in pairs(SOURCES) do
 	end
 	if addon == "fieldguide" then
 		config.snapshot = Snapshot
-		instances[addon] = ns.PeerStats.New(config)
+		instances[addon] = ForeverCore.PeerStats.New(config)
 	else
-		instances[addon] = ns.PeerStats.Listen("fieldguide", config)
+		instances[addon] = ForeverCore.PeerStats.Listen("fieldguide", config)
 	end
 end
 
@@ -227,32 +232,29 @@ end
 
 --- Open the shared Forever Leaderboards window on this addon's tab.
 function Stats.Open()
-	if ns.Leaderboards then
-		ns.Leaderboards:Open("fieldguide")
-	end
+	ForeverCore.Leaderboards:Open("fieldguide")
 end
 
-if ns.Leaderboards then
-	ns.Leaderboards:Register("fieldguide", {
-		title = L["Field Guide Forever"],
-		icon = "Interface\\Icons\\Ability_Tracking",
-		metric = L["Creature kills"],
-		board = Board,
-		revision = function()
-			return instances.fieldguide:Revision()
-		end,
-		sharing = Enabled,
-		setSharing = function(shared)
-			if ns.db then
-				ns.db.options.statsShare = shared == true
-			end
-			Stats.SetEnabled(shared == true)
-			if ns.FireProgress then
-				ns.FireProgress()
-			end
-		end,
-	})
-end
+ForeverCore.Leaderboards:Register("fieldguide", {
+	title = L["Field Guide Forever"],
+	icon = "Interface\\Icons\\Ability_Tracking",
+	metric = L["Creature kills"],
+	board = Board,
+	revision = function()
+		return instances.fieldguide:Revision()
+	end,
+	sharing = Enabled,
+	setSharing = function(shared)
+		if ns.db then
+			ns.db.options.statsShare = shared == true
+		end
+		Stats.SetEnabled(shared == true)
+		if ns.FireProgress then
+			ns.FireProgress()
+		end
+	end,
+	safeCall = ns.core.SafeCall,
+})
 
 local function Schedule()
 	if pending or not ns.ready then
