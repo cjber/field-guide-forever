@@ -1,6 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 ---@class FGQuestieDBModule
 local DB = {}
 ns.QuestieDB = DB

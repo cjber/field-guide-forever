@@ -1,5 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
+
 local L = ns.L
 local Art = ns.Art
 

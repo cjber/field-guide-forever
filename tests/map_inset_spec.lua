@@ -64,15 +64,15 @@ assert(detail.mapButton:IsShown() and detail.mapButton:IsEnabled(), "a mapped zo
 -- Open map: the shared opener runs the client's restricted map function through a secure delegate, and does nothing in
 -- combat. A direct call would be refused and blamed on the addon, so nothing here may reach it.
 Mock.openedMap, Mock.refusedMapOpeners = nil, nil
-assert(ns.OpenMap(1413) and Mock.openedMap == 1413, "the map opens through the secure opener")
+assert(env.ForeverCore.OpenMap(1413) and Mock.openedMap == 1413, "the map opens through the secure opener")
 assert(Mock.refusedMapOpeners == nil, "the addon never calls the restricted map opener directly")
 Mock.openedMap, Mock.refusedMapOpeners = nil, nil
-assert(ns.OpenMap(0) and Mock.openedMap == nil, "a zero map id opens where the player is")
+assert(env.ForeverCore.OpenMap(0) and Mock.openedMap == nil, "a zero map id opens where the player is")
 assert(Mock.refusedMapOpeners == nil, "a zero map id stays secure")
 env.InCombatLockdown = function()
 	return true
 end
 Mock.openedMap, Mock.refusedMapOpeners = nil, nil
-assert(not ns.OpenMap(1415) and Mock.openedMap == nil, "combat blocks the map")
+assert(not env.ForeverCore.OpenMap(1415) and Mock.openedMap == nil, "combat blocks the map")
 assert(Mock.refusedMapOpeners == nil, "combat never reaches the restricted map opener")
 print("map inset: ok")

@@ -70,7 +70,7 @@ local h
 h, ns = start()
 Mock.inGuild, Mock.inGroup = true, true
 local actualStore = {}
-local source = ns.PeerStats.New({
+local source = h.env.ForeverCore.PeerStats.New({
 	addon = "spf",
 	enabled = function()
 		return true
@@ -144,7 +144,7 @@ check(#Mock.sentAddonMessages == unchanged, "unchanged snapshots do not resend t
 state.species[1].kills = 3
 ns.FireProgress()
 h:RunTimers()
-local spec = ns.Leaderboards and ns.Leaderboards.boards.fieldguide
+local spec = h.env.ForeverCore.Leaderboards.boards.fieldguide
 check(spec ~= nil, "the shared Forever Leaderboards window is published")
 check(spec.title == "Field Guide Forever", "the tab carries the addon's title")
 check(spec.metric == "Creature kills", "the board names its metric")
@@ -177,7 +177,7 @@ local weekly = spec.board("week")
 check(weekly[1].name == "Alice" and weekly[1].value == 21, "the weekly board ranks progress since the reset")
 check(weekly[1].extra == "120 total", "the weekly row keeps the cumulative total in grey")
 local opened
-ns.Leaderboards.Open = function(_, key)
+h.env.ForeverCore.Leaderboards.Open = function(_, key)
 	opened = key
 end
 h.env.SlashCmdList.FIELDGUIDEFOREVER("leaderboard")

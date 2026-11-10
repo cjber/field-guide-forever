@@ -1,5 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
+
 -- luacheck: globals NORMAL_FONT_COLOR GRAY_FONT_COLOR
 local L = ns.L
 local Art = ns.Art
@@ -67,7 +72,7 @@ end
 -- The minimap button's tooltip: its title first, the way the shared button drew it, then the binding and what the
 -- button opens.
 ---@param owner Frame
----@param spec FGMinimapButtonSpec
+---@param spec ForeverMinimapButtonSpec
 function Tooltip.ShowButton(owner, spec)
 	local tooltip = Open(owner, "ANCHOR_TOP", spec.title)
 	if not tooltip then

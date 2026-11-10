@@ -2,7 +2,19 @@
 local addonName, ns = ...
 local L = ns.L
 
+if ns.broken then
+	return
+end
+
 ns.ReportTitle = L["Field Guide Forever report"]
+-- The addon's own ForeverCore services: the error journal, the debug log, the report window and the map canvas. The
+-- report's own lines are read when the window opens, after Core/Report.lua has defined them.
+ns.core = ForeverCore.Register(addonName, {
+	title = ns.ReportTitle,
+	lines = function()
+		return ns.ReportLines()
+	end,
+})
 ns.ready = false
 ns.Zones = ns.Zones or {}
 ns.Instances = ns.Instances or {}
@@ -33,31 +45,6 @@ function ns.BuildCatalogue()
 end
 
 ns.BuildCatalogue()
-
--- The client's gamepad switch, read through _G because the pinned WoW API annotations do not declare InputUtil.
--- A missing table reads as off.
----@return boolean
-function ns.GamepadUI()
-	local input = rawget(_G, "InputUtil")
-	return type(input) == "table"
-		and type(input.IsGamepadUIEnabled) == "function"
-		and input.IsGamepadUIEnabled() == true
-end
-
--- With the gamepad interface on, the client's gamepad frame manager takes every menu that shows into its focus in the
--- same call, writing its state under the taint of whoever opened the menu. The next secure reader then has its
--- protected SetPreferredGamepadInteractTarget call refused and blames Field Guide Forever. No addon code can open a
--- Blizzard menu untainted, so under the gamepad interface the addon opens none (#253).
----@param owner Frame
----@param generator fun(owner: Frame, root: any)
----@return any
-function ns.ContextMenu(owner, generator)
-	if ns.GamepadUI() then
-		UIErrorsFrame:AddMessage(L["This menu needs mouse and keyboard."], 1, 1, 0)
-		return nil
-	end
-	return MenuUtil.CreateContextMenu(owner, generator)
-end
 
 ---@param name string?
 ---@return FGZone?
@@ -228,38 +215,6 @@ local function NormalizeState(state)
 	return clean
 end
 
--- The shared tracker's saved switches and placement, in the same root-level shape Legacy Forever uses. A save from
--- before the column existed simply gains the table; an old record without the Lock switch gains it off. The UI host
--- reads this before the saved variables reach ns.db, so the global table is the fallback.
----@param host any
----@return ForeverTrackerSettings
-local function NormalizeTrackerHost(host)
-	if type(host) ~= "table" then
-		host = {}
-	end
-	if type(host.attached) ~= "boolean" then
-		host.attached = true
-	end
-	if type(host.locked) ~= "boolean" then
-		host.locked = false
-	end
-	return host
-end
-
----@return ForeverTrackerSettings
-function ns.TrackerHostSettings()
-	---@type table?
-	local db = ns.db
-	if type(db) ~= "table" then
-		if type(FieldGuideForeverDB) ~= "table" then
-			FieldGuideForeverDB = {}
-		end
-		db = FieldGuideForeverDB
-	end
-	db.trackerHost = NormalizeTrackerHost(db.trackerHost)
-	return db.trackerHost
-end
-
 -- The saved variables brought up to ns.SCHEMA. A save from a newer version is left untouched and the second return
 -- is true: the caller then works on the fresh table it gets and must not save it over the newer data.
 ---@return table db
@@ -283,7 +238,6 @@ function ns.Migrate(db)
 	-- The journal is a UI panel the game places; the old dragged position is gone.
 	db.window = nil
 	db.options = type(db.options) == "table" and db.options or {}
-	db.trackerHost = NormalizeTrackerHost(db.trackerHost)
 	ns.Stats.Migrate(db)
 
 	db.version = ns.SCHEMA
@@ -346,16 +300,9 @@ function ns.Initialize()
 		db.options.discoveryText = true
 	end
 	ns.db = db
-	-- The shared error journal and debug log (Core/SafeCall.lua, Core/Log.lua) live in the saved table, so a report
-	-- lists what led to a bug after a reload. They are attached once, after the saved variables exist.
-	if type(FieldGuideForeverDB.errors) ~= "table" then
-		FieldGuideForeverDB.errors = {}
-	end
-	if type(FieldGuideForeverDB.log) ~= "table" then
-		FieldGuideForeverDB.log = { lines = {}, pinned = false }
-	end
-	ns.AttachErrorJournal(FieldGuideForeverDB.errors)
-	ns.AttachLog(FieldGuideForeverDB.log)
+	-- ForeverCore keeps the shared error journal under `errors` and the debug log under `log` in this saved table, so
+	-- a report lists what led to a bug after a reload. Attach also merges what the shared files saw before this line.
+	ns.core.Attach(db)
 	ns.ready = true
 	ns.GetCharacterState(true)
 	ns.QuestieDB.Start(function()
@@ -368,13 +315,13 @@ end
 function ns.OnProgress(fn)
 	progressCallbacks[#progressCallbacks + 1] = fn
 	if ns.ready then
-		ns.SafeCall("progress", fn)
+		ns.core.SafeCall("progress", fn)
 	end
 end
 
 function ns.FireProgress()
 	for _, fn in ipairs(progressCallbacks) do
-		ns.SafeCall("progress", fn)
+		ns.core.SafeCall("progress", fn)
 	end
 end
 
@@ -420,7 +367,7 @@ function ns.RecordKill(name, npcId, guid)
 	})
 	ns.FireProgress()
 	for _, fn in ipairs(recordCallbacks) do
-		ns.SafeCall("record", fn, species, zone, result)
+		ns.core.SafeCall("record", fn, species, zone, result)
 	end
 	return result
 end
@@ -518,7 +465,7 @@ local handlers = {}
 local events = CreateFrame("Frame")
 events:SetScript("OnEvent", function(_, event, ...)
 	for _, fn in ipairs(handlers[event] or {}) do
-		ns.SafeCall(event, fn, ...)
+		ns.core.SafeCall(event, fn, ...)
 	end
 end)
 
@@ -569,13 +516,13 @@ local function ToggleRarityPreview()
 		print(L["Rarity preview is off."])
 	end
 	if ns.Rarity and ns.Rarity.Refresh then
-		ns.SafeCall("rarity preview", ns.Rarity.Refresh)
+		ns.core.SafeCall("rarity preview", ns.Rarity.Refresh)
 	end
 end
 
 local function OpenGuide()
 	if ns.Window and ns.Window.Toggle then
-		ns.SafeCall("open guide", ns.Window.Toggle)
+		ns.core.SafeCall("open guide", ns.Window.Toggle)
 	end
 end
 ns.OpenGuide = OpenGuide
@@ -585,7 +532,7 @@ SLASH_FIELDGUIDEFOREVER2 = "/fg"
 SLASH_FIELDGUIDEFOREVER3 = "/fgf"
 SlashCmdList["FIELDGUIDEFOREVER"] = function(message)
 	local command = type(message) == "string" and message:lower():match("^%s*(.-)%s*$") or ""
-	if ns.Report and ns.Report.Command and ns.Report.Command(command) then
+	if ns.core.Report.Command(command) then
 		return
 	end
 	if command == "help" then

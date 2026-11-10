@@ -15,7 +15,7 @@ assert(type(db.log) == "table" and type(db.log.lines) == "table", "the shared de
 assert(db.log.pinned == false, "a fresh log ring is unpinned")
 
 -- An error recorded through either shared entry point is kept in the saved journal, so a reload keeps it.
-ns.RecordError("test", "journal error", "stack")
+ns.core.RecordError("test", "journal error", "stack")
 local found = false
 for _, entry in ipairs(db.errors) do
 	if entry.message == "journal error" then
@@ -24,7 +24,7 @@ for _, entry in ipairs(db.errors) do
 end
 assert(found, "RecordError writes to FieldGuideForeverDB.errors")
 
-local ok = ns.SafeCall("test", function()
+local ok = ns.core.SafeCall("test", function()
 	error("safe call error")
 end)
 assert(not ok, "SafeCall reports the failure")
@@ -56,7 +56,7 @@ env.C_Map.GetBestMapForUnit = function()
 	return nil
 end
 local shown
-ns.Report.Show = function(text)
+ns.core.Report.Show = function(text)
 	shown = text
 end
 env.SlashCmdList.FIELDGUIDEFOREVER("report")

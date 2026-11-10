@@ -1,5 +1,7 @@
 Field Guide Forever gives every creature in WoW: Forever a coat. Most are bronze, but 1 in 25 spawns is silver, 1 in 100 gold and 1 in 1000 shiny, and the target frame and nameplate show it the moment you see one. Every kill goes into a journal of Azeroth's creatures, zone by zone. It is cosmetic only: it never grants power or changes combat.
 
+It needs [Forever Core](https://www.curseforge.com/wow/addons/forevercore), which CurseForge and Wago install with it.
+
 ![Silver, gold and shiny laurels on the target frame, with a sheen sweeping across the shiny one and the matching nameplate mark under each](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/rarity-nameplates.gif)
 
 A silver, gold or shiny spawn wears a laurel ornament around its target portrait, from a single silver sprig to a full gold laurel, and on shiny a pearl laurel with a light sweeping across it. Its nameplate gets the same mark beside the health bar. Every player sees the same coat on the same spawn, so a gold in your group is gold for everyone.

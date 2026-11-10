@@ -71,6 +71,28 @@ function Mock.TocFiles()
 	return files
 end
 
+-- The ForeverCore checkout the specs load, the way the client loads a dependency: its TOC's entries, in order, under
+-- its own namespace. FOREVER_CORE names the checkout; the sibling ../forever-core is the local default.
+---@return string
+function Mock.CoreRoot()
+	return os.getenv("FOREVER_CORE") or "../forever-core"
+end
+
+---@return string[]
+function Mock.CoreTocFiles()
+	local files = {}
+	local toc = Mock.CoreRoot() .. "/ForeverCore.toc"
+	local file = assert(io.open(toc, "rb"), "ForeverCore is not at " .. toc .. "; set FOREVER_CORE")
+	for line in file:lines() do
+		line = line:gsub("\r$", "")
+		if not (line:match("^%s*$") or line:match("^%s*#")) then
+			files[#files + 1] = (line:gsub("\\", "/"))
+		end
+	end
+	file:close()
+	return files
+end
+
 function Mock.Reset()
 	Mock.openedMap = nil
 	Mock.secureDelegate = nil
@@ -610,6 +632,10 @@ local DATA_FIELDS = {
 	shadowColor = true,
 	fgfToast = true,
 	fgfHooked = true,
+	parentContainer = true,
+	_parent = true,
+	_name = true,
+	_template = true,
 }
 setmetatable(methods, {
 	__index = function(_, key)
@@ -1045,7 +1071,7 @@ function Mock.Harness(opts)
 	}
 	env.UIParent = env.CreateFrame("Frame", "UIParent")
 	env.UIParent:SetSize(1200, 675)
-	-- The game's own objective tracker, which the shared Forever column (UI/TrackerHost.lua) reads and never writes.
+	-- The game's own objective tracker, which ForeverCore's shared column reads and never writes.
 	-- Questie and EQOT are not installed here, so the column takes its place below the native quests.
 	local objective = env.CreateFrame("Frame", "ObjectiveTrackerFrame", env.UIParent)
 	objective:SetSize(260, 300)
@@ -1294,6 +1320,27 @@ function Mock.Harness(opts)
 	local ns = opts.ns or {}
 	local root = Mock.Root()
 	local files = opts.files or Mock.TocFiles()
+
+	-- ForeverCore loads first, as the client loads a required dependency: its TOC's files in order into this client,
+	-- then its own ADDON_LOADED. The specs exercise the real shared modules, never a stub of them.
+	local coreNs = {}
+	local coreRoot = Mock.CoreRoot()
+	for _, file in ipairs(Mock.CoreTocFiles()) do
+		-- Core's quest section needs the full native tracker template, which this fake client does not build. The
+		-- host has already captured its native frame, so hiding it here only skips that optional section.
+		local native = env.ObjectiveTrackerFrame
+		if file == "UI/TrackerQuests.lua" then
+			env.ObjectiveTrackerFrame = nil
+		end
+		local translated = file:match("^Locales/") and file ~= "Locales/enUS.lua"
+		if not (translated and type(env.GetLocale) ~= "function") then
+			local chunk = assert(loadfile(coreRoot .. "/" .. file), file)
+			setfenv(chunk, env)
+			chunk("ForeverCore", coreNs)
+		end
+		env.ObjectiveTrackerFrame = native
+	end
+	Mock.Fire("ADDON_LOADED", "ForeverCore")
 
 	local function Load(file)
 		local chunk = assert(loadfile(root .. file))

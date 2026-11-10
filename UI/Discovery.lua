@@ -1,5 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
+
 local L = ns.L
 
 -- What a kill shows. A first kill is announced the way the client announces an explored area: one yellow line in
@@ -99,7 +104,7 @@ end
 local function OnClick(frame, button)
 	local toast = frame.fgfToast
 	if button == "LeftButton" and toast then
-		ns.SafeCall("discovery toast", Discovery.Open, toast.speciesId, toast.zone)
+		ns.core.SafeCall("discovery toast", Discovery.Open, toast.speciesId, toast.zone)
 	end
 end
 
@@ -333,7 +338,7 @@ ns.OnRecord(function(species, zone, result)
 	if not flushScheduled then
 		flushScheduled = true
 		C_Timer.After(0, function()
-			ns.SafeCall("discovery", Flush)
+			ns.core.SafeCall("discovery", Flush)
 		end)
 	end
 end)

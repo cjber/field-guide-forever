@@ -1,6 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- Field Guide Forever's own lines in /fg report. They answer the questions a bug report usually starts with: how much
 -- this character has recorded, whether the catalogue loaded, and whether the two optional pieces are on. English
 -- throughout, like the report's field labels, so one report reads the same in every locale.
@@ -23,9 +27,8 @@ function ns.ReportLines()
 	local status = ns.QuestieDB and ns.QuestieDB.State and ns.QuestieDB.State() or ns.catalogueStatus or "not loaded"
 	lines[#lines + 1] = "QuestieDB catalogue: " .. tostring(status)
 
-	local settings = ns.TrackerHostSettings and ns.TrackerHostSettings() or nil
-	local tracker = settings and settings.attached == false and "tracker section: detached"
-		or "tracker section: attached"
+	local attached = ForeverCore.TrackerHost.IsAttachedToQuestTracker()
+	local tracker = attached and "tracker section: attached" or "tracker section: detached"
 	if state and tonumber(state.tracked) then
 		tracker = tracker .. ", tracking a creature"
 	else

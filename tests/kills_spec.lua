@@ -144,8 +144,8 @@ assert(Kills(harness, 1003) == 3, "a creature with secret name and GUID is skipp
 Mock.units.nameplate1 = Secret()
 harness:Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 assert(
-	#ns.CaughtErrors() == 0,
-	"secret names and GUIDs never raise: " .. tostring((ns.CaughtErrors()[1] or {}).message)
+	#ns.core.CaughtErrors() == 0,
+	"secret names and GUIDs never raise: " .. tostring((ns.core.CaughtErrors()[1] or {}).message)
 )
 
 -- A rare's map marker: seen alive, then dead while on the minimap, counts once, even when its corpse is then
@@ -178,7 +178,7 @@ harness:Fire("VIGNETTES_UPDATED")
 far.isDead, far.onMinimap = true, false
 harness:Fire("VIGNETTES_UPDATED")
 assert(Kills(harness, 1019) == 1, "a marker dead on first sight or off the minimap is not counted")
-assert(#ns.CaughtErrors() == 0, "the kill paths raise no errors")
+assert(#ns.core.CaughtErrors() == 0, "the kill paths raise no errors")
 
 -- A client that still hands addons the combat log but refuses the event: loading does not fail.
 harness = Start({ combatLog = true, refuse = { COMBAT_LOG_EVENT_UNFILTERED = true } })
@@ -198,6 +198,6 @@ harness.env.CombatLogGetCurrentEventInfo = function()
 	error("blocked")
 end
 harness:Fire("COMBAT_LOG_EVENT_UNFILTERED")
-assert(#harness.ns.CaughtErrors() == 0, "a blocked combat log read reports no error")
+assert(#harness.ns.core.CaughtErrors() == 0, "a blocked combat log read reports no error")
 
 print("kills_spec: ok")

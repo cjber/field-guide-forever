@@ -100,11 +100,11 @@
 ---@field time number
 
 -- FieldGuideForeverDB after Migrate.
----@class FGDB
+---@class FGDB : ForeverFamilyDB
 ---@field version integer
 ---@field chars table<string, FGState> keyed by "Name-Realm"
 ---@field options FGOptions
----@field trackerHost? ForeverTrackerSettings the shared column's attach, lock, scale and detached position
+---@field trackerHost? ForeverTrackerLegacySettings Field Guide's old tracker table, copied once by ForeverCore
 ---@field sharedStats? table<string, table<string, table<string, table<string, FGStatRecord>>>> peer -> addon -> subject -> metric
 ---@field peerStats table<string, table<string, table>> character -> source -> Core protocol store
 ---@field errors? ForeverCaughtError[] the shared error journal: earlier sessions' errors, for the report
@@ -222,33 +222,6 @@ function FGCreatureInfo.Get(npcID) end
 -- Where Integrations/QuestieDB.lua has got with the catalogue.
 ---@alias FGCatalogueStatus "missing"|"loading"|"ok"|"unsupported"
 
--- UI/SettingsPage.lua, Forever Core's shared settings page.
----@class FGSettingsPageModule
----@field Register fun(name: string, build: fun(panel: Frame, page: table)): category: table?, panel: FGSettingsPanel?
-
--- The canvas the shared settings page builds, with the heading it adds.
----@class FGSettingsPanel : Frame
----@field title FontString
-
--- What Core/Settings.lua hands Core/MinimapButton.lua.
----@class FGMinimapButtonSpec
----@field name string
----@field icon string|number the addon's own content icon
----@field title string
----@field binding string
----@field subtext string
----@field settings table the saved table holding the angle and hide flag
----@field getShown? fun(): boolean? an addon-owned visibility rule, which wins over the hide flag
----@field onClick fun(button: Frame, mouseButton: string)
----@field host? table
-
--- Core/MinimapButton.lua, Forever Core's shared minimap button.
----@class FGMinimapButtonModule
----@field Create fun(spec: FGMinimapButtonSpec): ForeverMinimapButton?
----@field Destroy fun(button: ForeverMinimapButton?)
----@field SetShown fun(button: ForeverMinimapButton?, shown: boolean)
----@field Refresh fun()
-
 -- What Model.Record reports about one kill.
 ---@class FGRecordResult
 ---@field count integer
@@ -265,6 +238,22 @@ function FGCreatureInfo.Get(npcID) end
 ---@field firstGold boolean
 ---@field firstShiny boolean
 
+-- The section FGF hands ForeverCore's tracker column: Blizzard's ObjectiveTrackerModuleTemplate with UI/Tracker.lua's
+-- layout.
+---@class FGTrackerModule : Frame, ObjectiveTrackerModuleTemplate, ForeverTrackerModule
+---@field uiOrder? number
+---@field parentContainer? Frame
+---@field headerText? string
+---@field GetBlock fun(self: FGTrackerModule, id: number): FGTrackerBlock
+---@field LayoutBlock fun(self: FGTrackerModule, block: FGTrackerBlock): boolean
+---@field LayoutContents fun(self: FGTrackerModule)
+---@field MarkDirty fun(self: FGTrackerModule)
+
+-- One species' block in that section: a header line and its objective lines.
+---@class FGTrackerBlock
+---@field SetHeader fun(self: FGTrackerBlock, text: string)
+---@field AddObjective fun(self: FGTrackerBlock, key: number, text: string)
+
 ---@class FGNamespace
 ---@field L table<string, string> English phrases are the keys; an untranslated key reads as itself
 ---@field ClientData FGClientData
@@ -279,17 +268,12 @@ function FGCreatureInfo.Get(npcID) end
 ---@field ZoneByName table<string, FGZone> lower-case name -> zone
 ---@field SpeciesById table<integer, FGSpecies>
 ---@field SpeciesZone table<integer, FGZone> NPC ID -> the zone the species is listed under
----@field minimapButton? ForeverMinimapButton the minimap button, set by Core/MinimapButton.lua
+---@field minimapButton? ForeverMinimapButton the shared minimap button, set by Core/Settings.lua
 ---@field Model FGModel
 ---@field API FGPublicAPI
 ---@field Stats FGStatsModule
----@field PeerStats table shared Core peer transport factories
----@field LeaderboardsData? ForeverLeaderboardsData the shared leaderboards' data half (Core/LeaderboardsData.lua)
----@field Leaderboards? ForeverLeaderboardsAPI the shared Forever Leaderboards window (UI/Leaderboards.lua)
 ---@field QuestieDB FGQuestieDBModule
 ---@field Settings FGSettingsModule
----@field SettingsPage FGSettingsPageModule
----@field MinimapButton FGMinimapButtonModule
 ---@field Art FGArt
 ---@field Rarity FGRarity
 ---@field Tooltip FGTooltipModule
@@ -297,26 +281,11 @@ function FGCreatureInfo.Get(npcID) end
 ---@field Detail FGDetail
 ---@field InstancesView FGInstancesView
 ---@field Window FGWindow
----@field Tracker FGTracker the section UI/Tracker.lua puts in the shared Forever tracker column
----@field TrackerHost? ForeverTrackerHostAPI the shared column, from the vendored UI/TrackerHost.lua
----@field TrackerOrder? ForeverTrackerOrderAPI section order, from the vendored UI/TrackerOrder.lua
----@field TrackerLock? table the grip and Lock switch, from the vendored UI/TrackerLock.lua
----@field TrackerQuestie? table Questie's list, from the vendored UI/TrackerQuestie.lua
----@field TrackerEqot? table EQOT's list, from the vendored UI/TrackerEqot.lua
----@field TrackerHostSettings fun(): ForeverTrackerSettings the shared column's saved table
+---@field Tracker FGTracker the section UI/Tracker.lua puts in ForeverCore's tracker column
 ---@field Discovery FGDiscovery
----@field SafeCall fun(label: string, fn: function, ...: any): boolean, ...any
----@field RecordError fun(label: string, message: any, stack?: string)
----@field CaughtErrors fun(): ForeverCaughtError[] this session's caught errors, oldest first
----@field AttachErrorJournal fun(store: table) keep the journal in the saved table, so a /reload keeps it
----@field CutText fun(text: string, limit: integer): string text cut to limit bytes on a UTF-8 boundary
----@field Log fun(level: string, topic: string, message: any, ...: any) one line in the shared ring
----@field LogLines fun(count?: integer): string[] the newest log lines, oldest first
----@field AttachLog fun(store: table) keep the log ring in the saved table, so a /reload keeps it
----@field DebugEnabled fun(): boolean the shared debug switch, for guarding expensive debug building
----@field DebugCommand fun(argument?: string): boolean the /forever debug subcommands
+---@field core ForeverCoreAddon the addon's own ForeverCore services: journal, log, report and map canvas
+---@field broken? boolean set when an installed ForeverCore is too old, so the addon's files stop
 ---@field ReportTitle string the localized title shown by the shared report window
----@field Report ForeverReportModule the shared report and issue window
 ---@field ReportLines fun(): string[] this addon's own lines in the report
 ---@field BuildCatalogue fun()
 ---@field FindZone fun(name: string?): FGZone?
@@ -336,9 +305,6 @@ function FGCreatureInfo.Get(npcID) end
 ---@field Usable fun(frame: Frame?): boolean false for nil or a forbidden frame
 ---@field RarityPreviewActive fun(): boolean true while /fg preview marks every creature
 ---@field OpenGuide fun()
----@field GamepadUI fun(): boolean whether the gamepad interface is on
----@field ContextMenu fun(owner: Frame, generator: fun(owner: Frame, root: any)): any a menu, or a line under the gamepad interface
----@field OpenMap fun(mapID: integer?): boolean opens the world map through the client's secure opener, false in combat or when nothing opened
 
 ---@class FGGlobal
 ---@field API FGPublicAPI

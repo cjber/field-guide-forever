@@ -1,5 +1,10 @@
 ---@type string, FGNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
+
 local L = ns.L
 local Art = ns.Art
 
@@ -473,7 +478,7 @@ function Window.ToggleZoneMenu()
 	if not frame or not Window.breadcrumb then
 		return
 	end
-	ns.ContextMenu(Window.breadcrumb, function(_, root)
+	ForeverCore.ContextMenu(Window.breadcrumb, function(_, root)
 		-- Every zone is a row: past 20 rows of 20 px the menu scrolls rather than running off the screen (WFA-36).
 		root:SetScrollMode(20 * 20)
 		root:CreateTitle(L["Choose a zone"])
@@ -493,7 +498,7 @@ function Window.ToggleFilterMenu()
 	if not frame or not Window.filterButton then
 		return
 	end
-	ns.ContextMenu(Window.filterButton, function(_, root)
+	ForeverCore.ContextMenu(Window.filterButton, function(_, root)
 		root:CreateTitle(L["Filter species"])
 		for _, info in ipairs(filters) do -- menu-scroll-ok: filters is eight fixed species filters
 			local key = info.key

@@ -1,6 +1,7 @@
 std = "lua51"
 max_line_length = 120
 exclude_files = {
+	"forever-core/**",
 	"tools/.cache/**",
 	".release/**",
 	".types/**",
@@ -15,8 +16,6 @@ ignore = { "212/_.*" } -- unused arguments prefixed with _
 globals = {
 	"FieldGuideForever",
 	"FieldGuideForeverDB",
-	"ForeverLeaderboards",
-	"ForeverTrackerHost",
 	"SLASH_FIELDGUIDEFOREVER1",
 	"SLASH_FIELDGUIDEFOREVER2",
 	"SLASH_FIELDGUIDEFOREVER3",
@@ -26,32 +25,13 @@ globals = {
 	"UIPanelWindows",
 }
 read_globals = {
-	-- The shared Forever tracker column (UI/Tracker*.lua, vendored from Forever Core) and the game's own tracker.
-	"C_XMLUtil",
-	"CreateFramePoolCollection",
-	"EditModeManagerFrame",
-	"EventRegistry",
-	"EventUtil",
+	"ForeverCore",
+	-- The game's own objective tracker, which UI/Tracker.lua hangs its section on.
 	"Mixin",
 	"ObjectiveTrackerFrame",
 	"ObjectiveTrackerManager",
-	"Minimap",
 
 	"C_Map",
-	"C_DateAndTime",
-	"CreateDataProvider",
-	"CreateScrollBoxListLinearView",
-	"ScrollBoxConstants",
-	"ScrollUtil",
-	"RAID_CLASS_COLORS",
-	"GREEN_FONT_COLOR",
-	"OpenWorldMap",
-	"WorldMapFrame",
-	"ShowUIPanel",
-	"HideUIPanel",
-	"PanelTemplates_SelectTab",
-	"PanelTemplates_DeselectTab",
-	"PanelTemplates_TabResize",
 	"LibQuestieDB",
 	"Questie",
 
@@ -102,13 +82,9 @@ read_globals = {
 	"GetGuildRosterInfo",
 	"GetNumGuildMembers",
 	"InCombatLockdown",
-	"InterfaceOptions_AddCategory",
-	"MenuUtil",
-	"Minimap",
 	"NORMAL_FONT_COLOR",
 	"HIGHLIGHT_FONT_COLOR",
 	"tContains",
-	"Settings",
 	"TargetFramePortrait",
 	"UIParent",
 	"UISpecialFrames",
@@ -135,5 +111,3 @@ read_globals = {
 
 -- A translation's lines are as long as its phrases.
 files["Locales/*.lua"] = { max_line_length = false }
--- Core/OpenMap.lua: the client's secure world map opener.
-read_globals[#read_globals + 1] = "CreateSecureDelegate"
