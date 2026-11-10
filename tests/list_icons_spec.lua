@@ -9,6 +9,9 @@ local npcFixture = {
 	[90001] = { name = "No Portrait", minLevel = 1, maxLevel = 1, rank = 0, subName = "Beast", zoneID = 17 },
 }
 harness.env.LibQuestieDB = {
+	RequireContract = function()
+		return true
+	end,
 	Npc = {
 		GetAllIds = function()
 			return { 883, 3468, 90001 }

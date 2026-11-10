@@ -53,7 +53,6 @@ read_globals = {
 	"PanelTemplates_DeselectTab",
 	"PanelTemplates_TabResize",
 	"LibQuestieDB",
-	"QuestieDB",
 	"Questie",
 
 	"C_NamePlate",
@@ -127,6 +126,7 @@ read_globals = {
 	"UnitName",
 	"UnitRace",
 	"date",
+	"debugprofilestop",
 	"debugstack",
 	"geterrorhandler",
 	"strtrim",
