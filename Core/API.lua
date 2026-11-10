@@ -5,12 +5,17 @@ if ns.broken then
 	return
 end
 
--- Public addon-to-addon interface. nil means the answer is not known yet: before the saved variables load there is
--- no catalogue state to read, and a caller such as a map addon should ask again after PLAYER_LOGIN rather than
--- treating the silence as an empty field guide. Version 2 is the tier ladder: the old rare form and per-kill shiny
+-- Public addon-to-addon interface (docs/api.md). Version 2 is the tier ladder: the old rare form and per-kill shiny
 -- roll are gone, so callers reading per-creature progress now get counts for bronze, silver, gold and shiny spawns.
----@class FGPublicAPI
-local API = { version = 2, minor = 4 }
+-- `minor` rises with each addition (1: Spawns and ZoneSpawns, 2: version 2's tier ladder, 3: the size fields, 4:
+-- their removal, 5: SuiteLeaderboard and each read's not-ready answer); a caller checks a member before using it.
+local API = { version = 2, minor = 5 }
+
+-- The shared shape every Forever addon's API follows: the not-ready answer a read gives while there is nothing to
+-- answer (ForeverCore's docs/api-conventions.md). Core/Require.lua stops the addon before this file on an older
+-- ForeverCore, so the kit is always here.
+local APIKit = assert(ForeverCore.APIKit)
+
 ---@type FGSpawnCache?
 local spawnCache
 local FIRST_METRICS = {
@@ -27,6 +32,15 @@ local FIRST_METRICS = {
 ---@return boolean
 local function Ready()
 	return ns.ready == true
+end
+
+-- A read with nothing to answer, as the kit builds it: `nil, reason`. docs/api.md lists which reasons each read can
+-- return, so a caller can tell "ask again later" from "there is nothing to ask about".
+---@param reason FGAPIReason
+---@return nil, FGAPIReason
+local function NotReady(reason)
+	local _, answer = APIKit.NotReady(reason)
+	return nil, answer --[[@as FGAPIReason]]
 end
 
 -- QuestieDB stores AreaTable IDs and 0–100 coordinates. Resolve them only through its own ZoneDB tables; an
@@ -115,22 +129,27 @@ end
 
 ---@param speciesId integer
 ---@return FGSpawn[]?
+---@return FGAPIReason?
 function API.Spawns(speciesId)
-	if not SpawnsReady() or not spawnCache or type(speciesId) ~= "number" or speciesId % 1 ~= 0 then
-		return nil
+	if not SpawnsReady() or not spawnCache then
+		return NotReady("loading")
+	end
+	if type(speciesId) ~= "number" or speciesId % 1 ~= 0 then
+		return NotReady("none")
 	end
 	local species = ns.SpeciesById[speciesId]
 	if not species then
-		return nil
+		return NotReady("none")
 	end
 	return CopySpawns(spawnCache.species[speciesId] or {})
 end
 
 ---@param zoneName? string
 ---@return FGSpawn[]?
+---@return FGAPIReason?
 function API.ZoneSpawns(zoneName)
 	if not SpawnsReady() or not spawnCache then
-		return nil
+		return NotReady("loading")
 	end
 	local zone
 	if zoneName ~= nil then
@@ -139,7 +158,7 @@ function API.ZoneSpawns(zoneName)
 		zone = ns.CurrentZone()
 	end
 	if not zone then
-		return nil
+		return NotReady("none")
 	end
 	local rows = {}
 	for _, row in ipairs(spawnCache.zones[zone.id] or {}) do
@@ -171,9 +190,10 @@ local function CopySpecies(species)
 end
 
 ---@return { name: string, continent: string }[]?
+---@return FGAPIReason?
 function API.Zones()
 	if not Ready() or ns.catalogueStatus ~= "ok" then
-		return nil
+		return NotReady("loading")
 	end
 	local zones = {}
 	for _, zone in ipairs(ns.Zones) do
@@ -184,9 +204,10 @@ end
 
 ---@param zoneName? string
 ---@return FGSpecies[]?
+---@return FGAPIReason?
 function API.Species(zoneName)
 	if not Ready() or ns.catalogueStatus ~= "ok" then
-		return nil
+		return NotReady("loading")
 	end
 	local zone
 	if zoneName ~= nil then
@@ -195,7 +216,7 @@ function API.Species(zoneName)
 		zone = ns.CurrentZone()
 	end
 	if not zone then
-		return nil
+		return NotReady("none")
 	end
 	local species = {}
 	for _, entry in ipairs(zone.species) do
@@ -208,12 +229,16 @@ API.GetSpecies = API.Species
 
 ---@param speciesId integer
 ---@return FGSpecies?
+---@return FGAPIReason?
 function API.SpeciesById(speciesId)
 	if not Ready() or ns.catalogueStatus ~= "ok" then
-		return nil
+		return NotReady("loading")
 	end
 	local species = ns.SpeciesById[speciesId]
-	return species and CopySpecies(species)
+	if not species then
+		return NotReady("none")
+	end
+	return CopySpecies(species)
 end
 
 API.GetSpeciesById = API.SpeciesById
@@ -222,9 +247,10 @@ API.GetCreature = API.SpeciesById
 
 ---@param zoneName? string
 ---@return { zone: string, catalogued: integer, total: integer, fraction: number }?
+---@return FGAPIReason?
 function API.Progress(zoneName)
 	if not Ready() or ns.catalogueStatus ~= "ok" then
-		return nil
+		return NotReady("loading")
 	end
 	local zone
 	if zoneName ~= nil then
@@ -233,7 +259,7 @@ function API.Progress(zoneName)
 		zone = ns.CurrentZone()
 	end
 	if not zone then
-		return nil
+		return NotReady("none")
 	end
 	local progress = ns.Model.ZoneProgress(ns.GetCharacterState(false), zone.species)
 	return {
@@ -255,13 +281,14 @@ API.GetZoneProgress = API.Progress
 --- firstSighting: number?, firstSightingZone: string?, firstKill: number?, firstKillZone: string?,
 --- firstBronze: number?, firstBronzeZone: string?, firstSilver: number?, firstSilverZone: string?,
 --- firstGold: number?, firstGoldZone: string?, firstShiny: number?, firstShinyZone: string? }?
+---@return FGAPIReason?
 function API.Specimen(speciesId)
 	if not Ready() or ns.catalogueStatus ~= "ok" then
-		return nil
+		return NotReady("loading")
 	end
 	local species = ns.SpeciesById[speciesId]
 	if not species then
-		return nil
+		return NotReady("none")
 	end
 	local state = ns.GetCharacterState(false)
 	local entry = ns.Model.Specimen(state, speciesId)
@@ -300,9 +327,10 @@ API.GetSpecimen = API.Specimen
 API.SpeciesState = API.Specimen
 
 ---@return FGSighting[]?
+---@return FGAPIReason?
 function API.Sightings()
 	if not Ready() or ns.catalogueStatus ~= "ok" then
-		return nil
+		return NotReady("loading")
 	end
 	local sightings = {}
 	for index, entry in ipairs(ns.Model.GetSightings()) do
@@ -322,9 +350,10 @@ API.GetSightings = API.Sightings
 -- the saved state out of reach.
 ---@return { id: integer, name: string, zone: string, count: integer, kills: integer, rank: integer,
 --- bestTier: string?, silver: boolean, gold: boolean, shiny: boolean }[]?
+---@return FGAPIReason?
 function API.Specimens()
 	if not Ready() or ns.catalogueStatus ~= "ok" then
-		return nil
+		return NotReady("loading")
 	end
 	local specimens = {}
 	for _, zone in ipairs(ns.Zones) do
@@ -356,9 +385,10 @@ API.GetSpecimens = API.Specimens
 --- firstSighting: number?, firstSightingDifficulty: integer?, firstSightingDifficultyName: string?,
 --- firstKill: number?, firstDifficulty: integer?,
 --- firstDifficultyName: string?, difficulties: table<string, integer>, difficultyNames: table<string, string> }[]?
+---@return FGAPIReason?
 function API.Encounters()
 	if not Ready() or ns.catalogueStatus ~= "ok" then
-		return nil
+		return NotReady("loading")
 	end
 	local state = ns.GetCharacterState(false)
 	local encounters = {}
@@ -397,9 +427,13 @@ API.GetEncounters = API.Encounters
 ---@param metric string
 ---@param subject string
 ---@return { player: string, value: integer, time: integer, source: string }[]?
+---@return FGAPIReason?
 function API.Leaderboard(metric, subject)
-	if not Ready() or not ns.db or type(metric) ~= "string" or type(subject) ~= "string" then
-		return nil
+	if not Ready() or not ns.db then
+		return NotReady("loading")
+	end
+	if type(metric) ~= "string" or type(subject) ~= "string" then
+		return NotReady("none")
 	end
 	local rows = {}
 	local state = ns.GetCharacterState(false)
@@ -487,12 +521,63 @@ function API.Leaderboard(metric, subject)
 	return rows
 end
 
+-- The suite leaderboard shape (docs/api-conventions.md): the same ranked kill rows as
+-- Leaderboard("creature_kills", "all"), with the rank, name and personal mark the shared window uses. This
+-- character's row is always included, even below the limit. Peer values are reports received from addon users and
+-- are not independently verified; they are left out while sharing is off, and the local row remains.
+---@param limit? integer how many top rows, ten unless given, 25 at most; this character's row is always included
+---@return { metric: string, scope: string, sharing: boolean, total: integer,
+--- rows: { rank: integer, name: string, value: integer, eventUnix: integer?, self: boolean }[] }?
+---@return FGAPIReason?
+function API.SuiteLeaderboard(limit)
+	if limit == nil then
+		limit = 10
+	elseif type(limit) ~= "number" or limit < 0 or limit % 1 ~= 0 then
+		return NotReady("none")
+	end
+	if limit > 25 then
+		limit = 25
+	end
+	local board, reason = API.Leaderboard("creature_kills", "all")
+	if not board then
+		return nil, reason
+	end
+	local rows = {}
+	local selfRow
+	for index, row in ipairs(board) do
+		local shaped = {
+			rank = index,
+			name = row.player,
+			value = row.value,
+			eventUnix = row.time and row.time > 0 and row.time or nil,
+			self = row.source == "local",
+		}
+		if shaped.self then
+			selfRow = shaped
+		end
+		if index <= limit then
+			rows[#rows + 1] = shaped
+		end
+	end
+	if selfRow and selfRow.rank > limit then
+		rows[#rows + 1] = selfRow
+	end
+	return {
+		metric = "creature_kills",
+		scope = "guild_group",
+		sharing = ns.db ~= nil and ns.db.options.statsShare ~= false,
+		total = #board,
+		rows = rows,
+	}
+end
+
 -- A compact kill leaderboard for other addons. Peer values are reports received from addon users and are not
 -- independently verified; local records remain visible when sharing is disabled.
 ---@return { player: string, value: integer, source: string }[]?
+---@return FGAPIReason?
 function API.LeaderboardSummary()
 	if not Ready() or ns.catalogueStatus ~= "ok" then
-		return nil
+		return NotReady("loading")
 	end
 	local totals = {}
 	local localTotal = 0
@@ -543,9 +628,13 @@ end
 API.GetLeaderboardSummary = API.LeaderboardSummary
 
 ---@return table<string, table>?
+---@return FGAPIReason?
 function API.SharedStats()
-	if not Ready() or not ns.db or ns.db.options.statsShare == false then
-		return nil
+	if not Ready() or not ns.db then
+		return NotReady("loading")
+	end
+	if ns.db.options.statsShare == false then
+		return NotReady("disabled")
 	end
 	local result = {}
 	for player, addons in pairs(ns.Stats and ns.Stats.Shared() or {}) do
@@ -566,5 +655,5 @@ end
 API.GetSharedStats = API.SharedStats
 
 FieldGuideForever = FieldGuideForever or {}
-FieldGuideForever.API = API
-ns.API = API
+FieldGuideForever.API = API --[[@as FGPublicAPI]]
+ns.API = API --[[@as FGPublicAPI]]

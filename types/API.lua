@@ -1,0 +1,134 @@
+---@meta
+
+-- FieldGuideForever.API, version 2, minor 5: the contract other addons read (docs/api.md). Core/API.lua implements
+-- it, and these declarations never load in the client.
+
+-- ForeverCore.APIKit's not-ready reasons. "loading" asks again later, "disabled" is the player's choice and "none"
+-- is nothing to answer.
+---@alias FGAPIReason "loading"|"disabled"|"none"
+
+---@class FGAPIZone
+---@field name string
+---@field continent string
+
+---@class FGAPIProgress
+---@field zone string
+---@field catalogued integer
+---@field total integer
+---@field fraction number
+
+---@class FGAPISpecimen
+---@field id integer
+---@field name string
+---@field count integer specimens toward mastery
+---@field kills integer
+---@field killsEstimated boolean the kills came from a save that counted only specimens
+---@field rank integer
+---@field bestTier? string "bronze", "silver", "gold" or "shiny"
+---@field bronze boolean
+---@field silver boolean
+---@field gold boolean
+---@field shiny boolean
+---@field bronzeCount integer
+---@field silverCount integer
+---@field goldCount integer
+---@field shinyCount integer
+---@field firstSighting? number
+---@field firstSightingZone? string
+---@field firstKill? number
+---@field firstKillZone? string
+---@field firstBronze? number
+---@field firstBronzeZone? string
+---@field firstSilver? number
+---@field firstSilverZone? string
+---@field firstGold? number
+---@field firstGoldZone? string
+---@field firstShiny? number
+---@field firstShinyZone? string
+
+---@class FGAPISpecimenSummary
+---@field id integer
+---@field name string
+---@field zone string
+---@field count integer
+---@field kills integer
+---@field killsEstimated boolean
+---@field rank integer
+---@field bestTier? string
+---@field silver boolean
+---@field gold boolean
+---@field shiny boolean
+
+---@class FGAPIEncounter
+---@field id integer
+---@field name string
+---@field instance string
+---@field kills integer
+---@field sightings integer
+---@field firstSighting? number
+---@field firstSightingDifficulty? integer
+---@field firstSightingDifficultyName? string
+---@field firstKill? number
+---@field firstDifficulty? integer
+---@field firstDifficultyName? string
+---@field difficulties table<string, integer> difficulty ID as a string
+---@field difficultyNames table<string, string> difficulty ID as a string
+
+---@class FGAPILeaderboardRow
+---@field player string
+---@field value integer
+---@field time integer the first or latest event's time(), 0 when unknown
+---@field source "local"|"peer"
+
+---@class FGAPILeaderboardSummaryRow
+---@field player string
+---@field value integer
+---@field source "local"|"reported"
+
+---@class FGAPISuiteLeaderboardRow
+---@field rank integer
+---@field name string
+---@field value integer
+---@field eventUnix? integer
+---@field self boolean true on this character's row
+
+---@class FGAPISuiteLeaderboard
+---@field metric "creature_kills"
+---@field scope "guild_group"
+---@field sharing boolean
+---@field total integer every eligible row, before the limit
+---@field rows FGAPISuiteLeaderboardRow[]
+
+---@class FGPublicAPI
+---@field version 2
+---@field minor 5
+---@field Ready fun(): boolean
+---@field IsReady fun(): boolean deprecated alias of Ready()
+---@field Zones fun(): FGAPIZone[]?, FGAPIReason?
+---@field Species fun(zoneName?: string): FGSpecies[]?, FGAPIReason?
+---@field GetSpecies fun(zoneName?: string): FGSpecies[]?, FGAPIReason? deprecated alias of Species()
+---@field SpeciesById fun(speciesId: integer): FGSpecies?, FGAPIReason?
+---@field GetSpeciesById fun(speciesId: integer): FGSpecies?, FGAPIReason? deprecated alias of SpeciesById()
+---@field Creature fun(speciesId: integer): FGSpecies?, FGAPIReason? deprecated alias of SpeciesById()
+---@field GetCreature fun(speciesId: integer): FGSpecies?, FGAPIReason? deprecated alias of SpeciesById()
+---@field Progress fun(zoneName?: string): FGAPIProgress?, FGAPIReason?
+---@field GetProgress fun(zoneName?: string): FGAPIProgress?, FGAPIReason? deprecated alias of Progress()
+---@field ZoneProgress fun(zoneName?: string): FGAPIProgress?, FGAPIReason? deprecated alias of Progress()
+---@field GetZoneProgress fun(zoneName?: string): FGAPIProgress?, FGAPIReason? deprecated alias of Progress()
+---@field Specimen fun(speciesId: integer): FGAPISpecimen?, FGAPIReason?
+---@field GetSpecimen fun(speciesId: integer): FGAPISpecimen?, FGAPIReason? deprecated alias of Specimen()
+---@field SpeciesState fun(speciesId: integer): FGAPISpecimen?, FGAPIReason? deprecated alias of Specimen()
+---@field Sightings fun(): FGSighting[]?, FGAPIReason?
+---@field GetSightings fun(): FGSighting[]?, FGAPIReason? deprecated alias of Sightings()
+---@field Specimens fun(): FGAPISpecimenSummary[]?, FGAPIReason?
+---@field GetSpecimens fun(): FGAPISpecimenSummary[]?, FGAPIReason? deprecated alias of Specimens()
+---@field Encounters fun(): FGAPIEncounter[]?, FGAPIReason?
+---@field GetEncounters fun(): FGAPIEncounter[]?, FGAPIReason? deprecated alias of Encounters()
+---@field Spawns fun(speciesId: integer): FGSpawn[]?, FGAPIReason?
+---@field ZoneSpawns fun(zoneName?: string): FGSpawn[]?, FGAPIReason?
+---@field Leaderboard fun(metric: string, subject: string): FGAPILeaderboardRow[]?, FGAPIReason?
+---@field SuiteLeaderboard fun(limit?: integer): FGAPISuiteLeaderboard?, FGAPIReason?
+---@field LeaderboardSummary fun(): FGAPILeaderboardSummaryRow[]?, FGAPIReason?
+---@field GetLeaderboardSummary fun(): FGAPILeaderboardSummaryRow[]?, FGAPIReason? deprecated alias of LeaderboardSummary()
+---@field SharedStats fun(): table<string, table>?, FGAPIReason?
+---@field GetSharedStats fun(): table<string, table>?, FGAPIReason? deprecated alias of SharedStats()

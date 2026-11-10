@@ -1,5 +1,6 @@
 -- Field Guide Forever requires ForeverCore. This spec covers the two places the handover is the addon's: the one-line
--- stop for a ForeverCore older than API 1, and the per-addon context Register returns.
+-- stop for a ForeverCore older than API 1 or without the APIKit it added in 1.1.0, and the per-addon context Register
+-- returns.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
 local harness = Mock.Harness()
@@ -34,10 +35,12 @@ end
 local broken, lines = Require(nil)
 assert(broken.broken == true, "a missing ForeverCore stops the addon")
 assert(#lines == 1 and lines[1].text:find("ForeverCore", 1, true), "and says so in one error line")
-local old, oldLines = Require({ API = 0 })
+local old, oldLines = Require({ API = 0, APIKit = {} })
 assert(old.broken == true and #oldLines == 1, "a ForeverCore older than API 1 stops the addon too")
-local ready, readyLines = Require({ API = 1 })
-assert(ready.broken == nil, "API 1 runs the addon")
+local noKit, noKitLines = Require({ API = 1 })
+assert(noKit.broken == true and #noKitLines == 1, "a ForeverCore from before APIKit 1.1.0 stops the addon too")
+local ready, readyLines = Require({ API = 1, APIKit = {} })
+assert(ready.broken == nil, "API 1 with APIKit runs the addon")
 assert(#readyLines == 0, "and says nothing")
 
 print("core_dependency_spec: ok")

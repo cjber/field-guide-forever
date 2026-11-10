@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+### For addon authors
+
+- **`FieldGuideForever.API` is minor 5: `SuiteLeaderboard(limit)` returns the suite's leaderboard shape, and every read that has nothing to answer returns `nil, reason`.** `SuiteLeaderboard(limit)` ranks the same creature-kill rows as `Leaderboard("creature_kills", "all")` as `metric`, `scope`, `sharing`, `total` and `rows` of `rank`, `name`, `value`, `eventUnix` and `self`, with the personal row kept below the limit. The reasons `"loading"`, `"disabled"` and `"none"` say whether to ask again, which feature is off or that nothing matches, and `nil` alone still means the same. `docs/api.md` and `types/API.lua` now list every published function, the deprecated aliases, each read's reasons and the minor history (#247).
+
 ## [0.6.0] - 2026-11-10
 
 - **Needs Forever Core.** The shared tracker column, bug report and leaderboards now come from one Forever Core addon that installs with it, so every Forever addon's tracker scale, lock and position stay in step. Your tracker settings carry over.
