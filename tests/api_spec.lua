@@ -6,9 +6,9 @@ local API = harness.env.FieldGuideForever and harness.env.FieldGuideForever.API
 
 assert(API, "the public API is installed")
 assert(API.version >= 1, "the contract is versioned")
-assert(API.version == 2 and API.minor == 5, "minor 5 adds SuiteLeaderboard and the reads' not-ready answers")
+assert(API.version == 2 and API.minor == 6, "minor 6 adds SpawnTier, tracked species, Subscribe and Stats")
 assert(harness.env.ForeverCore.APIKit ~= nil, "the shared API kit is available at load")
-assert(API.Subscribe == nil, "this minor has no Subscribe yet")
+assert(type(API.Subscribe) == "function", "the API subscribes through the shared kit")
 
 local npcFixture = {
 	[1001] = {
@@ -63,6 +63,9 @@ local progressBefore, progressReason = API.Progress("The Barrens")
 assert(progressBefore == nil and progressReason == "loading", "progress is unknown before initialisation")
 local specimenBefore, specimenReason = API.Specimen(1001)
 assert(specimenBefore == nil and specimenReason == "loading", "a specimen is unknown before initialisation")
+local trackedBefore, trackedReason = API.TrackedSpecies()
+assert(trackedBefore == nil and trackedReason == "loading", "the tracked species is unknown before initialisation")
+assert(API.SetTrackedSpecies(1001) == false, "setting a tracked species before the state exists changes nothing")
 assert(not API.Ready(), "not ready before the saved variables load")
 
 harness:Fire("ADDON_LOADED", "FieldGuideForever")
@@ -71,6 +74,39 @@ assert(ns.ready, "the addon initialises on its own ADDON_LOADED")
 assert(harness.env.FieldGuideForeverDB.version == ns.SCHEMA, "the database is upgraded to the current schema")
 assert(harness.env.FieldGuideForeverDB.options.statsShare == true, "sharing defaults on with an opt-out setting")
 assert(API.Ready(), "the API answers after initialisation")
+
+-- Stats is the suite's activity shape over the metrics the addon reports through SharedStats: one local all-subject
+-- total per metric, with no invented event time before anything has happened.
+local freshStats = API.Stats()
+assert(type(freshStats) == "table" and #freshStats == 15, "Stats has one row for every published metric")
+local freshByMetric = {}
+for _, row in ipairs(freshStats) do
+	assert(
+		row.addon == "FieldGuideForever" and row.subject == "all",
+		"an activity row names the addon and an all subject"
+	)
+	freshByMetric[row.metric] = row
+end
+assert(
+	freshByMetric.creature_kills.value == 0 and freshByMetric.creature_kills.eventUnix == nil,
+	"an empty metric leaves its event time out"
+)
+
+-- The tracked species is the saved switch the shared column follows, and the API writes the same one.
+assert(API.TrackedSpecies() == nil, "a fresh character tracks nothing")
+local notTracked, notTrackedReason = API.TrackedSpecies()
+assert(notTracked == nil and notTrackedReason == "none", "nothing tracked has nothing to answer")
+assert(API.SetTrackedSpecies(1001) == true, "the API tracks a catalogue species")
+assert(API.TrackedSpecies() == 1001, "the API reads the species it set")
+assert(ns.Tracker.TrackedSpecies() == 1001, "the tracker section follows the same species")
+assert(ns.GetCharacterState(false).tracked == 1001, "the tracked switch is saved")
+assert(API.SetTrackedSpecies(1001) == false, "setting the species already tracked changes nothing")
+assert(API.SetTrackedSpecies(999999) == false, "an unknown species id is refused")
+assert(ns.Tracker.TrackedSpecies() == 1001, "a refused id leaves the tracker alone")
+assert(API.SetTrackedSpecies(1001.5) == false, "a malformed species id is refused")
+assert(API.SetTrackedSpecies(nil) == true, "nil clears the tracked species")
+assert(API.TrackedSpecies() == nil, "nothing is tracked after clearing")
+assert(API.SetTrackedSpecies(nil) == false, "clearing nothing changes nothing")
 
 local migrated = ns.Migrate({
 	version = 0,
@@ -159,6 +195,23 @@ local function GuidFor(tier, salt, npcId)
 	end
 	error("no GUID rolls " .. tier)
 end
+
+-- A unit token reads the tier of its GUID, exactly as the target frame and nameplate art do. A player and a unit the
+-- player cannot attack have no spawn tier rather than the bronze the art falls back to.
+local targetGuid = GuidFor("gold", "spawn-tier")
+harness.Mock.units.target = "Plainstrider"
+harness.Mock.guids.target = targetGuid
+assert(API.SpawnTier("target") == "gold", "a hostile unit reads the tier of its GUID")
+harness.Mock.players.target = true
+local playerTier, playerTierReason = API.SpawnTier("target")
+assert(playerTier == nil and playerTierReason == "none", "a player has no spawn tier")
+harness.Mock.players.target = nil
+harness.Mock.canAttack.target = false
+local friendlyTier, friendlyTierReason = API.SpawnTier("target")
+assert(friendlyTier == nil and friendlyTierReason == "none", "a unit the player cannot attack has no spawn tier")
+harness.Mock.canAttack.target = nil
+local badUnit, badUnitReason = API.SpawnTier(nil)
+assert(badUnit == nil and badUnitReason == "none", "a missing unit token has no spawn tier")
 
 ns.Model.ClearSightings()
 harness:Kill("Plainstrider", 1001, GuidFor("bronze", "api"))
@@ -300,6 +353,51 @@ assert(
 	"the leaderboard summary labels peer totals as reports"
 )
 
+-- Stats is the local counterpart of the metrics SharedStats publishes: one all-subject total each, with the latest
+-- real event time and no time on a metric that has not happened.
+local activity = API.Stats()
+local activityByMetric = {}
+for _, row in ipairs(activity) do
+	assert(row.addon == "FieldGuideForever" and row.subject == "all", "every activity row is an all-subject total")
+	activityByMetric[row.metric] = row
+end
+assert(activityByMetric.creature_kills.value == 5, "Stats counts the same observed kills as the local board")
+assert(activityByMetric.creature_kills.eventUnix == 1000, "the latest kill time is the row's event time")
+assert(
+	activityByMetric.gold_finds.value == 1 and activityByMetric.first_gold.value == 1,
+	"Stats totals each coat and its first"
+)
+assert(activityByMetric.shiny_finds.value == 2, "Stats adds a coat across species")
+assert(
+	activityByMetric.boss_kills.value == 2 and activityByMetric.boss_kills.eventUnix == 1000,
+	"boss kills total every difficulty of the encounter"
+)
+-- Every row's metric is one SharedStats accepts for this addon, sent on a subject its mode allows.
+for _, row in ipairs(activity) do
+	local subject = "1001"
+	if row.metric == "boss_kills" then
+		subject = "77_0"
+	elseif row.metric:match("^boss_") then
+		subject = "77"
+	end
+	harness:Fire(
+		"CHAT_MSG_ADDON",
+		"WFAStats",
+		"1|fieldguide|" .. row.metric .. "|" .. subject .. "|1|900",
+		"GUILD",
+		"StatsPeer"
+	)
+end
+local publishedMetrics = {}
+for _, subjects in pairs(API.SharedStats()["StatsPeer"].fieldguide) do
+	for metric in pairs(subjects) do
+		publishedMetrics[metric] = true
+	end
+end
+for _, row in ipairs(activity) do
+	assert(publishedMetrics[row.metric], "SharedStats publishes the metric Stats reports: " .. row.metric)
+end
+
 -- SuiteLeaderboard is the suite shape over the same rows as Leaderboard("creature_kills", "all"): ranked, with
 -- the personal row kept below the limit and sharing reported.
 harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|all|9|960", "GUILD", "Peer-Realm")
@@ -379,6 +477,8 @@ assert(
 	localOnly and #localOnly == 1 and localOnly[1].source == "local",
 	"the local leaderboard remains available after opt-out"
 )
+local localStats = API.Stats()
+assert(localStats and #localStats == 15 and localStats[1].subject == "all", "Stats still answers locally after opt-out")
 local personalBoard = API.Leaderboard("creature_kills", "1001")
 assert(
 	personalBoard and #personalBoard == 1 and personalBoard[1].source == "local",
@@ -425,5 +525,65 @@ assert(ns.List.scroll:GetVerticalScroll() == 0, "changing the list resets scroll
 ns.List.scroll:SetVerticalScroll(30)
 ns.List.Refresh({}, nil, true)
 assert(ns.List.scroll:GetVerticalScroll() == 0, "an empty list returns scrolling to zero")
+
+-- Subscribe is ForeverCore's shared hub: a fresh character hears the frame after the change, once per burst, with
+-- only the channels that changed. Core bumps the counters where a record is first produced, so the toast setting
+-- cannot hide them.
+local subscribed = Mock.Harness()
+subscribed.env.LibQuestieDB = {
+	RequireContract = function()
+		return true
+	end,
+	Npc = {
+		GetAllIds = function()
+			return { 1001, 1003, 1019 }
+		end,
+		GetAll = function(id, fields)
+			local row, values = npcFixture[id], {}
+			for _, field in ipairs(fields) do
+				values[#values + 1] = row[field]
+			end
+			return values
+		end,
+	},
+}
+subscribed:Fire("ADDON_LOADED", "FieldGuideForever")
+subscribed:Fire("PLAYER_LOGIN")
+subscribed:RunTimers()
+local eventAPI = subscribed.env.FieldGuideForever.API
+
+local heard = {}
+local unsubscribe = eventAPI.Subscribe(function(changes)
+	heard[#heard + 1] = changes
+end)
+assert(type(unsubscribe) == "function", "Subscribe returns an unsubscribe function")
+subscribed:Kill("Plainstrider", 1001, GuidFor("gold", "subscribed"))
+subscribed:RunTimers()
+assert(#heard == 1, "one burst sends one call")
+assert(heard[1].tier == true, "a first gold raises the tier channel")
+assert(heard[1].sighting == true and heard[1].specimen == true, "the first kill also raises sighting and specimen")
+unsubscribe()
+unsubscribe()
+subscribed:Kill("Savannah Prowler", 1003, GuidFor("gold", "unsubscribed", 1003))
+subscribed:RunTimers()
+assert(#heard == 1, "an unsubscribed callback hears nothing, and unsubscribing twice is safe")
+
+local zoneHeard
+local unsubscribeZone = eventAPI.Subscribe(function(changes)
+	zoneHeard = changes
+end)
+subscribed:Kill("Dishu", 1019, GuidFor("gold", "zone", 1019))
+subscribed:RunTimers()
+assert(zoneHeard and zoneHeard.zone == true, "the kill that completes a zone raises the zone channel")
+unsubscribeZone()
+
+local trackedHeard
+local unsubscribeTracked = eventAPI.Subscribe(function(changes)
+	trackedHeard = changes
+end)
+assert(eventAPI.SetTrackedSpecies(1001) == true)
+subscribed:RunTimers()
+assert(trackedHeard and trackedHeard.tracked == true, "the tracked switch reaches subscribers")
+unsubscribeTracked()
 
 print("api: ok")

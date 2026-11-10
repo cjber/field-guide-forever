@@ -8,6 +8,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 - **Less memory, and no idle hitch after login.** The journal kept every creature's spawn points in memory, about 10 MB, and clearing that out could pause the game for a moment while you stood still. It now looks up a creature's spawn points only when you open its habitat map (#238).
 - **The addon's own icon is the same everywhere it appears in game.** The minimap button, the Forever Leaderboards tab and the journal portrait now all wear the Field Guide's book instead of three different icons.
 
+### For addon authors
+
+- **`FieldGuideForever.API` is minor 6: `SpawnTier(unit)`, `TrackedSpecies()`, `SetTrackedSpecies(speciesId)`, `Subscribe(callback)` and `Stats()`.** `SpawnTier(unit)` reads a nameplate, target or WeakAuras unit token's coat from the same GUID tier the art uses, and answers `nil, "none"` for a player, a friendly unit or one that does not exist. `TrackedSpecies()` reads the saved tracker switch and `SetTrackedSpecies(speciesId)` writes it, clearing it with `nil`, with no sound or chat line. `Subscribe(callback)` reports the frame after a first sighting, a first silver, gold or shiny, a completed zone, any specimen change or a tracked species change, through `ForeverCore.APIKit.Hub`. `Stats()` returns this character's own total per published metric in the suite's activity-row shape. `docs/api.md` and `types/API.lua` list every member, the change names and the minor history (#247).
+
 ## [0.6.1] - 2026-11-10
 
 - **Forever Core now comes in the same download.** This addon needs Forever Core, and until Forever Core has its own CurseForge page every Forever addon's download carries a copy of it, so the addon loads with nothing else to install.

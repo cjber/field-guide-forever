@@ -15,6 +15,8 @@ Mock.combatLog = nil
 Mock.units = {}
 Mock.guids = {}
 Mock.dead = {}
+Mock.players = {}
+Mock.canAttack = {}
 Mock.classification = {}
 Mock.boss = {}
 Mock.tapDenied = {}
@@ -126,6 +128,8 @@ function Mock.Reset()
 	Mock.units = {}
 	Mock.guids = {}
 	Mock.dead = {}
+	Mock.players = {}
+	Mock.canAttack = {}
 	Mock.classification = {}
 	Mock.boss = {}
 	Mock.tapDenied = {}
@@ -761,8 +765,8 @@ function Mock.Harness(opts)
 		UnitIsEnemy = function()
 			return true
 		end,
-		UnitIsPlayer = function()
-			return false
+		UnitIsPlayer = function(unit)
+			return Mock.players[unit] == true
 		end,
 		UnitIsDead = function(unit)
 			return Mock.dead[unit] == true
@@ -773,8 +777,8 @@ function Mock.Harness(opts)
 		UnitIsBossMob = function(unit)
 			return Mock.boss[unit] == true
 		end,
-		UnitCanAttack = function()
-			return true
+		UnitCanAttack = function(_, unit)
+			return Mock.canAttack[unit] ~= false
 		end,
 		UnitIsTapDenied = function(unit)
 			return Mock.tapDenied[unit] == true

@@ -72,15 +72,12 @@ local previewNext = 0
 local previewWasActive = false
 local targetPending = false
 
--- The spawn's tier comes from its readable GUID, so every player who meets that spawn sees the same coat. A player
--- and any unit the player cannot attack have no spawn tier, and a unit whose GUID the client hides stays bronze.
+-- The spawn's tier comes from its readable GUID, read through Core's one shared unit read. A player and any unit the
+-- player cannot attack have no spawn tier; this art draws them as the bronze frame it always has.
 ---@param unit string
 ---@return string
 local function UnitTier(unit)
-	if UnitIsPlayer and UnitIsPlayer(unit) or not UnitCanAttack("player", unit) then
-		return "bronze"
-	end
-	return ns.Model.SpawnTier(ns.Readable(UnitGUID(unit)))
+	return ns.UnitTier(unit) or "bronze"
 end
 
 -- Preview tiers are session state, never saved progress. Each creature gets one tier per session so retargeting it
