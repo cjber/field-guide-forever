@@ -41,4 +41,9 @@ assert(
 	Art.SpeciesIcon("Yowler", -1) ~= "Interface\\Icons\\ability_hunter_pet_bat",
 	"a keyword matches a whole word, so Yowler is not an owl"
 )
+assert(Art.SpeciesIcon("Owl", -1) == "Interface\\Icons\\ability_hunter_pet_owl", "an owl shows an owl")
+assert(
+	Art.SpeciesIcon("Mountain Buzzard", -1) == "Interface\\Icons\\ability_hunter_pet_vulture",
+	"a carrion bird shows a carrion bird"
+)
 print("icon: ok")
