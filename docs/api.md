@@ -1,17 +1,24 @@
 # FieldGuideForever.API
 
 Other addons can read Field Guide Forever's catalogue, this character's progress and the shared kill leaderboard
-through the global `FieldGuideForever.API`. It is version 2, minor 5: check `version == 2` and that each function
+through the global `FieldGuideForever.API`. It is version 2, minor 6: check `version == 2` and that each function
 exists before calling it. The full types are in [`types/API.lua`](../types/API.lua).
 
 Every call returns fresh tables that you may keep or change. A zone is named as the client names it, such as
 `"The Barrens"`, not by uiMapID. Spawn rows carry the uiMapID in `map` and coordinates from 0 to 1.
+
+The catalogue's zone records carry no uiMapID, only the client's AreaTable ID, so `Zones()` has no `map` field and
+`Species()`, `ZoneSpawns()` and `Progress()` accept only a zone name. A spawn's `map` is resolved through QuestieDB's
+own area tables, never guessed from a zone's name.
 
 ## Published functions
 
 | function | answer |
 |---|---|
 | `Ready()` and `IsReady()` | whether the saved state and catalogue are ready |
+| `SpawnTier(unit)` | the spawn tier a unit token shows |
+| `TrackedSpecies()` and `SetTrackedSpecies(speciesId)` | the species the tracker follows, or set it |
+| `Subscribe(callback)` | hear the frame after a sighting, tier, zone, specimen or tracked change |
 | `Zones()` | every open-world zone and its continent |
 | `Species(zoneName?)` and `GetSpecies(zoneName?)` | the species in a zone, or in the zone you are in |
 | `SpeciesById(speciesId)`, `GetSpeciesById(speciesId)`, `Creature(speciesId)` and `GetCreature(speciesId)` | one species |
@@ -25,6 +32,7 @@ Every call returns fresh tables that you may keep or change. A zone is named as 
 | `Leaderboard(metric, subject)` | ranked rows for one metric and subject |
 | `SuiteLeaderboard(limit?)` | the suite's leaderboard shape for creature kills |
 | `LeaderboardSummary()` and `GetLeaderboardSummary()` | the compact kill leaderboard |
+| `Stats()` | this character's own total for each published metric |
 | `SharedStats()` and `GetSharedStats()` | the peer-reported metric table |
 
 The `Get*` names, `IsReady`, `Creature`, `ZoneProgress` and `SpeciesState` are deprecated aliases of the plain names
@@ -45,6 +53,7 @@ member it wants with `type(api.Name) == "function"`.
 - minor 3: `sizeSmallest`, `sizeLargest`, `tiny` and `giant` on `Specimen()` and `Specimens()`.
 - minor 4: those four size fields are gone again. Code that ran on minor 3 must not rely on them.
 - minor 5: `SuiteLeaderboard()`, and every read that has nothing to answer now returns a second value, the reason.
+- minor 6: `SpawnTier`, `TrackedSpecies`, `SetTrackedSpecies`, `Subscribe`, `Stats`.
 
 ## Not ready
 
@@ -63,22 +72,48 @@ saved state and catalogue are ready, and never `"disabled"` or `"none"`. `Specie
 does not hold. `Leaderboard()` answers `"loading"` then and `"none"` for an argument that is not a string.
 `SuiteLeaderboard()` answers `"loading"` then and `"none"` for a limit that is not a whole number of zero or more.
 `Spawns()` and `ZoneSpawns()` also answer `"loading"` while QuestieDB's zone maps are not available yet.
-`SharedStats()` answers `"loading"` then and `"disabled"` while sharing is off. `Ready()` and `IsReady()` never
-answer nil.
+`SharedStats()` answers `"loading"` then and `"disabled"` while sharing is off. `Stats()` answers `"loading"` until
+the saved state is ready and still answers with sharing off. `TrackedSpecies()` answers `"loading"` until this
+character's state exists and `"none"` while nothing is tracked. `SpawnTier()` answers `"none"` for a unit that does
+not exist, a player or a unit the player cannot attack, and never `"loading"`. `Ready()` and `IsReady()` never answer
+nil.
 
-## No Subscribe yet
+## `Subscribe(callback) -> unsubscribe`
 
-Version 2 minor 5 has no `Subscribe()`. Read a function again when you need a fresh answer; a later minor will add
-`Subscribe()` through `ForeverCore.APIKit.Hub` and list its change names here. Until then there are no change names.
+Available from minor 6, built on `ForeverCore.APIKit.Hub`. `callback(changes)` runs on the frame after a change, at
+most once per burst, however many events landed in it. `changes` is a fresh table holding only what changed, with
+one or more of these keys set to `true`:
+
+| key | change |
+|---|---|
+| `sighting` | a species seen for the first time |
+| `tier` | a first silver, gold or shiny of a species |
+| `zone` | a zone's catalogue completed |
+| `specimen` | a species' record changed, such as a kill or a rank |
+| `tracked` | the tracked species changed, by the player or by `SetTrackedSpecies()` |
+
+Read the API again rather than replaying the change. The channel counters are bumped where Core first produces the
+event, not in the toast UI, so `sighting`, `tier` and `zone` fire whether or not the player has milestone toasts on.
+The first subscriber takes what the channels answer then as its baseline and hears only later changes. Nothing is
+read or sent until this character's state exists. The returned function unsubscribes and is safe to call twice.
 
 ## `Ready() -> boolean`
 
 Whether the saved variables have loaded and the QuestieDB catalogue is built. Every other read answers `"loading"`
-until it is true.
+until it is true, except `SpawnTier()` and the writes.
+
+## `SpawnTier(unit) -> string?`
+
+Available from minor 6. The spawn tier a unit token such as `"target"`, `"nameplate3"` or `"mouseover"` shows, for
+nameplates, target frames and WeakAuras: `"bronze"`, `"silver"`, `"gold"` or `"shiny"`. It is read from the unit's
+readable GUID through the same function the target frame and nameplate art use, so two players looking at one spawn
+agree. Preview tiers from `/fg preview` are session UI state and are never returned. A unit that does not exist, a
+player, or a unit the player cannot attack has no spawn tier: `nil, "none"`, not the bronze the art falls back to.
 
 ## `Zones() -> { name, continent }[]?`
 
-Every open-world zone in the catalogue, in the client's order, as `name` and `continent`.
+Every open-world zone in the catalogue, in the client's order, as `name` and `continent`. The record carries no
+uiMapID, so there is no `map` field; spawn rows are the published places.
 
 ## `Species(zoneName?) -> FGSpecies[]?`
 
@@ -102,6 +137,19 @@ the mastery rank, `bestTier` the best coat found, and `bronze`, `silver`, `gold`
 was found, with the counts in `bronzeCount`, `silverCount`, `goldCount` and `shinyCount`. Each first has its
 `time()` stamp and the zone where it happened: `firstSighting` and `firstSightingZone`, `firstKill` and
 `firstKillZone`, then the same pair for `firstBronze`, `firstSilver`, `firstGold` and `firstShiny`.
+
+## `TrackedSpecies() -> integer?`
+
+Available from minor 6. The QuestieDB NPC ID of the species the shared tracker column follows, or `nil, "none"`
+while nothing is tracked. It is the saved switch that survives a reload, so it can name a species the catalogue no
+longer holds. `nil, "loading"` comes before this character's state exists.
+
+## `SetTrackedSpecies(speciesId) -> boolean`
+
+Available from minor 6. Track a catalogue species, or clear the tracker with `nil`. It writes the same saved switch
+as the journal's Track Species button, refreshes the section the same way and raises the `tracked` channel, with no
+sound and no chat line. `true` when the switch changed; `false` for a species ID the catalogue does not hold, a
+malformed ID, and a call that changes nothing, such as setting the species already tracked.
 
 ## `Sightings() -> FGSighting[]?`
 
@@ -159,6 +207,18 @@ the peer rows are left out and the local row remains.
 A compact kill leaderboard: one row per player with `player`, `value` and `source`, where `source` is `"local"` for
 this character or `"reported"` for a peer total. It uses a peer's `all` total when they reported one, and otherwise
 sums their per-species kill reports, so it can include a peer who has not reported the `all` subject.
+
+## `Stats() -> FGAPIStatsRow[]?`
+
+Available from minor 6. This character's own observation totals in the suite's activity shape: a fresh array with
+one row per metric `SharedStats()` publishes, each `{ addon = "FieldGuideForever", metric, subject = "all", value }`
+and an optional `eventUnix`. `subject` is `"all"` because a row is this character's total, not one species or
+encounter. `value` is 0 when the character has nothing for that metric. `eventUnix` is the latest real event time for
+the metric and is left out when there is none. The metrics are `creature_kills`, `bronze_finds`, `silver_finds`,
+`gold_finds`, `shiny_finds`, `first_sighting`, `first_kill`, `first_bronze`, `first_silver`, `first_gold`,
+`first_shiny`, `boss_sightings`, `boss_kills`, `boss_first_sighting` and `boss_first_kill`. This is a local read, so it
+still answers with sharing off. Peer values stay in `SharedStats()` and are player reports, not independently
+verified.
 
 ## `SharedStats() -> table<string, table>?`
 

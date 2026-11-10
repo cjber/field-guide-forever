@@ -1,6 +1,6 @@
 ---@meta
 
--- FieldGuideForever.API, version 2, minor 5: the contract other addons read (docs/api.md). Core/API.lua implements
+-- FieldGuideForever.API, version 2, minor 6: the contract other addons read (docs/api.md). Core/API.lua implements
 -- it, and these declarations never load in the client.
 
 -- ForeverCore.APIKit's not-ready reasons. "loading" asks again later, "disabled" is the player's choice and "none"
@@ -99,11 +99,30 @@
 ---@field total integer every eligible row, before the limit
 ---@field rows FGAPISuiteLeaderboardRow[]
 
+---@class FGAPIStatsRow
+---@field addon "FieldGuideForever"
+---@field metric string
+---@field subject "all"
+---@field value number
+---@field eventUnix? integer the latest real event time, left out when there is none
+
+-- The channels Subscribe reports. Each is set to true in the burst that changed it.
+---@class FGAPIChanges
+---@field sighting? true a species seen for the first time
+---@field tier? true a first silver, gold or shiny of a species
+---@field zone? true a zone's catalogue completed
+---@field specimen? true a species' record changed
+---@field tracked? true the tracked species changed
+
 ---@class FGPublicAPI
 ---@field version 2
----@field minor 5
+---@field minor 6
 ---@field Ready fun(): boolean
 ---@field IsReady fun(): boolean deprecated alias of Ready()
+---@field SpawnTier fun(unit: string): string?, FGAPIReason? the spawn's tier for a unit token, nil when it has none
+---@field TrackedSpecies fun(): integer?, FGAPIReason? the NPC ID the tracker follows, or nil and a reason
+---@field SetTrackedSpecies fun(speciesId: integer?): boolean true when it changed the saved switch
+---@field Subscribe fun(callback: fun(changes: FGAPIChanges)): fun() unsubscribes, safe to call twice
 ---@field Zones fun(): FGAPIZone[]?, FGAPIReason?
 ---@field Species fun(zoneName?: string): FGSpecies[]?, FGAPIReason?
 ---@field GetSpecies fun(zoneName?: string): FGSpecies[]?, FGAPIReason? deprecated alias of Species()
@@ -130,5 +149,6 @@
 ---@field SuiteLeaderboard fun(limit?: integer): FGAPISuiteLeaderboard?, FGAPIReason?
 ---@field LeaderboardSummary fun(): FGAPILeaderboardSummaryRow[]?, FGAPIReason?
 ---@field GetLeaderboardSummary fun(): FGAPILeaderboardSummaryRow[]?, FGAPIReason? deprecated alias of LeaderboardSummary()
+---@field Stats fun(): FGAPIStatsRow[]?, FGAPIReason?
 ---@field SharedStats fun(): table<string, table>?, FGAPIReason?
 ---@field GetSharedStats fun(): table<string, table>?, FGAPIReason? deprecated alias of SharedStats()

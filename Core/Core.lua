@@ -88,6 +88,28 @@ function ns.CharacterKey()
 	return tostring(name) .. "-" .. tostring(realm)
 end
 
+-- The spawn's tier comes from its readable GUID, so every player who meets that spawn sees the same coat. A player,
+-- a unit the player cannot attack and a unit token that does not exist have no spawn tier: nil, rather than the
+-- bronze fallback the nameplate art shows. UI/Rarity.lua and the public API both read a unit through this.
+---@param unit string
+---@return string?
+function ns.UnitTier(unit)
+	if UnitIsPlayer and UnitIsPlayer(unit) or not UnitCanAttack("player", unit) then
+		return nil
+	end
+	return ns.Model.SpawnTier(ns.Readable(UnitGUID(unit)))
+end
+
+-- A zone is complete when every species listed in it has at least one specimen. Model.ZoneProgress already counts
+-- exactly that, so the completion is known here in Core the moment a record changes it.
+---@param state FGState
+---@param zone FGZone
+---@return boolean
+local function ZoneComplete(state, zone)
+	local progress = ns.Model.ZoneProgress(state, zone.species)
+	return progress.total > 0 and progress.catalogued == progress.total
+end
+
 local SPECIMEN_NUMBERS = {
 	count = ns.Model.MASTERED_AT,
 	kills = false,
@@ -353,6 +375,9 @@ function ns.RecordKill(name, npcId, guid)
 		return nil
 	end
 	local timestamp = GetServerTime()
+	local entry = state.species and state.species[species.id]
+	local firstSighting = not (entry and entry.firstSighting)
+	local zoneWasComplete = ZoneComplete(state, zone)
 	local result = ns.Model.Record(state, species.id, { guid = guid, time = timestamp, zone = zone.name })
 	if result.newlyDiscovered then
 		state.unseen = state.unseen or {}
@@ -365,6 +390,18 @@ function ns.RecordKill(name, npcId, guid)
 		species = species.name,
 		kind = kind,
 	})
+	-- Model.Record builds the FGRecordResult and stays pure; the API's change counters are bumped here, where the
+	-- result is first produced, so they fire whether or not milestone toasts are on.
+	if firstSighting then
+		ns.NotifyAPIChange("sighting")
+	end
+	if result.firstSilver or result.firstGold or result.firstShiny then
+		ns.NotifyAPIChange("tier")
+	end
+	ns.NotifyAPIChange("specimen")
+	if not zoneWasComplete and ZoneComplete(state, zone) then
+		ns.NotifyAPIChange("zone")
+	end
 	ns.FireProgress()
 	for _, fn in ipairs(recordCallbacks) do
 		ns.core.SafeCall("record", fn, species, zone, result)
@@ -395,6 +432,8 @@ function ns.RecordSighting(unit)
 	local first = ns.Model.RecordSighting(state, species.id, timestamp, zone.name)
 	if first then
 		ns.Model.AddSighting({ time = timestamp, zone = zone.name, species = species.name, kind = "sighting" })
+		ns.NotifyAPIChange("sighting")
+		ns.NotifyAPIChange("specimen")
 		ns.FireProgress()
 	end
 	return first
