@@ -6,7 +6,9 @@ local API = harness.env.FieldGuideForever and harness.env.FieldGuideForever.API
 
 assert(API, "the public API is installed")
 assert(API.version >= 1, "the contract is versioned")
-assert(API.version == 2 and API.minor == 4, "the tier ladder is API version 2, without the retired size records")
+assert(API.version == 2 and API.minor == 5, "minor 5 adds SuiteLeaderboard and the reads' not-ready answers")
+assert(harness.env.ForeverCore.APIKit ~= nil, "the shared API kit is available at load")
+assert(API.Subscribe == nil, "this minor has no Subscribe yet")
 
 local npcFixture = {
 	[1001] = {
@@ -55,9 +57,12 @@ harness.env.LibQuestieDB = {
 	},
 }
 
-assert(API.Species("The Barrens") == nil, "before initialisation there is no answer")
-assert(API.Progress("The Barrens") == nil, "progress is unknown before initialisation")
-assert(API.Specimen(1001) == nil, "a specimen is unknown before initialisation")
+local speciesBefore, speciesReason = API.Species("The Barrens")
+assert(speciesBefore == nil and speciesReason == "loading", "before initialisation there is no answer: loading")
+local progressBefore, progressReason = API.Progress("The Barrens")
+assert(progressBefore == nil and progressReason == "loading", "progress is unknown before initialisation")
+local specimenBefore, specimenReason = API.Specimen(1001)
+assert(specimenBefore == nil and specimenReason == "loading", "a specimen is unknown before initialisation")
 assert(not API.Ready(), "not ready before the saved variables load")
 
 harness:Fire("ADDON_LOADED", "FieldGuideForever")
@@ -295,6 +300,36 @@ assert(
 	"the leaderboard summary labels peer totals as reports"
 )
 
+-- SuiteLeaderboard is the suite shape over the same rows as Leaderboard("creature_kills", "all"): ranked, with
+-- the personal row kept below the limit and sharing reported.
+harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|all|9|960", "GUILD", "Peer-Realm")
+local suite = API.SuiteLeaderboard()
+assert(
+	suite and suite.metric == "creature_kills" and suite.scope == "guild_group" and suite.sharing == true,
+	"the suite leaderboard names its metric, scope and sharing"
+)
+assert(suite.total == 2 and #suite.rows == 2, "the suite leaderboard counts every eligible row")
+assert(
+	suite.rows[1].rank == 1
+		and suite.rows[1].name == "Peer-Realm"
+		and suite.rows[1].value == 9
+		and not suite.rows[1].self,
+	"peer rows are ranked first and are not the personal row"
+)
+assert(
+	suite.rows[2].rank == 2 and suite.rows[2].self and suite.rows[2].value == 5 and suite.rows[2].eventUnix == 1000,
+	"the personal row keeps its rank, value and event time"
+)
+local topOnly = API.SuiteLeaderboard(1)
+assert(
+	#topOnly.rows == 2 and topOnly.rows[1].name == "Peer-Realm" and topOnly.rows[2].self,
+	"the personal row is kept below the limit"
+)
+local mineOnly = API.SuiteLeaderboard(0)
+assert(#mineOnly.rows == 1 and mineOnly.rows[1].self and mineOnly.total == 2, "zero asks for only the personal row")
+local badLimit, badLimitReason = API.SuiteLeaderboard(-1)
+assert(badLimit == nil and badLimitReason == "none", "a negative limit has nothing to answer")
+
 for index = 1, 101 do
 	local peer = "CapPeer" .. index
 	harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|1001|1|900", "GUILD", peer)
@@ -329,7 +364,16 @@ assert(
 )
 ns.Stats.SetEnabled(false)
 ns.db.options.statsShare = false
-assert(API.SharedStats() == nil, "opt-out disables peer exchange and shared leaderboard reads")
+local sharedOff, sharedOffReason = API.SharedStats()
+assert(
+	sharedOff == nil and sharedOffReason == "disabled",
+	"opt-out disables peer exchange and shared leaderboard reads, and says why"
+)
+local suiteOff = API.SuiteLeaderboard()
+assert(
+	suiteOff and suiteOff.sharing == false and #suiteOff.rows == 1 and suiteOff.rows[1].self,
+	"the suite leaderboard reports sharing off and keeps the personal row"
+)
 local localOnly = API.LeaderboardSummary()
 assert(
 	localOnly and #localOnly == 1 and localOnly[1].source == "local",
@@ -352,9 +396,12 @@ entry.kills = entry.kills - 100
 entry.sharedKillsBaseline = nil
 entry.killsEstimated = nil
 
-local unknownZone = API.Progress("Nowhere")
-assert(unknownZone == nil, "an unknown zone has no answer")
-assert(API.Specimen(999999) == nil, "an unknown species has no answer")
+local unknownZone, unknownZoneReason = API.Progress("Nowhere")
+assert(unknownZone == nil and unknownZoneReason == "none", "an unknown zone has no answer")
+local unknownSpecies, unknownSpeciesReason = API.Specimen(999999)
+assert(unknownSpecies == nil and unknownSpeciesReason == "none", "an unknown species has no answer")
+local badBoard, badBoardReason = API.Leaderboard("creature_kills")
+assert(badBoard == nil and badBoardReason == "none", "a missing subject has no answer")
 
 local listParent = harness.env.CreateFrame("Frame")
 listParent:SetSize(330, 514)

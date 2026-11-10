@@ -16,6 +16,7 @@ for spec in tests/*_spec.lua; do FOREVER_CORE=../forever-core luajit "$spec" || 
 uvx ruff@0.16.8 check tools && uvx ruff@0.16.8 format --check tools
 python3 tools/check_generated.py
 python3 tools/check_core_shared.py
+python3 tools/check_api_docs.py # docs/api.md names every published API function and its minor
 python3 tools/check_family.py
 python3 tools/visual_audit.py
 python3 tools/check_screenshots.py

@@ -44,7 +44,8 @@ harness.env.LibQuestieDB = {
 	},
 }
 
-assert(API.Spawns(1001) == nil, "spawns are unknown before ADDON_LOADED")
+local spawnsBefore, spawnsBeforeReason = API.Spawns(1001)
+assert(spawnsBefore == nil and spawnsBeforeReason == "loading", "spawns are loading before ADDON_LOADED")
 harness:Fire("ADDON_LOADED", "FieldGuideForever")
 harness:RunTimers()
 
@@ -60,7 +61,12 @@ local fresh = API.Spawns(1001)
 assert(fresh[1].x == 0.25 and fresh[1].name == "Plainstrider", "each call returns independent row copies")
 local zoneRows = API.ZoneSpawns("The Barrens")
 assert(zoneRows and #zoneRows == 1 and zoneRows[1].map == 100, "zone queries return only that zone's AreaId rows")
-assert(API.Spawns(999999) == nil and API.ZoneSpawns("Unknown Zone") == nil, "unknown inputs return nil")
+local unknownSpecies, unknownSpeciesReason = API.Spawns(999999)
+local unknownZone, unknownZoneReason = API.ZoneSpawns("Unknown Zone")
+assert(unknownSpecies == nil and unknownSpeciesReason == "none", "an unknown species has nothing to answer")
+assert(unknownZone == nil and unknownZoneReason == "none", "an unknown zone has nothing to answer")
+local badId, badIdReason = API.Spawns("1001")
+assert(badId == nil and badIdReason == "none", "a species ID that is not a whole number has nothing to answer")
 
 local firstArea, firstOverride = harness.ns.QuestieDB.AreaMaps()
 local compileCalls = 0
@@ -109,7 +115,8 @@ withoutSupport.env.LibQuestieDB = {
 }
 withoutSupport:Fire("ADDON_LOADED", "FieldGuideForever")
 withoutSupport:RunTimers()
-assert(withoutSupport.env.FieldGuideForever.API.Spawns(1001) == nil, "missing QuestieDB Support fails closed")
+local noSupport, noSupportReason = withoutSupport.env.FieldGuideForever.API.Spawns(1001)
+assert(noSupport == nil and noSupportReason == "loading", "missing QuestieDB Support fails closed as loading")
 
 creature.zoneID = 2917
 creature.spawns = { [2917] = { { 50, 50 } } }
