@@ -338,7 +338,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field OpenGuide fun()
 ---@field GamepadUI fun(): boolean whether the gamepad interface is on
 ---@field ContextMenu fun(owner: Frame, generator: fun(owner: Frame, root: any)): any a menu, or a line under the gamepad interface
----@field OpenMap fun(mapID: integer?): boolean opens or moves the world map, never in combat
+---@field OpenMap fun(mapID: integer?): boolean opens the world map through the client's secure opener, false in combat or when nothing opened
 
 ---@class FGGlobal
 ---@field API FGPublicAPI

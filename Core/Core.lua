@@ -573,26 +573,6 @@ local function ToggleRarityPreview()
 	end
 end
 
--- C_Map.OpenWorldMap is restricted; Blizzard's global OpenWorldMap is plain Lua, so an already shown map is moved
--- through it. A closed map still opens through C_Map.OpenWorldMap, which has Blizzard open it without tainting it.
--- Never in combat, as every map action in the suite: the button simply does nothing then.
----@param mapID integer?
----@return boolean opened
-function ns.OpenMap(mapID)
-	if InCombatLockdown and InCombatLockdown() then
-		return false
-	end
-	local map = mapID ~= nil and mapID ~= 0 and mapID or nil
-	if WorldMapFrame and WorldMapFrame:IsShown() and OpenWorldMap then
-		OpenWorldMap(map) -- taint-ok: Blizzard's opener on the map it shows; C_Map.OpenWorldMap is restricted (#154)
-	elseif C_Map and C_Map.OpenWorldMap then
-		C_Map.OpenWorldMap(map)
-	else
-		return false
-	end
-	return true
-end
-
 local function OpenGuide()
 	if ns.Window and ns.Window.Toggle then
 		ns.SafeCall("open guide", ns.Window.Toggle)

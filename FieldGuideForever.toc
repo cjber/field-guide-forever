@@ -15,6 +15,7 @@
 
 Locales\enUS.lua
 Core\SafeCall.lua
+Core\OpenMap.lua
 Core\Log.lua
 Data\Client.lua
 Data\CreatureIcons.lua

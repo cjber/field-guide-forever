@@ -73,7 +73,8 @@ end
 
 function Mock.Reset()
 	Mock.openedMap = nil
-	Mock.openedWorldMap = nil
+	Mock.secureDelegate = nil
+	Mock.refusedMapOpeners = nil
 	Mock.zone = "The Barrens"
 	Mock.clock = 1000
 	Mock.frames = {}
@@ -996,13 +997,23 @@ function Mock.Harness(opts)
 	env.PanelTemplates_TabResize = function(button, _padding, width)
 		button:SetSize(width, 32)
 	end
-	-- Blizzard's own map opener, which an addon may call when the shown map is moved to another zone.
-	env.OpenWorldMap = function(id)
-		Mock.openedWorldMap = id
+	-- The client's restricted map opener: only the secure delegate may run it. A direct call from addon code is refused,
+	-- as the client refuses it and blames the addon (cjber/forever-core#333).
+	env.CreateSecureDelegate = function(fn)
+		return function(...)
+			Mock.secureDelegate = true
+			local result = fn(...)
+			Mock.secureDelegate = false
+			return result
+		end
 	end
 	-- The Barrens' world map art: one 1002 by 668 layer of 256 tiles, twelve files; no other map has art.
 	env.C_Map = {
 		OpenWorldMap = function(id)
+			if not Mock.secureDelegate then
+				Mock.refusedMapOpeners = (Mock.refusedMapOpeners or 0) + 1
+				return
+			end
 			Mock.openedMap = id
 		end,
 		GetMapArtLayers = function(id)
