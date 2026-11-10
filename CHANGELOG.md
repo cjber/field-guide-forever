@@ -5,6 +5,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Opening the map from a creature's habitat no longer ends in a blocked-action error naming the addon.** The client refuses its own map open request when an addon makes it, so choosing Open map on a creature could leave you with an error instead of the map you asked for. It now opens the way the client expects (cjber/forever-core#333).
 - **Field Guide no longer causes a blocked-action error with a gamepad.** With the gamepad interface on, the game could refuse a gamepad action after you had opened the journal and blame Field Guide for it. The journal now opens and closes on its own, as it already did in combat, and Escape still closes it. Under the gamepad interface the zone and filter pickers say "This menu needs mouse and keyboard." instead of opening (#253).
 - **A calmer shiny frame.** A shiny creature now wears the gold laurel's shape in pearl instead of the larger crystal wreath, and its light sweep does the shining. The SILVER, GOLD and SHINY labels above the target's name are gone: the laurel and the nameplate mark already show the coat.
 

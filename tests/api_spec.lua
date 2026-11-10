@@ -225,7 +225,10 @@ detail.Show(ns.SpeciesById[1001], character, ns.SpeciesZone[1001])
 assert(detail.locationArt._texture == ns.Art.LOCATION_ART[17], "the location uses native zone artwork")
 assert(detail.mapButton:IsEnabled(), "a resolved map enables navigation")
 detail.mapButton:GetScript("OnClick")()
-assert(harness.Mock.openedMap == 999, "map navigation respects QuestieDB overrides")
+assert(
+	harness.Mock.openedMap == 999 and harness.Mock.refusedMapOpeners == nil,
+	"map navigation respects QuestieDB overrides through the secure opener"
+)
 ns.QuestieDB.AreaMaps = function()
 	return { [17] = 1413 }, { [17] = 0 }
 end

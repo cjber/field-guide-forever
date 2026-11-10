@@ -1,5 +1,5 @@
 -- The habitat map is a native inset: the zone's tiles fill it at their own aspect, the partial edge tiles are cropped
--- to the layer, and spawn points become legible pins. Opening the world map uses Blizzard's opener on a shown map and
+-- to the layer, and spawn points become legible pins. Opening the world map goes through the shared secure opener and
 -- never runs in combat.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
@@ -61,19 +61,18 @@ assert(detail.location.template == "InsetFrameTemplate", "the map keeps the nati
 assert(#detail.map.markers == 1, "nearby spawns share one marker cell")
 assert(detail.mapButton:IsShown() and detail.mapButton:IsEnabled(), "a mapped zone offers Open map")
 
--- Open map: C_Map when the map is closed, Blizzard's global when it is shown, and nothing at all in combat.
-Mock.openedMap, Mock.openedWorldMap = nil, nil
-assert(ns.OpenMap(1413) and Mock.openedMap == 1413 and Mock.openedWorldMap == nil, "a closed map opens through C_Map")
-env.WorldMapFrame = env.CreateFrame("Frame", "WorldMapFrame", env.UIParent)
-env.WorldMapFrame:Show()
-Mock.openedMap, Mock.openedWorldMap = nil, nil
-assert(
-	ns.OpenMap(1414) and Mock.openedWorldMap == 1414 and Mock.openedMap == nil,
-	"a shown map moves through OpenWorldMap"
-)
+-- Open map: the shared opener runs the client's restricted map function through a secure delegate, and does nothing in
+-- combat. A direct call would be refused and blamed on the addon, so nothing here may reach it.
+Mock.openedMap, Mock.refusedMapOpeners = nil, nil
+assert(ns.OpenMap(1413) and Mock.openedMap == 1413, "the map opens through the secure opener")
+assert(Mock.refusedMapOpeners == nil, "the addon never calls the restricted map opener directly")
+Mock.openedMap, Mock.refusedMapOpeners = nil, nil
+assert(ns.OpenMap(0) and Mock.openedMap == nil, "a zero map id opens where the player is")
+assert(Mock.refusedMapOpeners == nil, "a zero map id stays secure")
 env.InCombatLockdown = function()
 	return true
 end
-Mock.openedMap, Mock.openedWorldMap = nil, nil
-assert(not ns.OpenMap(1415) and Mock.openedMap == nil and Mock.openedWorldMap == nil, "combat blocks both openers")
+Mock.openedMap, Mock.refusedMapOpeners = nil, nil
+assert(not ns.OpenMap(1415) and Mock.openedMap == nil, "combat blocks the map")
+assert(Mock.refusedMapOpeners == nil, "combat never reaches the restricted map opener")
 print("map inset: ok")
