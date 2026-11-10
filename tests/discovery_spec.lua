@@ -74,6 +74,9 @@ local function Start(options)
 	ns.Window = FakeWindow(ns)
 	local harness = Mock.Harness({ ns = ns, files = files })
 	harness.env.LibQuestieDB = {
+		RequireContract = function()
+			return true
+		end,
 		Npc = {
 			GetAllIds = function()
 				return { 1001, 1003, 1019 }

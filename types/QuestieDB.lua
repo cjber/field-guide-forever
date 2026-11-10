@@ -20,13 +20,6 @@
 ---@type FGLibQuestieDB?
 LibQuestieDB = nil
 
--- Questie's own database, which keeps raw NPC rows when LibQuestieDB is absent.
----@class FGQuestieDBGlobal
----@field NpcDB? table<integer, table>
-
----@type FGQuestieDBGlobal?
-QuestieDB = nil
-
 ---@class FGQuestieAPI
 ---@field RegisterOnReady fun(callback: fun())
 

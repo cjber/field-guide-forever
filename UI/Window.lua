@@ -356,10 +356,17 @@ function Window.Refresh(preserveScroll)
 		Window.filterButton:Hide()
 		Window.body:Show()
 		Window.catalogueNotice:Show()
-		Window.catalogueNotice:SetText(
-			ns.catalogueStatus == "loading" and L["Loading QuestieDB catalogue…"]
-				or L["Install QuestieDB or Questie to load the creature catalogue.\nhttps://www.curseforge.com/wow/addons/questie"]
-		)
+		if ns.catalogueStatus == "loading" then
+			Window.catalogueNotice:SetText(L["Loading QuestieDB catalogue…"])
+		elseif ns.catalogueStatus == "unsupported" then
+			Window.catalogueNotice:SetText(
+				L["The installed QuestieDB is not supported. Update QuestieDB and Field Guide Forever."]
+			)
+		else
+			Window.catalogueNotice:SetText(
+				L["Install QuestieDB or Questie to load the creature catalogue.\nhttps://www.curseforge.com/wow/addons/questie"]
+			)
+		end
 		return
 	end
 	Window.catalogueNotice:Hide()

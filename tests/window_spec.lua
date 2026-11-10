@@ -58,4 +58,16 @@ assert(env.CloseAllWindows() and not frame:IsShown(), "Escape closes it in comba
 Window.Show()
 Window.Hide()
 assert(not frame:IsShown() and not Mock.blocked)
+
+-- An installed QuestieDB the addon cannot read says so, instead of asking for an install it already has.
+harness.ns.catalogueStatus = "unsupported"
+Window.Refresh()
+assert(Window.catalogueNotice:IsShown())
+assert(
+	Window.catalogueNotice:GetText()
+		== harness.ns.L["The installed QuestieDB is not supported. Update QuestieDB and Field Guide Forever."]
+)
+harness.ns.catalogueStatus = "loading"
+Window.Refresh()
+assert(Window.catalogueNotice:GetText() == harness.ns.L["Loading QuestieDB catalogue…"])
 print("window: ok")
