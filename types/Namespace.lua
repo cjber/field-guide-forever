@@ -17,7 +17,7 @@
 ---@field rank? integer QuestieDB rank: 0 normal, 1 elite, 2 rare, 3 boss
 ---@field boss? boolean QuestieDB rank 3
 ---@field zoneID? integer QuestieDB's AreaTable ID
----@field spawns? table<integer, number[][]> AreaTable ID -> { x, y } points on a 0 to 100 scale
+---@field spawns? table<integer, number[][]> AreaTable ID -> { x, y } points on a 0 to 100 scale, read on demand
 ---@field zone? string the name of the zone the species is listed under
 ---@field lore? string
 
@@ -221,6 +221,14 @@ function FGCreatureInfo.Get(npcID) end
 
 -- Where Integrations/QuestieDB.lua has got with the catalogue.
 ---@alias FGCatalogueStatus "missing"|"loading"|"ok"|"unsupported"
+
+-- Integrations/QuestieDB.lua: reads, places and reports the catalogue.
+---@class FGQuestieDBModule
+---@field State fun(): FGCatalogueStatus
+---@field AreaMaps fun(): table<integer, integer>?, table<integer, integer>?
+---@field Spawns fun(species: FGSpecies?): table<integer, number[][]>? the species' spawn points, read on demand
+---@field Start fun(onReady: fun())
+---@field Prompt fun(): boolean
 
 -- What Model.Record reports about one kill.
 ---@class FGRecordResult

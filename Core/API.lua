@@ -17,8 +17,6 @@ local API = { version = 2, minor = 6 }
 -- ForeverCore, so the kit is always here.
 local APIKit = assert(ForeverCore.APIKit)
 
----@type FGSpawnCache?
-local spawnCache
 local FIRST_METRICS = {
 	first_sighting = true,
 	first_kill = true,
@@ -80,28 +78,29 @@ end
 API.Subscribe = hub.Subscribe
 
 -- QuestieDB stores AreaTable IDs and 0–100 coordinates. Resolve them only through its own ZoneDB tables; an
--- unknown mapping is omitted instead of drawing the creature on a guessed map.
----@return FGSpawnCache?
-local function BuildSpawnCache()
-	local area, override = ns.QuestieDB.AreaMaps()
-	if not area or not override then
-		return nil
-	end
-	local bySpecies, byZone = {}, {}
-	for speciesId, species in pairs(ns.SpeciesById or {}) do
-		local rows = {}
-		local progress = ns.Model.Specimen(ns.GetCharacterState(false), speciesId)
-		for areaId, points in pairs(species.spawns or {}) do
-			local numericAreaId = tonumber(areaId)
+-- unknown mapping is omitted instead of drawing the creature on a guessed map. The spawn points themselves stay in
+-- QuestieDB until a caller asks: the catalogue keeps no copy, so a query reads only the species it names.
+---@param species FGSpecies
+---@param speciesId integer
+---@param area table<integer, integer>
+---@param override table<integer, integer>
+---@param wantedArea integer? only the rows of this AreaTable ID
+---@return FGSpawn[]
+local function SpawnRows(species, speciesId, area, override, wantedArea)
+	local rows = {}
+	local progress = ns.Model.Specimen(ns.GetCharacterState(false), speciesId)
+	for areaId, points in pairs(ns.QuestieDB.Spawns(species) or {}) do
+		local numericAreaId = tonumber(areaId)
+		if numericAreaId and (wantedArea == nil or numericAreaId == wantedArea) and type(points) == "table" then
 			local map = override[numericAreaId] or area[numericAreaId]
-			if type(map) == "number" and type(points) == "table" then
+			if type(map) == "number" then
 				for _, point in pairs(points) do
 					local x = type(point) == "table" and point[1]
 					local y = type(point) == "table" and point[2]
 					if type(x) == "number" and type(y) == "number" then
 						x, y = x / 100, y / 100
 						if x >= 0 and x <= 1 and y >= 0 and y <= 1 then
-							local row = {
+							rows[#rows + 1] = {
 								speciesID = speciesId,
 								name = species.name,
 								rare = species.rare == true,
@@ -112,62 +111,34 @@ local function BuildSpawnCache()
 								x = x,
 								y = y,
 							}
-							rows[#rows + 1] = row
-							if numericAreaId then
-								byZone[numericAreaId] = byZone[numericAreaId] or {}
-								byZone[numericAreaId][#byZone[numericAreaId] + 1] = row
-							end
 						end
 					end
 				end
 			end
 		end
-		bySpecies[speciesId] = rows
 	end
-	return { species = bySpecies, zones = byZone }
+	return rows
 end
 
----@param rows FGSpawn[]
----@return FGSpawn[]
-local function CopySpawns(rows)
-	local copy = {}
-	local progressBySpecies = {}
-	for i, row in ipairs(rows) do
-		local progress = progressBySpecies[row.speciesID]
-		if not progress then
-			progress = ns.Model.Specimen(ns.GetCharacterState(false), row.speciesID)
-			progressBySpecies[row.speciesID] = progress
-		end
-		copy[i] = {
-			speciesID = row.speciesID,
-			name = row.name,
-			rare = row.rare,
-			catalogued = progress.count > 0,
-			minLevel = row.minLevel,
-			maxLevel = row.maxLevel,
-			map = row.map,
-			x = row.x,
-			y = row.y,
-		}
-	end
-	return copy
-end
-
-local function SpawnsReady()
+---@return table<integer, integer>? area
+---@return table<integer, integer>? override
+local function SpawnMaps()
 	if not Ready() or ns.catalogueStatus ~= "ok" then
-		return false
+		return nil
 	end
-	if not spawnCache then
-		spawnCache = BuildSpawnCache()
+	local area, override = ns.QuestieDB.AreaMaps()
+	if not area or not override then
+		return nil
 	end
-	return spawnCache ~= nil
+	return area, override
 end
 
 ---@param speciesId integer
 ---@return FGSpawn[]?
 ---@return FGAPIReason?
 function API.Spawns(speciesId)
-	if not SpawnsReady() or not spawnCache then
+	local area, override = SpawnMaps()
+	if not area or not override then
 		return NotReady("loading")
 	end
 	if type(speciesId) ~= "number" or speciesId % 1 ~= 0 then
@@ -177,14 +148,15 @@ function API.Spawns(speciesId)
 	if not species then
 		return NotReady("none")
 	end
-	return CopySpawns(spawnCache.species[speciesId] or {})
+	return SpawnRows(species, speciesId, area, override)
 end
 
 ---@param zoneName? string
 ---@return FGSpawn[]?
 ---@return FGAPIReason?
 function API.ZoneSpawns(zoneName)
-	if not SpawnsReady() or not spawnCache then
+	local area, override = SpawnMaps()
+	if not area or not override then
 		return NotReady("loading")
 	end
 	local zone
@@ -197,10 +169,13 @@ function API.ZoneSpawns(zoneName)
 		return NotReady("none")
 	end
 	local rows = {}
-	for _, row in ipairs(spawnCache.zones[zone.id] or {}) do
-		rows[#rows + 1] = row
+	for _, species in ipairs(zone.species) do
+		local speciesRows = SpawnRows(species, species.id, area, override, zone.id)
+		for _, row in ipairs(speciesRows) do
+			rows[#rows + 1] = row
+		end
 	end
-	return CopySpawns(rows)
+	return rows
 end
 
 ---@return boolean
