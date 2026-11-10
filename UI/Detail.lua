@@ -184,11 +184,9 @@ end
 
 -- Spawn points arrive as percentages with north at y=0. Bin them into ten-percent cells so a crowded species reads
 -- as a habitat rather than a pile of pins; each cell draws one marker at the average of its points.
----@param species FGSpecies?
----@param zone FGZone
+---@param points number[][]?
 ---@return { [1]: number, [2]: number }[]?
-local function SpawnPoints(species, zone)
-	local points = species and species.spawns and species.spawns[zone.id]
+local function SpawnPoints(points)
 	if type(points) ~= "table" then
 		return nil
 	end
@@ -228,7 +226,8 @@ local function UpdateLocation(zone, species)
 	Detail.locationName:Show()
 	Detail.mapButton:SetEnabled(currentMap ~= nil)
 	Detail.mapButton:SetShown(currentMap ~= nil)
-	local drawn = Art.SetZoneMap(Detail.map, currentMap, SpawnPoints(species, zone))
+	local spawns = species and ns.QuestieDB.Spawns(species) or nil
+	local drawn = Art.SetZoneMap(Detail.map, currentMap, SpawnPoints(spawns and spawns[zone.id]))
 	local art = not drawn and Art.LOCATION_ART[zone.id] or nil
 	Detail.locationArt:SetTexture(art)
 	Detail.locationArt:SetShown(art ~= nil)

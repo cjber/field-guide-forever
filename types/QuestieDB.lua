@@ -8,6 +8,7 @@
 ---@class FGQuestieEntity
 ---@field GetAllIds fun(): integer[]
 ---@field GetAll fun(id: integer, keys: string[]): table? the fields in `keys` order; nil for an unknown ID
+---@field Get fun(id: integer, key: string): any one field, or nil for an unknown ID
 
 ---@class FGQuestieSupport
 ---@field Get fun(moduleName: string): table? Get("ZoneDB").private holds the zone tables as Lua source

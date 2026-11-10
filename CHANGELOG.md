@@ -5,6 +5,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Less memory, and no idle hitch after login.** The journal kept every creature's spawn points in memory, about 10 MB, and clearing that out could pause the game for a moment while you stood still. It now looks up a creature's spawn points only when you open its habitat map (#238).
 - **The addon's own icon is the same everywhere it appears in game.** The minimap button, the Forever Leaderboards tab and the journal portrait now all wear the Field Guide's book instead of three different icons.
 
 ## [0.6.1] - 2026-11-10

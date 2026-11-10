@@ -208,7 +208,8 @@ local function Build(yield)
 				rare = tonumber(row.rank) == 2,
 				boss = tonumber(row.rank) == 3,
 				zoneID = zoneId,
-				spawns = row.spawns or {},
+				-- Spawn points are read again when a habitat map or the public API asks for them: keeping every
+				-- point here retained the whole spawn database, about 10 MB, and its collections were the idle frame.
 			}
 			speciesById[species.id] = species
 			local nameKey = species.name:lower()
@@ -292,6 +293,33 @@ local function Build(yield)
 		end
 	end
 	return true
+end
+
+-- The spawn points grouped by area, read from QuestieDB the first time a habitat map or the public API needs them and
+-- kept on the species for the next ask. The catalogue itself carries only placement, names and levels.
+---@param species FGSpecies?
+---@return table<integer, number[][]>?
+function DB.Spawns(species)
+	if type(species) ~= "table" or type(species.id) ~= "number" then
+		return nil
+	end
+	if species.spawns == nil then
+		local lib = LibQuestieDB
+		if type(lib) ~= "table" or type(lib.Npc) ~= "table" then
+			return nil
+		end
+		local spawns
+		if type(lib.Npc.Get) == "function" then
+			spawns = lib.Npc.Get(species.id, "spawns")
+		elseif type(lib.Npc.GetAll) == "function" then
+			local values = lib.Npc.GetAll(species.id, { "spawns" })
+			spawns = type(values) == "table" and values[1] or nil
+		else
+			return nil
+		end
+		species.spawns = type(spawns) == "table" and spawns or {}
+	end
+	return species.spawns
 end
 
 function DB.Start(onReady)
