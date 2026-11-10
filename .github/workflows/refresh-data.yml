@@ -10,6 +10,7 @@ permissions: {}
 jobs:
   refresh:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     outputs:
       branch: ${{ steps.pr.outputs.pull-request-branch }}
       operation: ${{ steps.pr.outputs.pull-request-operation }}
@@ -78,6 +79,7 @@ jobs:
     needs: refresh
     if: needs.refresh.outputs.operation == 'created' || needs.refresh.outputs.operation == 'updated'
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       actions: write
     steps:
@@ -94,6 +96,7 @@ jobs:
     needs: [refresh, ci]
     if: always() && github.event_name == 'schedule'
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       issues: write
     steps:
