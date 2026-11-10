@@ -6,6 +6,12 @@ It requires ForeverCore (`## Dependencies: ForeverCore`), the standalone addon t
 
 The shared suite standards follow forever-core `main`. For UI work, read the [wow-retail-ui-style skill](https://github.com/cjber/forever-core/blob/main/.agents/skills/wow-retail-ui-style/SKILL.md), [asset registry](https://github.com/cjber/forever-core/blob/main/docs/asset-registry.md), and [asset audit](https://github.com/cjber/forever-core/blob/main/docs/asset-audit.md) before changing layouts or assets. Use native Blizzard templates and approved atlas textures, and check the blacklist even when an asset matches a broad native prefix.
 
+## Standards
+
+- `wow-forever-addon`: https://github.com/cjber/forever-core/tree/main/.agents/skills/wow-forever-addon (UI look,
+  icon, README and store page, CI and release requirements shared by every WoW: Forever addon)
+- `repo-standards`: the RS-* requirements every cjber repo meets (repo, Actions and security settings, rulesets, CI hardening, community files), a skill in cjber/skills whose `audit.py` checks this repo
+
 ## Commands
 
 ```sh
