@@ -105,7 +105,7 @@ end
 -- snapshot and the public Stats() both total, so the two can never disagree about what a metric counts. A zero value
 -- or a missing timestamp is passed on as it is; each reader decides what to keep.
 ---@param state FGState
----@param add fun(metric: string, subject: string, value: number, stamp: number?)
+---@param add fun(metric: string, subject: integer|string, value: number, stamp: number?)
 local function EachRecord(state, add)
 	for id, entry in pairs(state.species or {}) do
 		add("creature_kills", id, ns.Model.ObservedKills(entry), entry.lastKill)
