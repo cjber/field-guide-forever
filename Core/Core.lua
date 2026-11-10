@@ -34,6 +34,31 @@ end
 
 ns.BuildCatalogue()
 
+-- The client's gamepad switch, read through _G because the pinned WoW API annotations do not declare InputUtil.
+-- A missing table reads as off.
+---@return boolean
+function ns.GamepadUI()
+	local input = rawget(_G, "InputUtil")
+	return type(input) == "table"
+		and type(input.IsGamepadUIEnabled) == "function"
+		and input.IsGamepadUIEnabled() == true
+end
+
+-- With the gamepad interface on, the client's gamepad frame manager takes every menu that shows into its focus in the
+-- same call, writing its state under the taint of whoever opened the menu. The next secure reader then has its
+-- protected SetPreferredGamepadInteractTarget call refused and blames Field Guide Forever. No addon code can open a
+-- Blizzard menu untainted, so under the gamepad interface the addon opens none (#253).
+---@param owner Frame
+---@param generator fun(owner: Frame, root: any)
+---@return any
+function ns.ContextMenu(owner, generator)
+	if ns.GamepadUI() then
+		UIErrorsFrame:AddMessage(L["This menu needs mouse and keyboard."], 1, 1, 0)
+		return nil
+	end
+	return MenuUtil.CreateContextMenu(owner, generator)
+end
+
 ---@param name string?
 ---@return FGZone?
 function ns.FindZone(name)
