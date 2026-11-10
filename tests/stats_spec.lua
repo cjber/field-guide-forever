@@ -148,7 +148,10 @@ local spec = h.env.ForeverCore.Leaderboards.boards.fieldguide
 check(spec ~= nil, "the shared Forever Leaderboards window is published")
 check(spec.title == "Field Guide Forever", "the tab carries the addon's title")
 check(spec.metric == "Creature kills", "the board names its metric")
-check(spec.icon == "Interface\\Icons\\Ability_Tracking", "the tab wears the game's tracking icon")
+check(
+	spec.icon == h.env.C_AddOns.GetAddOnMetadata("FieldGuideForever", "X-Forever-Icon"),
+	"the tab wears the TOC's identity icon"
+)
 check(type(spec.revision) == "function", "the board has a revision callback")
 check(spec.sharing() == true, "sharing reads the addon's on setting")
 local all = spec.board("all")

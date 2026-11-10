@@ -290,7 +290,7 @@ end
 
 ForeverCore.Leaderboards:Register("fieldguide", {
 	title = L["Field Guide Forever"],
-	icon = "Interface\\Icons\\Ability_Tracking",
+	icon = ns.icon,
 	metric = L["Creature kills"],
 	board = Board,
 	revision = function()
