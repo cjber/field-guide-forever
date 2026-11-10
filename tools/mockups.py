@@ -249,7 +249,7 @@ PET_FAMILY_ICONS = {
     "Bear": "interface/icons/ability_hunter_pet_bear.blp",
     "Boar": "interface/icons/ability_hunter_pet_boar.blp",
     "Crocolisk": "interface/icons/ability_hunter_pet_crocolisk.blp",
-    "Carrion Bird": "interface/icons/ability_hunter_pet_bat.blp",
+    "Carrion Bird": "interface/icons/ability_hunter_pet_vulture.blp",
     "Raptor": "interface/icons/ability_hunter_pet_raptor.blp",
     "Tallstrider": "interface/icons/ability_hunter_pet_tallstrider.blp",
     "Scorpid": "interface/icons/ability_hunter_pet_scorpid.blp",
@@ -260,7 +260,7 @@ PET_FAMILY_ICONS = {
 }
 
 
-SIGIL_ICON = "interface/icons/inv_misc_book_06.blp"
+SIGIL_ICON = "interface/icons/inv_misc_book_09.blp"
 
 
 def load_catalogue():

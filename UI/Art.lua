@@ -120,7 +120,7 @@ Art.CREATURE_FAMILY_ICONS = {
 	Bear = "Interface\\Icons\\ability_hunter_pet_bear",
 	Boar = "Interface\\Icons\\ability_hunter_pet_boar",
 	Crocolisk = "Interface\\Icons\\ability_hunter_pet_crocolisk",
-	["Carrion Bird"] = "Interface\\Icons\\ability_hunter_pet_bat",
+	["Carrion Bird"] = "Interface\\Icons\\ability_hunter_pet_vulture",
 	Raptor = "Interface\\Icons\\ability_hunter_pet_raptor",
 	Tallstrider = "Interface\\Icons\\ability_hunter_pet_tallstrider",
 	Scorpid = "Interface\\Icons\\ability_hunter_pet_scorpid",
@@ -521,16 +521,41 @@ Art.SPECIES_ICONS = {
 			"windfury",
 			"duskbat",
 			"bat",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_vulture",
+		"any",
+		{
+			"buzzard",
+			"vulture",
+			"condor",
+			"fleshripper",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_owl",
+		"any",
+		{
 			"owl",
 			"strigid",
 			"screecher",
 			"swoop",
-			"buzzard",
-			"condor",
-			"thunderhawk",
-			"hippogryph",
 			"razorbeak",
-			"fleshripper",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_hunter_pet_windserpent",
+		"any",
+		{
+			"thunderhawk",
+		},
+	},
+	{
+		"Interface\\Icons\\ability_mount_warhippogryph",
+		"any",
+		{
+			"hippogryph",
 		},
 	},
 	{
