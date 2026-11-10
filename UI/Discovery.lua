@@ -27,7 +27,6 @@ local ACHIEVEMENT_SOUND = 12891 -- the achievement-gained chime; not in SOUNDKIT
 Discovery.BURST_TOASTS = 3
 -- A burst names this many new creatures and counts the rest.
 local NAMED_IN_LINE = 2
-local ZONE_ICON = "Interface\\Icons\\INV_Misc_Book_09"
 
 -- Biggest first: one kill shows only its biggest milestone, and a capped burst keeps the biggest ones.
 local PRIORITY = { shiny = 1, gold = 2, silver = 3, zone = 4, mastered = 5 }
@@ -306,7 +305,7 @@ local function Flush()
 				toasts[#toasts + 1] = {
 					kind = "zone",
 					name = string.format(L["%s: every creature recorded"], L[zone.name]),
-					icon = ZONE_ICON,
+					icon = ns.icon,
 					zone = zone,
 				}
 			end

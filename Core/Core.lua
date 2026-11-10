@@ -7,6 +7,9 @@ if ns.broken then
 end
 
 ns.ReportTitle = L["Field Guide Forever report"]
+-- The one client icon every in-game identity surface draws: the minimap button, the leaderboard tab and the journal's
+-- portrait. The TOC declares it once and the drawn media/Icon stays the addon's store and TOC identity.
+ns.icon = C_AddOns.GetAddOnMetadata(addonName, "X-Forever-Icon") or ""
 -- The addon's own ForeverCore services: the error journal, the debug log, the report window and the map canvas. The
 -- report's own lines are read when the window opens, after Core/Report.lua has defined them.
 ns.core = ForeverCore.Register(addonName, {

@@ -25,7 +25,8 @@ assert(ns.db.options.microButton == nil, "the old micro menu setting is gone")
 
 local spec = button.minimapButtonSpec
 assert(spec, "the creation spec is kept")
-assert(spec.icon == "Interface\\Icons\\ability_hunter_pet_wolf", tostring(spec.icon))
+local icon = harness.env.C_AddOns.GetAddOnMetadata("FieldGuideForever", "X-Forever-Icon")
+assert(spec.icon == icon, "the button wears the TOC's identity icon: " .. tostring(spec.icon))
 assert(spec.title == "Field Guide", tostring(spec.title))
 assert(spec.binding == "Shift-F", tostring(spec.binding))
 assert(spec.subtext == "Click to browse the field compendium", tostring(spec.subtext))

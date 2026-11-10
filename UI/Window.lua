@@ -39,7 +39,7 @@ local tabs = {
 		key = "creatures",
 		text = "Creatures",
 		detail = "Every creature of a zone, its sightings and variants",
-		icon = "Interface\\Icons\\INV_Misc_Book_09",
+		icon = ns.icon,
 	},
 	{
 		key = "instances",
@@ -87,7 +87,7 @@ end
 local function BuildHeader(parent)
 	-- The template's own portrait and title; the addon only names them.
 	if parent.PortraitContainer and parent.PortraitContainer.portrait then
-		parent.PortraitContainer.portrait:SetTexture(Art.BOOK_ICON)
+		parent.PortraitContainer.portrait:SetTexture(ns.icon)
 	end
 	if parent.TitleContainer and parent.TitleContainer.TitleText then
 		parent.TitleContainer.TitleText:SetText(L["Field Guide"])

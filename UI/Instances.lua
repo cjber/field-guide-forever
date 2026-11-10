@@ -76,7 +76,7 @@ end
 ---@param texture Texture
 ---@param group FGInstanceGroup
 local function PaintInstanceIcon(texture, group)
-	texture:SetTexture(group.id and Art.INSTANCE_ICONS[group.id] or Art.BOOK_ICON)
+	texture:SetTexture(group.id and Art.INSTANCE_ICONS[group.id] or ns.icon)
 	texture:SetTexCoord(0, 1, 0, 1)
 end
 

@@ -109,8 +109,8 @@ ns.On("PLAYER_LOGIN", function()
 	ns.core.SafeCall("minimap button", function()
 		local spec = {
 			name = "FieldGuideForeverMinimapButton",
-			-- The client's own wolf icon, the art the old micro-menu glyph was tinted from.
-			icon = "Interface\\Icons\\ability_hunter_pet_wolf",
+			-- The addon's own client icon, the same one its journal and leaderboard tab wear.
+			icon = ns.icon,
 			title = L["Field Guide"],
 			binding = "Shift-F",
 			subtext = L["Click to browse the field compendium"],

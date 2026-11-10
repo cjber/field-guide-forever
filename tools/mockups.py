@@ -1183,8 +1183,8 @@ def leaderboard_window(ui):
     note("Forever Leaderboards window", "pane", margin, margin, width, height)
     note("Board list", "card", margin + 14, margin + 92, width - 28, height - 92 - 74)
 
-    # LargeSideTabButtonTemplate: the overall trophy, then the game's tracking icon, selected.
-    tab_icon = ui.texture("interface/icons/ability_tracking.blp")
+    # LargeSideTabButtonTemplate: the overall trophy, then the addon's book identity icon, selected.
+    tab_icon = ui.texture(SIGIL_ICON)
     tab_left = px(width - 4)
     tabs = (
         ("Overall", ui.texture("interface/icons/inv_misc_trophy_argent.blp"), False),

@@ -12,7 +12,6 @@ local Art = {}
 ns.Art = Art
 
 Art.WHITE = "Interface\\Buttons\\WHITE8X8"
-Art.BOOK_ICON = "Interface\\Icons\\INV_Misc_Book_09"
 
 -- One mark per variant: the Professions window's crafting quality marks, one to four, so the ladder reads as a rising
 -- quality rather than money.

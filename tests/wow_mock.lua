@@ -71,6 +71,25 @@ function Mock.TocFiles()
 	return files
 end
 
+-- The addon's TOC fields, as C_AddOns.GetAddOnMetadata reports them: a spec reads the same declared values the client
+-- gives the addon at load.
+---@return table<string, string>
+function Mock.TocMetadata()
+	local metadata = {}
+	local file = io.open(Mock.Root() .. "FieldGuideForever.toc", "r")
+	if not file then
+		return metadata
+	end
+	for line in file:lines() do
+		local key, value = line:match("^##%s*([^:]+):%s*(.-)%s*$")
+		if key then
+			metadata[key] = value
+		end
+	end
+	file:close()
+	return metadata
+end
+
 -- The ForeverCore checkout the specs load, the way the client loads a dependency: its TOC's entries, in order, under
 -- its own namespace. FOREVER_CORE names the checkout; the sibling ../forever-core is the local default.
 ---@return string
@@ -834,11 +853,14 @@ function Mock.Harness(opts)
 		debugprofilestop = function()
 			return Mock.clock
 		end,
-		-- The addon metadata QuestieDB's contract and flavour checks read, as the client reports the Forever build.
+		-- The addon metadata QuestieDB's contract and flavour checks read, and the TOC fields the addon itself reads.
 		C_AddOns = {
 			GetAddOnMetadata = function(name, key)
 				if name == "QuestieDB" and key == "X-Flavor" then
 					return "Forever"
+				end
+				if name == "FieldGuideForever" then
+					return Mock.TocMetadata()[key]
 				end
 			end,
 		},
