@@ -64,7 +64,7 @@ jobs:
         env:
           FOREVER_CORE: forever-core
         run: |
-          for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
+          python3 -m tools.forever_tools.specs
       - if: steps.build.outputs.new == 'true'
         id: pr
         uses: peter-evans/create-pull-request@15733dbdfeedb4f7fdb73d13c6f5ac83b710fab8 # v8.1.2
