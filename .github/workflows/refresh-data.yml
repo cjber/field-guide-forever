@@ -10,6 +10,7 @@ permissions: {}
 jobs:
   refresh:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     outputs:
       branch: ${{ steps.pr.outputs.pull-request-branch }}
       operation: ${{ steps.pr.outputs.pull-request-operation }}
@@ -63,7 +64,7 @@ jobs:
         env:
           FOREVER_CORE: forever-core
         run: |
-          for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
+          python3 -m tools.forever_tools.specs
       - if: steps.build.outputs.new == 'true'
         id: pr
         uses: peter-evans/create-pull-request@15733dbdfeedb4f7fdb73d13c6f5ac83b710fab8 # v8.1.2
@@ -78,6 +79,7 @@ jobs:
     needs: refresh
     if: needs.refresh.outputs.operation == 'created' || needs.refresh.outputs.operation == 'updated'
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       actions: write
     steps:
@@ -94,6 +96,7 @@ jobs:
     needs: [refresh, ci]
     if: always() && github.event_name == 'schedule'
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       issues: write
     steps:
