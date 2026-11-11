@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-11
+
+- **Forever Core now installs alongside it.** Forever Core is on CurseForge, so the CurseForge app installs and updates it with this addon instead of the addon carrying its own copy. On Wago, install Forever Core from its own page.
+
 ## [0.7.0] - 2026-11-11
 
 <!-- discord-image: docs/screenshots/field-guide.png -->
