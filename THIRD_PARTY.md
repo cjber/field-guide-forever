@@ -16,9 +16,16 @@
 | `docs/github-sponsors-button.png` | The GitHub Sponsors button in the README and store description; drawn here to match the Ko-fi button, with the heart from GitHub's [Octicons](https://github.com/primer/octicons) and the Adwaita Sans font | None | Octicons: MIT; Adwaita Sans: SIL OFL 1.1 | No |
 | `docs/discord-button.png` | The Discord button on the store page; drawn in forever-core with Discord's logo from [Simple Icons](https://simpleicons.org) and the Adwaita Sans font | None | Simple Icons: CC0; Adwaita Sans: SIL OFL 1.1; the logo is Discord's, used to link to a Discord server | No |
 
-## Ideas and contributors
+## Players
 
-Credit for the ideas and reports behind the addon.
+Credit for the reports and requests behind the addon.
+
+| Who | What | Notes |
+|---|---|---|
+
+## Inspired by
+
+Credit for the addons and projects an idea came from.
 
 | Who | What | Notes |
 |---|---|---|

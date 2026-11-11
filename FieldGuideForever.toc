@@ -21,6 +21,7 @@ Core\Require.lua
 Locales\enUS.lua
 Data\Client.lua
 Data\CreatureIcons.lua
+Data\Credits.lua
 Integrations\QuestieDB.lua
 Core\Secret.lua
 Core\Model.lua

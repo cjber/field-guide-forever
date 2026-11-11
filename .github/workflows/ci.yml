@@ -154,6 +154,8 @@ jobs:
             "luajit=$LUAJIT" "libluajit-5.1-2=$LUAJIT" "libluajit-5.1-common=$LUAJIT"
       - name: Regenerate the shipped data in a scratch tree
         run: python3 tools/check_generated.py
+      # Data/Credits.lua and the README and store thanks blocks are generated from THIRD_PARTY.md (WFA-31).
+      - run: python3 tools/forever_tools/credits.py --check
 
   # The repository's own rules, on every push and pull request.
   project-rules:

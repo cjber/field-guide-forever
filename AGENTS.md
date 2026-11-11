@@ -21,6 +21,7 @@ FOREVER_CORE=../forever-core bash tools/typecheck.sh   # TOC/XML load graph, sec
 for spec in tests/*_spec.lua; do FOREVER_CORE=../forever-core luajit "$spec" || exit 1; done
 uvx ruff@0.16.8 check tools && uvx ruff@0.16.8 format --check tools
 python3 tools/check_generated.py
+python3 tools/forever_tools/credits.py --check   # Data/Credits.lua and both thanks blocks are current (WFA-31)
 python3 tools/check_core_shared.py
 python3 tools/check_api_docs.py # docs/api.md names every published API function and its minor
 python3 tools/check_family.py
