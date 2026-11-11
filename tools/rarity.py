@@ -371,7 +371,12 @@ def nameplates_gif(ui, icons):
     palette_source.paste(frames[0], (0, 0))
     palette_source.paste(frames[len(frames) // 2], (0, frames[0].height))
     # libimagequant keeps the small hues (the teal shiny mark, the laurel's violet) that median cut merges away.
-    palette = palette_source.quantize(colors=256, method=Image.Quantize.LIBIMAGEQUANT)
+    # Pillow wheels ship without it, so fall back to median cut rather than failing the render on a stock interpreter.
+    method = Image.Quantize.LIBIMAGEQUANT
+    try:
+        palette = palette_source.quantize(colors=256, method=method)
+    except ValueError:
+        palette = palette_source.quantize(colors=256, method=Image.Quantize.MEDIANCUT)
     quantised = [frame.quantize(palette=palette, dither=Image.Dither.NONE) for frame in frames]
     quantised[0].save(
         OUT / "rarity-nameplates.gif",
