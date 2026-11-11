@@ -5,7 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-11-11
+
 - **The players who helped are on the Thanks page.** Settings, Forever addons, Thanks lists everyone whose report or idea shipped in Field Guide Forever, ranked by how much they gave. (#313)
+
 ## [0.8.1] - 2026-11-11
 
 <!-- forever-core-sync -->
