@@ -5,6 +5,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **The players who helped are on the Thanks page.** Settings, Forever addons, Thanks lists everyone whose report or idea shipped in Field Guide Forever, ranked by how much they gave. (#313)
 ## [0.8.1] - 2026-11-11
 
 <!-- forever-core-sync -->
@@ -351,7 +352,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ### Changed
 
-- Field Guide spacing, tabs, list rows, and detail cards now line up across the addon and its screenshots; thanks to @cillian for the idea.
+- Field Guide spacing, tabs, list rows, and detail cards now line up across the addon and its screenshots.
 - Creature icons now use each NPC's real client model where a verified matching icon exists, with name, family and type fallbacks shared by the addon and mockups.
 
 ## [0.2.1] - 2026-10-22

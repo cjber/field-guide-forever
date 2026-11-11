@@ -152,8 +152,13 @@ nothing is locked behind it and there is no paid version.
 ## Credits
 
 Creature data comes from [QuestieDB](https://github.com/Questie/QuestieDB), read at runtime, and client data from
-[wago.tools](https://wago.tools). Thanks to everyone who reports a creature missing from the catalogue, a bug or a
-feature idea, here or on CurseForge. [THIRD_PARTY.md](THIRD_PARTY.md) has the full list.
+[wago.tools](https://wago.tools). [THIRD_PARTY.md](THIRD_PARTY.md) has the full list.
+
+<!-- forever-credits:start -->
+
+Thanks to everyone who reports a bug or asks for a feature.
+
+<!-- forever-credits:end -->
 
 ## Licence
 

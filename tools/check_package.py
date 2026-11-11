@@ -3,7 +3,7 @@
 
 Runs after the BigWigs packager in the CI package job and before a tag in the release workflow, so what ships is
 checked rather than assumed: every file the TOC loads is present, nothing from development is, the licence, README and
-THIRD_PARTY.md are there with their credits (README's `## Credits` and THIRD_PARTY's `## Ideas and contributors`, WFA-10
+THIRD_PARTY.md are there with their credits (README's `## Credits` and THIRD_PARTY's `## Players`, WFA-10
 and WFA-31, as forever_tools.package checks them in the other Forever addons), and the TOC's version and interface were
 actually substituted by the packager.
 
@@ -24,7 +24,7 @@ ADDON = "FieldGuideForever"
 # The suite's shared list, plus any top-level dot file (`.luacheckrc`, `.github`).
 DEVELOPMENT = (*FORBIDDEN, "reference", "scratch")
 REQUIRED = ("LICENSE", "README.md", "THIRD_PARTY.md")
-CREDITS = (("README.md", "## Credits"), ("THIRD_PARTY.md", "## Ideas and contributors"))
+CREDITS = (("README.md", "## Credits"), ("THIRD_PARTY.md", "## Players"))
 
 
 def toc_files(toc: Path) -> list[str]:

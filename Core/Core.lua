@@ -18,6 +18,12 @@ ns.core = ForeverCore.Register(addonName, {
 		return ns.ReportLines()
 	end,
 })
+
+-- Hands the generated player credits to the shared Thanks page (WFA-31). An older core has no Credits module, and the
+-- addon loads as before.
+if type(ForeverCore.Credits) == "table" then
+	ns.core.SafeCall("credits", ForeverCore.Credits.Register, "Field Guide Forever", ns.Credits)
+end
 ns.ready = false
 ns.Zones = ns.Zones or {}
 ns.Instances = ns.Instances or {}

@@ -73,6 +73,12 @@ For help, ideas and each day's release notes, join [cjber's Workshop on Discord]
 
 <!-- forever-family:end -->
 
+<!-- forever-credits:start -->
+
+Thanks to everyone who reports a bug or asks for a feature.
+
+<!-- forever-credits:end -->
+
 Source code and issues: [github.com/cjber/field-guide-forever](https://github.com/cjber/field-guide-forever). Licence: GPL-3.0-or-later.
 
 Built with AI assistance.

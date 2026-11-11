@@ -21,6 +21,7 @@ FOREVER_CORE=../forever-core bash tools/typecheck.sh   # TOC/XML load graph, sec
 for spec in tests/*_spec.lua; do FOREVER_CORE=../forever-core luajit "$spec" || exit 1; done
 uvx ruff@0.16.8 check tools && uvx ruff@0.16.8 format --check tools
 python3 tools/check_generated.py
+python3 tools/forever_tools/credits.py --check   # Data/Credits.lua and both thanks blocks are current (WFA-31)
 python3 tools/check_core_shared.py
 python3 tools/check_api_docs.py # docs/api.md names every published API function and its minor
 python3 tools/check_family.py
@@ -94,7 +95,7 @@ picture looks right, so trace a visible defect to its runtime or renderer produc
 - Do not edit `.pkgmeta` to include development-only tools, tests, or screenshots.
 - Credit players as every Forever addon does (WFA-33 in forever-core's `wow-forever-addon` skill): a fix for a reported
   bug or a feature someone asked for ends its changelog bullet "thanks to X for the report" (or "for the idea") and adds
-  their row to THIRD_PARTY.md's `## Ideas and contributors`, by the handle they posted under. The addons' author,
+  their row to THIRD_PARTY.md's `## Players`, by the handle they posted under. The addons' author,
   cjber, is never credited: not in a changelog bullet, THIRD_PARTY.md, release notes, README or store copy. Only other
   players are credited. `tools/check_package.py`
   fails a zip without that section or README's `## Credits`.

@@ -255,6 +255,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field AddObjective fun(self: FGTrackerBlock, key: number, text: string)
 
 ---@class FGNamespace
+---@field Credits ForeverCreditsData the player credits Data/Credits.lua generates for the shared Thanks page
 ---@field L table<string, string> English phrases are the keys; an untranslated key reads as itself
 ---@field ClientData FGClientData
 ---@field CreatureInfo FGCreatureInfo
