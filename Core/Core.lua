@@ -33,11 +33,16 @@ function ns.BuildCatalogue()
 	ns.ZoneByName = {}
 	ns.SpeciesById = {}
 	ns.SpeciesZone = {}
+	ns.SpeciesByName = {}
 	for _, zone in ipairs(ns.Zones or {}) do
 		ns.ZoneByName[zone.name:lower()] = zone
 		for _, species in ipairs(zone.species) do
 			ns.SpeciesById[species.id] = species
 			ns.SpeciesZone[species.id] = zone
+			local name = species.name:lower()
+			if not ns.SpeciesByName[name] then
+				ns.SpeciesByName[name] = species
+			end
 		end
 	end
 	for _, instance in ipairs(ns.Instances or {}) do
@@ -60,11 +65,12 @@ end
 
 ---@return FGZone?
 function ns.CurrentZone()
-	local name = GetZoneText and GetZoneText() or nil
-	if not name and GetRealZoneText then
-		name = GetRealZoneText()
+	local zone = ns.FindZone(GetZoneText and GetZoneText() or nil)
+	if zone then
+		return zone
 	end
-	return ns.FindZone(name)
+	-- GetZoneText names the subzone the player stands in; GetRealZoneText names the zone the catalogue lists.
+	return ns.FindZone(GetRealZoneText and GetRealZoneText() or nil)
 end
 
 -- Exact names are what the client gives for a creature; case comes from the client's locale, so compare
@@ -357,9 +363,11 @@ function ns.OnRecord(fn)
 	recordCallbacks[#recordCallbacks + 1] = fn
 end
 
--- A kill names its creature by NPC id when the client let us read the unit's GUID, else by name. Either way the
--- creature must belong to the zone the player is in, as every catalogue lookup does. The readable spawn GUID is what
--- decides the spawn's tier, so it travels with the record.
+-- A kill names its creature by NPC id when the client let us read the unit's GUID, else by name. The NPC id is
+-- enough on its own: when the client's localized zone name does not resolve, the catalogue's own placement gives
+-- the zone. A name-only kill still belongs to the current zone; if that zone is unknown, its name is matched across
+-- the catalogue because the client's zone name and the catalogue's need not share a locale. The readable spawn GUID
+-- is what decides the spawn's tier, so it travels with the record.
 ---@param name string?
 ---@param npcId integer?
 ---@param guid string?
@@ -369,7 +377,22 @@ function ns.RecordKill(name, npcId, guid)
 		return nil
 	end
 	local zone = ns.CurrentZone()
-	local species = npcId and ns.SpeciesZone[npcId] == zone and ns.SpeciesById[npcId] or ns.FindSpecies(name, zone)
+	local species
+	if npcId then
+		local speciesZone = ns.SpeciesZone[npcId]
+		if speciesZone then
+			species, zone = ns.SpeciesById[npcId], speciesZone
+		end
+	end
+	if not species then
+		species = ns.FindSpecies(name, zone)
+	end
+	if not species and not zone and type(name) == "string" then
+		species = ns.SpeciesByName[name:lower()]
+		if species then
+			zone = ns.SpeciesZone[species.id]
+		end
+	end
 	if not species or not zone then
 		return nil
 	end

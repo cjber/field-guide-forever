@@ -200,4 +200,41 @@ end
 harness:Fire("COMBAT_LOG_EVENT_UNFILTERED")
 assert(#harness.ns.core.CaughtErrors() == 0, "a blocked combat log read reports no error")
 
+-- In combat the client keeps both a hostile unit's name and GUID secret. The identity read while its nameplate or
+-- target was alive still names the death, so an ordinary open-world kill is counted.
+harness = Start()
+local cachedGuid = Mock.CreatureGUID(1001)
+Mock.units.nameplate1, Mock.guids.nameplate1, Mock.dead.nameplate1 = "Plainstrider", cachedGuid, false
+harness:Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
+harness.env.canaccessvalue = function(value)
+	return not secrets[value]
+end
+Mock.units.nameplate1, Mock.guids.nameplate1 = Secret(), Secret()
+Mock.dead.nameplate1 = true
+harness:Fire("UNIT_HEALTH", "nameplate1")
+assert(Kills(harness, 1001) == 1, "a nameplate seen alive counts a death whose name and GUID are both secret in combat")
+
+local targetGuid = Mock.CreatureGUID(1001)
+Mock.units.target, Mock.guids.target, Mock.dead.target = "Plainstrider", targetGuid, false
+harness:Fire("PLAYER_TARGET_CHANGED")
+Mock.units.target, Mock.guids.target = Secret(), Secret()
+Mock.dead.target = true
+harness:Fire("UNIT_HEALTH", "target")
+assert(Kills(harness, 1001) == 2, "a target seen alive counts its death while both identity reads are secret")
+
+-- A readable creature id names a unit whose name and GUID are both secret.
+harness.env.UnitCreatureID = function()
+	return 1001
+end
+Mock.units.nameplate2, Mock.guids.nameplate2, Mock.dead.nameplate2 = Secret(), Secret(), true
+harness:Fire("UNIT_HEALTH", "nameplate2")
+assert(Kills(harness, 1001) == 3, "a readable UnitCreatureID names a creature with secret name and GUID")
+
+-- The catalogue's zone names and the client's zone names need not share a locale; a readable creature id still
+-- records an open-world kill.
+harness = Start()
+Mock.zone = "Das Brachland"
+Dies(harness, "target", "Plainstrider", Mock.CreatureGUID(1001))
+assert(Kills(harness, 1001) == 1, "a localized zone name does not drop an open-world kill with a readable GUID")
+
 print("kills_spec: ok")
