@@ -59,7 +59,7 @@
 ---@field firstGoldZone? string
 ---@field firstShiny? number
 ---@field firstShinyZone? string
----@field sharedKillsBaseline? integer kills already counted when an estimated save first shared (Core/Stats.lua)
+---@field sharedKillsBaseline? integer kills already counted before this addon observed them, subtracted by Model.ObservedKills
 
 -- One boss encounter's saved record. Difficulty tables are keyed by the difficulty ID as a string.
 ---@class FGEncounterState
@@ -87,17 +87,11 @@
 ---@class FGOptions
 ---@field showUndiscovered? boolean
 ---@field showSightingLog? boolean
----@field statsShare? boolean
 ---@field microButton? boolean the old micro menu setting, migrated to minimapButtonHidden and removed
 ---@field minimapButtonAngle? number the angle around the Minimap, in degrees
 ---@field minimapButtonHidden? boolean hide the minimap button, shown by default
 ---@field discoveryText? boolean announce a first kill in the explored-area line
 ---@field milestoneToasts? boolean show the achievement toast for silver, gold, shiny, mastery and zone milestones
-
--- One shared figure a peer reported: the value and the time() it was recorded.
----@class FGStatRecord
----@field value number
----@field time number
 
 -- FieldGuideForeverDB after Migrate.
 ---@class FGDB : ForeverFamilyDB
@@ -105,8 +99,6 @@
 ---@field chars table<string, FGState> keyed by "Name-Realm"
 ---@field options FGOptions
 ---@field trackerHost? ForeverTrackerLegacySettings Field Guide's old tracker table, copied once by ForeverCore
----@field sharedStats? table<string, table<string, table<string, table<string, FGStatRecord>>>> peer -> addon -> subject -> metric
----@field peerStats table<string, table<string, table>> character -> source -> Core protocol store
 ---@field errors? ForeverCaughtError[] the shared error journal: earlier sessions' errors, for the report
 ---@field log? ForeverDebugLogStore the shared debug log ring: recent lines, for the report
 

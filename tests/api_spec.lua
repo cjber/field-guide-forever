@@ -6,7 +6,7 @@ local API = harness.env.FieldGuideForever and harness.env.FieldGuideForever.API
 
 assert(API, "the public API is installed")
 assert(API.version >= 1, "the contract is versioned")
-assert(API.version == 2 and API.minor == 6, "minor 6 adds SpawnTier, tracked species, Subscribe and Stats")
+assert(API.version == 3 and API.minor == 7, "version 3 drops the leaderboard reads and Stats keeps its own totals")
 assert(harness.env.ForeverCore.APIKit ~= nil, "the shared API kit is available at load")
 assert(type(API.Subscribe) == "function", "the API subscribes through the shared kit")
 
@@ -72,13 +72,12 @@ harness:Fire("ADDON_LOADED", "FieldGuideForever")
 harness:RunTimers()
 assert(ns.ready, "the addon initialises on its own ADDON_LOADED")
 assert(harness.env.FieldGuideForeverDB.version == ns.SCHEMA, "the database is upgraded to the current schema")
-assert(harness.env.FieldGuideForeverDB.options.statsShare == true, "sharing defaults on with an opt-out setting")
 assert(API.Ready(), "the API answers after initialisation")
 
--- Stats is the suite's activity shape over the metrics the addon reports through SharedStats: one local all-subject
--- total per metric, with no invented event time before anything has happened.
+-- Stats is the suite's activity shape over the metrics the addon counts: one local all-subject total per metric, with
+-- no invented event time before anything has happened.
 local freshStats = API.Stats()
-assert(type(freshStats) == "table" and #freshStats == 15, "Stats has one row for every published metric")
+assert(type(freshStats) == "table" and #freshStats == 15, "Stats has one row for every metric the addon counts")
 local freshByMetric = {}
 for _, row in ipairs(freshStats) do
 	assert(
@@ -176,7 +175,6 @@ local empty = ns.Migrate(false)
 assert(empty.version == ns.SCHEMA and type(empty.chars) == "table", "corrupt root data becomes valid empty state")
 
 harness:Fire("PLAYER_LOGIN")
-assert(harness.Mock.registeredPrefix == "WFAStats", "the shared stats prefix is registered")
 
 local species = API.Species("The Barrens")
 assert(species and #species == 3, "the QuestieDB fixture catalogue is readable")
@@ -330,38 +328,15 @@ assert(bossLine.species == "Example Boss" and bossLine.zone == "Test Instance", 
 harness:Fire("ENCOUNTER_END", 78, "Wiped Boss", 2, 5, 0)
 assert(#API.Encounters() == 1, "failed encounters never count as boss kills or entries")
 
-harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|1001|7|900", "GUILD", "Peer-Realm")
-harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|1001|5|950", "GUILD", "Peer-Realm")
-harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|first_sighting|1001|1|850", "GUILD", "Peer-Realm")
-harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|spf|distance_yards|42|12345|900", "GUILD", "Peer-Realm")
-harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|spf|first_route|42|1|800", "GUILD", "Peer-Realm")
-harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|spf|distance_travelled|43|12345|900", "GUILD", "Peer-Realm")
-harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|unknown|distance_travelled|42|12345|900", "GUILD", "Peer-Realm")
-local shared = API.SharedStats()
-assert(shared["Peer-Realm"].fieldguide["1001"].creature_kills.value == 7, "shared counters merge by maximum")
-assert(shared["Peer-Realm"].fieldguide["1001"].first_sighting.time == 850, "shared firsts keep the earliest time")
-assert(shared["Peer-Realm"].spf["42"].distance_yards.value == 12345, "other suite addon metrics are stored")
-assert(shared["Peer-Realm"].spf["42"].first_route == nil, "unknown metrics are rejected for a known addon")
-assert(shared["Peer-Realm"].spf["43"] == nil, "deprecated metric IDs are rejected")
-assert(shared["Peer-Realm"].unknown == nil, "unrecognized addon tokens are ignored")
-local board = API.Leaderboard("creature_kills", "1001")
-assert(board and board[1].player == "Peer-Realm" and board[1].value == 7, "peer progress is exposed as a ranked record")
-assert(board[2].source == "local" and board[2].value == 2, "the same board includes local character records")
-local summary = API.LeaderboardSummary()
-assert(
-	summary[1].source == "reported" and summary[1].value == 7,
-	"the leaderboard summary labels peer totals as reports"
-)
-
--- Stats is the local counterpart of the metrics SharedStats publishes: one all-subject total each, with the latest
--- real event time and no time on a metric that has not happened.
+-- Stats is this character's own totals: one all-subject row per metric the addon counts, with the latest real event
+-- time and no time on a metric that has not happened.
 local activity = API.Stats()
 local activityByMetric = {}
 for _, row in ipairs(activity) do
 	assert(row.addon == "FieldGuideForever" and row.subject == "all", "every activity row is an all-subject total")
 	activityByMetric[row.metric] = row
 end
-assert(activityByMetric.creature_kills.value == 5, "Stats counts the same observed kills as the local board")
+assert(activityByMetric.creature_kills.value == 5, "Stats counts every observed kill")
 assert(activityByMetric.creature_kills.eventUnix == 1000, "the latest kill time is the row's event time")
 assert(
 	activityByMetric.gold_finds.value == 1 and activityByMetric.first_gold.value == 1,
@@ -372,136 +347,17 @@ assert(
 	activityByMetric.boss_kills.value == 2 and activityByMetric.boss_kills.eventUnix == 1000,
 	"boss kills total every difficulty of the encounter"
 )
--- Every row's metric is one SharedStats accepts for this addon, sent on a subject its mode allows.
-for _, row in ipairs(activity) do
-	local subject = "1001"
-	if row.metric == "boss_kills" then
-		subject = "77_0"
-	elseif row.metric:match("^boss_") then
-		subject = "77"
-	end
-	harness:Fire(
-		"CHAT_MSG_ADDON",
-		"WFAStats",
-		"1|fieldguide|" .. row.metric .. "|" .. subject .. "|1|900",
-		"GUILD",
-		"StatsPeer"
-	)
-end
-local publishedMetrics = {}
-for _, subjects in pairs(API.SharedStats()["StatsPeer"].fieldguide) do
-	for metric in pairs(subjects) do
-		publishedMetrics[metric] = true
-	end
-end
-for _, row in ipairs(activity) do
-	assert(publishedMetrics[row.metric], "SharedStats publishes the metric Stats reports: " .. row.metric)
-end
 
--- SuiteLeaderboard is the suite shape over the same rows as Leaderboard("creature_kills", "all"): ranked, with
--- the personal row kept below the limit and sharing reported.
-harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|all|9|960", "GUILD", "Peer-Realm")
-local suite = API.SuiteLeaderboard()
-assert(
-	suite and suite.metric == "creature_kills" and suite.scope == "guild_group" and suite.sharing == true,
-	"the suite leaderboard names its metric, scope and sharing"
-)
-assert(suite.total == 2 and #suite.rows == 2, "the suite leaderboard counts every eligible row")
-assert(
-	suite.rows[1].rank == 1
-		and suite.rows[1].name == "Peer-Realm"
-		and suite.rows[1].value == 9
-		and not suite.rows[1].self,
-	"peer rows are ranked first and are not the personal row"
-)
-assert(
-	suite.rows[2].rank == 2 and suite.rows[2].self and suite.rows[2].value == 5 and suite.rows[2].eventUnix == 1000,
-	"the personal row keeps its rank, value and event time"
-)
-local topOnly = API.SuiteLeaderboard(1)
-assert(
-	#topOnly.rows == 2 and topOnly.rows[1].name == "Peer-Realm" and topOnly.rows[2].self,
-	"the personal row is kept below the limit"
-)
-local mineOnly = API.SuiteLeaderboard(0)
-assert(#mineOnly.rows == 1 and mineOnly.rows[1].self and mineOnly.total == 2, "zero asks for only the personal row")
-local badLimit, badLimitReason = API.SuiteLeaderboard(-1)
-assert(badLimit == nil and badLimitReason == "none", "a negative limit has nothing to answer")
-
-for index = 1, 101 do
-	local peer = "CapPeer" .. index
-	harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|1001|1|900", "GUILD", peer)
-end
-local peerCount = 0
-local ownStore = harness.env.FieldGuideForeverDB.peerStats[ns.CharacterKey()].fieldguide
-for _ in pairs(ownStore) do
-	peerCount = peerCount + 1
-end
-assert(peerCount <= 100, "shared peer storage is bounded")
-for index = 1, 513 do
-	harness:Fire("CHAT_MSG_ADDON", "WFAStats", "1|fieldguide|creature_kills|" .. index .. "|1|900", "GUILD", "CapPeer1")
-end
-local rowCount = 0
-for _ in pairs(ownStore.CapPeer1 and ownStore.CapPeer1.creature_kills or {}) do
-	rowCount = rowCount + 1
-end
-assert(rowCount <= 512, "shared subject rows per peer are bounded")
-
-harness.Mock.inGuild = true
-harness:Fire("GROUP_ROSTER_UPDATE")
-harness:RunTimers()
-harness:RunTimers()
-local sent = harness.Mock.sentAddonMessages[1]
-assert(
-	sent and sent.prefix == "WFAStats" and sent.channel == "GUILD",
-	"local progress broadcasts on the shared guild channel"
-)
-assert(
-	sent.message:match("^1|fieldguide|[%a_]+|[%w_]+|%d+|%d+$"),
-	"outbound messages match the shared versioned schema"
-)
-ns.Stats.SetEnabled(false)
-ns.db.options.statsShare = false
-local sharedOff, sharedOffReason = API.SharedStats()
-assert(
-	sharedOff == nil and sharedOffReason == "disabled",
-	"opt-out disables peer exchange and shared leaderboard reads, and says why"
-)
-local suiteOff = API.SuiteLeaderboard()
-assert(
-	suiteOff and suiteOff.sharing == false and #suiteOff.rows == 1 and suiteOff.rows[1].self,
-	"the suite leaderboard reports sharing off and keeps the personal row"
-)
-local localOnly = API.LeaderboardSummary()
-assert(
-	localOnly and #localOnly == 1 and localOnly[1].source == "local",
-	"the local leaderboard remains available after opt-out"
-)
-local localStats = API.Stats()
-assert(localStats and #localStats == 15 and localStats[1].subject == "all", "Stats still answers locally after opt-out")
-local personalBoard = API.Leaderboard("creature_kills", "1001")
-assert(
-	personalBoard and #personalBoard == 1 and personalBoard[1].source == "local",
-	"opting out hides peers on an individual board while preserving the personal row"
-)
-local state = ns.GetCharacterState(false)
-local entry = state.species[1001]
-local beforeTotal = localOnly[1].value
-entry.kills = entry.kills + 100
-entry.sharedKillsBaseline = 100
-entry.killsEstimated = true
-assert(API.LeaderboardSummary()[1].value == beforeTotal, "summary subtracts the same historical baseline as sharing")
-assert(API.Leaderboard("creature_kills", "1001")[1].value == 2, "individual boards use observed kills too")
-entry.kills = entry.kills - 100
-entry.sharedKillsBaseline = nil
-entry.killsEstimated = nil
-
-local unknownZone, unknownZoneReason = API.Progress("Nowhere")
-assert(unknownZone == nil and unknownZoneReason == "none", "an unknown zone has no answer")
-local unknownSpecies, unknownSpeciesReason = API.Specimen(999999)
-assert(unknownSpecies == nil and unknownSpeciesReason == "none", "an unknown species has no answer")
-local badBoard, badBoardReason = API.Leaderboard("creature_kills")
-assert(badBoard == nil and badBoardReason == "none", "a missing subject has no answer")
+-- Forever Leaderboards is gone: a save from a version that shared progress drops its peer tables and setting on load.
+local stripped = ns.Migrate({
+	version = 2,
+	chars = {},
+	options = { statsShare = false },
+	peerStats = { ["Peer-Realm"] = { fieldguide = {} } },
+	sharedStats = { ["Peer-Realm"] = { fieldguide = {} } },
+})
+assert(stripped.peerStats == nil and stripped.sharedStats == nil, "the dead peer tables are dropped on load")
+assert(stripped.options.statsShare == nil, "the removed sharing setting is dropped on load")
 
 local listParent = harness.env.CreateFrame("Frame")
 listParent:SetSize(330, 514)

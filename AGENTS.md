@@ -2,7 +2,7 @@
 
 Field Guide Forever targets the WoW: Forever client (Interface 16001). It keeps a cosmetic journal of creatures a character has encountered, with local progress and shared catalogue facts. It never grants player power, changes combat, or calls protected functions.
 
-It requires ForeverCore (`## Dependencies: ForeverCore`), the standalone addon that owns the shared tracker column, report window, error journal and debug log, Forever Leaderboards, the minimap button, the quest log side tabs, the settings-page chrome, the family page and the map canvas. CurseForge and Wago install ForeverCore with it through `.pkgmeta`'s `required-dependencies`; nothing shared is vendored here.
+It requires ForeverCore (`## Dependencies: ForeverCore`), the standalone addon that owns the shared tracker column, report window, error journal and debug log, the minimap button, the quest log side tabs, the settings-page chrome, the family page and the map canvas. CurseForge and Wago install ForeverCore with it through `.pkgmeta`'s `required-dependencies`; nothing shared is vendored here.
 
 The shared suite standards follow forever-core `main`. For UI work, read the [wow-retail-ui-style skill](https://github.com/cjber/forever-core/blob/main/.agents/skills/wow-retail-ui-style/SKILL.md), [asset registry](https://github.com/cjber/forever-core/blob/main/docs/asset-registry.md), and [asset audit](https://github.com/cjber/forever-core/blob/main/docs/asset-audit.md) before changing layouts or assets. Use native Blizzard templates and approved atlas textures, and check the blacklist even when an asset matches a broad native prefix.
 

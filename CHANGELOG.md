@@ -5,6 +5,12 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Forever Leaderboards are gone.** Field Guide no longer shares your progress with guild and group members or opens a board, so the sharing setting is gone too. Your own counts, records and the field guide itself are unchanged.
+
+### For addon authors
+
+- **`FieldGuideForever.API` is version 3, minor 7: the leaderboard reads are gone.** `Leaderboard()`, `SuiteLeaderboard()`, `LeaderboardSummary()`, `GetLeaderboardSummary()`, `SharedStats()` and `GetSharedStats()` are no longer published. `Stats()` still returns this character's own totals. `docs/api.md` and `types/API.lua` list the remaining members.
+
 ## [0.7.2] - 2026-11-11
 
 - **Works again after updating.** Updating to the last version could leave the addon switched off in the game's AddOns list with "ForeverCore: missing", because the update did not bring Forever Core with it. Forever Core now comes inside this addon's download again, from CurseForge, Wago or GitHub alike, so updating is all it takes (cjber/shortest-path-forever#731).

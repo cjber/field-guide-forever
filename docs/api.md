@@ -1,7 +1,7 @@
 # FieldGuideForever.API
 
-Other addons can read Field Guide Forever's catalogue, this character's progress and the shared kill leaderboard
-through the global `FieldGuideForever.API`. It is version 2, minor 6: check `version == 2` and that each function
+Other addons can read Field Guide Forever's catalogue and this character's progress through the global
+`FieldGuideForever.API`. It is version 3, minor 7: check `version == 3` and that each function
 exists before calling it. On ForeverCore 1.3.2 or later the API is also listed by `ForeverCore.APIKit.Addons()`. The
 full types are in [`types/API.lua`](../types/API.lua).
 
@@ -30,11 +30,7 @@ own area tables, never guessed from a zone's name.
 | `Encounters()` and `GetEncounters()` | this character's boss encounters |
 | `Spawns(speciesId)` | one species' spawn points |
 | `ZoneSpawns(zoneName?)` | one zone's spawn points |
-| `Leaderboard(metric, subject)` | ranked rows for one metric and subject |
-| `SuiteLeaderboard(limit?)` | the suite's leaderboard shape for creature kills |
-| `LeaderboardSummary()` and `GetLeaderboardSummary()` | the compact kill leaderboard |
-| `Stats()` | this character's own total for each published metric |
-| `SharedStats()` and `GetSharedStats()` | the peer-reported metric table |
+| `Stats()` | this character's own total for each metric the addon counts |
 
 The `Get*` names, `IsReady`, `Creature`, `ZoneProgress` and `SpeciesState` are deprecated aliases of the plain names
 beside them. They stay published and answer exactly the same; new code uses the plain name.
@@ -48,13 +44,16 @@ member it wants with `type(api.Name) == "function"`.
   `Specimen()`, `Sightings()` and `Specimens()` with their aliases.
 - minor 1: `Spawns()` and `ZoneSpawns()`.
 - minor 2: version 2, the tier ladder. `Specimen()` and `Specimens()` report `bronze`, `silver`, `gold` and `shiny`
-  counts and firsts in place of the old rare fields. `Encounters()`, `Leaderboard()`, `LeaderboardSummary()` and
-  `SharedStats()` were added after minor 1 without raising it, so check that each exists rather than trusting the
-  minor number for them.
+  counts and firsts in place of the old rare fields. `Encounters()` was added after minor 1 without raising it, so
+  check that it exists rather than trusting the minor number for it.
 - minor 3: `sizeSmallest`, `sizeLargest`, `tiny` and `giant` on `Specimen()` and `Specimens()`.
 - minor 4: those four size fields are gone again. Code that ran on minor 3 must not rely on them.
-- minor 5: `SuiteLeaderboard()`, and every read that has nothing to answer now returns a second value, the reason.
+- minor 5: every read that has nothing to answer now returns a second value, the reason. `SuiteLeaderboard()` was
+  added here and is gone in minor 7.
 - minor 6: `SpawnTier`, `TrackedSpecies`, `SetTrackedSpecies`, `Subscribe`, `Stats`.
+- minor 7: version 3, Forever Leaderboards is gone. `Leaderboard()`, `SuiteLeaderboard()`, `LeaderboardSummary()`,
+  `GetLeaderboardSummary()`, `SharedStats()` and `GetSharedStats()` are no longer published, and no read answers
+  `"disabled"`. `Stats()` stays.
 
 ## Not ready
 
@@ -64,20 +63,15 @@ still a valid answer for callers written before minor 5: the first value is unch
 | reason | meaning |
 |---|---|
 | `"loading"` | Field Guide is still building its catalogue or saved state, so ask again later |
-| `"disabled"` | the player turned sharing off |
 | `"none"` | there is nothing to answer, such as an unknown zone, species or argument |
 
-`Zones()`, `Sightings()`, `Specimens()`, `Encounters()` and `LeaderboardSummary()` answer `nil, "loading"` until the
-saved state and catalogue are ready, and never `"disabled"` or `"none"`. `Species()`, `SpeciesById()`, `Progress()`,
-`Specimen()`, `ZoneSpawns()` and `Spawns()` answer `"loading"` then, and `"none"` for a zone or species the catalogue
-does not hold. `Leaderboard()` answers `"loading"` then and `"none"` for an argument that is not a string.
-`SuiteLeaderboard()` answers `"loading"` then and `"none"` for a limit that is not a whole number of zero or more.
-`Spawns()` and `ZoneSpawns()` also answer `"loading"` while QuestieDB's zone maps are not available yet.
-`SharedStats()` answers `"loading"` then and `"disabled"` while sharing is off. `Stats()` answers `"loading"` until
-the saved state is ready and still answers with sharing off. `TrackedSpecies()` answers `"loading"` until this
-character's state exists and `"none"` while nothing is tracked. `SpawnTier()` answers `"none"` for a unit that does
-not exist, a player or a unit the player cannot attack, and never `"loading"`. `Ready()` and `IsReady()` never answer
-nil.
+`Zones()`, `Sightings()`, `Specimens()` and `Encounters()` answer `nil, "loading"` until the saved state and catalogue
+are ready, and never `"none"`. `Species()`, `SpeciesById()`, `Progress()`, `Specimen()`, `ZoneSpawns()` and `Spawns()`
+answer `"loading"` then, and `"none"` for a zone or species the catalogue does not hold. `Spawns()` and `ZoneSpawns()`
+also answer `"loading"` while QuestieDB's zone maps are not available yet. `Stats()` answers `"loading"` until the
+saved state is ready. `TrackedSpecies()` answers `"loading"` until this character's state exists and `"none"` while
+nothing is tracked. `SpawnTier()` answers `"none"` for a unit that does not exist, a player or a unit the player
+cannot attack, and never `"loading"`. `Ready()` and `IsReady()` never answer nil.
 
 ## `Subscribe(callback) -> unsubscribe`
 
@@ -180,48 +174,13 @@ A spawn whose zone has no known map is left out rather than guessed. Each row ha
 The spawn points of every species in a zone, in the same row shape as `Spawns()`. Without a name it answers for the
 zone the player is in.
 
-## `Leaderboard(metric, subject) -> FGAPILeaderboardRow[]?`
-
-Ranked rows for one metric and subject: `player`, `value`, `time` and `source`, where `source` is `"local"` for this
-character or `"peer"` for a report received from another player. Peer values are player reports and are not
-independently verified. The local row stays when sharing is off.
-
-Metrics are `creature_kills` and the coat finds `bronze_finds`, `silver_finds`, `gold_finds` and `shiny_finds`, each
-with the species ID as the subject, plus `first_sighting`, `first_kill`, `first_bronze`, `first_silver`, `first_gold`
-and `first_shiny`. `creature_kills` with the subject `all` is this character's total across the catalogue. Boss
-metrics are `boss_kills`, `boss_sightings`, `boss_first_kill` and `boss_first_sighting`, with the encounter ID as the
-subject, or the encounter ID and difficulty as `"id_difficulty"` for `boss_kills`.
-
-## `SuiteLeaderboard(limit?) -> FGAPISuiteLeaderboard?`
-
-Available from minor 5. The suite's leaderboard shape over the same rows as `Leaderboard("creature_kills", "all")`:
-`metric` is `"creature_kills"`, `scope` is `"guild_group"`, `sharing` says whether sharing is on, `total` counts
-every eligible row, and `rows` are ranked rows with `rank`, `name`, `value`, an optional `eventUnix` and `self` set
-on this character's row. Peer values are player reports and are not independently verified.
-
-The default top list is 10, capped at 25. A non-integer or negative limit answers `nil, "none"`. Zero asks for only
-this character's row. This character's row is always included, even when it ranks below the limit. With sharing off
-the peer rows are left out and the local row remains.
-
-## `LeaderboardSummary() -> { player, value, source }[]?`
-
-A compact kill leaderboard: one row per player with `player`, `value` and `source`, where `source` is `"local"` for
-this character or `"reported"` for a peer total. It uses a peer's `all` total when they reported one, and otherwise
-sums their per-species kill reports, so it can include a peer who has not reported the `all` subject.
-
 ## `Stats() -> FGAPIStatsRow[]?`
 
 Available from minor 6. This character's own observation totals in the suite's activity shape: a fresh array with
-one row per metric `SharedStats()` publishes, each `{ addon = "FieldGuideForever", metric, subject = "all", value }`
-and an optional `eventUnix`. `subject` is `"all"` because a row is this character's total, not one species or
-encounter. `value` is 0 when the character has nothing for that metric. `eventUnix` is the latest real event time for
-the metric and is left out when there is none. The metrics are `creature_kills`, `bronze_finds`, `silver_finds`,
-`gold_finds`, `shiny_finds`, `first_sighting`, `first_kill`, `first_bronze`, `first_silver`, `first_gold`,
-`first_shiny`, `boss_sightings`, `boss_kills`, `boss_first_sighting` and `boss_first_kill`. This is a local read, so it
-still answers with sharing off. Peer values stay in `SharedStats()` and are player reports, not independently
-verified.
-
-## `SharedStats() -> table<string, table>?`
-
-Every peer report this character has received, as `player -> addon -> subject -> metric -> { value, time }`. It
-answers `nil, "disabled"` while sharing is off. Peer values are player reports and are not independently verified.
+one row per metric the addon counts, each `{ addon = "FieldGuideForever", metric, subject = "all", value }` and an
+optional `eventUnix`. `subject` is `"all"` because a row is this character's total, not one species or encounter.
+`value` is 0 when the character has nothing for that metric. `eventUnix` is the latest real event time for the metric
+and is left out when there is none. The metrics are `creature_kills`, `bronze_finds`, `silver_finds`, `gold_finds`,
+`shiny_finds`, `first_sighting`, `first_kill`, `first_bronze`, `first_silver`, `first_gold`, `first_shiny`,
+`boss_sightings`, `boss_kills`, `boss_first_sighting` and `boss_first_kill`. It is a local read of this character's
+own records.

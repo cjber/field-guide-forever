@@ -99,9 +99,8 @@ def check_manifest(layout: dict[str, Any]) -> list[str]:
         x1, y1 = x0 + widget["w"], y0 + widget["h"]
         if x0 < -MIN_INSET or y0 < -MIN_INSET or x1 > canvas["width"] + MIN_INSET or y1 > canvas["height"] + MIN_INSET:
             findings.append(f"{widget['name']}: {x1 - x0:g}x{y1 - y0:g} at ({x0:g}, {y0:g}) is off the canvas")
-        # The journal anchors its native tabs just outside the right edge. Forever Leaderboards tucks the same
-        # template 4 units under that edge, so a tab may start at the frame's right edge minus 4 and still hang out.
-        is_side_tab = widget["role"] == "tabs" and x0 >= right - 4 and x1 <= right + 58
+        # The journal anchors its native tabs just outside the right edge, so a tab may hang past it.
+        is_side_tab = widget["role"] == "tabs" and x0 >= right and x1 <= right + 58
         if (
             x0 < frame["x"] - 0.5
             or x1 > right + 0.5

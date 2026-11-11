@@ -918,7 +918,6 @@ function Mock.Harness(opts)
 			end
 		end
 	end
-	env.ForeverPeerStats = false
 	-- A section of the objective tracker, as ObjectiveTrackerModuleTemplate draws one: a header, the blocks an
 	-- addon's LayoutContents lays out on each update, and the height it reports to the column it is attached to.
 	---@param module Frame
