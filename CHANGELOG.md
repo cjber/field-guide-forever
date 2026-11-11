@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-11
+
+<!-- discord-image: docs/screenshots/field-guide.png -->
+
 - **Forever Leaderboards are gone.** Field Guide no longer shares your progress with guild and group members or opens a board, so the sharing setting is gone too. Your own counts, records and the field guide itself are unchanged.
 
 ### For addon authors
