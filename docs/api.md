@@ -2,7 +2,8 @@
 
 Other addons can read Field Guide Forever's catalogue, this character's progress and the shared kill leaderboard
 through the global `FieldGuideForever.API`. It is version 2, minor 6: check `version == 2` and that each function
-exists before calling it. The full types are in [`types/API.lua`](../types/API.lua).
+exists before calling it. On ForeverCore 1.3.2 or later the API is also listed by `ForeverCore.APIKit.Addons()`. The
+full types are in [`types/API.lua`](../types/API.lua).
 
 Every call returns fresh tables that you may keep or change. A zone is named as the client names it, such as
 `"The Barrens"`, not by uiMapID. Spawn rows carry the uiMapID in `map` and coordinates from 0 to 1.

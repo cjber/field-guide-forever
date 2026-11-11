@@ -106,7 +106,8 @@ function Mock.CoreTocFiles()
 	local file = assert(io.open(toc, "rb"), "ForeverCore is not at " .. toc .. "; set FOREVER_CORE")
 	for line in file:lines() do
 		line = line:gsub("\r$", "")
-		if not (line:match("^%s*$") or line:match("^%s*#")) then
+		-- The fake client runs Lua only: a TOC's XML entries declare templates it cannot build, so they are skipped.
+		if not (line:match("^%s*$") or line:match("^%s*#") or not line:match("%.lua$")) then
 			files[#files + 1] = (line:gsub("\\", "/"))
 		end
 	end
@@ -1105,6 +1106,9 @@ function Mock.Harness(opts)
 	objective.NineSlice = {
 		GetBottom = function()
 			return 540
+		end,
+		GetCenter = function()
+			return 0, 0
 		end,
 		GetEffectiveScale = function()
 			return 1

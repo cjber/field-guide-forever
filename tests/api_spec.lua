@@ -586,4 +586,34 @@ subscribed:RunTimers()
 assert(trackedHeard and trackedHeard.tracked == true, "the tracked switch reaches subscribers")
 unsubscribeTracked()
 
+-- Discovery: the addon hands its API to ForeverCore's suite registry once, so another addon can list every Forever
+-- addon. A core whose kit predates Publish (minor 1) still loads, with nothing published and no error.
+local listed
+for _, addonEntry in ipairs(harness.env.ForeverCore.APIKit.Addons()) do
+	if addonEntry.name == "FieldGuideForever" then
+		listed = addonEntry
+	end
+end
+assert(listed ~= nil, "the API is listed by ForeverCore.APIKit.Addons()")
+assert(listed.api == API, "the listed entry is this addon's own API table")
+assert(listed.version == API.version and listed.minor == API.minor, "the listing carries the API's version and minor")
+
+local beforeAPI = {}
+for _, file in ipairs(Mock.TocFiles()) do
+	if file == "Core/API.lua" then
+		break
+	end
+	beforeAPI[#beforeAPI + 1] = file
+end
+local oldKitHarness = Mock.Harness({ files = beforeAPI })
+local oldKit = oldKitHarness.env.ForeverCore.APIKit
+local publishCalls = {}
+oldKit.minor = 1
+oldKit.Publish = function(name)
+	publishCalls[#publishCalls + 1] = name
+end
+local loaded, loadError = pcall(oldKitHarness.Load, "Core/API.lua")
+assert(loaded, "a kit at minor 1 still loads the API: " .. tostring(loadError))
+assert(#publishCalls == 0, "a kit at minor 1 is never asked to publish")
+
 print("api: ok")

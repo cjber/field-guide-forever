@@ -730,4 +730,7 @@ API.GetSharedStats = API.SharedStats
 
 FieldGuideForever = FieldGuideForever or {}
 FieldGuideForever.API = API --[[@as FGPublicAPI]]
+if (ForeverCore.APIKit.minor or 1) >= 2 then
+	ForeverCore.APIKit.Publish("FieldGuideForever", API)
+end
 ns.API = API --[[@as FGPublicAPI]]
