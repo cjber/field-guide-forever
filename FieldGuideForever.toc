@@ -12,7 +12,7 @@
 ## X-Curse-Project-ID: 1786835
 ## X-Wago-ID: QKyqLnK7
 ## Dependencies: ForeverCore
-## X-Forever-Core: v1.7.2
+## X-Forever-Core: v1.7.3
 ## SavedVariables: FieldGuideForeverDB
 ## OptionalDeps: QuestieDB, Questie
 
