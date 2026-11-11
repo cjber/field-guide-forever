@@ -276,7 +276,6 @@ function FGCreatureInfo.Get(npcID) end
 ---@field ZoneByName table<string, FGZone> lower-case name -> zone
 ---@field SpeciesById table<integer, FGSpecies>
 ---@field SpeciesZone table<integer, FGZone> NPC ID -> the zone the species is listed under
----@field SpeciesByName table<string, FGSpecies> lower-case name -> the first species listed with that name
 ---@field minimapButton? ForeverMinimapButton the shared minimap button, set by Core/Settings.lua
 ---@field Model FGModel
 ---@field API FGPublicAPI

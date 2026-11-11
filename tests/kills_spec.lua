@@ -4,6 +4,16 @@ local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
 
 local npcFixture = {
+	-- The same name in another zone: a name alone cannot say which one a kill belongs to.
+	[999] = {
+		name = "Plainstrider",
+		minLevel = 1,
+		maxLevel = 2,
+		rank = 0,
+		subName = "Beast",
+		zoneID = 15,
+		spawns = { [15] = {} },
+	},
 	[1001] = {
 		name = "Plainstrider",
 		minLevel = 1,
@@ -36,13 +46,18 @@ local npcFixture = {
 ---@param opts? table
 local function Start(opts)
 	local harness = Mock.Harness(opts)
+	if opts and opts.areaNames then
+		harness.env.C_Map.GetAreaInfo = function(id)
+			return opts.areaNames[id]
+		end
+	end
 	harness.env.LibQuestieDB = {
 		RequireContract = function()
 			return true
 		end,
 		Npc = {
 			GetAllIds = function()
-				return { 1001, 1003, 1019 }
+				return { 999, 1001, 1003, 1019 }
 			end,
 			GetAll = function(id, fields)
 				local row, values = npcFixture[id], {}
@@ -230,11 +245,30 @@ Mock.units.nameplate2, Mock.guids.nameplate2, Mock.dead.nameplate2 = Secret(), S
 harness:Fire("UNIT_HEALTH", "nameplate2")
 assert(Kills(harness, 1001) == 3, "a readable UnitCreatureID names a creature with secret name and GUID")
 
--- The catalogue's zone names and the client's zone names need not share a locale; a readable creature id still
--- records an open-world kill.
-harness = Start()
+-- The client's zone name can be in another locale; the catalogue zone is also keyed by C_Map.GetAreaInfo's own
+-- name for the same id, so it resolves there too. A readable creature id still records the kill on its own.
+harness = Start({ areaNames = { [17] = "Das Brachland" } })
 Mock.zone = "Das Brachland"
 Dies(harness, "target", "Plainstrider", Mock.CreatureGUID(1001))
 assert(Kills(harness, 1001) == 1, "a localized zone name does not drop an open-world kill with a readable GUID")
+
+-- A name-only kill on the localized zone goes to the species in that zone, not to the same name elsewhere.
+harness = Start({ areaNames = { [17] = "Das Brachland" } })
+harness.env.canaccessvalue = function(value)
+	return not secrets[value]
+end
+Mock.zone = "Das Brachland"
+Dies(harness, "target", "Plainstrider", Secret())
+assert(Kills(harness, 1001) == 1, "a name-only kill on a localized zone counts in the catalogue's zone")
+assert(Kills(harness, 999) == 0, "a same-name creature in another zone is not credited")
+
+-- With no zone to place a name-only kill, a same-name species elsewhere is not guessed at.
+harness = Start()
+harness.env.canaccessvalue = function(value)
+	return not secrets[value]
+end
+Mock.zone = "Nowhere"
+Dies(harness, "target", "Plainstrider", Secret())
+assert(Kills(harness, 999) == 0 and Kills(harness, 1001) == 0, "an unknown zone credits no same-name species")
 
 print("kills_spec: ok")
