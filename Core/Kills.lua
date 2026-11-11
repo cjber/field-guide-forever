@@ -16,8 +16,8 @@ end
 --      leaving with UnitIsDead true) while it is attackable and not tapped by someone else.
 --   2. A rare's map marker (C_VignetteInfo) that the player saw alive and that turns dead while on the minimap.
 --   3. The combat log, only on a client that still hands it to addons.
--- Known limit: a creature that dies with no nameplate shown and not targeted is not seen, and when the client keeps a
--- unit's name and GUID secret there is nothing to name it by, so that kill is skipped rather than guessed.
+-- Known limit: a creature that dies with no nameplate shown and not targeted is not seen, and one that was never
+-- seen while its name or GUID was readable cannot be named; that kill is skipped rather than guessed.
 
 -- Two reports of one name within this many seconds, where either lacks a GUID, are one death.
 local SAME_DEATH_SECONDS = 3
@@ -33,6 +33,22 @@ local recentNames = {}
 ---@type table<string, true>
 local markersAlive = {}
 
+-- What a unit token last showed while its name and GUID were readable.
+---@class FGUnitIdentity
+---@field guid? string
+---@field name? string
+---@field npcId? integer
+---@field alive? boolean
+---@field player? boolean
+---@field canAttack? boolean
+---@field tapDenied? boolean
+
+-- In combat the client hides both for hostile units, so a nameplate or target seen alive is remembered by the
+-- token it used, and the death it later reports is named from that memory. A token that is added or retargeted
+-- replaces it, and a nameplate that leaves forgets it.
+---@type table<string, FGUnitIdentity>
+local identities = {}
+
 -- The NPC id inside a creature GUID ("Creature-0-<server>-<instance>-<zone>-<npc id>-<spawn>").
 ---@param guid string?
 ---@return integer?
@@ -44,6 +60,38 @@ local function NpcId(guid)
 	if kind == "Creature" or kind == "Vehicle" then
 		return tonumber(id)
 	end
+end
+
+-- The creature a unit token last showed, from what is readable now or what it showed while alive.
+---@param unit string
+---@param fresh boolean true when the token has just been given to a new unit
+---@return FGUnitIdentity?
+local function Identity(unit, fresh)
+	local guid = ns.Readable(UnitGUID(unit))
+	local name = ns.Readable(UnitName(unit))
+	local creatureId = UnitCreatureID and ns.Readable(UnitCreatureID(unit)) or nil
+	local npcId = NpcId(guid) or creatureId
+	local info = not fresh and identities[unit] or nil
+	if info and ((guid and guid ~= info.guid) or (name and info.name and name ~= info.name)) then
+		info = nil
+	end
+	if guid or name or npcId then
+		info = info or {}
+		info.guid = guid or info.guid
+		info.name = name or info.name
+		info.npcId = npcId or info.npcId
+		identities[unit] = info
+	elseif fresh then
+		identities[unit] = nil
+		info = nil
+	end
+	if info and not UnitIsDead(unit) then
+		info.alive = true
+		info.player = UnitIsPlayer(unit)
+		info.canAttack = UnitCanAttack("player", unit)
+		info.tapDenied = UnitIsTapDenied(unit)
+	end
+	return info
 end
 
 -- True the first time a death is reported. Every source reports the same death in its own way (target and nameplate
@@ -77,8 +125,9 @@ end
 
 ---@param guid string?
 ---@param name string?
-local function Report(guid, name)
-	local npcId = NpcId(guid)
+---@param npcId integer?
+local function Report(guid, name, npcId)
+	npcId = npcId or NpcId(guid)
 	if not npcId and not name then
 		return
 	end
@@ -90,19 +139,52 @@ end
 -- UnitIsDead, UnitCanAttack, UnitIsPlayer and UnitIsTapDenied are never secret; the GUID and name may be.
 ---@param unit string
 local function OnUnitDeath(unit)
-	if not ns.ready or not UnitIsDead(unit) or UnitIsPlayer(unit) or not UnitCanAttack("player", unit) then
+	if not ns.ready then
 		return
 	end
-	if UnitIsTapDenied(unit) then -- tagged by someone outside the group: their kill, not ours
+	local info = Identity(unit, false)
+	if not UnitIsDead(unit) then
 		return
 	end
-	Report(ns.Readable(UnitGUID(unit)), ns.Readable(UnitName(unit)))
+	local player = UnitIsPlayer(unit)
+	local canAttack = UnitCanAttack("player", unit)
+	local tapDenied = UnitIsTapDenied(unit)
+	if info and info.alive then
+		player, canAttack, tapDenied = info.player, info.canAttack, info.tapDenied
+	end
+	if player or not canAttack or tapDenied then -- a player, out of reach, or tagged by someone outside the group
+		return
+	end
+	Report(
+		info and info.guid or ns.Readable(UnitGUID(unit)),
+		info and info.name or ns.Readable(UnitName(unit)),
+		info and info.npcId
+	)
 end
 
 ---@param unit string
 local function OnUnitHealth(unit)
 	if unit == "target" or (type(unit) == "string" and unit:sub(1, 9) == "nameplate") then
 		OnUnitDeath(unit)
+	end
+end
+
+---@param unit string
+local function OnUnitAdded(unit)
+	if ns.ready then
+		Identity(unit, true)
+	end
+end
+
+---@param unit string
+local function OnUnitRemoved(unit)
+	OnUnitDeath(unit)
+	identities[unit] = nil
+end
+
+local function OnTargetChanged()
+	if ns.ready then
+		Identity("target", true)
 	end
 end
 
@@ -156,7 +238,9 @@ local function OnCombatLog()
 end
 
 ns.On("UNIT_HEALTH", OnUnitHealth)
-ns.On("NAME_PLATE_UNIT_REMOVED", OnUnitDeath)
+ns.On("PLAYER_TARGET_CHANGED", OnTargetChanged)
+ns.On("NAME_PLATE_UNIT_ADDED", OnUnitAdded)
+ns.On("NAME_PLATE_UNIT_REMOVED", OnUnitRemoved)
 ns.On("VIGNETTES_UPDATED", OnVignettes)
 ns.On("VIGNETTE_MINIMAP_UPDATED", OnVignettes)
 -- Forever has no addon reader for the combat log; a client that has one may still refuse the event, which ns.On

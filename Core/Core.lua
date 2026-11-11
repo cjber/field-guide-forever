@@ -40,6 +40,21 @@ function ns.BuildCatalogue()
 			ns.SpeciesZone[species.id] = zone
 		end
 	end
+	-- GetZoneText names the zone in the player's locale, which need not be the catalogue's English name. Key each
+	-- zone by the client's own AreaTable name for its id as well, so CurrentZone resolves on every locale. A
+	-- translation that collides with another zone's catalogue name leaves the catalogue's own key in place.
+	local getAreaInfo = C_Map and C_Map.GetAreaInfo
+	if type(getAreaInfo) == "function" then
+		for _, zone in ipairs(ns.Zones or {}) do
+			local localized = getAreaInfo(zone.id)
+			if type(localized) == "string" then
+				local key = localized:lower()
+				if ns.ZoneByName[key] == nil then
+					ns.ZoneByName[key] = zone
+				end
+			end
+		end
+	end
 	for _, instance in ipairs(ns.Instances or {}) do
 		for _, species in ipairs(instance.species) do
 			ns.SpeciesById[species.id] = species
@@ -60,11 +75,12 @@ end
 
 ---@return FGZone?
 function ns.CurrentZone()
-	local name = GetZoneText and GetZoneText() or nil
-	if not name and GetRealZoneText then
-		name = GetRealZoneText()
+	local zone = ns.FindZone(GetZoneText and GetZoneText() or nil)
+	if zone then
+		return zone
 	end
-	return ns.FindZone(name)
+	-- GetZoneText names the subzone the player stands in; GetRealZoneText names the zone the catalogue lists.
+	return ns.FindZone(GetRealZoneText and GetRealZoneText() or nil)
 end
 
 -- Exact names are what the client gives for a creature; case comes from the client's locale, so compare
@@ -357,9 +373,12 @@ function ns.OnRecord(fn)
 	recordCallbacks[#recordCallbacks + 1] = fn
 end
 
--- A kill names its creature by NPC id when the client let us read the unit's GUID, else by name. Either way the
--- creature must belong to the zone the player is in, as every catalogue lookup does. The readable spawn GUID is what
--- decides the spawn's tier, so it travels with the record.
+-- A kill names its creature by NPC id when the client let us read the unit's GUID, else by name. The NPC id is
+-- enough on its own: when the client's localized zone name does not resolve, the catalogue's own placement gives
+-- the zone. A name-only kill belongs to the current zone, which resolves the client's localized name as well as
+-- the catalogue's English one. Names repeat across zones, so an unknown zone records nothing rather than credit
+-- the first creature with that name. The readable spawn GUID decides the spawn's tier, so it travels with the
+-- record.
 ---@param name string?
 ---@param npcId integer?
 ---@param guid string?
@@ -369,7 +388,16 @@ function ns.RecordKill(name, npcId, guid)
 		return nil
 	end
 	local zone = ns.CurrentZone()
-	local species = npcId and ns.SpeciesZone[npcId] == zone and ns.SpeciesById[npcId] or ns.FindSpecies(name, zone)
+	local species
+	if npcId then
+		local speciesZone = ns.SpeciesZone[npcId]
+		if speciesZone then
+			species, zone = ns.SpeciesById[npcId], speciesZone
+		end
+	end
+	if not species then
+		species = ns.FindSpecies(name, zone)
+	end
 	if not species or not zone then
 		return nil
 	end
