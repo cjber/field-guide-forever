@@ -4,6 +4,16 @@ local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
 
 local npcFixture = {
+	-- The same name in another zone: a name alone cannot say which one a kill belongs to.
+	[999] = {
+		name = "Plainstrider",
+		minLevel = 1,
+		maxLevel = 2,
+		rank = 0,
+		subName = "Beast",
+		zoneID = 15,
+		spawns = { [15] = {} },
+	},
 	[1001] = {
 		name = "Plainstrider",
 		minLevel = 1,
@@ -36,13 +46,18 @@ local npcFixture = {
 ---@param opts? table
 local function Start(opts)
 	local harness = Mock.Harness(opts)
+	if opts and opts.areaNames then
+		harness.env.C_Map.GetAreaInfo = function(id)
+			return opts.areaNames[id]
+		end
+	end
 	harness.env.LibQuestieDB = {
 		RequireContract = function()
 			return true
 		end,
 		Npc = {
 			GetAllIds = function()
-				return { 1001, 1003, 1019 }
+				return { 999, 1001, 1003, 1019 }
 			end,
 			GetAll = function(id, fields)
 				local row, values = npcFixture[id], {}
@@ -199,5 +214,61 @@ harness.env.CombatLogGetCurrentEventInfo = function()
 end
 harness:Fire("COMBAT_LOG_EVENT_UNFILTERED")
 assert(#harness.ns.core.CaughtErrors() == 0, "a blocked combat log read reports no error")
+
+-- In combat the client keeps both a hostile unit's name and GUID secret. The identity read while its nameplate or
+-- target was alive still names the death, so an ordinary open-world kill is counted.
+harness = Start()
+local cachedGuid = Mock.CreatureGUID(1001)
+Mock.units.nameplate1, Mock.guids.nameplate1, Mock.dead.nameplate1 = "Plainstrider", cachedGuid, false
+harness:Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
+harness.env.canaccessvalue = function(value)
+	return not secrets[value]
+end
+Mock.units.nameplate1, Mock.guids.nameplate1 = Secret(), Secret()
+Mock.dead.nameplate1 = true
+harness:Fire("UNIT_HEALTH", "nameplate1")
+assert(Kills(harness, 1001) == 1, "a nameplate seen alive counts a death whose name and GUID are both secret in combat")
+
+local targetGuid = Mock.CreatureGUID(1001)
+Mock.units.target, Mock.guids.target, Mock.dead.target = "Plainstrider", targetGuid, false
+harness:Fire("PLAYER_TARGET_CHANGED")
+Mock.units.target, Mock.guids.target = Secret(), Secret()
+Mock.dead.target = true
+harness:Fire("UNIT_HEALTH", "target")
+assert(Kills(harness, 1001) == 2, "a target seen alive counts its death while both identity reads are secret")
+
+-- A readable creature id names a unit whose name and GUID are both secret.
+harness.env.UnitCreatureID = function()
+	return 1001
+end
+Mock.units.nameplate2, Mock.guids.nameplate2, Mock.dead.nameplate2 = Secret(), Secret(), true
+harness:Fire("UNIT_HEALTH", "nameplate2")
+assert(Kills(harness, 1001) == 3, "a readable UnitCreatureID names a creature with secret name and GUID")
+
+-- The client's zone name can be in another locale; the catalogue zone is also keyed by C_Map.GetAreaInfo's own
+-- name for the same id, so it resolves there too. A readable creature id still records the kill on its own.
+harness = Start({ areaNames = { [17] = "Das Brachland" } })
+Mock.zone = "Das Brachland"
+Dies(harness, "target", "Plainstrider", Mock.CreatureGUID(1001))
+assert(Kills(harness, 1001) == 1, "a localized zone name does not drop an open-world kill with a readable GUID")
+
+-- A name-only kill on the localized zone goes to the species in that zone, not to the same name elsewhere.
+harness = Start({ areaNames = { [17] = "Das Brachland" } })
+harness.env.canaccessvalue = function(value)
+	return not secrets[value]
+end
+Mock.zone = "Das Brachland"
+Dies(harness, "target", "Plainstrider", Secret())
+assert(Kills(harness, 1001) == 1, "a name-only kill on a localized zone counts in the catalogue's zone")
+assert(Kills(harness, 999) == 0, "a same-name creature in another zone is not credited")
+
+-- With no zone to place a name-only kill, a same-name species elsewhere is not guessed at.
+harness = Start()
+harness.env.canaccessvalue = function(value)
+	return not secrets[value]
+end
+Mock.zone = "Nowhere"
+Dies(harness, "target", "Plainstrider", Secret())
+assert(Kills(harness, 999) == 0 and Kills(harness, 1001) == 0, "an unknown zone credits no same-name species")
 
 print("kills_spec: ok")

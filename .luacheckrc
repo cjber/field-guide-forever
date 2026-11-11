@@ -79,6 +79,7 @@ read_globals = {
 	"UISpecialFrames",
 	"UnitClass",
 	"UnitClassification",
+	"UnitCreatureID",
 	"UnitFactionGroup",
 	"UnitGUID",
 	"UnitIsBossMob",
