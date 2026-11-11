@@ -1,6 +1,5 @@
--- Field Guide Forever requires ForeverCore. This spec covers the two places the handover is the addon's: the one-line
--- stop for a ForeverCore older than API 1 or without the APIKit it added in 1.1.0, and the per-addon context Register
--- returns.
+-- Field Guide Forever requires ForeverCore. This spec covers the two places the handover is the addon's: the
+-- per-addon context Register returns, and the feature checks Core/Require.lua makes before calling the shared warning.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
 local harness = Mock.Harness()
@@ -14,33 +13,65 @@ assert(ns.core == env.ForeverCore.Register("FieldGuideForever"), "Register is id
 assert(type(ns.core.SafeCall) == "function", "the context carries the addon's SafeCall")
 assert(type(ns.core.Report.Show) == "function", "and its own report window")
 
--- An older ForeverCore stops the addon's own files with one line in the error frame, never chat.
-local function Require(foreverCore)
+-- Core/ForeverRequire.lua is ForeverCore's shared warning, covered by its tests/forever_require_spec.lua. Here this
+-- spec checks the half that belongs to this addon: the members Core/Require.lua requires, and that it calls it once.
+local pin = Mock.TocMetadata()["X-Forever-Core"]
+assert(pin == "v1.5.0", "the TOC records the ForeverCore this addon ships")
+local function Load(foreverCore)
 	local lines = {}
 	local scratch = {
+		ForeverCore = foreverCore,
 		UIErrorsFrame = {
 			AddMessage = function(_, text, red, green, blue)
 				lines[#lines + 1] = { text = text, red = red, green = green, blue = blue }
 			end,
 		},
-		ForeverCore = foreverCore,
+		UnitName = function()
+			return "Tester"
+		end,
+		C_AddOns = {
+			GetAddOnMetadata = function(name, field)
+				if name == "FieldGuideForever" then
+					if field == "X-Forever-Core" then
+						return pin
+					end
+					if field == "Title" then
+						return "Field Guide Forever"
+					end
+				end
+			end,
+			GetNumAddOns = function()
+				return 0
+			end,
+			GetAddOnInfo = function() end,
+			IsAddOnLoaded = function() end,
+			GetAddOnEnableState = function() end,
+			-- The client returns the dependencies as varargs, never as a table.
+			GetAddOnDependencies = function()
+				return unpack({})
+			end,
+		},
 	}
 	scratch._G = scratch
 	setmetatable(scratch, { __index = _G })
 	local addon = {}
+	setfenv(assert(loadfile(here .. "/../Core/ForeverRequire.lua")), scratch)("FieldGuideForever", addon)
 	setfenv(assert(loadfile(here .. "/../Core/Require.lua")), scratch)("FieldGuideForever", addon)
 	return addon, lines
 end
 
-local broken, lines = Require(nil)
-assert(broken.broken == true, "a missing ForeverCore stops the addon")
-assert(#lines == 1 and lines[1].text:find("ForeverCore", 1, true), "and says so in one error line")
-local old, oldLines = Require({ API = 0, APIKit = {} })
-assert(old.broken == true and #oldLines == 1, "a ForeverCore older than API 1 stops the addon too")
-local noKit, noKitLines = Require({ API = 1 })
-assert(noKit.broken == true and #noKitLines == 1, "a ForeverCore from before APIKit 1.1.0 stops the addon too")
-local ready, readyLines = Require({ API = 1, APIKit = {} })
-assert(ready.broken == nil, "API 1 with APIKit runs the addon")
+-- ForeverCore without NotReady, which Core/API.lua calls, stops the addon with one error-frame line and no chat.
+local missing, missingLines = Load({ APIKit = { Hub = function() end } })
+assert(missing.broken == true, "a ForeverCore missing a member this addon calls stops it")
+assert(#missingLines == 1, "and says so in one error line")
+assert(
+	missingLines[1].text == "Field Guide Forever could not start. Reinstall Field Guide Forever to fix this.",
+	"the shared warning asks for a reinstall when no other addon can be blamed"
+)
+
+-- ForeverCore with every member this addon calls runs the addon's own files and says nothing.
+local ready, readyLines = Load({ APIKit = { Hub = function() end, NotReady = function() end } })
+assert(ready.broken == nil, "a ForeverCore with every member this addon calls runs the addon")
 assert(#readyLines == 0, "and says nothing")
 
 print("core_dependency_spec: ok")

@@ -6,8 +6,6 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 
 [![Join me on Discord](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/discord-button.png)](https://discord.gg/FpHugGxRJY) [![Sponsor me on GitHub](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/github-sponsors-button.png)](https://github.com/sponsors/cjber) [![Support me on Ko-fi](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/kofi-button.png)](https://ko-fi.com/cjber)
 
-It needs [Forever Core](https://www.curseforge.com/wow/addons/forevercore), which CurseForge and Wago install with it.
-
 ![Silver, gold and shiny laurels on the target frame, a sheen sweeping the shiny one, and the matching nameplate mark under each](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/rarity-nameplates.gif)
 
 A silver, gold or shiny spawn wears a laurel ornament around its target portrait, from a plain silver ring with one oak sprig to a full gold laurel, and on shiny a pearl laurel with a slow light sweeping across it. Its nameplate gets the same mark beside the health bar.
