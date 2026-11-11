@@ -12,9 +12,11 @@
 ## X-Curse-Project-ID: 1786835
 ## X-Wago-ID: QKyqLnK7
 ## Dependencies: ForeverCore
+## X-Forever-Core: v1.5.0
 ## SavedVariables: FieldGuideForeverDB
 ## OptionalDeps: QuestieDB, Questie
 
+Core\ForeverRequire.lua
 Core\Require.lua
 Locales\enUS.lua
 Data\Client.lua
