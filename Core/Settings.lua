@@ -56,21 +56,6 @@ local function BuildPanel(panel, page)
 		end
 	end, L["Silver, gold, shiny, mastery and zone milestones show an achievement toast. Click it to open the journal."])
 
-	local shareTooltip = L["On unless you turn it off. Shares your totals and puts you on Forever Leaderboards."]
-	page.AddCheck(panel, L["Share progress with guild and group addon users"], function()
-		return ns.db and ns.db.options.statsShare ~= false
-	end, function(checked)
-		if ns.db then
-			ns.db.options.statsShare = checked
-		end
-		if ns.Stats then
-			ns.Stats.SetEnabled(checked)
-		end
-		if ns.FireProgress then
-			ns.FireProgress()
-		end
-	end, shareTooltip)
-
 	local minimapButtonRow = page.AddCheck(panel, L["Minimap button"], function()
 		return ns.db and ns.db.options.minimapButtonHidden ~= true
 	end, function(checked)
@@ -109,7 +94,7 @@ ns.On("PLAYER_LOGIN", function()
 	ns.core.SafeCall("minimap button", function()
 		local spec = {
 			name = "FieldGuideForeverMinimapButton",
-			-- The addon's own client icon, the same one its journal and leaderboard tab wear.
+			-- The addon's own client icon, the same one its journal wears.
 			icon = ns.icon,
 			title = L["Field Guide"],
 			binding = "Shift-F",

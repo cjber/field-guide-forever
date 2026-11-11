@@ -4,10 +4,6 @@
 -- follow Gethe/wow-ui-source (see tools/typecheck.sh for the pinned revision). These declarations never load in the
 -- client.
 
--- Blizzard_FrameXMLBase/Constants.lua: the party category that means an instance group.
----@type number
-LE_PARTY_CATEGORY_INSTANCE = nil
-
 ---@class FGClassColor
 ---@field GetRGB fun(self: FGClassColor): number, number, number
 ---@type table<string, FGClassColor>?

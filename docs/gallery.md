@@ -6,8 +6,6 @@ Every scene `tools/mockups.py` renders. Written by that script; do not edit by h
 
 ## Feature previews
 
-![Forever Leaderboards on the Field Guide tab](screenshots/leaderboard.png)
-
 ![Creatures journal](screenshots/field-guide.png)
 
 ![Creature list icons in Darnassus](screenshots/creature-icons.png)

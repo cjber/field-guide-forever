@@ -26,10 +26,6 @@ Records keep when you first and last saw a creature, how many deaths you recorde
 
 Your first silver, gold or shiny of a species, a species reaching Mastered and a zone with every creature recorded each get the game's achievement toast. Click one to open the journal there.
 
-![Forever Leaderboards on the Field Guide tab, ranking guild and group members by creature kills this week](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/leaderboard.png)
-
-Guild and group members who run the addon share their totals, ranked by kills this week or all time.
-
 These images are generated previews of the Field Guide UI.
 
 ## Features
@@ -41,7 +37,6 @@ These images are generated previews of the Field Guide UI.
 - **Records and tracking.** Each creature keeps its first sighting, first kill and best coat per character, with a sighting log for the current session. Track Species puts the one you are working on in the Forever tracker column every Forever addon shares, with its zone, sightings toward Mastered and kills.
 - **Discoveries.** A first kill is announced at the top of the screen and tagged New in the journal, and silver, gold, shiny, mastery and zone milestones get the game's achievement toast. Both can be turned off in the options.
 - **Instances.** Bosses the game reports when an encounter ends, with first clears, attempts and kills by difficulty. It is a personal record, not a verified world-first board.
-- **Sharing.** Totals and first records are exchanged with guild and group members who run the addon, and Forever Leaderboards shows this week's progress, the all-time total and peer values marked as reported. Sharing is on unless you turn it off in the options or the window; local tracking carries on.
 
 ## How kills are counted
 
@@ -51,7 +46,7 @@ A creature that dies with no nameplate showing and not targeted is not counted. 
 
 ## Usage
 
-Type `/fg` or `/fieldguide`, press Shift-F, or click the Field Guide button on the minimap rim; drag it around the rim to move it, or hide it in the options. `/fg preview` shows every creature as silver, gold or shiny for this session, `/fgf leaderboard` opens Forever Leaderboards on the Field Guide tab and `/fgf help` lists the commands. Options are under Options > AddOns > Field Guide Forever.
+Type `/fg` or `/fieldguide`, press Shift-F, or click the Field Guide button on the minimap rim; drag it around the rim to move it, or hide it in the options. `/fg preview` shows every creature as silver, gold or shiny for this session and `/fgf help` lists the commands. Options are under Options > AddOns > Field Guide Forever.
 
 For a bug report, paste `/fgf report`.
 

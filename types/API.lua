@@ -1,11 +1,10 @@
 ---@meta
 
--- FieldGuideForever.API, version 2, minor 6: the contract other addons read (docs/api.md). Core/API.lua implements
+-- FieldGuideForever.API, version 3, minor 7: the contract other addons read (docs/api.md). Core/API.lua implements
 -- it, and these declarations never load in the client.
 
--- ForeverCore.APIKit's not-ready reasons. "loading" asks again later, "disabled" is the player's choice and "none"
--- is nothing to answer.
----@alias FGAPIReason "loading"|"disabled"|"none"
+-- ForeverCore.APIKit's not-ready reasons. "loading" asks again later, "none" is nothing to answer.
+---@alias FGAPIReason "loading"|"none"
 
 ---@class FGAPIZone
 ---@field name string
@@ -74,31 +73,6 @@
 ---@field difficulties table<string, integer> difficulty ID as a string
 ---@field difficultyNames table<string, string> difficulty ID as a string
 
----@class FGAPILeaderboardRow
----@field player string
----@field value integer
----@field time integer the first or latest event's time(), 0 when unknown
----@field source "local"|"peer"
-
----@class FGAPILeaderboardSummaryRow
----@field player string
----@field value integer
----@field source "local"|"reported"
-
----@class FGAPISuiteLeaderboardRow
----@field rank integer
----@field name string
----@field value integer
----@field eventUnix? integer
----@field self boolean true on this character's row
-
----@class FGAPISuiteLeaderboard
----@field metric "creature_kills"
----@field scope "guild_group"
----@field sharing boolean
----@field total integer every eligible row, before the limit
----@field rows FGAPISuiteLeaderboardRow[]
-
 ---@class FGAPIStatsRow
 ---@field addon "FieldGuideForever"
 ---@field metric string
@@ -115,8 +89,8 @@
 ---@field tracked? true the tracked species changed
 
 ---@class FGPublicAPI
----@field version 2
----@field minor 6
+---@field version 3
+---@field minor 7
 ---@field Ready fun(): boolean
 ---@field IsReady fun(): boolean deprecated alias of Ready()
 ---@field SpawnTier fun(unit: string): string?, FGAPIReason? the spawn's tier for a unit token, nil when it has none
@@ -145,10 +119,4 @@
 ---@field GetEncounters fun(): FGAPIEncounter[]?, FGAPIReason? deprecated alias of Encounters()
 ---@field Spawns fun(speciesId: integer): FGSpawn[]?, FGAPIReason?
 ---@field ZoneSpawns fun(zoneName?: string): FGSpawn[]?, FGAPIReason?
----@field Leaderboard fun(metric: string, subject: string): FGAPILeaderboardRow[]?, FGAPIReason?
----@field SuiteLeaderboard fun(limit?: integer): FGAPISuiteLeaderboard?, FGAPIReason?
----@field LeaderboardSummary fun(): FGAPILeaderboardSummaryRow[]?, FGAPIReason?
----@field GetLeaderboardSummary fun(): FGAPILeaderboardSummaryRow[]?, FGAPIReason? deprecated alias of LeaderboardSummary()
 ---@field Stats fun(): FGAPIStatsRow[]?, FGAPIReason?
----@field SharedStats fun(): table<string, table>?, FGAPIReason?
----@field GetSharedStats fun(): table<string, table>?, FGAPIReason? deprecated alias of SharedStats()

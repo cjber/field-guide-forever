@@ -1,5 +1,5 @@
 -- One client icon for every in-game identity surface: the TOC declares it once, Core reads it once, and the minimap
--- button, the shared leaderboard tab and the journal's side tab and portrait all draw that same value.
+-- button and the journal's side tab and portrait all draw that same value.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
 local harness = Mock.Harness()
@@ -17,9 +17,6 @@ assert(ns.icon == declared, "Core reads the TOC icon once onto the namespace: " 
 
 local button = env.FieldGuideForeverMinimapButton
 assert(button and button.minimapButtonSpec.icon == declared, "the minimap button wears the identity icon")
-
-local board = env.ForeverCore.Leaderboards.boards.fieldguide
-assert(board and board.icon == declared, "the Forever Leaderboards tab wears the identity icon")
 
 ns.Window.Show()
 local frame = env.FieldGuideForeverFrame

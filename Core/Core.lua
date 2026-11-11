@@ -7,8 +7,8 @@ if ns.broken then
 end
 
 ns.ReportTitle = L["Field Guide Forever report"]
--- The one client icon every in-game identity surface draws: the minimap button, the leaderboard tab and the journal's
--- portrait. The TOC declares it once and the drawn media/Icon stays the addon's store and TOC identity.
+-- The one client icon every in-game identity surface draws: the minimap button and the journal's portrait. The TOC
+-- declares it once and the drawn media/Icon stays the addon's store and TOC identity.
 ns.icon = C_AddOns.GetAddOnMetadata(addonName, "X-Forever-Icon") or ""
 -- The addon's own ForeverCore services: the error journal, the debug log, the report window and the map canvas. The
 -- report's own lines are read when the window opens, after Core/Report.lua has defined them.
@@ -266,7 +266,7 @@ function ns.Migrate(db)
 	end
 	local version = Integer(db.version)
 	if version > ns.SCHEMA then
-		return { version = ns.SCHEMA, chars = {}, options = {}, peerStats = {} }, true
+		return { version = ns.SCHEMA, chars = {}, options = {} }, true
 	end
 	db.chars = type(db.chars) == "table" and db.chars or {}
 	for key, state in pairs(db.chars) do
@@ -279,7 +279,10 @@ function ns.Migrate(db)
 	-- The journal is a UI panel the game places; the old dragged position is gone.
 	db.window = nil
 	db.options = type(db.options) == "table" and db.options or {}
-	ns.Stats.Migrate(db)
+	-- Forever Leaderboards is gone: drop the peer tables and sharing setting older versions saved.
+	db.peerStats = nil
+	db.sharedStats = nil
+	db.options.statsShare = nil
 
 	db.version = ns.SCHEMA
 	return db
@@ -322,9 +325,6 @@ function ns.Initialize()
 	end
 	if db.options.showSightingLog == nil then
 		db.options.showSightingLog = true
-	end
-	if db.options.statsShare == nil then
-		db.options.statsShare = true
 	end
 	-- The micro menu button is gone; a player who had hidden it keeps its minimap replacement hidden.
 	if db.options.microButton == false then
@@ -606,19 +606,13 @@ SlashCmdList["FIELDGUIDEFOREVER"] = function(message)
 		return
 	end
 	if command == "help" then
-		local help = "Open your field guide with /fieldguide or /fg. Use /fgf leaderboard to open Forever Leaderboards, "
-			.. "or /fg preview to show every creature as silver, gold or shiny for this session."
+		local help = "Open your field guide with /fieldguide or /fg, or use /fg preview to show every creature as "
+			.. "silver, gold or shiny for this session."
 		print(L[help])
 		return
 	end
 	if command == "preview" then
 		ToggleRarityPreview()
-		return
-	end
-	if command == "leaderboard" then
-		if ns.Stats then
-			ns.Stats.Open()
-		end
 		return
 	end
 	OpenGuide()

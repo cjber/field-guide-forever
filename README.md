@@ -35,10 +35,6 @@ Records keep when you first and last saw a creature, how many deaths you recorde
 
 Your first silver, gold or shiny of a species, a species reaching Mastered and a zone with every creature recorded each get the game's achievement toast. Click one to open the journal there.
 
-<p align="center"><img src="https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/leaderboard.png" width="640" alt="Forever Leaderboards on the Field Guide tab, ranking guild and group members by creature kills this week"></p>
-
-Guild and group members who run the addon share their totals. `/fgf leaderboard` ranks everyone by kills this week or all time.
-
 ## Features
 
 - **Rarity marks**: a silver, gold or shiny spawn wears a laurel ornament around its portrait that grows from a plain silver ring with one oak sprig to the gold laurel, and shiny wears the same laurel in pearl with a slow light sweeping across it. Silver and shiny also keep the game's rare silver frame. Its nameplate gets the same quality mark to the right of the health bar. Health bars, names and the client's own rare, elite and boss art keep their colours. Bronze creatures look exactly as they always did, and `/fg preview` cycles the three higher coats for this session.
@@ -50,7 +46,6 @@ Guild and group members who run the addon share their totals. `/fgf leaderboard`
 - **Track Species**: put the species you are working on in the Forever tracker column every Forever addon shares, with its zone, sightings toward Mastered and kills.
 - **Discoveries**: a first kill is announced at the top of the screen and tagged New in the journal. Silver, gold, shiny, mastery and zone milestones get the game's achievement toast; click one to open the journal there. Both can be turned off in the options.
 - **Instances**: bosses the game reports when an encounter ends, with first clears, attempts and kills by difficulty. It is a personal record, not a verified world-first board.
-- **Sharing**: totals and first records are exchanged with guild and group members who run the addon. `/fgf leaderboard` opens the shared Forever Leaderboards window on the Field Guide tab, with this week's progress, the all-time total and peer values marked as reported. Sharing is on unless you turn it off in the options or the window; local tracking carries on.
 
 ## Install
 
@@ -66,7 +61,6 @@ Type `/fg`, press Shift-F, or click the Field Guide button on the minimap rim; d
 |---|---|
 | `/fg`, `/fieldguide` | Open or close the journal |
 | `/fg preview` | Show every creature as silver, gold or shiny for this session; run it again to turn it off |
-| `/fgf leaderboard` | Open Forever Leaderboards on the Field Guide tab: your kills against guild and group members who share |
 | `/fgf help` | List the commands |
 
 ## How kills are counted

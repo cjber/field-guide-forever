@@ -5,6 +5,12 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Forever Leaderboards are gone.** Field Guide no longer shares your progress with guild and group members or opens a board, so the sharing setting is gone too. Your own counts, records and the field guide itself are unchanged.
+
+### For addon authors
+
+- **`FieldGuideForever.API` is version 3, minor 7: the leaderboard reads are gone.** `Leaderboard()`, `SuiteLeaderboard()`, `LeaderboardSummary()`, `GetLeaderboardSummary()`, `SharedStats()` and `GetSharedStats()` are no longer published. `Stats()` still returns this character's own totals. `docs/api.md` and `types/API.lua` list the remaining members.
+
 ## [0.7.4] - 2026-11-11
 
 - **Open-world kills count again.** Ordinary creatures killed out in the world were never recorded, only dungeon bosses, because in combat the game hides a hostile creature's name. The guide now remembers each creature you see before the fight, so its kill counts, and kills on a non-English client count in the right zone. Reported on GitHub by Kimab (#307).

@@ -283,7 +283,7 @@ function Model.BestTier(entry)
 	return nil
 end
 
--- Historical mastery counts are estimates. Only kills observed after that baseline belong on shared boards.
+-- Historical mastery counts are estimates. Only kills the addon itself observed, after that baseline, count.
 ---@param entry FGSpeciesState
 ---@return number
 function Model.ObservedKills(entry)
