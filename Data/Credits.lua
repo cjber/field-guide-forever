@@ -3,6 +3,8 @@
 local _, ns = ...
 
 ns.Credits = {
-	players = {},
+	players = {
+		{ name = "Kimab", what = "Rarity mark visible on nameplates and clear of the level marker" },
+	},
 	inspired = {},
 }

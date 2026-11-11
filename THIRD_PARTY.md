@@ -22,6 +22,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| Kimab | Rarity mark visible on nameplates and clear of the level marker | CurseForge; #344 |
 
 ## Inspired by
 

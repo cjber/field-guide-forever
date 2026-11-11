@@ -281,10 +281,13 @@ unitFrame.name = unitFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 unitFrame.name:SetTextColor(unpack(plateReaction))
 unitFrame.healthBar = Mock.CreateFrame("Frame")
 unitFrame.healthBar:SetStatusBarColor(unpack(plateReaction))
+local levelFrame = Mock.CreateFrame("Frame")
+levelFrame:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 2, 0)
 unitFrame.reactionColor = plateReaction
 local plateHealthCalls = SpyColour(unitFrame.healthBar, "SetStatusBarColor")
 local plateNameCalls = SpyColour(unitFrame.name, "SetTextColor")
-local plate = { UnitFrame = unitFrame }
+local plate = Mock.CreateFrame("Frame")
+plate.UnitFrame = unitFrame
 local plateAttached = true
 harness.env.C_NamePlate = {
 	GetNamePlateForUnit = function()
@@ -305,19 +308,29 @@ end
 Mock.guids.nameplate1 = GuidFor("silver", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a tiered nameplate")
+assert(plate.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier2", "the nameplate carries the silver mark")
+assert(plate.FGFRarityMarker:IsShown(), "a tiered nameplate shows its tag")
+unitFrame:Hide()
+assert(plate.FGFRarityMarker:IsVisible(), "the mark stays visible when a skin hides Blizzard's UnitFrame")
+unitFrame:Show()
+local markerPoint, markerRelative, markerRelativePoint, markerX, markerY = plate.FGFRarityMarker:GetPoint(1)
+local levelPoint, levelRelative, levelRelativePoint, levelX = levelFrame:GetPoint(1)
 assert(
-	unitFrame.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier2",
-	"the nameplate carries the silver mark"
-)
-assert(unitFrame.FGFRarityMarker:IsShown(), "a tiered nameplate shows its tag")
-local markerPoint, markerRelative, markerRelativePoint, markerX, markerY = unitFrame.FGFRarityMarker:GetPoint(1)
-assert(
-	markerPoint == "LEFT"
+	markerPoint == "RIGHT"
 		and markerRelative == unitFrame.healthBar
-		and markerRelativePoint == "RIGHT"
-		and markerX == 2
+		and markerRelativePoint == "LEFT"
+		and markerX == -2
 		and markerY == 0,
-	"the nameplate mark sits clear to the right of the health bar, centred on it"
+	"the nameplate mark sits clear to the left of the health bar, centred on it"
+)
+assert(
+	levelPoint == "LEFT"
+		and levelRelative == unitFrame.healthBar
+		and levelRelativePoint == "RIGHT"
+		and levelX == 2
+		and markerX < 0
+		and levelX > 0,
+	"the nameplate mark and level marker occupy opposite sides of the health bar"
 )
 
 harness.env.UnitName = function(unit)
@@ -326,15 +339,12 @@ end
 Mock.guids.nameplate1 = GuidFor("gold", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a nameplate after a tier change")
-assert(
-	unitFrame.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier3",
-	"the nameplate mark follows a tier change"
-)
+assert(plate.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier3", "the nameplate mark follows a tier change")
 
 plateAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
 AssertPlateColoursUntouched("a removed nameplate")
-assert(not unitFrame.FGFRarityMarker:IsShown(), "removing a nameplate clears its tag")
+assert(not plate.FGFRarityMarker:IsShown(), "removing a nameplate clears its tag")
 
 -- The reported bug: a plate first used by a hostile unit, removed, then reused for a friendly untiered unit. It must
 -- still show no tier and Field Guide must leave the new unit's reaction colour alone.
@@ -347,7 +357,7 @@ end
 Mock.guids.nameplate1 = GuidFor("bronze", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a recycled untiered nameplate")
-assert(not unitFrame.FGFRarityMarker:IsShown(), "an untiered nameplate shows no tag")
+assert(not plate.FGFRarityMarker:IsShown(), "an untiered nameplate shows no tag")
 
 -- A tiered unit still marks the recycled plate, again without touching its colours.
 harness.env.UnitName = function(unit)
@@ -356,15 +366,15 @@ end
 Mock.guids.nameplate1 = GuidFor("shiny", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a tiered unit on a recycled nameplate")
-assert(unitFrame.FGFRarityMarker:IsShown(), "a tiered unit shows its tag on a recycled plate")
+assert(plate.FGFRarityMarker:IsShown(), "a tiered unit shows its tag on a recycled plate")
 assert(
-	unitFrame.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier4",
+	plate.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier4",
 	"a shiny nameplate mark is the fourth quality mark"
 )
 plateAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
 AssertPlateColoursUntouched("a recycled nameplate removed again")
-assert(not unitFrame.FGFRarityMarker:IsShown(), "clearing a tiered nameplate hides its tag")
+assert(not plate.FGFRarityMarker:IsShown(), "clearing a tiered nameplate hides its tag")
 
 -- A plate the addon first sees with no tier keeps the client's own colours and shows no mark.
 local freshFrame = Mock.CreateFrame("Frame")
@@ -375,7 +385,8 @@ freshFrame.healthBar:SetStatusBarColor(unpack(friendlyReaction))
 freshFrame.reactionColor = friendlyReaction
 local freshHealthCalls = SpyColour(freshFrame.healthBar, "SetStatusBarColor")
 local freshNameCalls = SpyColour(freshFrame.name, "SetTextColor")
-local freshPlate = { UnitFrame = freshFrame }
+local freshPlate = Mock.CreateFrame("Frame")
+freshPlate.UnitFrame = freshFrame
 harness.env.C_NamePlate = {
 	GetNamePlateForUnit = function()
 		return freshPlate
@@ -390,7 +401,7 @@ assert(freshHealthCalls() == 0, "an untiered plate is never given a health colou
 assert(freshNameCalls() == 0, "an untiered plate is never given a name colour")
 AssertColour(freshFrame.healthBar, friendlyReaction, "an untiered plate keeps the client's health colour")
 AssertTextColour(freshFrame.name, friendlyReaction, "an untiered plate keeps the client's name colour")
-assert(not freshFrame.FGFRarityMarker:IsShown(), "an untiered plate shows no tier mark")
+assert(not freshPlate.FGFRarityMarker:IsShown(), "an untiered plate shows no tier mark")
 
 -- The kill path only counts units the player can attack, so a friendly vendor or quest giver has no spawn tier: a
 -- GUID that would roll silver, gold or shiny still paints the plain bronze frame, with no rare frame, ornament, tag or
@@ -411,7 +422,7 @@ for _, tier in ipairs({ "silver", "gold", "shiny" }) do
 
 	Mock.guids.nameplate3 = GuidFor(tier, "friendly-plate")
 	Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate3")
-	assert(not freshFrame.FGFRarityMarker:IsShown(), label .. ": no plate mark")
+	assert(not freshPlate.FGFRarityMarker:IsShown(), label .. ": no plate mark")
 end
 
 print("rarity: ok")

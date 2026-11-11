@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- **Rarity marks stay visible on nameplates and clear the level marker.** The mark now belongs to the nameplate rather than its replaceable Blizzard child, and sits on the free side of the health bar. Thanks to Kimab for the report (#344).
+
 ## [0.8.3] - 2026-11-11
 
 <!-- forever-core-sync -->

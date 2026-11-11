@@ -326,7 +326,9 @@ local function UpdateAccent(owner, healthBar, tier, discovery)
 	end
 	if not marker and healthBar and owner.CreateTexture then
 		marker = owner:CreateTexture(nil, "OVERLAY")
-		marker:SetPoint("LEFT", healthBar, "RIGHT", 2, 0)
+		-- The Classic nameplate's level-difference frame occupies the health bar's right side. The left side is
+		-- the free native margin on both layouts, so the mark never sits under the level or skull.
+		marker:SetPoint("RIGHT", healthBar, "LEFT", -2, 0)
 		owner.FGFRarityMarker = marker
 	end
 	if marker then
@@ -375,7 +377,8 @@ local function UpdatePlate(plate, unit)
 	if species and discovery then
 		discoveredThisSession[species.id] = true
 	end
-	UpdateAccent(frame, healthBar, tier, discovery)
+	-- Keep the mark on the nameplate itself: alternate skins may hide or replace Blizzard's UnitFrame child.
+	UpdateAccent(plate, healthBar, tier, discovery)
 end
 
 -- Redraw every visible mark after the preview toggles, so the change is immediate rather than waiting for the next
@@ -420,7 +423,7 @@ events:SetScript("OnEvent", function(_, event, unit)
 			local frame = plate and plate.UnitFrame
 			if frame then
 				local bar = frame.healthBar
-				UpdateAccent(frame, bar, "bronze", false)
+				UpdateAccent(plate, bar, "bronze", false)
 			end
 		end
 	end
