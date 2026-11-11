@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-11
+
+- **Works again after updating.** Updating to the last version could leave the addon switched off in the game's AddOns list with "ForeverCore: missing", because the update did not bring Forever Core with it. Forever Core now comes inside this addon's download again, from CurseForge, Wago or GitHub alike, so updating is all it takes (cjber/shortest-path-forever#731).
+
 ### For addon authors
 
 - **`FieldGuideForever.API` is listed by `ForeverCore.APIKit.Addons()` on ForeverCore 1.3.2 or later.** The addon hands its API to the core's suite registry at load, so another addon can find every Forever addon's API from one list. Publishing is not an API change, so the API's version and minor stay the same (#304).
@@ -187,7 +191,6 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 - **Suite tooling stays in step with Forever Core.** The vendored shared-file drift check and the dead-code scan pick up Forever Core's newest rules, so this addon's gate now rejects what the rest of the suite rejects. Nothing a player sees changes.
 
-
 ## [0.3.21] - 2026-11-04
 
 - **Bundled client data follows Forever 1.60.1.70755.** Zone, map, family and creature display constants are regenerated from the new build, and every README scene is re-rendered against it.
@@ -204,7 +207,6 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 - **Creature entries use one native journal layout.** Detail tabs join the top of their panel, zone illustrations have complete native frames, and creature icons keep one border. Related facts sit closer together without changing your saved progress.
 - **Rarity colours respect later frame updates.** Target and nameplate cleanup leaves colours changed by Blizzard or another addon untouched. Reused nameplates restore their current appearance instead of an earlier creature's colours, and the background tint now uses Forever's native texture field.
-
 
 ## [0.3.17] - 2026-11-03
 
