@@ -16,10 +16,10 @@ assert(type(ns.core.Report.Show) == "function", "and its own report window")
 -- Core/ForeverRequire.lua is ForeverCore's shared warning, covered by its tests/forever_require_spec.lua. Here this
 -- spec checks the half that belongs to this addon: the members Core/Require.lua requires, and that it calls it once.
 local pin = Mock.TocMetadata()["X-Forever-Core"]
-local pinFile = assert(io.open("tools/forever-core.txt"))
-local shipped = pinFile:read("*l")
+local pinFile = assert(io.open(here .. "/../tools/forever-core.txt", "r"), "tools/forever-core.txt records the pin")
+local pinned = assert(pinFile:read("*a"):match("^%s*(.-)%s*$"), "tools/forever-core.txt names a pin")
 pinFile:close()
-assert(pin == shipped, "the TOC records the ForeverCore this addon ships")
+assert(pin == pinned, "the TOC records the ForeverCore this addon ships")
 local function Load(foreverCore)
 	local lines = {}
 	local scratch = {
