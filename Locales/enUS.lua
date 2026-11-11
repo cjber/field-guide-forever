@@ -6,6 +6,9 @@ local _, ns = ...
 ---@type table<string, string>
 local L = {
 	["?"] = "?",
+	["%s: %s is out of date. Update it to fix this."] = "%s: %s is out of date. Update it to fix this.",
+	["%s: %s are out of date. Update them to fix this."] = "%s: %s are out of date. Update them to fix this.",
+	["%s could not start. Reinstall %s to fix this."] = "%s could not start. Reinstall %s to fix this.",
 	["Missing shiny"] = "Missing shiny",
 	["Records"] = "Records",
 	["Variants"] = "Variants",
