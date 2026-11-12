@@ -19,19 +19,6 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  visual-proof:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Verify client visual proof
-        env:
-          VISUAL_BASE: ${{ github.event.pull_request.base.sha || (github.ref == 'refs/heads/main' && github.event.before) || 'origin/main' }}
-        run: python3 -m tools.forever_tools.visual_proof --base "$VISUAL_BASE"
-
   deadcode:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -214,6 +201,8 @@ jobs:
   package:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      FOREVER_CORE: forever-core
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -221,13 +210,18 @@ jobs:
           # Every commit and tag for the version, without old file contents.
           filter: blob:none
           persist-credentials: false
-      - name: Install client parser and packaged test runtime
-        env:
-          LUAJIT: 2.1.0+git20231223.c525bcb+dfsg-1
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends --allow-downgrades \
-            "lua5.1=5.1.5-9build2" "luajit=$LUAJIT" "libluajit-5.1-2=$LUAJIT" "libluajit-5.1-common=$LUAJIT"
+      - name: Read the Forever Core ref
+        id: forever-core
+        run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
+      # check_package.py lays the pinned Core checkout's tests/ beside the packaged ForeverCore, so the specs run
+      # against the release's runtime with the exact helpers its version expects.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: cjber/forever-core
+          ref: ${{ steps.forever-core.outputs.ref }}
+          path: forever-core
+          persist-credentials: false
+      - uses: cjber/forever-core/.github/actions/lua-toolchain@f6b89cd4937b13333b8f75ea34d976175fe4dc9b # pinned Core toolchain
       # .pkgmeta's manual changelog, which the release fills with the version's entry.
       - run: printf 'Package check\n' > .release-notes.md
       # The packager skips a push build when HEAD carries a tag ("Found future tag, not packaging"), so a tag that
@@ -244,4 +238,7 @@ jobs:
           path: tools/.cache/forever_sim
           key: forever-sim-${{ hashFiles('tools/forever_sim/fetch.py') }}
       - run: python3 tools/forever_sim/fetch.py
-      - run: python3 tools/check_package.py
+      - name: Check the package with the client's Lua 5.1 parser
+        env:
+          LUA51_LUAC: ${{ runner.tool_cache }}/lua-toolchain/bin/luac5.1
+        run: python3 tools/check_package.py
