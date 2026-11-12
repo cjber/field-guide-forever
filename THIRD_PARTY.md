@@ -22,6 +22,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| [Kimab](https://github.com/Kimab) | Open-world kills count again | GitHub; #307 |
 
 ## Inspired by
 

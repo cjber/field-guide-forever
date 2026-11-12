@@ -3,6 +3,8 @@
 local _, ns = ...
 
 ns.Credits = {
-	players = {},
+	players = {
+		{ name = "Kimab", what = "Open-world kills count again" },
+	},
 	inspired = {},
 }
