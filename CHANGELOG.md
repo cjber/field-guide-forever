@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.8.5] - 2026-11-12
+
 ### Fixed
 
 - **Field Guide no longer makes the game's memory climb while you play.** Every creature nameplate, target change and rare seen on the minimap rebuilt a copy of every creature name in the zone, which added megabytes of memory churn a minute and left the game's cleanup pauses on whichever addon happened to be running. Those lookups now use a list built once, and the creature catalogue from QuestieDB is read once and kept rather than read again when Questie reports ready a second time.
