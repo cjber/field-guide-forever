@@ -39,9 +39,19 @@ function ns.BuildCatalogue()
 	ns.ZoneByName = {}
 	ns.SpeciesById = {}
 	ns.SpeciesZone = {}
+	-- Each zone's species by lower-case name. A nameplate, target or kill resolves its creature from this map, so the
+	-- lookup compares against strings the catalogue already holds instead of lowering every name in the zone on
+	-- every event. The first species in catalogue order keeps a name two of them share, as the scan did.
+	ns.SpeciesByZoneName = {}
 	for _, zone in ipairs(ns.Zones or {}) do
 		ns.ZoneByName[zone.name:lower()] = zone
+		local byName = {}
+		ns.SpeciesByZoneName[zone] = byName
 		for _, species in ipairs(zone.species) do
+			local key = species.name:lower()
+			if byName[key] == nil then
+				byName[key] = species
+			end
 			ns.SpeciesById[species.id] = species
 			ns.SpeciesZone[species.id] = zone
 		end
@@ -89,8 +99,9 @@ function ns.CurrentZone()
 	return ns.FindZone(GetRealZoneText and GetRealZoneText() or nil)
 end
 
--- Exact names are what the client gives for a creature; case comes from the client's locale, so compare
--- lowered strings rather than relying on it.
+-- Exact names are what the client gives for a creature; case comes from the client's locale, so compare against the
+-- lower-case names the catalogue indexed when it was built. A lookup lowers the unit's name once, then does one table
+-- lookup in the zone's map.
 ---@param name string?
 ---@param zone FGZone?
 ---@return FGSpecies?
@@ -98,6 +109,11 @@ function ns.FindSpecies(name, zone)
 	if type(name) ~= "string" or not zone then
 		return nil
 	end
+	local byName = ns.SpeciesByZoneName and ns.SpeciesByZoneName[zone]
+	if byName then
+		return byName[name:lower()]
+	end
+	-- A zone built by hand, before BuildCatalogue has indexed the catalogue: the scan is the old path.
 	local wanted = name:lower()
 	for _, species in ipairs(zone.species) do
 		if species.name:lower() == wanted then

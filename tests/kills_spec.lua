@@ -245,6 +245,18 @@ Mock.units.nameplate2, Mock.guids.nameplate2, Mock.dead.nameplate2 = Secret(), S
 harness:Fire("UNIT_HEALTH", "nameplate2")
 assert(Kills(harness, 1001) == 3, "a readable UnitCreatureID names a creature with secret name and GUID")
 
+-- The GUID's own id outranks UnitCreatureID: a creature whose name matches another catalogue entry is still the one
+-- its GUID names.
+harness.env.UnitCreatureID = function()
+	return 1003
+end
+Mock.units.nameplate3, Mock.guids.nameplate3, Mock.dead.nameplate3 = "Savannah Prowler", Mock.CreatureGUID(1001), true
+harness:Fire("UNIT_HEALTH", "nameplate3")
+assert(
+	Kills(harness, 1001) == 4 and Kills(harness, 1003) == 0,
+	"the GUID's id wins over a different UnitCreatureID and the name"
+)
+
 -- The client's zone name can be in another locale; the catalogue zone is also keyed by C_Map.GetAreaInfo's own
 -- name for the same id, so it resolves there too. A readable creature id still records the kill on its own.
 harness = Start({ areaNames = { [17] = "Das Brachland" } })

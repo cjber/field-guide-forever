@@ -91,6 +91,7 @@ read_globals = {
 	"UnitIsPlayer",
 	"UnitName",
 	"UnitRace",
+	"wipe",
 	"date",
 	"debugprofilestop",
 	"debugstack",
