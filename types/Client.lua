@@ -62,6 +62,13 @@ ScrollBoxConstants = nil
 ---@type Texture?
 TargetFramePortrait = nil
 
+-- Blizzard_SharedXMLBase/CvarUtil.lua: the global CVar registry is CreateFromMixins(CallbackRegistryMixin) mixed into
+-- a Frame. The pinned annotations infer that assignment chain as a union, so name the object's real type; the callback
+-- registration UI/Rarity.lua uses comes from CallbackRegistryMixin.
+---@class FGFCVarCallbackRegistry : Frame, CallbackRegistryMixin
+---@type FGFCVarCallbackRegistry
+CVarCallbackRegistry = nil
+
 -- Blizzard_SharedXML/Mainline/SharedUIPanelTemplates.lua: a side tab's icon fills the tab, at `extent` (50 by default).
 ---@param fillToInterior boolean
 ---@param extent? number

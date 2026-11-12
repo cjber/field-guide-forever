@@ -328,7 +328,7 @@ local PLATE_MARK_GAP = 2
 local function PlateMarkAnchor(frame, healthBar)
 	local auras = frame and frame.AurasFrame
 	local buffs = type(auras) == "table" and auras.BuffListFrame
-	if type(buffs) == "table" and auras:IsShown() and buffs:IsShown() then
+	if type(auras) == "table" and type(buffs) == "table" and auras:IsShown() and buffs:IsShown() then
 		return buffs, "LEFT", -PLATE_MARK_GAP
 	end
 	local classification = frame and frame.ClassificationFrame
@@ -417,6 +417,9 @@ local function WatchPlate(owner, frame)
 	if type(constants) ~= "table" or type(registry) ~= "table" then
 		return
 	end
+	-- The pinned annotations infer the registry's mixin-plus-Frame construction as a union, so narrow it to the
+	-- native type its construction produces now that the runtime check has proved it is a table.
+	---@cast registry FGFCVarCallbackRegistry
 	local cvarOwner = {}
 	for _, cvar in ipairs({
 		constants.ENEMY_NPC_AURA_DISPLAY_CVAR,
