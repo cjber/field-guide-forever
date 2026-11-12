@@ -1,31 +1,31 @@
 {
-  "input_digest": "981bb08cffbc28027daa0f0e20cccef2f4d7d1ebfe31dfbcd3a71d86b6951571",
-  "runtime_sha256": "981bb08cffbc28027daa0f0e20cccef2f4d7d1ebfe31dfbcd3a71d86b6951571",
-  "candidate": "92e4dfd9274842fe50a5eaacaa93b179ab5d55c7dbe3fe7bfa85f834ae8ed492",
+  "input_digest": "f231b01ac7098ed0fa593dd54874da36ddf2fc0f407024f4c358ffa0a22f841e",
+  "runtime_sha256": "f231b01ac7098ed0fa593dd54874da36ddf2fc0f407024f4c358ffa0a22f841e",
+  "candidate": "04b95710c332327d0e44ba04cbdcbe1aa7eab49d1f4dd73db3aff3379ed8f40b",
   "tested_artifact": "source-tree",
   "client_build": "1.60.1.70888 (Interface 16001)",
-  "source_commit": "3631be897f2097f904a2f23b920406a73a0f3ba2",
-  "notes": "Recorded on Hel Io in the player's live client from an installed source-tree build of this commit (git archive); visual_proof --compare reported no missing or differing runtime files, the install additionally carries the ignored store icon media/icon-400.png. Every other Forever addon's ForeverCore 1.8.2 sync build was loaded in the same session. BugGrabber recorded no addon errors (the session's two errors were the recorder's own /run lines calling a missing client API).",
+  "source_commit": "6dbe8e572f4b649b7c8138c7552ca4df207cc9d1",
+  "notes": "Recorded on Hel Io in the player's live client from an installed source-tree build of this commit (git archive); --compare reported no missing or differing runtime files, the install additionally carries the ignored store icon. Every other Forever addon's 1.9.0 sync build was loaded in the same session. The only BugGrabber entries this session were the recorder's own over-long /run lines.",
   "flows": [
     {
-      "name": "Field Guide opens on ForeverCore 1.8.2",
+      "name": "Field Guide's Thanks entry on ForeverCore 1.9.0",
       "steps": [
-        "Install the candidate with ForeverCore v1.8.2 and /reload",
-        "Print every Forever addon's loaded version into a chat tab with no channels: ForeverCore v1.8.2 plus this candidate, all loaded",
-        "Type /fgf",
-        "The Field Guide window opens on Redridge Mountains with its creature list and entry pane"
+        "Install the candidate with the store ForeverCore v1.9.0 and /reload",
+        "Print every Forever addon's loaded version into a chat tab with no channels: store ForeverCore v1.9.0 plus each 1.9.0 sync build, all loaded, and BugGrabber shows no addon errors this session",
+        "Run ForeverCore.Credits.Open(\"Field Guide Forever\") and scroll the list to Kimab",
+        "Kimab shows with 'Open-world kills count again'"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/5cd61b138c1e01654d7aadd509568514/raw/82bfd62fbba753c8cc0a35be3f8e1c07fb2ac713/sync182-fgf-window.png",
-      "sha256": "1ff0f4b5c5b5784d90106f038502964b39ad607c1cb00897ef1beacac21a2769"
+      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-fgf-thanks.png",
+      "sha256": "fce1dfad6064c6c6ba9e0b313ae4106183ee4d3933c10ea0d0163ac4d7886c52"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/5cd61b138c1e01654d7aadd509568514/raw/82bfd62fbba753c8cc0a35be3f8e1c07fb2ac713/sync182-versions.png",
-      "sha256": "0a95af5dcd4392712f85093832d05c14411d76b4099d3b60185209cbdf0e1e1b"
+      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-versions.png",
+      "sha256": "9731b84977a7daf94152f9129b9ea996b4c467006f822f7acc430332fa8f08ec"
     }
   ]
 }
