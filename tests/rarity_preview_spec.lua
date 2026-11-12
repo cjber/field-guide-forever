@@ -180,7 +180,8 @@ unitFrame.healthBar:SetStatusBarColor(unpack(plateColour))
 unitFrame.reactionColor = plateColour
 local plateHealthCalls = SpyColour(unitFrame.healthBar, "SetStatusBarColor")
 local plateNameCalls = SpyColour(unitFrame.name, "SetTextColor")
-local plate = { UnitFrame = unitFrame }
+local plate = Mock.CreateFrame("Frame")
+plate.UnitFrame = unitFrame
 local plateAttached = true
 harness.env.C_NamePlate = {
 	GetNamePlateForUnit = function()
@@ -204,24 +205,24 @@ Mock.units.nameplate1 = "Bronze Test Creature"
 Mock.guids.nameplate1 = GuidFor("bronze", "plate")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a previewed nameplate")
-assert(unitFrame.FGFRarityMarker:IsShown(), "a nameplate shows the preview tier mark")
-local markPoint, markRelative, markRelativePoint = unitFrame.FGFRarityMarker:GetPoint(1)
+assert(plate.FGFRarityMarker:IsShown(), "a nameplate shows the preview tier mark")
+local markPoint, markRelative, markRelativePoint = plate.FGFRarityMarker:GetPoint(1)
 assert(
-	markPoint == "LEFT" and markRelative == unitFrame.healthBar and markRelativePoint == "RIGHT",
-	"the nameplate mark sits to the right of the health bar"
+	markPoint == "RIGHT" and markRelative == unitFrame.healthBar and markRelativePoint == "LEFT",
+	"the nameplate mark sits to the left of the health bar"
 )
 
 plateAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
 AssertPlateColoursUntouched("a removed preview nameplate")
-assert(not unitFrame.FGFRarityMarker:IsShown(), "removing a nameplate clears its preview mark")
+assert(not plate.FGFRarityMarker:IsShown(), "removing a nameplate clears its preview mark")
 
 plateAttached = true
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 slash("preview")
 assert(not ns.RarityPreviewActive(), "preview turns off again")
 AssertPlateColoursUntouched("a bronze nameplate once preview is off")
-assert(not unitFrame.FGFRarityMarker:IsShown(), "a bronze nameplate keeps no mark once preview is off")
+assert(not plate.FGFRarityMarker:IsShown(), "a bronze nameplate keeps no mark once preview is off")
 
 -- A friendly NPC has no spawn tier, so preview skips it and does not spend one of the three rotation tiers on it.
 local friendlyUnits = { target = true, nameplate3 = true }
@@ -251,7 +252,7 @@ harness.env.UnitName = function(unit)
 end
 Mock.guids.nameplate3 = GuidFor("gold", "friendly-preview-plate")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate3")
-assert(not unitFrame.FGFRarityMarker:IsShown(), "a friendly preview nameplate shows no tier mark")
+assert(not plate.FGFRarityMarker:IsShown(), "a friendly preview nameplate shows no tier mark")
 
 friendlyUnits.nameplate3 = false
 harness.env.UnitName = function(unit)
@@ -259,9 +260,9 @@ harness.env.UnitName = function(unit)
 end
 Mock.guids.nameplate4 = GuidFor("bronze", "preview-after-friendly-plate")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate4")
-assert(unitFrame.FGFRarityMarker:IsShown(), "an attackable preview plate shows its tier mark")
+assert(plate.FGFRarityMarker:IsShown(), "an attackable preview plate shows its tier mark")
 assert(
-	unitFrame.FGFRarityMarker:GetAtlas() == ns.Art.TIER_ICONS.gold,
+	plate.FGFRarityMarker:GetAtlas() == ns.Art.TIER_ICONS.gold,
 	"a friendly nameplate does not consume a preview tier"
 )
 
