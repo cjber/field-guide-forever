@@ -156,7 +156,7 @@ Creature data comes from [QuestieDB](https://github.com/Questie/QuestieDB), read
 
 <!-- forever-credits:start -->
 
-Thanks to everyone who reports a bug or asks for a feature.
+Thanks to Kimab and everyone who reported a bug or asked for a feature.
 
 <!-- forever-credits:end -->
 
