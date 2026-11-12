@@ -221,10 +221,13 @@ jobs:
           # Every commit and tag for the version, without old file contents.
           filter: blob:none
           persist-credentials: false
-      - name: Install client Lua parser
+      - name: Install client parser and packaged test runtime
+        env:
+          LUAJIT: 2.1.0+git20231223.c525bcb+dfsg-1
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends "lua5.1=5.1.5-9build2"
+          sudo apt-get install -y --no-install-recommends --allow-downgrades \
+            "lua5.1=5.1.5-9build2" "luajit=$LUAJIT" "libluajit-5.1-2=$LUAJIT" "libluajit-5.1-common=$LUAJIT"
       # .pkgmeta's manual changelog, which the release fills with the version's entry.
       - run: printf 'Package check\n' > .release-notes.md
       # The packager skips a push build when HEAD carries a tag ("Found future tag, not packaging"), so a tag that
