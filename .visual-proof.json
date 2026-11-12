@@ -1,29 +1,31 @@
 {
-  "input_digest": "c4fc795c41844e7123babb2dd754c3179a4e7bcb2df24904802080755ccf9ea0",
-  "runtime_sha256": "c4fc795c41844e7123babb2dd754c3179a4e7bcb2df24904802080755ccf9ea0",
-  "candidate": "9a9c0c454b9bd8d3c4308f9a257a0aa453325d9e862bab3021cd172dfc439a31",
-  "tested_artifact": "release-package",
+  "input_digest": "981bb08cffbc28027daa0f0e20cccef2f4d7d1ebfe31dfbcd3a71d86b6951571",
+  "runtime_sha256": "981bb08cffbc28027daa0f0e20cccef2f4d7d1ebfe31dfbcd3a71d86b6951571",
+  "candidate": "92e4dfd9274842fe50a5eaacaa93b179ab5d55c7dbe3fe7bfa85f834ae8ed492",
+  "tested_artifact": "source-tree",
   "client_build": "1.60.1.70888 (Interface 16001)",
+  "source_commit": "3631be897f2097f904a2f23b920406a73a0f3ba2",
+  "notes": "Recorded on Hel Io in the player's live client from an installed source-tree build of this commit (git archive); visual_proof --compare reported no missing or differing runtime files, the install additionally carries the ignored store icon media/icon-400.png. Every other Forever addon's ForeverCore 1.8.2 sync build was loaded in the same session. BugGrabber recorded no addon errors (the session's two errors were the recorder's own /run lines calling a missing client API).",
   "flows": [
     {
-      "name": "Field Guide opens on ForeverCore 1.8.1",
+      "name": "Field Guide opens on ForeverCore 1.8.2",
       "steps": [
-        "Install the packaged candidate with its bundled ForeverCore v1.8.1 and /reload",
-        "Print the loaded versions: ForeverCore v1.8.1 and FieldGuideForever v0.8.5-2-g041cd86, both loaded, ProfessionTabs.minor 2",
+        "Install the candidate with ForeverCore v1.8.2 and /reload",
+        "Print every Forever addon's loaded version into a chat tab with no channels: ForeverCore v1.8.2 plus this candidate, all loaded",
         "Type /fgf",
-        "Confirm the Field Guide window opens on Stormwind City with its creature list and entry pane"
+        "The Field Guide window opens on Redridge Mountains with its creature list and entry pane"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/55de9fd8b9c4d5fdf425aa1a72db5386128d3749/sync181-versions.png",
-      "sha256": "68bb8f958f2dab34bbf7a541f311f8141db7ebeaca4a51e39fbe9bf4c725e7c6"
+      "url": "https://gist.githubusercontent.com/cjber/5cd61b138c1e01654d7aadd509568514/raw/82bfd62fbba753c8cc0a35be3f8e1c07fb2ac713/sync182-fgf-window.png",
+      "sha256": "1ff0f4b5c5b5784d90106f038502964b39ad607c1cb00897ef1beacac21a2769"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/55de9fd8b9c4d5fdf425aa1a72db5386128d3749/sync181-fieldguide-9a9c0c4.png",
-      "sha256": "d61d7739f52fd52b77a9ac31bf4a45306913eef1d66a3b80a18106a60369fd9b"
+      "url": "https://gist.githubusercontent.com/cjber/5cd61b138c1e01654d7aadd509568514/raw/82bfd62fbba753c8cc0a35be3f8e1c07fb2ac713/sync182-versions.png",
+      "sha256": "0a95af5dcd4392712f85093832d05c14411d76b4099d3b60185209cbdf0e1e1b"
     }
   ]
 }
