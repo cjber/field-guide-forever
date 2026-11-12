@@ -50,15 +50,54 @@ local markersAlive = {}
 local identities = {}
 
 -- The NPC id inside a creature GUID ("Creature-0-<server>-<instance>-<zone>-<npc id>-<spawn>").
+--
+-- A GUID is read many times for the same creature: every health event of the target or a nameplate, every minimap
+-- marker update. Parsing it captures two new strings, so each GUID's answer is remembered once, in a table bounded
+-- like the counted GUIDs.
+---@type table<string, integer|false>
+local npcIdByGuid = {}
+local npcIdLookups = 0
+local MAX_NPC_ID_LOOKUPS = 500
+
 ---@param guid string?
 ---@return integer?
 local function NpcId(guid)
 	if type(guid) ~= "string" then
 		return nil
 	end
+	local cached = npcIdByGuid[guid]
+	if cached ~= nil then
+		return cached or nil
+	end
+	local npcId
 	local kind, id = guid:match("^(%a+)%-%d+%-%d+%-%d+%-%d+%-(%d+)%-")
 	if kind == "Creature" or kind == "Vehicle" then
-		return tonumber(id)
+		npcId = tonumber(id)
+	end
+	if npcIdLookups >= MAX_NPC_ID_LOOKUPS then
+		npcIdByGuid, npcIdLookups = {}, 0
+	end
+	npcIdByGuid[guid] = npcId or false
+	npcIdLookups = npcIdLookups + 1
+	return npcId
+end
+
+-- Unit identity tables are reused rather than built per event: a nameplate token is added and removed all session,
+-- and a fresh table for each add is garbage for the collector to sweep. A token's table is recycled when it is
+-- retargeted, its nameplate leaves, or the target changes.
+---@type FGUnitIdentity[]
+local spareIdentities = {}
+local MAX_SPARE_IDENTITIES = 32
+
+---@param info FGUnitIdentity?
+local function ForgetIdentity(info)
+	if type(info) ~= "table" then
+		return
+	end
+	info.guid, info.name, info.npcId = nil, nil, nil
+	info.alive, info.player, info.canAttack, info.tapDenied = nil, nil, nil, nil
+	if #spareIdentities < MAX_SPARE_IDENTITIES then
+		spareIdentities[#spareIdentities + 1] = info
 	end
 end
 
@@ -70,17 +109,28 @@ local function Identity(unit, fresh)
 	local guid = ns.Readable(UnitGUID(unit))
 	local name = ns.Readable(UnitName(unit))
 	local creatureId = UnitCreatureID and ns.Readable(UnitCreatureID(unit)) or nil
-	local npcId = NpcId(guid) or creatureId
 	local info = not fresh and identities[unit] or nil
-	if info and ((guid and guid ~= info.guid) or (name and info.name and name ~= info.name)) then
+	if fresh then
+		-- The token's previous occupant is gone; keep its table for the next one.
+		ForgetIdentity(identities[unit])
+		identities[unit] = nil
+	elseif info and ((guid and guid ~= info.guid) or (name and info.name and name ~= info.name)) then
+		ForgetIdentity(info)
 		info = nil
 	end
-	if guid or name or npcId then
-		info = info or {}
-		info.guid = guid or info.guid
+	if guid or name or creatureId then
+		if not info then
+			info = table.remove(spareIdentities) or {}
+			identities[unit] = info
+		end
+		if guid and guid ~= info.guid then
+			info.guid = guid
+			-- The NPC id is read once per creature, not once per health event: its pattern captures strings.
+			info.npcId = NpcId(guid)
+		end
 		info.name = name or info.name
-		info.npcId = npcId or info.npcId
-		identities[unit] = info
+		-- The GUID names the creature; UnitCreatureID only fills in when the GUID gives no id.
+		info.npcId = info.npcId or creatureId
 	elseif fresh then
 		identities[unit] = nil
 		info = nil
@@ -164,7 +214,8 @@ end
 
 ---@param unit string
 local function OnUnitHealth(unit)
-	if unit == "target" or (type(unit) == "string" and unit:sub(1, 9) == "nameplate") then
+	-- find allocates nothing; sub would build a new string on every health event of every unit.
+	if unit == "target" or (type(unit) == "string" and unit:find("^nameplate")) then
 		OnUnitDeath(unit)
 	end
 end
@@ -179,6 +230,7 @@ end
 ---@param unit string
 local function OnUnitRemoved(unit)
 	OnUnitDeath(unit)
+	ForgetIdentity(identities[unit])
 	identities[unit] = nil
 end
 
@@ -188,27 +240,29 @@ local function OnTargetChanged()
 	end
 end
 
+-- The markers present on this update, reused: a rare marker list updates as the player moves, and a fresh table per
+-- update is garbage the collector has to sweep.
+local presentMarkers = {}
+
 local function OnVignettes()
 	if not ns.ready or not C_VignetteInfo then
 		return
 	end
-	---@type table<string, true>
-	local present = {}
+	wipe(presentMarkers)
 	for _, vignetteGUID in ipairs(C_VignetteInfo.GetVignettes() or {}) do
 		local info = C_VignetteInfo.GetVignetteInfo(vignetteGUID)
 		local guid = info and ns.Readable(info.objectGUID)
-		if info and NpcId(guid) then
-			---@cast guid string
+		if info and guid and NpcId(guid) then
 			if not ns.Readable(info.isDead) then
 				markersAlive[guid] = true
-				present[guid] = true
+				presentMarkers[guid] = true
 			elseif markersAlive[guid] and ns.Readable(info.onMinimap) then
 				Report(guid, ns.Readable(info.name))
 			end
 		end
 	end
 	for guid in pairs(markersAlive) do
-		if not present[guid] then
+		if not presentMarkers[guid] then
 			markersAlive[guid] = nil
 		end
 	end
