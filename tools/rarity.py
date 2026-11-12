@@ -3,8 +3,9 @@
 The addon's own ornaments do the work. A silver creature draws the client's rare silver portrait ring plus the silver
 laurel around its portrait, gold draws the gold laurel alone, and shiny draws the rare ring, the shiny laurel and the
 client's loot-toast sheen across the ornament. Each ornament is the addon's 256 px square TGA drawn at 2 px per UI
-unit, so 128 UI units a side and never stretched. Nameplates carry the same quality icon to the right of the health
-bar. The health bar fill and name text keep the client's own colours, and BRONZE is the untouched client frame.
+unit, so 128 UI units a side and never stretched. Nameplates carry the same quality icon beyond the client's own left
+badge and buff row, clear of the raid target, classification and buff icons. The health bar fill and name text keep
+the client's own colours, and BRONZE is the untouched client frame.
 
 Rare, elite, boss and minus-mob units already get the client's own frame art, so our ornaments are skipped for them
 and the nameplate mark alone reads the coat. The nameplate sheet is an animated GIF that plays the shiny sheen on
@@ -65,6 +66,36 @@ PLATE_MARKS = {
 }
 PLATE_MARK_SIZE = 17
 PLATE_ACCENT_ALPHA = 0.72
+# The stock plate's left decorations, from Blizzard_NamePlates.xml 186-236 and NamePlateUnitFrameMixin:UpdateAnchors:
+# a 22 by 22 RaidTargetFrame's right edge on HealthBarsContainer's left, a 20 by 20 ClassificationFrame's right edge
+# on the raid target's left, then a 25-unit buff icon row whose right edge is 5 units left of the classification
+# frame. Both badge frames set collapsesLayout, so a hidden badge reserves no space and the buff row moves in.
+# UI/Rarity.lua anchors the mark 2 units beyond the buff row's own left edge, falling back through the classification
+# frame, raid target and bar whenever that row is absent or hidden. It reanchors on the client's aura lifecycle
+# (UpdateShownState and RefreshAuras), so each plate case below is a snapshot of the same rule after the row is shown.
+PLATE_RAID_TARGET_SIZE = 22
+PLATE_CLASSIFICATION_SIZE = 20
+PLATE_BUFF_ICON_SIZE = 25
+PLATE_BUFF_GAP = 5
+PLATE_MARK_GAP = 2
+PLATE_HEALTH_WIDTH = 116
+PLATE_HEALTH_HEIGHT = 12
+# The illustrative plate cases: which stock decorations are visible and how many buffs the row holds. A raid icon
+# hides the classification frame, and the two buff cases catch the collision the hidden-badge collapse used to cause.
+PLATE_CASES = {
+    "BRONZE": (True, False, 2, "raid mark and 2 buffs: the client's plate untouched"),
+    "SILVER": (False, True, 0, "no buffs: the mark clears the classification badge"),
+    "GOLD": (False, True, 1, "1 buff: the mark clears the icon"),
+    "SHINY": (False, False, 2, "2 buffs, no badge: only the icons reserve space"),
+}
+PLATE_CLASSIFICATION_ATLAS = {
+    "SILVER": "nameplates-icon-elite-silver",
+    "GOLD": "nameplates-icon-elite-gold",
+}
+PLATE_BUFF_ICONS = (
+    "interface/icons/spell_holy_powerwordshield.blp",
+    "interface/icons/ability_hunter_pet_cat.blp",
+)
 
 TEXT = wowmock.rgb("e3d9c2")
 MUTED = wowmock.rgb("9e998c")
@@ -270,11 +301,51 @@ def mark(canvas, ui, name, x, y, height, colour):
     canvas.composite(piece, canvas.px(x - width / 2), canvas.px(y - height / 2))
 
 
+def plate_edges(bar_left, classification=False, raid_target=False, buffs=0):
+    """The stock plate's left decoration edges in UI units, from the bar's left edge outward.
+
+    Exactly mirrors what the client shows: the raid target and classification frames occupy their size only while
+    shown, and the buff row's right edge is 5 units left of the classification slot (or of the collapsed slot when the
+    classification frame is hidden)."""
+    classification_right = bar_left - (PLATE_RAID_TARGET_SIZE if raid_target else 0)
+    classification_left = classification_right - (PLATE_CLASSIFICATION_SIZE if classification else 0)
+    buff_right = classification_left - PLATE_BUFF_GAP
+    buff_left = buff_right - max(1, buffs * PLATE_BUFF_ICON_SIZE)
+    return {
+        "classification_left": classification_left,
+        "classification_right": classification_right,
+        "buff_left": buff_left,
+        "buff_right": buff_right,
+        "mark_right": buff_left - PLATE_MARK_GAP,
+    }
+
+
+def raid_target_icon(ui, index=1):
+    """One icon from the client's 4 by 2 UI-RaidTargetingIcons sheet, cropped rather than redrawn."""
+    sheet = ui.texture("interface/targetingframe/ui-raidtargetingicons.blp")
+    columns, rows = 4, 2
+    cell_w, cell_h = sheet.width // columns, sheet.height // rows
+    index = max(1, min(columns * rows, index)) - 1
+    left, top = (index % columns) * cell_w, (index // columns) * cell_h
+    return sheet.crop((left, top, left + cell_w, top + cell_h))
+
+
+def draw_buff_icon(ui, canvas, x, y, icon):
+    """One 25-unit aura icon with the client's rounded mask and its own overlay art."""
+    size = PLATE_BUFF_ICON_SIZE
+    art = icon.resize((canvas.px(size), canvas.px(size)), Image.LANCZOS)
+    mask = ui.atlas("UI-HUD-CoolDownManager-Mask").image.resize((canvas.px(size), canvas.px(size)), Image.LANCZOS)
+    art.putalpha(ImageChops.multiply(art.getchannel("A"), mask.getchannel("A")))
+    canvas.composite(art, canvas.px(x), canvas.px(y))
+    overlay = ui.atlas("UI-HUD-CoolDownManager-IconOverlay")
+    canvas.draw(overlay, x - 6, y - 5, size + 12, size + 10)
+
+
 def nameplate(ui, canvas, x, y, tier, name):
-    """One nameplate: the ladder's mark to the right of the bar, over the client's own reaction colours.
-    Every tier keeps the client's red fill and white name; only bronze has no mark."""
+    """One nameplate: the ladder's mark beyond the client's actual left badge and buff row, over its own reaction
+    colours. Every tier keeps the client's red fill and white name; only bronze has no mark."""
     label, _, colour, _ = tier
-    w, h = 116, 12
+    w, h = PLATE_HEALTH_WIDTH, PLATE_HEALTH_HEIGHT
     fill_texture = ui.texture("interface/targetingframe/nameplatefill.blp")
     trough_colour = tuple(component * 0.18 for component in BRASS)
     canvas.draw(fill_texture, x, y, w, h, trough_colour)
@@ -291,18 +362,48 @@ def nameplate(ui, canvas, x, y, tier, name):
         justify="CENTER",
         width=w,
     )
+
+    raid_target, classification, buffs, caption = PLATE_CASES[label]
+    edges = plate_edges(x, classification=classification, raid_target=raid_target, buffs=buffs)
+    centre_y = y + h / 2
+
+    # The client's own decorations, at their stock sizes and one anchoring chain: raid target, classification, buffs.
+    if raid_target:
+        icon = raid_target_icon(ui, 1)
+        left = x - PLATE_RAID_TARGET_SIZE
+        canvas.composite(
+            icon.resize((canvas.px(PLATE_RAID_TARGET_SIZE), canvas.px(PLATE_RAID_TARGET_SIZE)), Image.LANCZOS),
+            canvas.px(left),
+            canvas.px(centre_y - PLATE_RAID_TARGET_SIZE / 2),
+        )
+    if classification:
+        atlas = ui.atlas(PLATE_CLASSIFICATION_ATLAS[label])
+        left = edges["classification_right"] - PLATE_CLASSIFICATION_SIZE
+        canvas.draw(
+            atlas,
+            left,
+            centre_y - PLATE_CLASSIFICATION_SIZE / 2,
+            PLATE_CLASSIFICATION_SIZE,
+            PLATE_CLASSIFICATION_SIZE,
+        )
+    for index in range(buffs):
+        icon = ui.texture(PLATE_BUFF_ICONS[index % len(PLATE_BUFF_ICONS)])
+        left = edges["buff_right"] - (index + 1) * PLATE_BUFF_ICON_SIZE
+        draw_buff_icon(ui, canvas, left, centre_y - PLATE_BUFF_ICON_SIZE / 2, icon)
+
     atlas_name = PLATE_MARKS.get(label)
     if atlas_name:
-        # LEFT on the health bar's RIGHT, centred on its line.
+        # RIGHT on the buff row's LEFT less 2, centred on the bar's line.
         mark(
             canvas,
             ui,
             atlas_name,
-            x + w + 2 + PLATE_MARK_SIZE / 2,
-            y + h / 2,
+            edges["mark_right"] - PLATE_MARK_SIZE / 2,
+            centre_y,
             PLATE_MARK_SIZE,
             (1, 1, 1, PLATE_ACCENT_ALPHA),
         )
+    text(canvas, x, y + 18, caption, "GameFontDisableSmall", MUTED, justify="LEFT", width=260)
 
 
 def sheet(ui, icons, name, native=False, plates=False, sheen_at=None):
@@ -314,7 +415,7 @@ def sheet(ui, icons, name, native=False, plates=False, sheen_at=None):
     text(canvas, m, 18, "FIELD GUIDE  \u00b7  RARITY AT A GLANCE", "GameFontNormal", BRASS)
     subtitle = "Field Guide's own laurel ornaments around each portrait"
     if native:
-        subtitle = "The client's own rare and elite frame art stays; the nameplate mark names the coat"
+        subtitle = "The client's own rare and elite frame art stays; the mark sits beyond its badge row and buffs"
     text(canvas, m, 36, subtitle, "GameFontDisableSmall", MUTED)
     folk = ["Savannah Prowler", "Bristleback Boar", "Prairie Wolf", "Plainstrider"]
     glyph = ["prowler", "boar", "wolf", "strider"]
@@ -329,7 +430,7 @@ def sheet(ui, icons, name, native=False, plates=False, sheen_at=None):
         text(canvas, cx, cy + 16, note, "GameFontDisableSmall", MUTED)
         target_frame(ui, canvas, cx + 14, cy + 52, tier, icons[glyph[index]], folk[index], 12 + index, native, sheen_at)
         if plates:
-            nameplate(ui, canvas, cx + 74, cy + 196, tier, folk[index])
+            nameplate(ui, canvas, cx + 90, cy + 188, tier, folk[index])
     return canvas
 
 

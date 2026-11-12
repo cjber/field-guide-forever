@@ -169,14 +169,32 @@ assert(
 assert(previewArt.ornamentMask._texture == LAUREL_SHINY, "the shiny laurel's sheen mask follows the same art")
 assert(previewArt.anim:IsPlaying(), "a shiny preview runs the sheen")
 
--- Nameplates take the preview tier mark, but never the preview tier's colour on the plate itself.
+-- Nameplates take the preview tier mark, but never the preview tier's colour on the plate itself. The fixture keeps
+-- the stock left badge and buff row: RaidTargetFrame's right edge on HealthBarsContainer's left, ClassificationFrame's
+-- right edge on the raid target's left, then BuffListFrame's right edge 5 units left of the classification frame
+-- (Blizzard_NamePlates.xml 186-236, Blizzard_NamePlateUnitFrame.lua:848-858).
 local plateColour = { 0.64, 0.2, 0.17, 1 }
 local plateNameColour = { 1, 1, 1, 1 }
 local unitFrame = Mock.CreateFrame("Frame")
 unitFrame.name = unitFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 unitFrame.name:SetTextColor(unpack(plateNameColour))
-unitFrame.healthBar = Mock.CreateFrame("Frame")
+local healthBarsContainer = Mock.CreateFrame("Frame", nil, unitFrame)
+unitFrame.HealthBarsContainer = healthBarsContainer
+unitFrame.healthBar = Mock.CreateFrame("Frame", nil, healthBarsContainer)
 unitFrame.healthBar:SetStatusBarColor(unpack(plateColour))
+healthBarsContainer.healthBar = unitFrame.healthBar
+unitFrame.RaidTargetFrame = Mock.CreateFrame("Frame", nil, unitFrame)
+unitFrame.RaidTargetFrame:SetSize(22, 22)
+unitFrame.RaidTargetFrame:SetPoint("RIGHT", healthBarsContainer, "LEFT", 0, 0)
+unitFrame.RaidTargetFrame:Hide()
+unitFrame.ClassificationFrame = Mock.CreateFrame("Frame", nil, unitFrame)
+unitFrame.ClassificationFrame:SetSize(20, 20)
+unitFrame.ClassificationFrame:SetPoint("RIGHT", unitFrame.RaidTargetFrame, "LEFT", 0, 0)
+unitFrame.ClassificationFrame:Hide()
+unitFrame.AurasFrame = Mock.CreateFrame("Frame", nil, unitFrame)
+unitFrame.AurasFrame.BuffListFrame = Mock.CreateFrame("Frame", nil, unitFrame.AurasFrame)
+unitFrame.AurasFrame.BuffListFrame:SetSize(50, 25)
+unitFrame.AurasFrame.BuffListFrame:SetPoint("RIGHT", unitFrame.ClassificationFrame, "LEFT", -5, 0)
 unitFrame.reactionColor = plateColour
 local plateHealthCalls = SpyColour(unitFrame.healthBar, "SetStatusBarColor")
 local plateNameCalls = SpyColour(unitFrame.name, "SetTextColor")
@@ -206,10 +224,13 @@ Mock.guids.nameplate1 = GuidFor("bronze", "plate")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a previewed nameplate")
 assert(plate.FGFRarityMarker:IsShown(), "a nameplate shows the preview tier mark")
-local markPoint, markRelative, markRelativePoint = plate.FGFRarityMarker:GetPoint(1)
+local markPoint, markRelative, markRelativePoint, markX = plate.FGFRarityMarker:GetPoint(1)
 assert(
-	markPoint == "RIGHT" and markRelative == unitFrame.healthBar and markRelativePoint == "LEFT",
-	"the nameplate mark sits to the left of the health bar"
+	markPoint == "RIGHT"
+		and markRelative == unitFrame.AurasFrame.BuffListFrame
+		and markRelativePoint == "LEFT"
+		and markX == -2,
+	"the preview mark sits 2 units beyond the stock buff row's left edge"
 )
 
 plateAttached = false

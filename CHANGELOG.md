@@ -5,7 +5,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
-- **Rarity marks stay visible on nameplates and clear the level marker.** The mark now belongs to the nameplate rather than its replaceable Blizzard child, and sits on the free side of the health bar. Thanks to Kimab for the report (#344).
+- **Rarity marks stay visible on nameplates and clear the client's own badges and buffs.** The mark now sits beyond the buff row at the end of the client's left decorations, so the raid target, classification icons and buff icons no longer cover it, including when both badges are hidden. It follows that row as buffs appear, disappear or grow, and when a plate is recycled. Thanks to Kimab for the report (#344).
 
 ## [0.8.4] - 2026-11-12
 

@@ -8,7 +8,7 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 
 ![Silver, gold and shiny laurels on the target frame, a sheen sweeping the shiny one, and the matching nameplate mark under each](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/rarity-nameplates.gif)
 
-A silver, gold or shiny spawn wears a laurel ornament around its target portrait, from a plain silver ring with one oak sprig to a full gold laurel, and on shiny a pearl laurel with a slow light sweeping across it. Its nameplate gets the same mark beside the health bar.
+A silver, gold or shiny spawn wears a laurel ornament around its target portrait, from a plain silver ring with one oak sprig to a full gold laurel, and on shiny a pearl laurel with a slow light sweeping across it. Its nameplate gets the same mark beyond the client's own left badge and buff row.
 
 ![The Field Guide stepping through creatures, instances and the coat filters in several zones](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/demo.gif)
 
@@ -30,7 +30,7 @@ These images are generated previews of the Field Guide UI.
 
 ## Features
 
-- **Rarity marks.** A silver, gold or shiny spawn wears a laurel around its target portrait and the same mark to the right of its nameplate's health bar, and silver and shiny keep the game's rare silver frame. Health bars, names, the game's own rare, elite and boss art, and every bronze creature look exactly as they always did.
+- **Rarity marks.** A silver, gold or shiny spawn wears a laurel around its target portrait and the same mark beyond the client's own left badge and buff row on its nameplate, and silver and shiny keep the game's rare silver frame. Health bars, names, the game's own rare, elite and boss art, and every bronze creature look exactly as they always did.
 - **The coat ladder.** Every spawn is bronze, silver (1 in 25), gold (1 in 100) or shiny (1 in 1000), fixed for that spawn and the same for every player who sees it. The journal keeps how many of each you have found.
 - **Journal.** Creatures across outdoor zones, dungeons and raids, with their level, rank and zone, opening on Discovered so a new character starts with what they have actually met. Search by name, filter by status or coat, and switch between the Creatures and Instances tabs.
 - **Research ranks and zone completion.** Kills move a species through Discovered (1), Observed (3), Studied (6) and Mastered (10), and the count keeps going after that. Each zone shows the share of its species you have recorded.

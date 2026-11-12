@@ -310,11 +310,135 @@ local function PaintTargetFrame(target, tier, color, native)
 	end
 end
 
+-- Stock nameplates hang their left-hand decorations out from the health bar. A 22 by 22 RaidTargetFrame's right edge
+-- sits on HealthBarsContainer's left, a 20 by 20 ClassificationFrame's right edge on the raid target's left, and
+-- AurasFrame.BuffListFrame's right edge 5 units left of the classification frame, growing left with up to two 25-unit
+-- buff icons (Blizzard_NamePlates.xml 186-236, Blizzard_NamePlateUnitFrame.lua:848-858, Blizzard_NamePlateAuras.lua).
+-- Both badges carry collapsesLayout, so a hidden badge reserves no space and the buff row moves in. Anchoring 2 units
+-- beyond a shown buff row's own left edge clears the icons and the badges, and follows the row as it grows; a hidden
+-- row draws nothing, so the mark falls back through the remaining anchors to the bar. The badge fallbacks are used
+-- whether the badge is shown or not: both anchors stay in place when it collapses, so a badge appearing later cannot
+-- cover the mark.
+local PLATE_MARK_GAP = 2
+---@param frame table?
+---@param healthBar table?
+---@return table? anchor
+---@return string relativePoint
+---@return number offsetX
+local function PlateMarkAnchor(frame, healthBar)
+	local auras = frame and frame.AurasFrame
+	local buffs = type(auras) == "table" and auras.BuffListFrame
+	if type(buffs) == "table" and auras:IsShown() and buffs:IsShown() then
+		return buffs, "LEFT", -PLATE_MARK_GAP
+	end
+	local classification = frame and frame.ClassificationFrame
+	if type(classification) == "table" then
+		return classification, "LEFT", -PLATE_MARK_GAP
+	end
+	local raidTarget = frame and frame.RaidTargetFrame
+	if type(raidTarget) == "table" then
+		return raidTarget, "LEFT", -PLATE_MARK_GAP
+	end
+	if healthBar then
+		return healthBar, "LEFT", -PLATE_MARK_GAP
+	end
+	return nil, "LEFT", -PLATE_MARK_GAP
+end
+
+-- Move an existing marker onto the frame PlateMarkAnchor picks now, so a plate whose buff row or badges changed does
+-- not keep an anchor chosen when it was first marked. Only the anchor changes; the marker keeps its atlas, alpha and
+-- shown state.
+---@param marker table
+---@param frame table?
+---@param healthBar table?
+local function AnchorPlateMarker(marker, frame, healthBar)
+	local anchor, relativePoint, offsetX = PlateMarkAnchor(frame, healthBar)
+	if not anchor then
+		return
+	end
+	local point, relativeTo, currentPoint, x, y = marker:GetPoint(1)
+	if
+		marker:GetNumPoints() == 1
+		and point == "RIGHT"
+		and relativeTo == anchor
+		and currentPoint == relativePoint
+		and x == offsetX
+		and y == 0
+	then
+		return
+	end
+	marker:ClearAllPoints()
+	marker:SetPoint("RIGHT", anchor, relativePoint, offsetX, 0)
+end
+
 ---@param owner table?
+local function ReanchorPlate(owner)
+	local marker = owner and owner.FGFRarityMarker
+	if type(marker) ~= "table" then
+		return
+	end
+	local frame = owner and owner.UnitFrame
+	local healthBar = frame and frame.healthBar
+	if healthBar then
+		AnchorPlateMarker(marker, frame, healthBar)
+	end
+end
+
+-- The client changes a nameplate's buff row outside our events: SetUnit calls UpdateShownState and then RefreshAuras,
+-- the aura CVars call UpdateShownState and SHOW_ALL_PERSONAL_AURAS calls RefreshAuras, and RefreshAuras lays the list
+-- out again after every added, removed or rescaled aura (Blizzard_NamePlateAuras.lua:92-135, 363-404, 541-575).
+-- Secure post-hooks catch calls made through the instance, but SetUnit registers its CVar callbacks with the original
+-- methods before NAME_PLATE_UNIT_ADDED lets us install those hooks, so a CVar change would bypass them. The same CVar
+-- registry callbacks below catch that saved-original path; their reanchor is deferred one frame because registry
+-- callbacks run in table order, not registration order. Both are installed once per AurasFrame, which the plate keeps
+-- across recycling; the callback reads the plate's current UnitFrame so a replacement skin is followed too.
+---@param owner table?
+---@param frame table?
+local function WatchPlate(owner, frame)
+	local auras = frame and frame.AurasFrame
+	if type(auras) ~= "table" or auras.FGFRarityWatched == true then
+		return
+	end
+	auras.FGFRarityWatched = true
+	local function reanchor()
+		ReanchorPlate(owner)
+	end
+	local function reanchorLater()
+		C_Timer.After(0, reanchor)
+	end
+	if type(auras.UpdateShownState) == "function" then
+		hooksecurefunc(auras, "UpdateShownState", reanchor)
+	end
+	if type(auras.RefreshAuras) == "function" then
+		hooksecurefunc(auras, "RefreshAuras", reanchor)
+	end
+	local constants = _G.NamePlateConstants
+	local registry = _G.CVarCallbackRegistry
+	if type(constants) ~= "table" or type(registry) ~= "table" then
+		return
+	end
+	local cvarOwner = {}
+	for _, cvar in ipairs({
+		constants.ENEMY_NPC_AURA_DISPLAY_CVAR,
+		constants.ENEMY_PLAYER_AURA_DISPLAY_CVAR,
+		constants.FRIENDLY_PLAYER_AURA_DISPLAY_CVAR,
+		constants.SHOW_DEBUFFS_ON_FRIENDLY_CVAR,
+		constants.AURA_SCALE_CVAR,
+		constants.SHOW_ALL_PERSONAL_AURAS_CVAR,
+	}) do
+		if type(cvar) == "string" then
+			registry:RegisterCallback(cvar, reanchorLater, cvarOwner)
+		end
+	end
+	auras.FGFRarityCVarOwner = cvarOwner
+end
+
+---@param owner table?
+---@param frame table?
 ---@param healthBar table?
 ---@param tier string
 ---@param discovery boolean?
-local function UpdateAccent(owner, healthBar, tier, discovery)
+local function UpdateAccent(owner, frame, healthBar, tier, discovery)
 	if not owner then
 		return
 	end
@@ -326,12 +450,11 @@ local function UpdateAccent(owner, healthBar, tier, discovery)
 	end
 	if not marker and healthBar and owner.CreateTexture then
 		marker = owner:CreateTexture(nil, "OVERLAY")
-		-- The Classic nameplate's level-difference frame occupies the health bar's right side. The left side is
-		-- the free native margin on both layouts, so the mark never sits under the level or skull.
-		marker:SetPoint("RIGHT", healthBar, "LEFT", -2, 0)
 		owner.FGFRarityMarker = marker
 	end
 	if marker then
+		AnchorPlateMarker(marker, frame, healthBar)
+		WatchPlate(owner, frame)
 		if color and mark then
 			Art.PaintTierIcon(marker, tier, 17)
 			marker:SetVertexColor(1, 1, 1, 1)
@@ -378,7 +501,7 @@ local function UpdatePlate(plate, unit)
 		discoveredThisSession[species.id] = true
 	end
 	-- Keep the mark on the nameplate itself: alternate skins may hide or replace Blizzard's UnitFrame child.
-	UpdateAccent(plate, healthBar, tier, discovery)
+	UpdateAccent(plate, frame, healthBar, tier, discovery)
 end
 
 -- Redraw every visible mark after the preview toggles, so the change is immediate rather than waiting for the next
@@ -423,7 +546,7 @@ events:SetScript("OnEvent", function(_, event, unit)
 			local frame = plate and plate.UnitFrame
 			if frame then
 				local bar = frame.healthBar
-				UpdateAccent(plate, bar, "bronze", false)
+				UpdateAccent(plate, frame, bar, "bronze", false)
 			end
 		end
 	end

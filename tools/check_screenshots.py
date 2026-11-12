@@ -57,6 +57,14 @@ RARITY_GEOMETRY = {
     "PORTRAIT_CENTER": (157, 31.5),
     "PORTRAIT_RADIUS": 29,
     "LEVEL_CENTER": (188, 54),
+    "PLATE_RAID_TARGET_SIZE": 22,
+    "PLATE_CLASSIFICATION_SIZE": 20,
+    "PLATE_BUFF_ICON_SIZE": 25,
+    "PLATE_BUFF_GAP": 5,
+    "PLATE_MARK_SIZE": 17,
+    "PLATE_MARK_GAP": 2,
+    "PLATE_HEALTH_WIDTH": 116,
+    "PLATE_HEALTH_HEIGHT": 12,
 }
 
 
@@ -73,7 +81,7 @@ def digest() -> str:
 
 
 def check_rarity_geometry() -> None:
-    """Keep the rarity renderer anchored to the measured client target-frame windows."""
+    """Keep the rarity renderer anchored to the measured client frame and badge geometry."""
     source = ast.parse((ROOT / "tools/rarity.py").read_text(encoding="utf-8"))
     values = {}
     for node in ast.walk(source):
