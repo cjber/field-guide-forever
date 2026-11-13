@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.8.9] - 2026-11-13
+
 ### Fixed
 
 - **Closing the field guide with its close button no longer breaks the game's controller support.** The button went through the game's panel manager, so the client blamed Field Guide Forever and blocked its next controller action; it now closes the journal directly, as Escape and `/fg` already do.
