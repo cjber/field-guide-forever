@@ -16,7 +16,7 @@ import os
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageChops  # ty: ignore[unresolved-import]
+from PIL import Image, ImageChops
 
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
 WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
@@ -57,7 +57,7 @@ def add_glow(canvas, texture, left, top, size):
     """Additive like the client's highlight: the texture's black backing adds nothing and stays transparent."""
     box = (canvas.px(left), canvas.px(top), canvas.px(left + size), canvas.px(top + size))
     region = canvas.image.crop(box)
-    piece = texture.resize((box[2] - box[0], box[3] - box[1]), Image.LANCZOS)
+    piece = texture.resize((box[2] - box[0], box[3] - box[1]), Image.Resampling.LANCZOS)
     added = ImageChops.add(region.convert("RGB"), piece.convert("RGB"))
     alpha = ImageChops.lighter(region.getchannel("A"), piece.convert("L"))
     out = added.convert("RGBA")

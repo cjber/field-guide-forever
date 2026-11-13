@@ -51,7 +51,7 @@ def is_button_red(pixel: tuple[int, int, int]) -> bool:
 
 def load_png(path: Path) -> Any:
     try:
-        from PIL import Image  # ty: ignore[unresolved-import]  # Pillow is local only, like wowmock
+        from PIL import Image
     except ImportError:
         sys.exit("visual_audit: Pillow is required (uv add pillow)")
     return Image.open(path).convert("RGB")
