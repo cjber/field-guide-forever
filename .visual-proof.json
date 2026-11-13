@@ -1,23 +1,23 @@
 {
-  "input_digest": "05676cdbe6d99858d12c60bfd9dbaaa7f9c025bd5353977cb0fbd37387b1b322",
-  "runtime_sha256": "05676cdbe6d99858d12c60bfd9dbaaa7f9c025bd5353977cb0fbd37387b1b322",
-  "candidate": "0c88be9f3b3b3e9115761fd23fa0badb92d89d6933a6dbe47aabe79312da3065",
+  "input_digest": "738ffe7f18ce277944ce015e013a3faf17a77656ead3fccede3fc43fc1bf77e9",
+  "runtime_sha256": "738ffe7f18ce277944ce015e013a3faf17a77656ead3fccede3fc43fc1bf77e9",
+  "candidate": "fd812ba7191e1cdd72cd3c8dc3605a7a6e139834a6163173be56f8cbb7e8b04b",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "e4985f07e4a6edad27ea18304155ba1403afffce",
+  "source_commit": "f7dbe4a445d87ef67333e53affeee9a1472e849c",
   "flows": [
     {
-      "name": "journal",
+      "name": "fieldguide report",
       "steps": [
-        "/fieldguide"
+        "/fieldguide report"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/ba48236c9d6a6a588acc219ca69674cf/raw/f3963b570ffcaf9e1432d249e95afcb6a97496ba/1-journal.png",
-      "sha256": "e1271a1c5d33a0470aeef231d21bf7cb5bb81f89fb4dda1c958ef905f09e1aa3"
+      "url": "https://gist.githubusercontent.com/cjber/c08cfceb4b9534a970351796b9ba55dc/raw/f8d97ee5f57ed9d19cbefa47598640f357a2736e/1-fieldguide-report.png",
+      "sha256": "10c2f125185414faa686ddd65357b61efd87dbab7d2d8668f855d4a5c19813ce"
     }
   ]
 }
