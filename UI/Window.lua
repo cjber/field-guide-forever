@@ -540,6 +540,14 @@ local function Create()
 	frame:EnableMouse(true)
 	frame:Hide()
 
+	-- PortraitFrameTemplate's close button is the client's UIPanelCloseButton, whose own click handler closes the
+	-- panel through HideUIPanel. That writes the gamepad frame bookkeeping under this addon's taint, so the client's
+	-- next secure gamepad call is refused and blamed on Field Guide Forever, the same path #253 closed for
+	-- Window.Show and Window.Hide. This journal is addon-owned, so its button closes the frame directly instead.
+	frame.CloseButton:SetScript("OnClick", function()
+		Window.Hide()
+	end)
+
 	BuildHeader(frame)
 	BuildBreadcrumb(frame)
 	BuildSearch(frame)
