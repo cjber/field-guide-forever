@@ -61,7 +61,7 @@ assert(detail.location.template == "InsetFrameTemplate", "the map keeps the nati
 assert(#detail.map.markers == 1, "nearby spawns share one marker cell")
 assert(detail.mapButton:IsShown() and detail.mapButton:IsEnabled(), "a mapped zone offers Open map")
 
--- Open map: the shared opener runs the client's restricted map function through a secure delegate, and does nothing in
+-- Open map: the shared opener runs the client's restricted map function through securecallfunction, and does nothing in
 -- combat. A direct call would be refused and blamed on the addon, so nothing here may reach it.
 Mock.openedMap, Mock.refusedMapOpeners = nil, nil
 assert(env.ForeverCore.OpenMap(1413) and Mock.openedMap == 1413, "the map opens through the secure opener")

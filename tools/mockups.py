@@ -29,7 +29,7 @@ from typing import Any, NotRequired, TypedDict
 
 from gen_creature_icons import model_paths
 from gen_mock_catalogue import EXTRACTED, FIXTURE
-from PIL import Image, ImageChops  # ty: ignore[unresolved-import]
+from PIL import Image, ImageChops
 from ui_art import BUILD as ART_BUILD
 
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()

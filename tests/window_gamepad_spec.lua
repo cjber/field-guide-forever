@@ -33,6 +33,14 @@ assert(#Mock.panelCalls == 0, "the gamepad interface opens the window without Sh
 local point, relativeTo, relativePoint, x, y = frame:GetPoint(1)
 assert(point == "TOPLEFT" and relativeTo == env.UIParent and relativePoint == "TOPLEFT" and x == 16 and y == -116)
 
+-- The template's close button is UIPanelCloseButton, whose own handler closes through HideUIPanel; the window's
+-- replaces it so the button closes the addon-owned frame itself (#371).
+local close = frame.CloseButton and frame.CloseButton:GetScript("OnClick")
+assert(close, "the window's close button closes it directly")
+close(frame.CloseButton)
+assert(not frame:IsShown() and #Mock.panelCalls == 0, "the close button closes the window without HideUIPanel")
+Window.Show()
+
 -- The zone and filter pickers use ForeverCore's menu, so they leave the gamepad focus untouched.
 Mock.messages = {}
 Window.ToggleZoneMenu()

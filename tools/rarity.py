@@ -19,7 +19,7 @@ import os
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw  # ty: ignore[unresolved-import]  # Pillow is local only
+from PIL import Image, ImageChops, ImageDraw
 from ui_art import BUILD as ART_BUILD
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -164,7 +164,7 @@ def ornament(tier):
 def draw_ornament(canvas, tier, x, y):
     """The ornament at its native aspect: 256 px at 2 px per UI unit, uniform at every render scale."""
     size = canvas.px(ORNAMENT_SIZE)
-    piece = ornament(tier).resize((size, size), Image.LANCZOS)
+    piece = ornament(tier).resize((size, size), Image.Resampling.LANCZOS)
     canvas.composite(piece, canvas.px(x + ORNAMENT_LEFT), canvas.px(y + ORNAMENT_TOP))
 
 
@@ -179,7 +179,7 @@ def rare_ring(ui):
     cx, cy = PORTRAIT_CENTER[0] * density * supersample, PORTRAIT_CENTER[1] * density * supersample
     radius = RING_OUTER_DIAMETER / 2 * density * supersample
     ImageDraw.Draw(mask).ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=255)
-    ring.putalpha(ImageChops.multiply(ring.getchannel("A"), mask.resize(image.size, Image.LANCZOS)))
+    ring.putalpha(ImageChops.multiply(ring.getchannel("A"), mask.resize(image.size, Image.Resampling.LANCZOS)))
     return ring
 
 
@@ -187,7 +187,7 @@ def sheen_mask(canvas, pieces):
     """The union of the art's alpha, so the sheen can only paint inside that art."""
     mask = Image.new("L", canvas.image.size, 0)
     for image, left, top, width, height in pieces:
-        alpha = image.resize((canvas.px(width), canvas.px(height)), Image.LANCZOS).getchannel("A")
+        alpha = image.resize((canvas.px(width), canvas.px(height)), Image.Resampling.LANCZOS).getchannel("A")
         layer = Image.new("L", mask.size, 0)
         layer.paste(alpha, (canvas.px(left), canvas.px(top)))
         mask = ImageChops.lighter(mask, layer)
@@ -200,7 +200,7 @@ def sheen(canvas, ui, x, y, pieces, travelled, alpha):
         return
     atlas = ui.atlas(SHEEN_ATLAS)
     layer = Image.new("RGBA", canvas.image.size)
-    piece = atlas.image.resize((canvas.px(atlas.width), canvas.px(atlas.height)), Image.LANCZOS)
+    piece = atlas.image.resize((canvas.px(atlas.width), canvas.px(atlas.height)), Image.Resampling.LANCZOS)
     left = x + SHEEN_START_CENTER[0] + travelled - atlas.width / 2
     top = y + SHEEN_START_CENTER[1] - atlas.height / 2
     layer.paste(piece, (canvas.px(left), canvas.px(top)))
@@ -265,7 +265,7 @@ def target_frame(ui, canvas, x, y, tier, icon, name, level, native=False, sheen_
     ):
         left, top, right, bottom = bounds
         width, height = canvas.px(right - left), canvas.px(bottom - top)
-        full = atlas.image.resize((width, height), Image.LANCZOS)
+        full = atlas.image.resize((width, height), Image.Resampling.LANCZOS)
         filled = max(1, round(width * fraction))
         canvas.composite(full.crop((0, 0, filled, height)), canvas.px(x + left), canvas.px(y + top))
 
@@ -296,7 +296,7 @@ def mark(canvas, ui, name, x, y, height, colour):
     """Draw a native atlas mark at its own aspect, centred on (x, y), as SetAtlas and SetVertexColor do."""
     atlas = ui.atlas(name)
     width = height * atlas.width / atlas.height
-    piece = atlas.image.resize((canvas.px(width), canvas.px(height)), Image.LANCZOS)
+    piece = atlas.image.resize((canvas.px(width), canvas.px(height)), Image.Resampling.LANCZOS)
     piece = tint(piece, colour)
     canvas.composite(piece, canvas.px(x - width / 2), canvas.px(y - height / 2))
 
@@ -349,7 +349,7 @@ def nameplate(ui, canvas, x, y, tier, name):
     fill_texture = ui.texture("interface/targetingframe/nameplatefill.blp")
     trough_colour = tuple(component * 0.18 for component in BRASS)
     canvas.draw(fill_texture, x, y, w, h, trough_colour)
-    full = fill_texture.resize((canvas.px(w), canvas.px(h)), Image.LANCZOS)
+    full = fill_texture.resize((canvas.px(w), canvas.px(h)), Image.Resampling.LANCZOS)
     full = tint(full, wowmock.rgb("a3342c"))
     canvas.composite(full.crop((0, 0, canvas.px(w * 0.9), canvas.px(h))), canvas.px(x), canvas.px(y))
     text(

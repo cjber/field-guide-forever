@@ -7,6 +7,42 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 - **Rarity marks stay visible on nameplates and clear the client's own badges and buffs.** The mark now sits beyond the buff row at the end of the client's left decorations, so the raid target, classification icons and buff icons no longer cover it, including when both badges are hidden. It follows that row as buffs appear, disappear or grow, and when a plate is recycled. Thanks to Kimab for the report (#344).
 
+## [0.8.10] - 2026-11-13
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+## [0.8.9] - 2026-11-13
+
+### Fixed
+
+- **Closing the field guide with its close button no longer breaks the game's controller support.** The button went through the game's panel manager, so the client blamed Field Guide Forever and blocked its next controller action; it now closes the journal directly, as Escape and `/fg` already do.
+
+## [0.8.8] - 2026-11-12
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+## [0.8.7] - 2026-11-12
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+## [0.8.6] - 2026-11-12
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+## [0.8.5] - 2026-11-12
+
+### Fixed
+
+- **Field Guide no longer makes the game's memory climb while you play.** Every creature nameplate, target change and rare seen on the minimap rebuilt a copy of every creature name in the zone, which added megabytes of memory churn a minute and left the game's cleanup pauses on whichever addon happened to be running. Those lookups now use a list built once, and the creature catalogue from QuestieDB is read once and kept rather than read again when Questie reports ready a second time.
+
 ## [0.8.4] - 2026-11-12
 
 <!-- forever-core-sync -->

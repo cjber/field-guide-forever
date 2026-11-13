@@ -1,0 +1,23 @@
+{
+  "input_digest": "738ffe7f18ce277944ce015e013a3faf17a77656ead3fccede3fc43fc1bf77e9",
+  "runtime_sha256": "738ffe7f18ce277944ce015e013a3faf17a77656ead3fccede3fc43fc1bf77e9",
+  "candidate": "fd812ba7191e1cdd72cd3c8dc3605a7a6e139834a6163173be56f8cbb7e8b04b",
+  "client_build": "1.60.1.70938 (Interface 16001)",
+  "tested_artifact": "source-tree",
+  "source_commit": "f7dbe4a445d87ef67333e53affeee9a1472e849c",
+  "flows": [
+    {
+      "name": "fieldguide report",
+      "steps": [
+        "/fieldguide report"
+      ],
+      "result": "pass"
+    }
+  ],
+  "images": [
+    {
+      "url": "https://gist.githubusercontent.com/cjber/c08cfceb4b9534a970351796b9ba55dc/raw/f8d97ee5f57ed9d19cbefa47598640f357a2736e/1-fieldguide-report.png",
+      "sha256": "10c2f125185414faa686ddd65357b61efd87dbab7d2d8668f855d4a5c19813ce"
+    }
+  ]
+}

@@ -108,20 +108,37 @@ function DB.AreaMaps()
 	return area, override
 end
 
--- One NPC's required fields, in REQUIRED's order, through QuestieDB's public reader.
----@param id integer
----@param lib table
----@return table?
-local function ReadNpc(id, lib)
-	local values = lib.Npc.GetAll(id, REQUIRED)
-	if type(values) ~= "table" then
+-- One NPC's required fields, in REQUIRED's order, and where each sits in Get's answer.
+local NAME, MIN_LEVEL, MAX_LEVEL, RANK, ZONE_ID, SPAWNS = 1, 2, 3, 4, 6, 7
+-- Catalogue order by NPC id, shared by every sort so none of them builds a comparator.
+---@param a { id: integer }
+---@param b { id: integer }
+---@return boolean
+local function ById(a, b)
+	return a.id < b.id
+end
+
+-- The names the old synthetic ids are re-keyed to, when a save still holds one. A save from schema 2 or later needs
+-- no name index, and building one would key a string for every NPC in the database only to drop it.
+---@return table<string, true>?
+local function LegacyNames()
+	if not (ns.LegacyIds and ns.db) then
 		return nil
 	end
-	local row = {}
-	for i, key in ipairs(REQUIRED) do
-		row[key] = values[i]
+	for _, state in pairs(ns.db.chars or {}) do
+		for oldId in pairs(state.species or {}) do
+			if ns.LegacyIds[tonumber(oldId)] then
+				local names = {}
+				for _, name in pairs(ns.LegacyIds) do
+					if type(name) == "string" then
+						names[name:lower()] = true
+					end
+				end
+				return names
+			end
+		end
 	end
-	return row
+	return nil
 end
 
 -- The catalogue, as a coroutine body: `yield` runs between NPCs so no frame reads the whole database.
@@ -168,56 +185,71 @@ local function Build(yield)
 		zonesById[id] = zone
 		zones[#zones + 1] = zone
 	end
+	local legacyNames = LegacyNames()
 	local speciesById, speciesByName, instanceSpecies = {}, {}, {}
+	-- One scratch list of the areas an NPC is placed in, reused for every NPC: the species keeps only its placement,
+	-- so this list is never retained and never needs to be a fresh table.
+	local spawnZones = {}
 	table.sort(ids)
 	for _, id in ipairs(ids) do
-		local row = ReadNpc(id, lib)
-		if type(row) == "table" and type(row.name) == "string" and row.name ~= "" then
-			local zoneId = tonumber(row.zoneID)
-			local spawnZones = {}
-			if type(row.spawns) == "table" then
-				for z in pairs(row.spawns) do
-					if tonumber(z) then
-						spawnZones[#spawnZones + 1] = tonumber(z)
+		local values = lib.Npc.GetAll(id, REQUIRED)
+		local name = type(values) == "table" and values[NAME] or nil
+		if type(name) == "string" and name ~= "" then
+			---@cast values table the reader answered with a table, since a name came out of it
+			local zoneId = tonumber(values[ZONE_ID])
+			local spawns = values[SPAWNS]
+			wipe(spawnZones)
+			if type(spawns) == "table" then
+				for spawnZone in pairs(spawns) do
+					spawnZone = tonumber(spawnZone)
+					if spawnZone then
+						spawnZones[#spawnZones + 1] = spawnZone
 					end
 				end
-				table.sort(spawnZones)
 			end
 			if zoneId then
 				spawnZones[#spawnZones + 1] = zoneId
 			end
+			-- Sort, then keep the first of each run in place: a set of one area per spawn point would be a second
+			-- table for every NPC in the database.
 			table.sort(spawnZones)
-			local unique = {}
-			for _, spawnZone in ipairs(spawnZones) do
-				if unique[#unique] ~= spawnZone then
-					unique[#unique + 1] = spawnZone
+			local kept = 0
+			for index = 1, #spawnZones do
+				local spawnZone = spawnZones[index]
+				if kept == 0 or spawnZones[kept] ~= spawnZone then
+					kept = kept + 1
+					spawnZones[kept] = spawnZone
 				end
 			end
-			spawnZones = unique
 			local creatureTypeID, familyID = ns.CreatureInfo.Get(tonumber(id))
 			local creatureType = creatureTypeID and ns.CreatureInfo.types[creatureTypeID]
+			local rank = tonumber(values[RANK]) or 0
+			local minLevel = tonumber(values[MIN_LEVEL]) or 1
 			local species = {
 				id = tonumber(id),
-				name = row.name,
-				minLevel = tonumber(row.minLevel) or 1,
-				maxLevel = tonumber(row.maxLevel) or tonumber(row.minLevel) or 1,
+				name = name,
+				minLevel = minLevel,
+				maxLevel = tonumber(values[MAX_LEVEL]) or minLevel,
 				family = creatureType and creatureType ~= "Unknown" and creatureType or "Unknown",
 				familyID = familyID,
 				creatureTypeID = creatureTypeID,
-				rank = tonumber(row.rank) or 0,
-				rare = tonumber(row.rank) == 2,
-				boss = tonumber(row.rank) == 3,
+				rank = rank,
+				rare = rank == 2,
+				boss = rank == 3,
 				zoneID = zoneId,
 				-- Spawn points are read again when a habitat map or the public API asks for them: keeping every
 				-- point here retained the whole spawn database, about 10 MB, and its collections were the idle frame.
 			}
 			speciesById[species.id] = species
-			local nameKey = species.name:lower()
-			if not speciesByName[nameKey] then
-				speciesByName[nameKey] = species.id
+			if legacyNames then
+				local nameKey = name:lower()
+				if legacyNames[nameKey] and not speciesByName[nameKey] then
+					speciesByName[nameKey] = species.id
+				end
 			end
 			local placed = false
-			for _, z in ipairs(spawnZones) do
+			for index = 1, kept do
+				local z = spawnZones[index]
 				local area = ns.ClientData.zones[z]
 				local mapId = area and tonumber(area.continent)
 				local map = mapId and ns.ClientData.maps[mapId]
@@ -253,9 +285,7 @@ local function Build(yield)
 		if #zone.species == 0 then
 			table.remove(zones, index)
 		else
-			table.sort(zone.species, function(a, b)
-				return a.id < b.id
-			end)
+			table.sort(zone.species, ById)
 		end
 	end
 	local instances = {}
@@ -264,17 +294,13 @@ local function Build(yield)
 			group.species[#group.species + 1] = species
 		end
 		group.speciesById = nil
-		table.sort(group.species, function(a, b)
-			return a.id < b.id
-		end)
+		table.sort(group.species, ById)
 		instances[#instances + 1] = group
 	end
-	table.sort(instances, function(a, b)
-		return a.id < b.id
-	end)
+	table.sort(instances, ById)
 	ns.Zones, ns.Instances, ns.SpeciesById = zones, instances, speciesById
 	ns.BuildCatalogue()
-	if ns.db and ns.LegacyIds then
+	if legacyNames and ns.db then
 		for _, state in pairs(ns.db.chars or {}) do
 			local remapped = {}
 			for oldId, entry in pairs(state.species or {}) do
@@ -331,7 +357,9 @@ function DB.Start(onReady)
 		end
 	end
 	local function settle()
-		if building then
+		-- One build per session: a second ready callback, or the wait fallback arriving after a build, must not read
+		-- the database again and replace the catalogue it already produced.
+		if building or status == "ok" then
 			return
 		end
 		building = true

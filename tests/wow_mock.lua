@@ -117,7 +117,7 @@ end
 
 function Mock.Reset()
 	Mock.openedMap = nil
-	Mock.secureDelegate = nil
+	Mock.secureCall = nil
 	Mock.refusedMapOpeners = nil
 	Mock.zone = "The Barrens"
 	Mock.clock = 1000
@@ -1061,20 +1061,18 @@ function Mock.Harness(opts)
 	env.PanelTemplates_TabResize = function(button, _padding, width)
 		button:SetSize(width, 32)
 	end
-	-- The client's restricted map opener: only the secure delegate may run it. A direct call from addon code is refused,
+	-- The client's restricted map opener: only securecallfunction may run it. A direct call from addon code is refused,
 	-- as the client refuses it and blames the addon (cjber/forever-core#333).
-	env.CreateSecureDelegate = function(fn)
-		return function(...)
-			Mock.secureDelegate = true
-			local result = fn(...)
-			Mock.secureDelegate = false
-			return result
-		end
+	env.securecallfunction = function(fn, ...)
+		Mock.secureCall = true
+		local result = fn(...)
+		Mock.secureCall = false
+		return result
 	end
 	-- The Barrens' world map art: one 1002 by 668 layer of 256 tiles, twelve files; no other map has art.
 	env.C_Map = {
 		OpenWorldMap = function(id)
-			if not Mock.secureDelegate then
+			if not Mock.secureCall then
 				Mock.refusedMapOpeners = (Mock.refusedMapOpeners or 0) + 1
 				return
 			end
