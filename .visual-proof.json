@@ -1,31 +1,31 @@
 {
-  "input_digest": "f231b01ac7098ed0fa593dd54874da36ddf2fc0f407024f4c358ffa0a22f841e",
-  "runtime_sha256": "f231b01ac7098ed0fa593dd54874da36ddf2fc0f407024f4c358ffa0a22f841e",
-  "candidate": "04b95710c332327d0e44ba04cbdcbe1aa7eab49d1f4dd73db3aff3379ed8f40b",
+  "input_digest": "47e9d831af654d8a8ae1d3b5907ace003498364af25f1c934a838f95e98d99bd",
+  "runtime_sha256": "47e9d831af654d8a8ae1d3b5907ace003498364af25f1c934a838f95e98d99bd",
+  "candidate": "8b4447b0ca12142237278f9c51327386e3665108222f2d6a96207d5b59713f62",
   "tested_artifact": "source-tree",
-  "client_build": "1.60.1.70888 (Interface 16001)",
-  "source_commit": "6dbe8e572f4b649b7c8138c7552ca4df207cc9d1",
-  "notes": "Recorded on Hel Io in the player's live client from an installed source-tree build of this commit (git archive); --compare reported no missing or differing runtime files, the install additionally carries the ignored store icon. Every other Forever addon's 1.9.0 sync build was loaded in the same session. The only BugGrabber entries this session were the recorder's own over-long /run lines.",
+  "client_build": "1.60.1.70938 (Interface 16001)",
+  "source_commit": "1783f64d30332275c136499030a1548f967e81cc",
+  "notes": "Recorded on Hel Io in the headless client from a build-dev install of this commit beside the store ForeverCore v1.9.0; --compare reported no missing or differing runtime files, the install additionally carries the ignored store icon. errors --addon FieldGuideForever found no Lua errors before or after the close, and the /forever selftest run in the same session passed every surface.",
   "flows": [
     {
-      "name": "Field Guide's Thanks entry on ForeverCore 1.9.0",
+      "name": "The journal's close button closes it without taint",
       "steps": [
-        "Install the candidate with the store ForeverCore v1.9.0 and /reload",
-        "Print every Forever addon's loaded version into a chat tab with no channels: store ForeverCore v1.9.0 plus each 1.9.0 sync build, all loaded, and BugGrabber shows no addon errors this session",
-        "Run ForeverCore.Credits.Open(\"Field Guide Forever\") and scroll the list to Kimab",
-        "Kimab shows with 'Open-world kills count again'"
+        "Install the candidate and /reload",
+        "/fg opens the Field Guide journal",
+        "Click the journal's close button",
+        "The journal closes, and errors --addon FieldGuideForever reports no Lua errors"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-fgf-thanks.png",
-      "sha256": "fce1dfad6064c6c6ba9e0b313ae4106183ee4d3933c10ea0d0163ac4d7886c52"
+      "url": "https://gist.githubusercontent.com/cjber/114e14e6ac0a14f346aab31265c5ae6b/raw/4bb194e96d7eb0413ebe559830647490b719df4e/fgf-372-open.png",
+      "sha256": "a0484fcfaedae7aa04b3e6908bb5c66aa71825874c5f5c46a1cdb9bb2b26a88d"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-versions.png",
-      "sha256": "9731b84977a7daf94152f9129b9ea996b4c467006f822f7acc430332fa8f08ec"
+      "url": "https://gist.githubusercontent.com/cjber/114e14e6ac0a14f346aab31265c5ae6b/raw/4bb194e96d7eb0413ebe559830647490b719df4e/fgf-372-closed.png",
+      "sha256": "ca606a31d0a32f89af1c6ff5ae7cb2892e03ba898d4662b9364d4e0e8603a575"
     }
   ]
 }
