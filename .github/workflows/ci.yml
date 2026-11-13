@@ -43,7 +43,7 @@ jobs:
         with:
           tools: lua stylua
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
-      - name: Read the Forever Core ref
+      - name: Read the ForeverCore ref
         id: forever-core
         run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -96,7 +96,7 @@ jobs:
       - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
         with:
           tools: luals
-      - name: Read the Forever Core ref
+      - name: Read the ForeverCore ref
         id: forever-core
         run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -183,7 +183,7 @@ jobs:
           # Every commit and tag for the version, without old file contents.
           filter: blob:none
           persist-credentials: false
-      - name: Read the Forever Core ref
+      - name: Read the ForeverCore ref
         id: forever-core
         run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
       # check_package.py lays the pinned Core checkout's tests/ beside the packaged ForeverCore, so the specs run

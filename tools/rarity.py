@@ -333,8 +333,8 @@ def raid_target_icon(ui, index=1):
 def draw_buff_icon(ui, canvas, x, y, icon):
     """One 25-unit aura icon with the client's rounded mask and its own overlay art."""
     size = PLATE_BUFF_ICON_SIZE
-    art = icon.resize((canvas.px(size), canvas.px(size)), Image.LANCZOS)
-    mask = ui.atlas("UI-HUD-CoolDownManager-Mask").image.resize((canvas.px(size), canvas.px(size)), Image.LANCZOS)
+    art = icon.resize((canvas.px(size), canvas.px(size)), Image.Resampling.LANCZOS)
+    mask = ui.atlas("UI-HUD-CoolDownManager-Mask").image.resize((canvas.px(size), canvas.px(size)), Image.Resampling.LANCZOS)
     art.putalpha(ImageChops.multiply(art.getchannel("A"), mask.getchannel("A")))
     canvas.composite(art, canvas.px(x), canvas.px(y))
     overlay = ui.atlas("UI-HUD-CoolDownManager-IconOverlay")
@@ -372,7 +372,7 @@ def nameplate(ui, canvas, x, y, tier, name):
         icon = raid_target_icon(ui, 1)
         left = x - PLATE_RAID_TARGET_SIZE
         canvas.composite(
-            icon.resize((canvas.px(PLATE_RAID_TARGET_SIZE), canvas.px(PLATE_RAID_TARGET_SIZE)), Image.LANCZOS),
+            icon.resize((canvas.px(PLATE_RAID_TARGET_SIZE), canvas.px(PLATE_RAID_TARGET_SIZE)), Image.Resampling.LANCZOS),
             canvas.px(left),
             canvas.px(centre_y - PLATE_RAID_TARGET_SIZE / 2),
         )
