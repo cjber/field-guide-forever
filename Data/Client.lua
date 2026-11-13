@@ -1,16 +1,16 @@
 ---@type string, FGNamespace
 local _, ns = ...
 
--- Generated from wago.tools Forever build 1.60.1.70888; do not edit.
--- AreaTable: 1404 rows; sha256 6e34c93426bf9ba46dfc8f7dd1b140bb556c1bf2a6ace8a1a3556f434c8c6989
+-- Generated from wago.tools Forever build 1.60.1.70938; do not edit.
+-- AreaTable: 1404 rows; sha256 9aac5960ef4b8f3c01d9f46f399628ce7bb633ff865709d59fb59d9ce4cb43df
 -- Map: 78 rows; sha256 a4fa6474f5bba3dc815f0e78943b3a907840b8f44bba605d4ff0680048994908
 -- CreatureFamily: 27 rows; sha256 7ba620ec805373038287cce591422996d963b85868c2e1f41a4b89d4e0713a6c
--- CreatureDisplayInfo: 14226 rows; sha256 236cd14ccd732bf28b754fa8679cf2cb31246ad50231cf689be2c76e70004234
+-- CreatureDisplayInfo: 14227 rows; sha256 b6d93c5e2a4e962008aec73e19a25f38fcf49f251e8743f634cd39fe05f2b093
 -- UiMapXMapArt: 60 rows; sha256 81092d619701f0b31a3537129ec5667b38630b5291e211034971a1dde05678dc
 -- WorldMapOverlay: 1081 rows; sha256 d8c884864504ab54d7dc1e048fd4e49e41177bee5cce3d43d8ee3c339e284d85
 -- WorldMapOverlayTile: 1739 rows; sha256 31d8b8c4cae7a1afd312f13a74ba75a461042e00b6e69e2b63809ce9809df02f
 ns.ClientData =
-	{ build = "1.60.1.70888", continents = {}, zones = {}, maps = {}, families = {}, portraits = {}, mapOverlays = {} }
+	{ build = "1.60.1.70938", continents = {}, zones = {}, maps = {}, families = {}, portraits = {}, mapOverlays = {} }
 ns.ClientData.continents[0] = "Eastern Kingdoms"
 ns.ClientData.continents[1] = "Kalimdor"
 ns.ClientData.zones[1] = { name = "Dun Morogh", continent = 0 }
@@ -15748,6 +15748,7 @@ ns.ClientData.portraits[149297] = 0
 ns.ClientData.portraits[149298] = 0
 ns.ClientData.portraits[149299] = 0
 ns.ClientData.portraits[149301] = 0
+ns.ClientData.portraits[149885] = 0
 ns.ClientData.mapOverlays[1411] = {
 	{ 427, 78, 256, 256, { 8073637 } },
 	{ 549, 427, 256, 241, { 8074089 } },

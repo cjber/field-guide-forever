@@ -1,30 +1,23 @@
 {
-  "input_digest": "c4009eb6676d1aa441184f1383d3ee2e9fe58c4a923e5dc33209e9e43ecd6e46",
-  "runtime_sha256": "c4009eb6676d1aa441184f1383d3ee2e9fe58c4a923e5dc33209e9e43ecd6e46",
-  "candidate": "360701b29d56f39de5d6255ee79b7ea2bb731b630c78cde33c2fd2a394d1530f",
-  "tested_artifact": "source-tree",
+  "input_digest": "05676cdbe6d99858d12c60bfd9dbaaa7f9c025bd5353977cb0fbd37387b1b322",
+  "runtime_sha256": "05676cdbe6d99858d12c60bfd9dbaaa7f9c025bd5353977cb0fbd37387b1b322",
+  "candidate": "0c88be9f3b3b3e9115761fd23fa0badb92d89d6933a6dbe47aabe79312da3065",
   "client_build": "1.60.1.70938 (Interface 16001)",
-  "source_commit": "7c353297cca5c1e4554b030d981da6f38a735e9c",
-  "notes": "Recorded on Hel Io in the headless client from a source-tree build of this commit (forever_client.py build-dev) linked into AddOns, with the store ForeverCore v1.10.0 and the other four 1.10.0 sync builds (Tweaks, Legacy, Commissions, Macro Assist, Field Guide) loaded in the same session. BugGrabber recorded no errors this session; the errors listed in the report window are earlier sessions' history.",
+  "tested_artifact": "source-tree",
+  "source_commit": "e4985f07e4a6edad27ea18304155ba1403afffce",
   "flows": [
     {
-      "name": "Field Guide Forever on ForeverCore 1.10.0",
+      "name": "journal",
       "steps": [
-        "Link the candidate build with the store ForeverCore v1.10.0 and /reload",
-        "Print every Forever addon's loaded version: ForeverCore v1.10.0 and each sync build loaded, 0 BugGrabber errors this session",
-        "Run /fieldguide report: the addon's report window opens on this build, with ForeverCore 1.10.0's performance section"
+        "/fieldguide"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/61e1d759a57ff98eb48b76f8121cf66a/raw/9ce32ab1c30b24a4b41552cd2ad58f5346a1240c/sync110-fgf-report.png",
-      "sha256": "fed00bd5a158b72ba744e847bbcca918e6f8b2c611778cc0dc49144fa4629221"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/61e1d759a57ff98eb48b76f8121cf66a/raw/9ce32ab1c30b24a4b41552cd2ad58f5346a1240c/sync110-versions.png",
-      "sha256": "66d10d46b3140bbd2797f47ca2fe716284b6b74d2dc5ba0ed7393970eac409b0"
+      "url": "https://gist.githubusercontent.com/cjber/ba48236c9d6a6a588acc219ca69674cf/raw/f3963b570ffcaf9e1432d249e95afcb6a97496ba/1-journal.png",
+      "sha256": "e1271a1c5d33a0470aeef231d21bf7cb5bb81f89fb4dda1c958ef905f09e1aa3"
     }
   ]
 }
