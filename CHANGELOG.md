@@ -5,6 +5,12 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.8.10] - 2026-11-13
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
 ## [0.8.9] - 2026-11-13
 
 ### Fixed

@@ -1,31 +1,30 @@
 {
-  "input_digest": "47e9d831af654d8a8ae1d3b5907ace003498364af25f1c934a838f95e98d99bd",
-  "runtime_sha256": "47e9d831af654d8a8ae1d3b5907ace003498364af25f1c934a838f95e98d99bd",
-  "candidate": "8b4447b0ca12142237278f9c51327386e3665108222f2d6a96207d5b59713f62",
+  "input_digest": "c4009eb6676d1aa441184f1383d3ee2e9fe58c4a923e5dc33209e9e43ecd6e46",
+  "runtime_sha256": "c4009eb6676d1aa441184f1383d3ee2e9fe58c4a923e5dc33209e9e43ecd6e46",
+  "candidate": "360701b29d56f39de5d6255ee79b7ea2bb731b630c78cde33c2fd2a394d1530f",
   "tested_artifact": "source-tree",
   "client_build": "1.60.1.70938 (Interface 16001)",
-  "source_commit": "1783f64d30332275c136499030a1548f967e81cc",
-  "notes": "Recorded on Hel Io in the headless client from a build-dev install of this commit beside the store ForeverCore v1.9.0; --compare reported no missing or differing runtime files, the install additionally carries the ignored store icon. errors --addon FieldGuideForever found no Lua errors before or after the close, and the /forever selftest run in the same session passed every surface.",
+  "source_commit": "7c353297cca5c1e4554b030d981da6f38a735e9c",
+  "notes": "Recorded on Hel Io in the headless client from a source-tree build of this commit (forever_client.py build-dev) linked into AddOns, with the store ForeverCore v1.10.0 and the other four 1.10.0 sync builds (Tweaks, Legacy, Commissions, Macro Assist, Field Guide) loaded in the same session. BugGrabber recorded no errors this session; the errors listed in the report window are earlier sessions' history.",
   "flows": [
     {
-      "name": "The journal's close button closes it without taint",
+      "name": "Field Guide Forever on ForeverCore 1.10.0",
       "steps": [
-        "Install the candidate and /reload",
-        "/fg opens the Field Guide journal",
-        "Click the journal's close button",
-        "The journal closes, and errors --addon FieldGuideForever reports no Lua errors"
+        "Link the candidate build with the store ForeverCore v1.10.0 and /reload",
+        "Print every Forever addon's loaded version: ForeverCore v1.10.0 and each sync build loaded, 0 BugGrabber errors this session",
+        "Run /fieldguide report: the addon's report window opens on this build, with ForeverCore 1.10.0's performance section"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/114e14e6ac0a14f346aab31265c5ae6b/raw/4bb194e96d7eb0413ebe559830647490b719df4e/fgf-372-open.png",
-      "sha256": "a0484fcfaedae7aa04b3e6908bb5c66aa71825874c5f5c46a1cdb9bb2b26a88d"
+      "url": "https://gist.githubusercontent.com/cjber/61e1d759a57ff98eb48b76f8121cf66a/raw/9ce32ab1c30b24a4b41552cd2ad58f5346a1240c/sync110-fgf-report.png",
+      "sha256": "fed00bd5a158b72ba744e847bbcca918e6f8b2c611778cc0dc49144fa4629221"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/114e14e6ac0a14f346aab31265c5ae6b/raw/4bb194e96d7eb0413ebe559830647490b719df4e/fgf-372-closed.png",
-      "sha256": "ca606a31d0a32f89af1c6ff5ae7cb2892e03ba898d4662b9364d4e0e8603a575"
+      "url": "https://gist.githubusercontent.com/cjber/61e1d759a57ff98eb48b76f8121cf66a/raw/9ce32ab1c30b24a4b41552cd2ad58f5346a1240c/sync110-versions.png",
+      "sha256": "66d10d46b3140bbd2797f47ca2fe716284b6b74d2dc5ba0ed7393970eac409b0"
     }
   ]
 }
