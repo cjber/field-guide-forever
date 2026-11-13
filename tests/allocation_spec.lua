@@ -5,6 +5,13 @@
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
 
+-- The JIT is off for this file: LuaJIT counts compiled traces in collectgarbage("count"), so a trace compiled
+-- inside a measured region was charged to it as garbage, and where traces landed changed between runs (CI read 1.313
+-- KB per NPC where a rerun read 0.712, #369). A trace is retained startup cost, not the per-event allocation guarded
+-- here; with the JIT off every figure is the addon's own allocation and repeats exactly.
+local jit = require("jit")
+jit.off()
+
 -- The creatures this spec's QuestieDB fixture holds, one per NPC.
 local NPC_COUNT = 120
 local FIRST_ID = 70001
