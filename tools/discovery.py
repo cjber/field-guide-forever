@@ -15,7 +15,7 @@ import os
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageEnhance, ImageFilter  # ty: ignore[unresolved-import]  # Pillow is local only
+from PIL import Image, ImageEnhance, ImageFilter
 from ui_art import BUILD as ART_BUILD
 
 ROOT = Path(__file__).resolve().parent.parent

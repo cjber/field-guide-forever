@@ -6,7 +6,7 @@ import os
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw  # ty: ignore[unresolved-import]
+from PIL import Image, ImageDraw
 from ui_art import BUILD as ART_BUILD
 
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core"))

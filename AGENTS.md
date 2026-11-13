@@ -17,9 +17,10 @@ The shared suite standards follow forever-core `main`. For UI work, read the [wo
 ```sh
 stylua --check .
 luacheck .
-FOREVER_CORE=../forever-core bash tools/typecheck.sh   # TOC/XML load graph, secret-value lint and LuaLS 3.19.1, which must report nothing
+FOREVER_CORE=../forever-core bash tools/typecheck.sh   # TOC/XML load graph, secret-value lint and LuaLS, which must report nothing
 for spec in tests/*_spec.lua; do FOREVER_CORE=../forever-core luajit "$spec" || exit 1; done
-uvx ruff@0.16.8 check tools && uvx ruff@0.16.8 format --check tools
+uv run --project tools --frozen --group dev ruff check tools
+uv run --project tools --frozen --group dev ruff format --check tools
 python3 tools/check_generated.py
 python3 tools/forever_tools/credits.py --check   # Data/Credits.lua and both thanks blocks are current (WFA-31)
 python3 tools/check_core_shared.py
@@ -49,9 +50,12 @@ checks this repo's vendored development tooling against public forever-core main
 `.github/workflows/core-shared-drift.yml` runs it on a schedule. Runtime files are ForeverCore's alone. `tools/typecheck.sh` verifies the vendored `tools/forever_tools/` (copied byte for byte from
 forever-core: refresh it only with `python3 tools/forever_tools/sync.py update --source <forever-core checkout>`),
 checks that the TOC/XML load graph reaches every runtime Lua file (`tools/typecheck_coverage.py`), then runs LuaLS
-over every TOC-loaded file against the pinned WoW API and FrameXML annotations. CI runs the gate in the jobs
-`deadcode`, `check`, `python`, `typecheck`, `generated-data`, `project-rules` (changelog and `tools/repo_rules.py`),
-`workflows`, `secrets` and `package`, each on every pull request.
+over every TOC-loaded file against the pinned WoW API and FrameXML annotations. CI installs the Lua, LuaLS, StyLua and
+gitleaks pins from `tools/toolchain.json` with forever-core's `.github/actions/toolchain`, and the Python tools from
+`tools/pyproject.toml`'s dev group with `uv run --project tools --frozen --group dev`; a tool version belongs in one of
+those two files, not in a workflow or this file. CI runs the gate in the jobs `deadcode`, `check`, `python`,
+`typecheck`, `generated-data`, `project-rules` (changelog and `tools/repo_rules.py`), `workflows`, `secrets` and
+`package`, each on every pull request.
 `tools/visual_audit.py` reads the `docs/screenshots/layout.json` manifest `tools/mockups.py` writes and fails when a widget leaves the window
 frame, when two controls overlap or sit closer than 8 units apart, or when the rendered button art is not where the
 manifest says it is. Runtime anchors and native template behavior are the source of truth. Fix the runtime producer and
