@@ -14,7 +14,7 @@ Field Guide Forever gives every creature in WoW: Forever a coat. Most are bronze
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/rarity-nameplates.gif" width="640" alt="Silver, gold and shiny laurels on the target frame, a sheen sweeping the shiny one, and the matching nameplate mark under each"></p>
 
-A silver, gold or shiny spawn wears a laurel ornament around its target portrait, from a single silver sprig to a full gold laurel, and on shiny a pearl laurel with a light sweeping across it. Its nameplate gets the same mark beside the health bar. Every player sees the same coat on the same spawn, so a gold in your group is gold for everyone.
+A silver, gold or shiny spawn wears a laurel ornament around its target portrait, from a single silver sprig to a full gold laurel, and on shiny a pearl laurel with a light sweeping across it. Its nameplate gets the same mark beyond the client's own left badge and buff row. Every player sees the same coat on the same spawn, so a gold in your group is gold for everyone.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/demo.gif" width="640" alt="The Field Guide stepping through creatures, instances and the coat filters in several zones"></p>
 
@@ -38,7 +38,7 @@ Your first silver, gold or shiny of a species, a species reaching Mastered and a
 
 ## Features
 
-- **Rarity marks**: a silver, gold or shiny spawn wears a laurel ornament around its portrait that grows from a plain silver ring with one oak sprig to the gold laurel, and shiny wears the same laurel in pearl with a slow light sweeping across it. Silver and shiny also keep the game's rare silver frame. Its nameplate gets the same quality mark to the right of the health bar. Health bars, names and the client's own rare, elite and boss art keep their colours. Bronze creatures look exactly as they always did, and `/fg preview` cycles the three higher coats for this session.
+- **Rarity marks**: a silver, gold or shiny spawn wears a laurel ornament around its portrait that grows from a plain silver ring with one oak sprig to the gold laurel, and shiny wears the same laurel in pearl with a slow light sweeping across it. Silver and shiny also keep the game's rare silver frame. Its nameplate gets the same quality mark beyond the client's own left badge and buff row. Health bars, names and the client's own rare, elite and boss art keep their colours. Bronze creatures look exactly as they always did, and `/fg preview` cycles the three higher coats for this session.
 - **Journal**: creatures across outdoor zones, dungeons and raids, with their level, rank and zone, read from QuestieDB as it updates. It opens on Discovered, so a new character starts with what they have actually met. Search by name, filter by status or coat, and switch between the Creatures and Instances tabs.
 - **Research ranks**: kills move a species through Discovered (1), Observed (3), Studied (6) and Mastered (10). The kill count keeps going after that.
 - **Zone completion**: the share of a zone's species you have recorded. It counts recorded species, not mastered ones, so the bar moves with every new creature.

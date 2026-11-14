@@ -16,6 +16,7 @@ import re
 import sys
 from pathlib import Path
 
+from forever_tools import lua51, package
 from forever_tools.package import FORBIDDEN
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -88,6 +89,20 @@ def main() -> int:
         print(f"{RELEASE.name}/ not found: run the packager first", file=sys.stderr)
         return 1
     problems = check(RELEASE)
+    for name in (ADDON, "ForeverCore"):
+        problems.extend(lua51.check(RELEASE / name))
+    if not problems:
+        problems.extend(
+            package.run_specs(
+                ROOT,
+                RELEASE,
+                package.Policy(
+                    addons=(ADDON, "ForeverCore"),
+                    specs=("tests/sim/exercise_scenario.lua",),
+                    support=("tests", "tools/forever_sim"),
+                ),
+            )
+        )
     if problems:
         print("The package is not shippable:", file=sys.stderr)
         for problem in problems:

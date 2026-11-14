@@ -343,7 +343,7 @@ function methods:IsShown()
 end
 
 function methods:IsVisible()
-	return self._shown
+	return self._shown and (not self._parent or self._parent:IsVisible())
 end
 
 function methods:Show()

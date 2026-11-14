@@ -274,17 +274,122 @@ assert(not shinyArt.anim:IsPlaying(), "the sheen stops when the target art hides
 assert(not shinyArt.ornamentSheen:IsShown(), "hiding the art hides the ornament sheen")
 
 -- A nameplate is recycled between units, so a tier is marked by its quality icon only and never by the plate's own
--- health colour or name.
+-- health colour or name. The fixture is a stock plate: the client anchors a 22 by 22 RaidTargetFrame's right edge on
+-- HealthBarsContainer's left, a 20 by 20 ClassificationFrame's right edge on the raid target's left, and then hangs
+-- the buff row's right edge 5 units left of the classification frame while it grows left (Blizzard_NamePlates.xml
+-- 186-236, Blizzard_NamePlateUnitFrame.lua:848-858, Blizzard_NamePlateAuras.lua:315-323). Both badges carry
+-- collapsesLayout, so hiding one removes its 22 or 20 units instead of reserving them. The Classic health bar is
+-- inset 3.5 units from the container's left; Modern fills it (Blizzard_NamePlateUnitFrame.lua:731-738).
 local plateReaction = { 0.64, 0.2, 0.17, 1 }
-local unitFrame = Mock.CreateFrame("Frame")
+local PLATE_RAID_TARGET_SIZE = 22
+local PLATE_CLASSIFICATION_SIZE = 20
+local PLATE_BUFF_ICON_SIZE = 25
+local PLATE_BUFF_GAP = 5
+local PLATE_MARK_GAP = 2
+
+local function NewStockPlate(modern, classificationShown, buffCount, raidShown)
+	local fixture = {}
+	fixture.plate = Mock.CreateFrame("Frame")
+	fixture.unitFrame = Mock.CreateFrame("Frame", nil, fixture.plate)
+	fixture.plate.UnitFrame = fixture.unitFrame
+	fixture.container = Mock.CreateFrame("Frame", nil, fixture.unitFrame)
+	fixture.unitFrame.HealthBarsContainer = fixture.container
+	fixture.healthBar = Mock.CreateFrame("Frame", nil, fixture.container)
+	fixture.healthBar:SetStatusBarColor(unpack(plateReaction))
+	fixture.container.healthBar = fixture.healthBar
+	fixture.unitFrame.healthBar = fixture.healthBar
+	if modern then
+		fixture.healthBar:SetPoint("TOPLEFT", fixture.container, "TOPLEFT", 0, 0)
+		fixture.healthBar:SetPoint("BOTTOMRIGHT", fixture.container, "BOTTOMRIGHT", 0, 0)
+	else
+		fixture.healthBar:SetPoint("TOPLEFT", fixture.container, "TOPLEFT", 3.5, 0.5)
+		fixture.healthBar:SetPoint("BOTTOMRIGHT", fixture.container, "BOTTOMRIGHT", -20.75, 0.5)
+	end
+	fixture.raidTarget = Mock.CreateFrame("Frame", nil, fixture.unitFrame)
+	fixture.raidTarget.collapsesLayout = true
+	fixture.raidTarget:SetSize(PLATE_RAID_TARGET_SIZE, PLATE_RAID_TARGET_SIZE)
+	fixture.raidTarget:SetPoint("RIGHT", fixture.container, "LEFT", 0, 0)
+	fixture.raidTarget:SetShown(raidShown or false)
+	fixture.unitFrame.RaidTargetFrame = fixture.raidTarget
+	fixture.classification = Mock.CreateFrame("Frame", nil, fixture.unitFrame)
+	fixture.classification.collapsesLayout = true
+	fixture.classification:SetSize(PLATE_CLASSIFICATION_SIZE, PLATE_CLASSIFICATION_SIZE)
+	fixture.classification:SetPoint("RIGHT", fixture.raidTarget, "LEFT", 0, 0)
+	-- A raid icon hides the classification frame; the two never show together.
+	fixture.classification:SetShown((classificationShown or false) and not raidShown)
+	fixture.unitFrame.ClassificationFrame = fixture.classification
+	fixture.auras = Mock.CreateFrame("Frame", nil, fixture.unitFrame)
+	fixture.unitFrame.AurasFrame = fixture.auras
+	fixture.buffs = Mock.CreateFrame("Frame", nil, fixture.auras)
+	fixture.auras.BuffListFrame = fixture.buffs
+	fixture.aurasShown = true
+	fixture.buffsShown = true
+	fixture.buffCount = buffCount or 0
+	-- The aura list is a layout frame: it is 1 unit wide with no icons and grows left by whole 25-unit icons.
+	fixture.buffs:SetSize(math.max(1, fixture.buffCount * PLATE_BUFF_ICON_SIZE), PLATE_BUFF_ICON_SIZE)
+	fixture.buffs:SetPoint("RIGHT", fixture.classification, "LEFT", -PLATE_BUFF_GAP, 0)
+	-- NamePlateAurasMixin's lifecycle reduced to what the mark depends on: UpdateShownState shows or hides the buff
+	-- row from the unit/CVar state, and RefreshAuras lays a shown row out after an aura change, resizing it to whole
+	-- icons (Blizzard_NamePlateAuras.lua:363-404, 499-575).
+	function fixture.auras:UpdateShownState()
+		self:SetShown(fixture.aurasShown)
+		self.BuffListFrame:SetShown(self:IsShown() and fixture.buffsShown)
+	end
+	function fixture.auras:RefreshAuras()
+		if not self.BuffListFrame:IsShown() then
+			return
+		end
+		self.BuffListFrame:SetSize(math.max(1, fixture.buffCount * PLATE_BUFF_ICON_SIZE), PLATE_BUFF_ICON_SIZE)
+	end
+	return fixture
+end
+
+-- The fixture's horizontal layout, from the stock anchors upward: container left is 0, a RIGHT anchor sits on the
+-- relative frame's LEFT plus its offset, and a TOPLEFT anchor starts at the relative frame's left plus its offset.
+-- A hidden collapsesLayout frame has no width, so the next anchor in the row moves onto its right edge.
+local function FrameWidth(frame)
+	if frame.collapsesLayout and not frame:IsShown() then
+		return 0
+	end
+	return frame:GetWidth()
+end
+
+local function LeftEdge(frame, root, lefts)
+	if frame == root then
+		return 0
+	end
+	lefts = lefts or {}
+	if lefts[frame] then
+		return lefts[frame]
+	end
+	local point, relativeTo, relativePoint, x = frame:GetPoint(1)
+	assert(relativeTo, "the fixture frame is anchored")
+	local relativeLeft = LeftEdge(relativeTo, root, lefts)
+	local left
+	if point == "RIGHT" and relativePoint == "LEFT" then
+		left = relativeLeft + (x or 0) - FrameWidth(frame)
+	elseif point == "TOPLEFT" then
+		left = relativeLeft + (x or 0)
+	else
+		error("unexpected fixture anchor " .. tostring(point))
+	end
+	lefts[frame] = left
+	return left
+end
+
+local function AssertClears(first, second, root, label)
+	local firstLeft = LeftEdge(first, root)
+	local secondLeft = LeftEdge(second, root)
+	assert(firstLeft + FrameWidth(first) <= secondLeft or secondLeft + FrameWidth(second) <= firstLeft, label)
+end
+
+local modern = NewStockPlate(true, true, 2)
+local plate, unitFrame = modern.plate, modern.unitFrame
 unitFrame.name = unitFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 unitFrame.name:SetTextColor(unpack(plateReaction))
-unitFrame.healthBar = Mock.CreateFrame("Frame")
-unitFrame.healthBar:SetStatusBarColor(unpack(plateReaction))
 unitFrame.reactionColor = plateReaction
 local plateHealthCalls = SpyColour(unitFrame.healthBar, "SetStatusBarColor")
 local plateNameCalls = SpyColour(unitFrame.name, "SetTextColor")
-local plate = { UnitFrame = unitFrame }
 local plateAttached = true
 harness.env.C_NamePlate = {
 	GetNamePlateForUnit = function()
@@ -305,19 +410,36 @@ end
 Mock.guids.nameplate1 = GuidFor("silver", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a tiered nameplate")
-assert(
-	unitFrame.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier2",
-	"the nameplate carries the silver mark"
+assert(plate.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier2", "the nameplate carries the silver mark")
+assert(plate.FGFRarityMarker:IsShown(), "a tiered nameplate shows its tag")
+unitFrame:Hide()
+assert(plate.FGFRarityMarker:IsVisible(), "the mark stays visible when a skin hides Blizzard's UnitFrame")
+unitFrame:Show()
+local markerPoint, markerRelative, markerRelativePoint, markerX, markerY = plate.FGFRarityMarker:GetPoint(1)
+AssertClears(
+	plate.FGFRarityMarker,
+	modern.buffs,
+	modern.container,
+	"the nameplate mark clears both of the buff row's 25-unit icons"
 )
-assert(unitFrame.FGFRarityMarker:IsShown(), "a tiered nameplate shows its tag")
-local markerPoint, markerRelative, markerRelativePoint, markerX, markerY = unitFrame.FGFRarityMarker:GetPoint(1)
+AssertClears(
+	plate.FGFRarityMarker,
+	modern.classification,
+	modern.container,
+	"the nameplate mark clears the classification frame's 20-unit slot"
+)
 assert(
-	markerPoint == "LEFT"
-		and markerRelative == unitFrame.healthBar
-		and markerRelativePoint == "RIGHT"
-		and markerX == 2
+	markerPoint == "RIGHT"
+		and markerRelative == modern.buffs
+		and markerRelativePoint == "LEFT"
+		and markerX == -PLATE_MARK_GAP
 		and markerY == 0,
-	"the nameplate mark sits clear to the right of the health bar, centred on it"
+	"the nameplate mark sits 2 units beyond the buff row's own left edge"
+)
+assert(
+	LeftEdge(modern.buffs, modern.container) + FrameWidth(modern.buffs)
+		== LeftEdge(modern.classification, modern.container) - PLATE_BUFF_GAP,
+	"the stock buff row keeps its 5-unit gap from the classification frame"
 )
 
 harness.env.UnitName = function(unit)
@@ -326,15 +448,12 @@ end
 Mock.guids.nameplate1 = GuidFor("gold", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a nameplate after a tier change")
-assert(
-	unitFrame.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier3",
-	"the nameplate mark follows a tier change"
-)
+assert(plate.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier3", "the nameplate mark follows a tier change")
 
 plateAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
 AssertPlateColoursUntouched("a removed nameplate")
-assert(not unitFrame.FGFRarityMarker:IsShown(), "removing a nameplate clears its tag")
+assert(not plate.FGFRarityMarker:IsShown(), "removing a nameplate clears its tag")
 
 -- The reported bug: a plate first used by a hostile unit, removed, then reused for a friendly untiered unit. It must
 -- still show no tier and Field Guide must leave the new unit's reaction colour alone.
@@ -347,7 +466,7 @@ end
 Mock.guids.nameplate1 = GuidFor("bronze", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a recycled untiered nameplate")
-assert(not unitFrame.FGFRarityMarker:IsShown(), "an untiered nameplate shows no tag")
+assert(not plate.FGFRarityMarker:IsShown(), "an untiered nameplate shows no tag")
 
 -- A tiered unit still marks the recycled plate, again without touching its colours.
 harness.env.UnitName = function(unit)
@@ -356,15 +475,428 @@ end
 Mock.guids.nameplate1 = GuidFor("shiny", "p")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a tiered unit on a recycled nameplate")
-assert(unitFrame.FGFRarityMarker:IsShown(), "a tiered unit shows its tag on a recycled plate")
+assert(plate.FGFRarityMarker:IsShown(), "a tiered unit shows its tag on a recycled plate")
 assert(
-	unitFrame.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier4",
+	plate.FGFRarityMarker:GetAtlas() == "Professions-Icon-Quality-Tier4",
 	"a shiny nameplate mark is the fourth quality mark"
 )
 plateAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate1")
 AssertPlateColoursUntouched("a recycled nameplate removed again")
-assert(not unitFrame.FGFRarityMarker:IsShown(), "clearing a tiered nameplate hides its tag")
+assert(not plate.FGFRarityMarker:IsShown(), "clearing a tiered nameplate hides its tag")
+
+-- Both stock layouts keep the mark clear of the client's own left badge and buff row. The Classic fixture keeps the
+-- health bar's 3.5-unit inset, which the old bar-left anchor still left inside the 22-unit raid target slot.
+local classic = NewStockPlate(false, true, 2)
+local classicPlate = classic.plate
+local classicAttached = true
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return classicAttached and classicPlate or nil
+	end,
+}
+harness.env.UnitName = function(unit)
+	return unit == "nameplate9" and gold.name or "Tester"
+end
+Mock.guids.nameplate9 = GuidFor("gold", "classic")
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate9")
+local classicPoint, classicRelative, classicRelativePoint, classicX = classicPlate.FGFRarityMarker:GetPoint(1)
+AssertClears(classicPlate.FGFRarityMarker, classic.buffs, classic.container, "the Classic mark clears both buff icons")
+AssertClears(
+	classicPlate.FGFRarityMarker,
+	classic.classification,
+	classic.container,
+	"the Classic mark clears the classification frame"
+)
+assert(
+	classicPoint == "RIGHT"
+		and classicRelative == classic.buffs
+		and classicRelativePoint == "LEFT"
+		and classicX == -PLATE_MARK_GAP,
+	"a Classic nameplate also joins the buff row's left edge"
+)
+assert(LeftEdge(classic.healthBar, classic.container) == 3.5, "the Classic fixture keeps the stock bar inset")
+classicAttached = false
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate9")
+assert(not classicPlate.FGFRarityMarker:IsShown(), "removing a Classic nameplate clears its mark")
+
+-- The reported collision: a stock plate with no raid icon and no classification badge, two buffs. Both badge frames
+-- carry collapsesLayout, so the hidden 22- and 20-unit slots vanish; the buff row's right edge lands 5 units left of
+-- the health container, not 47. The mark must clear the actual buffs rather than a 42-unit shadow.
+local collapsed = NewStockPlate(true, false, 2, false)
+local collapsedAttached = true
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return collapsedAttached and collapsed.plate or nil
+	end,
+}
+harness.env.UnitName = function(unit)
+	return unit == "nameplate11" and shiny.name or "Tester"
+end
+Mock.guids.nameplate11 = GuidFor("shiny", "collapsed")
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate11")
+assert(not collapsed.raidTarget:IsShown(), "the fixture has no raid icon")
+assert(not collapsed.classification:IsShown(), "the fixture has no classification badge")
+assert(
+	LeftEdge(collapsed.raidTarget, collapsed.container) == 0
+		and LeftEdge(collapsed.classification, collapsed.container) == 0,
+	"hidden collapsesLayout badges reserve no width"
+)
+assert(
+	LeftEdge(collapsed.buffs, collapsed.container) + FrameWidth(collapsed.buffs) == -PLATE_BUFF_GAP,
+	"the buff row sits 5 units left of the collapsed badge slot, not 47"
+)
+assert(
+	LeftEdge(collapsed.plate.FGFRarityMarker, collapsed.container) + FrameWidth(collapsed.plate.FGFRarityMarker)
+		<= LeftEdge(collapsed.buffs, collapsed.container),
+	"the mark clears both buffs when no badges are shown"
+)
+local collapsedPoint, collapsedRelative, collapsedRelativePoint, collapsedX =
+	collapsed.plate.FGFRarityMarker:GetPoint(1)
+assert(
+	collapsedPoint == "RIGHT"
+		and collapsedRelative == collapsed.buffs
+		and collapsedRelativePoint == "LEFT"
+		and collapsedX == -PLATE_MARK_GAP,
+	"the collapsed-badge mark still anchors beyond the buff row"
+)
+collapsedAttached = false
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate11")
+
+-- A hidden buff row draws nothing and has no laid-out width to trust, so the mark falls back to the classification
+-- badge rather than hanging off a stale 300-unit aura-list frame.
+local hiddenRow = NewStockPlate(true, true, 2)
+hiddenRow.buffs:Hide()
+local hiddenRowAttached = true
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return hiddenRowAttached and hiddenRow.plate or nil
+	end,
+}
+harness.env.UnitName = function(unit)
+	return unit == "nameplate14" and gold.name or "Tester"
+end
+Mock.guids.nameplate14 = GuidFor("gold", "hidden-row")
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate14")
+local hiddenPoint, hiddenRelative, hiddenRelativePoint, hiddenX = hiddenRow.plate.FGFRarityMarker:GetPoint(1)
+assert(
+	hiddenPoint == "RIGHT"
+		and hiddenRelative == hiddenRow.classification
+		and hiddenRelativePoint == "LEFT"
+		and hiddenX == -PLATE_MARK_GAP,
+	"a hidden buff row falls back to the classification frame's left edge less 2"
+)
+hiddenRowAttached = false
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate14")
+
+-- A plate can be marked while its buff row is hidden, then receive buffs. The client shows the row and lays it out
+-- outside our nameplate events, so the mark must leave the badge for the row's new left edge instead of staying under
+-- the icons. Choosing the anchor only when the mark was created left it on the classification frame here.
+local appear = NewStockPlate(true, true, 0)
+local appearPlate = appear.plate
+local appearAttached = true
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return appearAttached and appearPlate or nil
+	end,
+}
+harness.env.UnitName = function(unit)
+	return unit == "nameplate15" and silver.name or "Tester"
+end
+appear.buffsShown = false
+appear.auras:UpdateShownState()
+Mock.guids.nameplate15 = GuidFor("silver", "buffs-appear")
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate15")
+local appearPoint, appearRelative = appearPlate.FGFRarityMarker:GetPoint(1)
+assert(
+	appearPoint == "RIGHT" and appearRelative == appear.classification,
+	"with no buff row shown the mark waits on the classification frame"
+)
+appear.buffCount = 2
+appear.buffsShown = true
+appear.auras:UpdateShownState()
+appear.auras:RefreshAuras()
+local appearedPoint, appearedRelative, appearedRelativePoint, appearedX = appearPlate.FGFRarityMarker:GetPoint(1)
+assert(
+	appearedPoint == "RIGHT"
+		and appearedRelative == appear.buffs
+		and appearedRelativePoint == "LEFT"
+		and appearedX == -PLATE_MARK_GAP,
+	"buffs appearing move the existing mark to the row's left edge"
+)
+AssertClears(
+	appearPlate.FGFRarityMarker,
+	appear.buffs,
+	appear.container,
+	"the moved mark clears both icons that appeared after it was created"
+)
+appearAttached = false
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate15")
+
+-- The row can also grow while it stays shown. Its right edge is fixed and each new 25-unit icon moves the left edge
+-- further out, so the same anchor keeps the mark clear without another lifecycle event.
+local growing = NewStockPlate(true, true, 1)
+local growingPlate = growing.plate
+local growingAttached = true
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return growingAttached and growingPlate or nil
+	end,
+}
+harness.env.UnitName = function(unit)
+	return unit == "nameplate16" and gold.name or "Tester"
+end
+Mock.guids.nameplate16 = GuidFor("gold", "buffs-grow")
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate16")
+local oneBuffLeft = LeftEdge(growing.buffs, growing.container)
+growing.buffCount = 2
+growing.auras:RefreshAuras()
+local grewPoint, grewRelative, grewRelativePoint, grewX = growingPlate.FGFRarityMarker:GetPoint(1)
+assert(
+	grewPoint == "RIGHT" and grewRelative == growing.buffs and grewRelativePoint == "LEFT" and grewX == -PLATE_MARK_GAP,
+	"a second buff keeps the mark on the row's left edge"
+)
+assert(
+	LeftEdge(growing.buffs, growing.container) == oneBuffLeft - PLATE_BUFF_ICON_SIZE,
+	"the second icon grows the row another 25 units left"
+)
+AssertClears(
+	growingPlate.FGFRarityMarker,
+	growing.buffs,
+	growing.container,
+	"the mark clears the row after it grows to two icons"
+)
+growingAttached = false
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate16")
+
+-- NamePlateAurasMixin:SetUnit registers its CVar callbacks with the original UpdateShownState and RefreshAuras before
+-- NAME_PLATE_UNIT_ADDED lets Field Guide install post-hooks. A CVar change therefore calls the saved originals and
+-- hides or shows the row without passing through those hooks. The registry mock fires Field Guide's callback before
+-- the native one, because registry order is unspecified; only a deferred reanchor can wait for the native work.
+local auraCvars = {
+	ENEMY_NPC_AURA_DISPLAY_CVAR = "nameplateEnemyNpcAuraDisplay",
+	ENEMY_PLAYER_AURA_DISPLAY_CVAR = "nameplateEnemyPlayerAuraDisplay",
+	FRIENDLY_PLAYER_AURA_DISPLAY_CVAR = "nameplateFriendlyPlayerAuraDisplay",
+	SHOW_DEBUFFS_ON_FRIENDLY_CVAR = "nameplateShowDebuffsOnFriendly",
+	AURA_SCALE_CVAR = "nameplateAuraScale",
+	SHOW_ALL_PERSONAL_AURAS_CVAR = "nameplateShowAllPersonalAuras",
+}
+harness.env.NamePlateConstants = auraCvars
+local cvarRegistry = { callbacks = {} }
+function cvarRegistry:RegisterCallback(event, callback, owner)
+	local callbacks = self.callbacks[event] or {}
+	self.callbacks[event] = callbacks
+	callbacks[#callbacks + 1] = { callback = callback, owner = owner }
+end
+function cvarRegistry:Fire(event)
+	local callbacks = self.callbacks[event] or {}
+	for index = #callbacks, 1, -1 do
+		local entry = callbacks[index]
+		entry.callback(entry.owner)
+	end
+end
+harness.env.CVarCallbackRegistry = cvarRegistry
+
+local cvarPlate = NewStockPlate(true, true, 2)
+local cvarPlateAttached = true
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return cvarPlateAttached and cvarPlate.plate or nil
+	end,
+}
+harness.env.UnitName = function(unit)
+	return unit == "nameplate18" and silver.name or "Tester"
+end
+Mock.guids.nameplate18 = GuidFor("silver", "cvar-saved-original")
+function cvarPlate.auras:UpdateAuraScale()
+	self:RefreshAuras()
+end
+local savedShownState = cvarPlate.auras.UpdateShownState
+local savedRefreshAuras = cvarPlate.auras.RefreshAuras
+local savedAuraScale = cvarPlate.auras.UpdateAuraScale
+local shownStateCvars = {
+	auraCvars.ENEMY_NPC_AURA_DISPLAY_CVAR,
+	auraCvars.ENEMY_PLAYER_AURA_DISPLAY_CVAR,
+	auraCvars.FRIENDLY_PLAYER_AURA_DISPLAY_CVAR,
+	auraCvars.SHOW_DEBUFFS_ON_FRIENDLY_CVAR,
+}
+for _, cvar in ipairs(shownStateCvars) do
+	cvarRegistry:RegisterCallback(cvar, savedShownState, cvarPlate.auras)
+end
+cvarRegistry:RegisterCallback(auraCvars.AURA_SCALE_CVAR, savedAuraScale, cvarPlate.auras)
+cvarRegistry:RegisterCallback(auraCvars.SHOW_ALL_PERSONAL_AURAS_CVAR, savedRefreshAuras, cvarPlate.auras)
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate18")
+for _, cvar in ipairs({
+	auraCvars.ENEMY_NPC_AURA_DISPLAY_CVAR,
+	auraCvars.ENEMY_PLAYER_AURA_DISPLAY_CVAR,
+	auraCvars.FRIENDLY_PLAYER_AURA_DISPLAY_CVAR,
+	auraCvars.SHOW_DEBUFFS_ON_FRIENDLY_CVAR,
+	auraCvars.AURA_SCALE_CVAR,
+	auraCvars.SHOW_ALL_PERSONAL_AURAS_CVAR,
+}) do
+	assert(#(cvarRegistry.callbacks[cvar] or {}) == 2, "Field Guide follows the native CVar " .. cvar)
+end
+assert(cvarPlate.auras.UpdateShownState ~= savedShownState, "the plate now carries Field Guide's instance hook")
+local cvarStartPoint, cvarStartRelative = cvarPlate.plate.FGFRarityMarker:GetPoint(1)
+assert(
+	cvarStartPoint == "RIGHT" and cvarStartRelative == cvarPlate.buffs,
+	"the saved-original test starts with the mark on the buff row"
+)
+for _, cvar in ipairs(shownStateCvars) do
+	cvarPlate.buffsShown = false
+	cvarRegistry:Fire(cvar)
+	assert(not cvarPlate.buffs:IsShown(), cvar .. ": the native saved callback hides the row")
+	local pendingPoint, pendingRelative = cvarPlate.plate.FGFRarityMarker:GetPoint(1)
+	assert(
+		pendingPoint == "RIGHT" and pendingRelative == cvarPlate.buffs,
+		cvar .. ": before the deferred reanchor the mark still follows the hidden row"
+	)
+	harness:RunTimers()
+	local savedHiddenPoint, savedHiddenRelative, savedHiddenRelativePoint, savedHiddenX =
+		cvarPlate.plate.FGFRarityMarker:GetPoint(1)
+	assert(
+		savedHiddenPoint == "RIGHT"
+			and savedHiddenRelative == cvarPlate.classification
+			and savedHiddenRelativePoint == "LEFT"
+			and savedHiddenX == -PLATE_MARK_GAP,
+		cvar .. ": the deferred reanchor moves the mark off the hidden row"
+	)
+
+	cvarPlate.buffsShown = true
+	cvarRegistry:Fire(cvar)
+	assert(cvarPlate.buffs:IsShown(), cvar .. ": the native saved callback shows the row again")
+	harness:RunTimers()
+	local shownPoint, shownRelative = cvarPlate.plate.FGFRarityMarker:GetPoint(1)
+	assert(
+		shownPoint == "RIGHT" and shownRelative == cvarPlate.buffs,
+		cvar .. ": the deferred reanchor follows the row back out"
+	)
+end
+cvarPlateAttached = false
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate18")
+assert(not cvarPlate.plate.FGFRarityMarker:IsShown(), "removing the saved-original plate clears its mark")
+
+-- A plate is recycled between units. It can lose its buff row while detached and come back to a new unit, so the
+-- anchor chosen for the old unit must not survive the recycle; the mark follows the row's current state.
+local recycled = NewStockPlate(true, true, 2)
+local recycledPlate = recycled.plate
+local recycledAttached = true
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return recycledAttached and recycledPlate or nil
+	end,
+}
+harness.env.UnitName = function(unit)
+	return unit == "nameplate17" and shiny.name or "Tester"
+end
+Mock.guids.nameplate17 = GuidFor("shiny", "recycle")
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate17")
+local recycledPoint, recycledRelative = recycledPlate.FGFRarityMarker:GetPoint(1)
+assert(recycledPoint == "RIGHT" and recycledRelative == recycled.buffs, "the first unit's mark starts on the buff row")
+recycledAttached = false
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate17")
+assert(not recycledPlate.FGFRarityMarker:IsShown(), "the detached plate hides its mark")
+recycled.buffsShown = false
+recycled.auras:UpdateShownState()
+harness.env.UnitName = function(unit)
+	return unit == "nameplate17" and gold.name or "Tester"
+end
+Mock.guids.nameplate17 = GuidFor("gold", "recycle-again")
+recycledAttached = true
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate17")
+local recycledAgainPoint, recycledAgainRelative, recycledAgainPointRelative, recycledAgainX =
+	recycledPlate.FGFRarityMarker:GetPoint(1)
+assert(
+	recycledAgainPoint == "RIGHT"
+		and recycledAgainRelative == recycled.classification
+		and recycledAgainPointRelative == "LEFT"
+		and recycledAgainX == -PLATE_MARK_GAP,
+	"a recycled plate with no buff row reanchors to the classification frame"
+)
+assert(recycledPlate.FGFRarityMarker:IsShown(), "the recycled plate shows the new unit's mark")
+recycledAttached = false
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate17")
+
+-- Skins without Blizzard's buff row fall back through the remaining stock anchors, each 2 units clear. This proves
+-- the reference fallbacks only; it does not claim where any particular skin draws its own decorations.
+local function NewFallbackPlate()
+	local frame = Mock.CreateFrame("Frame")
+	frame.healthBar = Mock.CreateFrame("Frame", nil, frame)
+	return frame, Mock.CreateFrame("Frame")
+end
+
+local classificationFrame, classificationPlate = NewFallbackPlate()
+classificationFrame.ClassificationFrame = Mock.CreateFrame("Frame", nil, classificationFrame)
+classificationFrame.ClassificationFrame:SetSize(PLATE_CLASSIFICATION_SIZE, PLATE_CLASSIFICATION_SIZE)
+classificationFrame.ClassificationFrame:SetPoint("RIGHT", classificationFrame.healthBar, "LEFT", -42, 0)
+classificationPlate.UnitFrame = classificationFrame
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return classificationPlate
+	end,
+}
+harness.env.UnitName = function(unit)
+	return unit == "nameplate12" and silver.name or "Tester"
+end
+Mock.guids.nameplate12 = GuidFor("silver", "fallback-classification")
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate12")
+local classificationPoint, classificationRelative, classificationRelativePoint, classificationX =
+	classificationPlate.FGFRarityMarker:GetPoint(1)
+assert(
+	classificationPoint == "RIGHT"
+		and classificationRelative == classificationFrame.ClassificationFrame
+		and classificationRelativePoint == "LEFT"
+		and classificationX == -PLATE_MARK_GAP,
+	"without a buff row the mark falls back to the classification frame's left edge less 2"
+)
+
+local raidFrame, raidPlate = NewFallbackPlate()
+raidFrame.RaidTargetFrame = Mock.CreateFrame("Frame", nil, raidFrame)
+raidFrame.RaidTargetFrame:SetSize(PLATE_RAID_TARGET_SIZE, PLATE_RAID_TARGET_SIZE)
+raidFrame.RaidTargetFrame:SetPoint("RIGHT", raidFrame.healthBar, "LEFT", 0, 0)
+raidPlate.UnitFrame = raidFrame
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return raidPlate
+	end,
+}
+harness.env.UnitName = function(unit)
+	return unit == "nameplate13" and gold.name or "Tester"
+end
+Mock.guids.nameplate13 = GuidFor("gold", "fallback-raid")
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate13")
+local raidPoint, raidRelative, raidRelativePoint, raidX = raidPlate.FGFRarityMarker:GetPoint(1)
+assert(
+	raidPoint == "RIGHT"
+		and raidRelative == raidFrame.RaidTargetFrame
+		and raidRelativePoint == "LEFT"
+		and raidX == -PLATE_MARK_GAP,
+	"without a buff row or classification frame the mark falls back to the raid target's left edge less 2"
+)
+
+local bareFrame = Mock.CreateFrame("Frame")
+bareFrame.healthBar = Mock.CreateFrame("Frame")
+local barePlate = Mock.CreateFrame("Frame")
+barePlate.UnitFrame = bareFrame
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return barePlate
+	end,
+}
+harness.env.UnitName = function(unit)
+	return unit == "nameplate10" and silver.name or "Tester"
+end
+Mock.guids.nameplate10 = GuidFor("silver", "bare")
+Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate10")
+local barePoint, bareRelative, bareRelativePoint, bareX = barePlate.FGFRarityMarker:GetPoint(1)
+assert(
+	barePoint == "RIGHT"
+		and bareRelative == bareFrame.healthBar
+		and bareRelativePoint == "LEFT"
+		and bareX == -PLATE_MARK_GAP,
+	"a nameplate without the stock frames falls back to the bar's left edge less 2"
+)
+assert(barePlate.FGFRarityMarker:IsShown(), "the fallback still shows the mark")
 
 -- A plate the addon first sees with no tier keeps the client's own colours and shows no mark.
 local freshFrame = Mock.CreateFrame("Frame")
@@ -375,7 +907,8 @@ freshFrame.healthBar:SetStatusBarColor(unpack(friendlyReaction))
 freshFrame.reactionColor = friendlyReaction
 local freshHealthCalls = SpyColour(freshFrame.healthBar, "SetStatusBarColor")
 local freshNameCalls = SpyColour(freshFrame.name, "SetTextColor")
-local freshPlate = { UnitFrame = freshFrame }
+local freshPlate = Mock.CreateFrame("Frame")
+freshPlate.UnitFrame = freshFrame
 harness.env.C_NamePlate = {
 	GetNamePlateForUnit = function()
 		return freshPlate
@@ -390,7 +923,7 @@ assert(freshHealthCalls() == 0, "an untiered plate is never given a health colou
 assert(freshNameCalls() == 0, "an untiered plate is never given a name colour")
 AssertColour(freshFrame.healthBar, friendlyReaction, "an untiered plate keeps the client's health colour")
 AssertTextColour(freshFrame.name, friendlyReaction, "an untiered plate keeps the client's name colour")
-assert(not freshFrame.FGFRarityMarker:IsShown(), "an untiered plate shows no tier mark")
+assert(not freshPlate.FGFRarityMarker:IsShown(), "an untiered plate shows no tier mark")
 
 -- The kill path only counts units the player can attack, so a friendly vendor or quest giver has no spawn tier: a
 -- GUID that would roll silver, gold or shiny still paints the plain bronze frame, with no rare frame, ornament, tag or
@@ -411,7 +944,7 @@ for _, tier in ipairs({ "silver", "gold", "shiny" }) do
 
 	Mock.guids.nameplate3 = GuidFor(tier, "friendly-plate")
 	Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate3")
-	assert(not freshFrame.FGFRarityMarker:IsShown(), label .. ": no plate mark")
+	assert(not freshPlate.FGFRarityMarker:IsShown(), label .. ": no plate mark")
 end
 
 print("rarity: ok")

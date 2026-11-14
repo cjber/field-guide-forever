@@ -43,7 +43,7 @@ jobs:
         with:
           tools: lua stylua
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
-      - name: Read the Forever Core ref
+      - name: Read the ForeverCore ref
         id: forever-core
         run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -96,7 +96,7 @@ jobs:
       - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
         with:
           tools: luals
-      - name: Read the Forever Core ref
+      - name: Read the ForeverCore ref
         id: forever-core
         run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -174,6 +174,8 @@ jobs:
   package:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      FOREVER_CORE: forever-core
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -181,6 +183,18 @@ jobs:
           # Every commit and tag for the version, without old file contents.
           filter: blob:none
           persist-credentials: false
+      - name: Read the ForeverCore ref
+        id: forever-core
+        run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
+      # check_package.py lays the pinned Core checkout's tests/ beside the packaged ForeverCore, so the specs run
+      # against the release's runtime with the exact helpers its version expects.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: cjber/forever-core
+          ref: ${{ steps.forever-core.outputs.ref }}
+          path: forever-core
+          persist-credentials: false
+      - uses: cjber/forever-core/.github/actions/lua-toolchain@f6b89cd4937b13333b8f75ea34d976175fe4dc9b # pinned Core toolchain
       # .pkgmeta's manual changelog, which the release fills with the version's entry.
       - run: printf 'Package check\n' > .release-notes.md
       # The packager skips a push build when HEAD carries a tag ("Found future tag, not packaging"), so a tag that
@@ -192,4 +206,12 @@ jobs:
       - uses: BigWigsMods/packager@01e8631a69c69d7654c788d152630d5fed9e3812 # v2.7.0
         with:
           args: -d -z
-      - run: python3 tools/check_package.py
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tools/.cache/forever_sim
+          key: forever-sim-${{ hashFiles('tools/forever_sim/fetch.py') }}
+      - run: python3 tools/forever_sim/fetch.py
+      - name: Check the package with the client's Lua 5.1 parser
+        env:
+          LUA51_LUAC: ${{ runner.tool_cache }}/lua-toolchain/bin/luac5.1
+        run: python3 tools/check_package.py

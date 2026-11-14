@@ -23,6 +23,7 @@ Credit for the reports and requests behind the addon.
 | Who | What | Notes |
 |---|---|---|
 | [Kimab](https://github.com/Kimab) | Open-world kills count again | GitHub; #307 |
+| [Kimab](https://github.com/Kimab) | Rarity mark visible on nameplates and clear of the level marker | CurseForge; #344 |
 
 ## Inspired by
 

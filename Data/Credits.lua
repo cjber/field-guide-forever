@@ -5,6 +5,7 @@ local _, ns = ...
 ns.Credits = {
 	players = {
 		{ name = "Kimab", what = "Open-world kills count again" },
+		{ name = "Kimab", what = "Rarity mark visible on nameplates and clear of the level marker" },
 	},
 	inspired = {},
 }
