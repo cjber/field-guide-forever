@@ -40,3 +40,6 @@ externals:
 
 move-folders:
   FieldGuideForever/ForeverCore: ForeverCore
+
+required-dependencies:
+  - forevercore
