@@ -1,10 +1,10 @@
 {
-  "input_digest": "3598e4437050973f26f61236e7bd5947d56e2a094dd2d70a06d41ddd6377365a",
-  "runtime_sha256": "3598e4437050973f26f61236e7bd5947d56e2a094dd2d70a06d41ddd6377365a",
-  "candidate": "9d84ac75241a0e86dfd6301c3f3f24c4bb218538f132285b926c7ef05ce8525a",
+  "input_digest": "dec0489a464ec71b82540c3e4921b584bab16b9b0e5c83ddfcd0deed5ca4f85b",
+  "runtime_sha256": "dec0489a464ec71b82540c3e4921b584bab16b9b0e5c83ddfcd0deed5ca4f85b",
+  "candidate": "221cf9c30ac68a3b91dbeb0c24b5e82648648bc7508c7fa5f526a9bd7b40a8fc",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "452bf3c69252844f7077cc9500a7d9367c20fdc3",
+  "source_commit": "4a3515f414982488339d7750448ab7ff1546f066",
   "flows": [
     {
       "name": "fieldguide",
@@ -16,8 +16,8 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/ced4d26d037ade595c5a15cf35df4788/raw/c4c9e7271c16f14e7a5612c89c632cd176645631/1-fieldguide.png",
-      "sha256": "2e04b7f12afca4d336ecb3c76c2db74af52a7605ca632aa9e17716d72aff8613"
+      "url": "https://gist.githubusercontent.com/cjber/f3eba470ce22ab080e17764b49f3af1f/raw/0ca6cc4a112814b86755de6436075265ad2e196c/1-fieldguide.png",
+      "sha256": "643e893956c17e1079d50216a86e9c0b28765b54e47d67293bc94037ecd00451"
     }
   ]
 }
