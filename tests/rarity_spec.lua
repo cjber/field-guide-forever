@@ -289,7 +289,9 @@ local PLATE_MARK_GAP = 2
 
 local function NewStockPlate(modern, classificationShown, buffCount, raidShown)
 	local fixture = {}
-	fixture.plate = Mock.CreateFrame("Frame")
+	-- The client treats a nameplate, and every region the addon anchors to it, as restricted: measuring one raises.
+	-- The fixture is marked so, so the whole spec runs against regions that refuse GetPoint and GetNumPoints.
+	fixture.plate = Mock.Restrict(Mock.CreateFrame("Frame"))
 	fixture.unitFrame = Mock.CreateFrame("Frame", nil, fixture.plate)
 	fixture.plate.UnitFrame = fixture.unitFrame
 	fixture.container = Mock.CreateFrame("Frame", nil, fixture.unitFrame)
@@ -351,7 +353,7 @@ local function FrameWidth(frame)
 	if frame.collapsesLayout and not frame:IsShown() then
 		return 0
 	end
-	return frame:GetWidth()
+	return Mock.Size(frame)
 end
 
 local function LeftEdge(frame, root, lefts)
@@ -362,7 +364,7 @@ local function LeftEdge(frame, root, lefts)
 	if lefts[frame] then
 		return lefts[frame]
 	end
-	local point, relativeTo, relativePoint, x = frame:GetPoint(1)
+	local point, relativeTo, relativePoint, x = Mock.Point(frame)
 	assert(relativeTo, "the fixture frame is anchored")
 	local relativeLeft = LeftEdge(relativeTo, root, lefts)
 	local left
@@ -415,7 +417,7 @@ assert(plate.FGFRarityMarker:IsShown(), "a tiered nameplate shows its tag")
 unitFrame:Hide()
 assert(plate.FGFRarityMarker:IsVisible(), "the mark stays visible when a skin hides Blizzard's UnitFrame")
 unitFrame:Show()
-local markerPoint, markerRelative, markerRelativePoint, markerX, markerY = plate.FGFRarityMarker:GetPoint(1)
+local markerPoint, markerRelative, markerRelativePoint, markerX, markerY = Mock.Point(plate.FGFRarityMarker)
 AssertClears(
 	plate.FGFRarityMarker,
 	modern.buffs,
@@ -500,7 +502,7 @@ harness.env.UnitName = function(unit)
 end
 Mock.guids.nameplate9 = GuidFor("gold", "classic")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate9")
-local classicPoint, classicRelative, classicRelativePoint, classicX = classicPlate.FGFRarityMarker:GetPoint(1)
+local classicPoint, classicRelative, classicRelativePoint, classicX = Mock.Point(classicPlate.FGFRarityMarker)
 AssertClears(classicPlate.FGFRarityMarker, classic.buffs, classic.container, "the Classic mark clears both buff icons")
 AssertClears(
 	classicPlate.FGFRarityMarker,
@@ -552,7 +554,7 @@ assert(
 	"the mark clears both buffs when no badges are shown"
 )
 local collapsedPoint, collapsedRelative, collapsedRelativePoint, collapsedX =
-	collapsed.plate.FGFRarityMarker:GetPoint(1)
+	Mock.Point(collapsed.plate.FGFRarityMarker)
 assert(
 	collapsedPoint == "RIGHT"
 		and collapsedRelative == collapsed.buffs
@@ -578,7 +580,7 @@ harness.env.UnitName = function(unit)
 end
 Mock.guids.nameplate14 = GuidFor("gold", "hidden-row")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate14")
-local hiddenPoint, hiddenRelative, hiddenRelativePoint, hiddenX = hiddenRow.plate.FGFRarityMarker:GetPoint(1)
+local hiddenPoint, hiddenRelative, hiddenRelativePoint, hiddenX = Mock.Point(hiddenRow.plate.FGFRarityMarker)
 assert(
 	hiddenPoint == "RIGHT"
 		and hiddenRelative == hiddenRow.classification
@@ -607,7 +609,7 @@ appear.buffsShown = false
 appear.auras:UpdateShownState()
 Mock.guids.nameplate15 = GuidFor("silver", "buffs-appear")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate15")
-local appearPoint, appearRelative = appearPlate.FGFRarityMarker:GetPoint(1)
+local appearPoint, appearRelative = Mock.Point(appearPlate.FGFRarityMarker)
 assert(
 	appearPoint == "RIGHT" and appearRelative == appear.classification,
 	"with no buff row shown the mark waits on the classification frame"
@@ -616,7 +618,7 @@ appear.buffCount = 2
 appear.buffsShown = true
 appear.auras:UpdateShownState()
 appear.auras:RefreshAuras()
-local appearedPoint, appearedRelative, appearedRelativePoint, appearedX = appearPlate.FGFRarityMarker:GetPoint(1)
+local appearedPoint, appearedRelative, appearedRelativePoint, appearedX = Mock.Point(appearPlate.FGFRarityMarker)
 assert(
 	appearedPoint == "RIGHT"
 		and appearedRelative == appear.buffs
@@ -632,6 +634,78 @@ AssertClears(
 )
 appearAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate15")
+
+-- The client restricts a nameplate and every region anchored to it, so measuring the mark raises FrameMeasurement and
+-- aborts the caller; before the fix that error stopped the reanchor after the first placement, on every aura update.
+-- The mark now remembers the anchor it was given, so marking, both hooks and UpdateAccent never measure it, a changed
+-- anchor still moves it, and an unchanged anchor leaves it alone.
+local restricted = NewStockPlate(true, true, 0)
+local restrictedPlate = restricted.plate
+local restrictedAttached = true
+harness.env.C_NamePlate = {
+	GetNamePlateForUnit = function()
+		return restrictedAttached and restrictedPlate or nil
+	end,
+}
+harness.env.UnitName = function(unit)
+	return unit == "nameplate19" and silver.name or "Tester"
+end
+restricted.buffsShown = false
+restricted.auras:UpdateShownState()
+Mock.guids.nameplate19 = GuidFor("silver", "restricted")
+local markedOk, markError = pcall(Mock.Fire, "NAME_PLATE_UNIT_ADDED", "nameplate19")
+assert(markedOk, "marking a nameplate never measures its restricted regions: " .. tostring(markError))
+local restrictedMarker = restrictedPlate.FGFRarityMarker
+assert(Mock.IsRestricted(restrictedMarker), "the nameplate mark is a restricted region")
+local placedPoint, placedRelative = Mock.Point(restrictedMarker)
+assert(
+	placedPoint == "RIGHT" and placedRelative == restricted.classification,
+	"a restricted nameplate still takes its mark on the fallback anchor"
+)
+local placedCalls = Mock.SetPointCalls(restrictedMarker)
+assert(placedCalls == 1, "the first placement sets exactly one point")
+
+restricted.buffCount = 2
+restricted.buffsShown = true
+local shownOk, shownError = pcall(restricted.auras.UpdateShownState, restricted.auras)
+assert(shownOk, "the shown-state hook never measures the restricted mark: " .. tostring(shownError))
+local refreshedOk, refreshedError = pcall(restricted.auras.RefreshAuras, restricted.auras)
+assert(refreshedOk, "the aura refresh hook never measures the restricted mark: " .. tostring(refreshedError))
+local movedCalls = Mock.SetPointCalls(restrictedMarker)
+assert(movedCalls == placedCalls + 1, "a changed anchor sets one new point")
+local movedPoint, movedRelative = Mock.Point(restrictedMarker)
+assert(
+	movedPoint == "RIGHT" and movedRelative == restricted.buffs,
+	"a changed anchor moves the restricted mark onto the buff row"
+)
+assert(Mock.PointCount(restrictedMarker) == 1, "the moved mark keeps exactly one point")
+
+local accentOk, accentError = pcall(Mock.Fire, "NAME_PLATE_UNIT_ADDED", "nameplate19")
+assert(accentOk, "UpdateAccent never measures the restricted mark: " .. tostring(accentError))
+local againOk, againError = pcall(restricted.auras.UpdateShownState, restricted.auras)
+assert(againOk, "a repeated shown state never measures the restricted mark: " .. tostring(againError))
+local againRefreshOk, againRefreshError = pcall(restricted.auras.RefreshAuras, restricted.auras)
+assert(againRefreshOk, "a repeated aura refresh never measures the restricted mark: " .. tostring(againRefreshError))
+assert(Mock.SetPointCalls(restrictedMarker) == movedCalls, "an unchanged anchor does not call SetPoint again")
+
+restricted.buffsShown = false
+local hiddenOk, hiddenError = pcall(restricted.auras.UpdateShownState, restricted.auras)
+assert(hiddenOk, "hiding the buff row never measures the restricted mark: " .. tostring(hiddenError))
+local backPoint, backRelative = Mock.Point(restrictedMarker)
+assert(
+	backPoint == "RIGHT" and backRelative == restricted.classification,
+	"hiding the buff row moves the restricted mark back to the classification frame"
+)
+local hiddenCalls = Mock.SetPointCalls(restrictedMarker)
+assert(hiddenCalls == movedCalls + 1, "hiding the buff row sets one new point")
+local settledOk, settledError = pcall(restricted.auras.UpdateShownState, restricted.auras)
+assert(settledOk, "a repeated hidden state never measures the restricted mark: " .. tostring(settledError))
+assert(
+	Mock.SetPointCalls(restrictedMarker) == hiddenCalls,
+	"a reanchor onto the anchor already set does not call SetPoint"
+)
+restrictedAttached = false
+Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate19")
 
 -- The row can also grow while it stays shown. Its right edge is fixed and each new 25-unit icon moves the left edge
 -- further out, so the same anchor keeps the mark clear without another lifecycle event.
@@ -651,7 +725,7 @@ Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate16")
 local oneBuffLeft = LeftEdge(growing.buffs, growing.container)
 growing.buffCount = 2
 growing.auras:RefreshAuras()
-local grewPoint, grewRelative, grewRelativePoint, grewX = growingPlate.FGFRarityMarker:GetPoint(1)
+local grewPoint, grewRelative, grewRelativePoint, grewX = Mock.Point(growingPlate.FGFRarityMarker)
 assert(
 	grewPoint == "RIGHT" and grewRelative == growing.buffs and grewRelativePoint == "LEFT" and grewX == -PLATE_MARK_GAP,
 	"a second buff keeps the mark on the row's left edge"
@@ -737,7 +811,7 @@ for _, cvar in ipairs({
 	assert(#(cvarRegistry.callbacks[cvar] or {}) == 2, "Field Guide follows the native CVar " .. cvar)
 end
 assert(cvarPlate.auras.UpdateShownState ~= savedShownState, "the plate now carries Field Guide's instance hook")
-local cvarStartPoint, cvarStartRelative = cvarPlate.plate.FGFRarityMarker:GetPoint(1)
+local cvarStartPoint, cvarStartRelative = Mock.Point(cvarPlate.plate.FGFRarityMarker)
 assert(
 	cvarStartPoint == "RIGHT" and cvarStartRelative == cvarPlate.buffs,
 	"the saved-original test starts with the mark on the buff row"
@@ -746,14 +820,14 @@ for _, cvar in ipairs(shownStateCvars) do
 	cvarPlate.buffsShown = false
 	cvarRegistry:Fire(cvar)
 	assert(not cvarPlate.buffs:IsShown(), cvar .. ": the native saved callback hides the row")
-	local pendingPoint, pendingRelative = cvarPlate.plate.FGFRarityMarker:GetPoint(1)
+	local pendingPoint, pendingRelative = Mock.Point(cvarPlate.plate.FGFRarityMarker)
 	assert(
 		pendingPoint == "RIGHT" and pendingRelative == cvarPlate.buffs,
 		cvar .. ": before the deferred reanchor the mark still follows the hidden row"
 	)
 	harness:RunTimers()
 	local savedHiddenPoint, savedHiddenRelative, savedHiddenRelativePoint, savedHiddenX =
-		cvarPlate.plate.FGFRarityMarker:GetPoint(1)
+		Mock.Point(cvarPlate.plate.FGFRarityMarker)
 	assert(
 		savedHiddenPoint == "RIGHT"
 			and savedHiddenRelative == cvarPlate.classification
@@ -766,7 +840,7 @@ for _, cvar in ipairs(shownStateCvars) do
 	cvarRegistry:Fire(cvar)
 	assert(cvarPlate.buffs:IsShown(), cvar .. ": the native saved callback shows the row again")
 	harness:RunTimers()
-	local shownPoint, shownRelative = cvarPlate.plate.FGFRarityMarker:GetPoint(1)
+	local shownPoint, shownRelative = Mock.Point(cvarPlate.plate.FGFRarityMarker)
 	assert(
 		shownPoint == "RIGHT" and shownRelative == cvarPlate.buffs,
 		cvar .. ": the deferred reanchor follows the row back out"
@@ -791,7 +865,7 @@ harness.env.UnitName = function(unit)
 end
 Mock.guids.nameplate17 = GuidFor("shiny", "recycle")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate17")
-local recycledPoint, recycledRelative = recycledPlate.FGFRarityMarker:GetPoint(1)
+local recycledPoint, recycledRelative = Mock.Point(recycledPlate.FGFRarityMarker)
 assert(recycledPoint == "RIGHT" and recycledRelative == recycled.buffs, "the first unit's mark starts on the buff row")
 recycledAttached = false
 Mock.Fire("NAME_PLATE_UNIT_REMOVED", "nameplate17")
@@ -805,7 +879,7 @@ Mock.guids.nameplate17 = GuidFor("gold", "recycle-again")
 recycledAttached = true
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate17")
 local recycledAgainPoint, recycledAgainRelative, recycledAgainPointRelative, recycledAgainX =
-	recycledPlate.FGFRarityMarker:GetPoint(1)
+	Mock.Point(recycledPlate.FGFRarityMarker)
 assert(
 	recycledAgainPoint == "RIGHT"
 		and recycledAgainRelative == recycled.classification
@@ -826,6 +900,7 @@ local function NewFallbackPlate()
 end
 
 local classificationFrame, classificationPlate = NewFallbackPlate()
+Mock.Restrict(classificationPlate)
 classificationFrame.ClassificationFrame = Mock.CreateFrame("Frame", nil, classificationFrame)
 classificationFrame.ClassificationFrame:SetSize(PLATE_CLASSIFICATION_SIZE, PLATE_CLASSIFICATION_SIZE)
 classificationFrame.ClassificationFrame:SetPoint("RIGHT", classificationFrame.healthBar, "LEFT", -42, 0)
@@ -841,7 +916,7 @@ end
 Mock.guids.nameplate12 = GuidFor("silver", "fallback-classification")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate12")
 local classificationPoint, classificationRelative, classificationRelativePoint, classificationX =
-	classificationPlate.FGFRarityMarker:GetPoint(1)
+	Mock.Point(classificationPlate.FGFRarityMarker)
 assert(
 	classificationPoint == "RIGHT"
 		and classificationRelative == classificationFrame.ClassificationFrame
@@ -851,6 +926,7 @@ assert(
 )
 
 local raidFrame, raidPlate = NewFallbackPlate()
+Mock.Restrict(raidPlate)
 raidFrame.RaidTargetFrame = Mock.CreateFrame("Frame", nil, raidFrame)
 raidFrame.RaidTargetFrame:SetSize(PLATE_RAID_TARGET_SIZE, PLATE_RAID_TARGET_SIZE)
 raidFrame.RaidTargetFrame:SetPoint("RIGHT", raidFrame.healthBar, "LEFT", 0, 0)
@@ -865,7 +941,7 @@ harness.env.UnitName = function(unit)
 end
 Mock.guids.nameplate13 = GuidFor("gold", "fallback-raid")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate13")
-local raidPoint, raidRelative, raidRelativePoint, raidX = raidPlate.FGFRarityMarker:GetPoint(1)
+local raidPoint, raidRelative, raidRelativePoint, raidX = Mock.Point(raidPlate.FGFRarityMarker)
 assert(
 	raidPoint == "RIGHT"
 		and raidRelative == raidFrame.RaidTargetFrame
@@ -876,7 +952,7 @@ assert(
 
 local bareFrame = Mock.CreateFrame("Frame")
 bareFrame.healthBar = Mock.CreateFrame("Frame")
-local barePlate = Mock.CreateFrame("Frame")
+local barePlate = Mock.Restrict(Mock.CreateFrame("Frame"))
 barePlate.UnitFrame = bareFrame
 harness.env.C_NamePlate = {
 	GetNamePlateForUnit = function()
@@ -888,7 +964,7 @@ harness.env.UnitName = function(unit)
 end
 Mock.guids.nameplate10 = GuidFor("silver", "bare")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate10")
-local barePoint, bareRelative, bareRelativePoint, bareX = barePlate.FGFRarityMarker:GetPoint(1)
+local barePoint, bareRelative, bareRelativePoint, bareX = Mock.Point(barePlate.FGFRarityMarker)
 assert(
 	barePoint == "RIGHT"
 		and bareRelative == bareFrame.healthBar
@@ -907,7 +983,7 @@ freshFrame.healthBar:SetStatusBarColor(unpack(friendlyReaction))
 freshFrame.reactionColor = friendlyReaction
 local freshHealthCalls = SpyColour(freshFrame.healthBar, "SetStatusBarColor")
 local freshNameCalls = SpyColour(freshFrame.name, "SetTextColor")
-local freshPlate = Mock.CreateFrame("Frame")
+local freshPlate = Mock.Restrict(Mock.CreateFrame("Frame"))
 freshPlate.UnitFrame = freshFrame
 harness.env.C_NamePlate = {
 	GetNamePlateForUnit = function()
