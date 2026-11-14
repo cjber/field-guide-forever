@@ -24,6 +24,8 @@ Credit for the reports and requests behind the addon.
 |---|---|---|
 | [Kimab](https://github.com/Kimab) | Open-world kills count again | GitHub; #307 |
 | [Kimab](https://github.com/Kimab) | Rarity mark visible on nameplates and clear of the level marker | CurseForge; #344 |
+| [QuincyO](https://github.com/QuincyO) | Rarity marks on nameplates no longer flood the game with errors | GitHub; #388 |
+| tgkGate | Rarity marks on nameplates no longer flood the game with errors | CurseForge; #388 |
 
 ## Inspired by
 

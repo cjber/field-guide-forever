@@ -75,7 +75,7 @@ For help, ideas and each day's release notes, join [cjber's Workshop on Discord]
 
 <!-- forever-credits:start -->
 
-Thanks to Kimab and everyone who reported a bug or asked for a feature.
+Thanks to Kimab, QuincyO, tgkGate and everyone who reported a bug or asked for a feature.
 
 <!-- forever-credits:end -->
 

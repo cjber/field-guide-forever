@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+### Fixed
+
+- **Rarity marks on nameplates no longer flood the game with errors.** The game could offer to disable Field Guide Forever after the errors piled up, and marks stayed where they were first placed; they now follow the client's buff row again. Thanks to QuincyO and tgkGate for the report (#388).
+
 ## [0.8.10] - 2026-11-14
 
 - **Rarity marks stay visible on nameplates and clear the client's own badges and buffs.** The mark now sits beyond the buff row at the end of the client's left decorations, so the raid target, classification icons and buff icons no longer cover it, including when both badges are hidden. It follows that row as buffs appear, disappear or grow, and when a plate is recycled. Thanks to Kimab for the report (#344).

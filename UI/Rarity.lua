@@ -345,9 +345,21 @@ local function PlateMarkAnchor(frame, healthBar)
 	return nil, "LEFT", -PLATE_MARK_GAP
 end
 
+-- A nameplate and every region anchored to it is a restricted region on this client: any measuring getter, GetPoint and
+-- GetNumPoints included, raises FrameMeasurement and aborts its caller. The marker therefore never reads its own
+-- anchor back; the last anchor set on it is remembered in these fields instead. Only this file moves the marker, so
+-- the fields and the marker's real anchor always agree.
+local function PlacePlateMarker(marker, anchor, relativePoint, offsetX)
+	marker:ClearAllPoints()
+	marker:SetPoint("RIGHT", anchor, relativePoint, offsetX, 0)
+	marker.fgfAnchor = anchor
+	marker.fgfRelPoint = relativePoint
+	marker.fgfOffsetX = offsetX
+end
+
 -- Move an existing marker onto the frame PlateMarkAnchor picks now, so a plate whose buff row or badges changed does
 -- not keep an anchor chosen when it was first marked. Only the anchor changes; the marker keeps its atlas, alpha and
--- shown state.
+-- shown state. An unchanged anchor leaves the marker alone, and the marker is never measured.
 ---@param marker table
 ---@param frame table?
 ---@param healthBar table?
@@ -356,19 +368,10 @@ local function AnchorPlateMarker(marker, frame, healthBar)
 	if not anchor then
 		return
 	end
-	local point, relativeTo, currentPoint, x, y = marker:GetPoint(1)
-	if
-		marker:GetNumPoints() == 1
-		and point == "RIGHT"
-		and relativeTo == anchor
-		and currentPoint == relativePoint
-		and x == offsetX
-		and y == 0
-	then
+	if marker.fgfAnchor == anchor and marker.fgfRelPoint == relativePoint and marker.fgfOffsetX == offsetX then
 		return
 	end
-	marker:ClearAllPoints()
-	marker:SetPoint("RIGHT", anchor, relativePoint, offsetX, 0)
+	PlacePlateMarker(marker, anchor, relativePoint, offsetX)
 end
 
 ---@param owner table?

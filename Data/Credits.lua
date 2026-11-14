@@ -6,6 +6,8 @@ ns.Credits = {
 	players = {
 		{ name = "Kimab", what = "Open-world kills count again" },
 		{ name = "Kimab", what = "Rarity mark visible on nameplates and clear of the level marker" },
+		{ name = "QuincyO", what = "Rarity marks on nameplates no longer flood the game with errors" },
+		{ name = "tgkGate", what = "Rarity marks on nameplates no longer flood the game with errors" },
 	},
 	inspired = {},
 }

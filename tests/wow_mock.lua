@@ -173,13 +173,85 @@ local function NewRegion(kind, name, parent, template)
 		_desaturated = false,
 		_scale = 1,
 		_points = {},
+		_setPointCalls = 0,
 		_id = 0,
 		_checked = false,
+		_restricted = false,
 	}
+	-- The client treats a nameplate and every region anchored to it as restricted, so a region parented to one is
+	-- restricted too. Mock.Restrict marks a region by hand; this keeps its children in step with it.
+	if parent and rawget(parent, "_restricted") then
+		region._restricted = true
+	end
 	return setmetatable(region, { __index = methods })
 end
 
 Mock.NewRegion = NewRegion
+
+-- Mark a region as the client marks a nameplate region: every measuring getter raises FrameMeasurement instead of
+-- answering, as it does in game, so a spec proves the addon never measures it. Mock.Point, Mock.PointCount, Mock.Size
+-- and Mock.SetPointCalls read what the region recorded without measuring it.
+---@param region table
+---@return table
+function Mock.Restrict(region)
+	region._restricted = true
+	return region
+end
+
+---@param region table
+---@return boolean
+function Mock.IsRestricted(region)
+	return rawget(region, "_restricted") == true
+end
+
+local RESTRICTED_ERROR = "%s:%s(): Action[FrameMeasurement] failed because[Can't measure restricted regions]"
+
+-- The client's error, raised at the caller of the getter so a failing spec names the addon line that measured it.
+---@param region table
+---@param method string
+local function Measure(region, method)
+	if rawget(region, "_restricted") == true then
+		error(string.format(RESTRICTED_ERROR, region._type or "Region", method), 3)
+	end
+end
+
+-- The recorded SetPoint calls on a region, read without the measuring getter a restricted region refuses. Index
+-- defaults to the first point, as GetPoint does.
+---@param region table
+---@param index? integer
+---@return string? point
+---@return table? relativeTo
+---@return string? relativePoint
+---@return number? x
+---@return number? y
+function Mock.Point(region, index)
+	local point = region._points[index or 1]
+	if point then
+		return point[1], point[2], point[3], point[4], point[5]
+	end
+end
+
+---@param region table
+---@return integer
+function Mock.PointCount(region)
+	return #region._points
+end
+
+-- Every SetPoint call the region has been given, even after ClearAllPoints, so a spec can prove an unchanged anchor
+-- did not move a marker that was already placed.
+---@param region table
+---@return integer
+function Mock.SetPointCalls(region)
+	return rawget(region, "_setPointCalls") or 0
+end
+
+-- A region's recorded size, read without the measuring getter a restricted region refuses.
+---@param region table
+---@return number width
+---@return number height
+function Mock.Size(region)
+	return region._width, region._height
+end
 
 function methods:SetScript(event, fn)
 	self._scripts[event] = fn
@@ -371,6 +443,7 @@ function methods:SetFormattedText(format, ...)
 end
 
 function methods:GetStringWidth()
+	Measure(self, "GetStringWidth")
 	return #self._text * 6
 end
 
@@ -387,22 +460,27 @@ function methods:SetSize(width, height)
 end
 
 function methods:GetWidth()
+	Measure(self, "GetWidth")
 	return self._width
 end
 
 function methods:GetHeight()
+	Measure(self, "GetHeight")
 	return self._height
 end
 
 function methods:GetSize()
+	Measure(self, "GetSize")
 	return self._width, self._height
 end
 
 function methods:SetPoint(point, relativeTo, relativePoint, x, y)
 	self._points[#self._points + 1] = { point, relativeTo, relativePoint, x or 0, y or 0 }
+	self._setPointCalls = (rawget(self, "_setPointCalls") or 0) + 1
 end
 
 function methods:GetPoint(index)
+	Measure(self, "GetPoint")
 	local point = self._points[index or 1]
 	if point then
 		return point[1], point[2], point[3], point[4], point[5]
@@ -415,6 +493,7 @@ function methods:ClearAllPoints()
 end
 
 function methods:GetNumPoints()
+	Measure(self, "GetNumPoints")
 	return #self._points
 end
 
@@ -497,14 +576,17 @@ function methods:SetScale(scale)
 end
 
 function methods:GetScale()
+	Measure(self, "GetScale")
 	return self._scale
 end
 
 function methods:GetEffectiveScale()
+	Measure(self, "GetEffectiveScale")
 	return self._scale
 end
 
-function methods.GetCenter()
+function methods:GetCenter()
+	Measure(self, "GetCenter")
 	return 0, 0
 end
 

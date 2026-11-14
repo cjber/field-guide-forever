@@ -198,7 +198,7 @@ unitFrame.AurasFrame.BuffListFrame:SetPoint("RIGHT", unitFrame.ClassificationFra
 unitFrame.reactionColor = plateColour
 local plateHealthCalls = SpyColour(unitFrame.healthBar, "SetStatusBarColor")
 local plateNameCalls = SpyColour(unitFrame.name, "SetTextColor")
-local plate = Mock.CreateFrame("Frame")
+local plate = Mock.Restrict(Mock.CreateFrame("Frame"))
 plate.UnitFrame = unitFrame
 local plateAttached = true
 harness.env.C_NamePlate = {
@@ -224,7 +224,7 @@ Mock.guids.nameplate1 = GuidFor("bronze", "plate")
 Mock.Fire("NAME_PLATE_UNIT_ADDED", "nameplate1")
 AssertPlateColoursUntouched("a previewed nameplate")
 assert(plate.FGFRarityMarker:IsShown(), "a nameplate shows the preview tier mark")
-local markPoint, markRelative, markRelativePoint, markX = plate.FGFRarityMarker:GetPoint(1)
+local markPoint, markRelative, markRelativePoint, markX = Mock.Point(plate.FGFRarityMarker)
 assert(
 	markPoint == "RIGHT"
 		and markRelative == unitFrame.AurasFrame.BuffListFrame
