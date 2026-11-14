@@ -212,12 +212,17 @@ local function OnUnitDeath(unit)
 	)
 end
 
+-- Health changes arrive for every unit, but this file only acts on the target and nameplates. The filter runs before
+-- SafeCall, so the rest of the client's health events cost nothing instead of a label table apiece.
+---@param unit string
+---@return boolean
+local function WatchesHealth(unit)
+	return unit == "target" or (type(unit) == "string" and unit:find("^nameplate") ~= nil)
+end
+
 ---@param unit string
 local function OnUnitHealth(unit)
-	-- find allocates nothing; sub would build a new string on every health event of every unit.
-	if unit == "target" or (type(unit) == "string" and unit:find("^nameplate")) then
-		OnUnitDeath(unit)
-	end
+	OnUnitDeath(unit)
 end
 
 ---@param unit string
@@ -291,7 +296,7 @@ local function OnCombatLog()
 	end
 end
 
-ns.On("UNIT_HEALTH", OnUnitHealth)
+ns.On("UNIT_HEALTH", OnUnitHealth, WatchesHealth)
 ns.On("PLAYER_TARGET_CHANGED", OnTargetChanged)
 ns.On("NAME_PLATE_UNIT_ADDED", OnUnitAdded)
 ns.On("NAME_PLATE_UNIT_REMOVED", OnUnitRemoved)

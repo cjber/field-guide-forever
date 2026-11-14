@@ -727,7 +727,7 @@ function methods:SetParent(parent)
 end
 
 -- A frame's methods are all in `methods`; anything else a client frame answers with nil when it has not been set.
--- The fields named here are data a frame carries (Forever Core's settings page keeps its row cursor in one), so they
+-- The fields named here are data a frame carries (ForeverCore's settings page keeps its row cursor in one), so they
 -- must read nil until something writes them, exactly as on the client, and never the no-op the fallback returns.
 local DATA_FIELDS = {
 	settingsRowY = true,

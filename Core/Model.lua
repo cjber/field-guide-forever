@@ -248,13 +248,18 @@ function Model.Record(state, speciesId, opts)
 	}
 end
 
+-- Nothing recorded yet, for every caller: an unrecorded species is a read, so one shared table is enough. A fresh
+-- zero table per nameplate or tooltip was garbage the collector had to sweep just to be thrown away. Read-only: every
+-- caller reads or copies these fields, so this table must never be written to.
+local EMPTY_SPECIMEN = { count = 0, kills = 0, bronze = 0, silver = 0, gold = 0, shiny = 0 }
+
 ---@param state FGState?
 ---@param speciesId integer
----@return FGSpeciesState
+---@return FGSpeciesState read-only when the species is unrecorded
 function Model.Specimen(state, speciesId)
 	local entry = state and state.species and state.species[speciesId]
 	if not entry then
-		return { count = 0, kills = 0, bronze = 0, silver = 0, gold = 0, shiny = 0 }
+		return EMPTY_SPECIMEN
 	end
 	entry.count = entry.count or 0
 	if entry.kills == nil and entry.count > 0 and entry.killsEstimated == nil then

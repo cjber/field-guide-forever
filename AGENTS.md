@@ -106,7 +106,7 @@ picture looks right, so trace a visible defect to its runtime or renderer produc
 
 ## Native composition
 
-Load Forever Core's [Retail UI style skill](https://github.com/cjber/forever-core/blob/main/.agents/skills/wow-retail-ui-style/SKILL.md), [asset registry](https://github.com/cjber/forever-core/blob/main/docs/asset-registry.md) and
+Load ForeverCore's [Retail UI style skill](https://github.com/cjber/forever-core/blob/main/.agents/skills/wow-retail-ui-style/SKILL.md), [asset registry](https://github.com/cjber/forever-core/blob/main/docs/asset-registry.md) and
 [native composition contract](https://github.com/cjber/forever-core/blob/main/docs/ui-composition.md) before UI or screenshot work. Review a complete lockup against the native host
 and current SkillUp/Adventure Guide references before implementing a redesign. Record tab orientation
 and owning edge, all four image-frame edges, icon source crop and single chrome owner. Freshness and

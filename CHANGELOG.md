@@ -5,6 +5,10 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+### Fixed
+
+- **Field Guide creates less temporary data while you play.** Health updates for your party, raid and boss frames no longer create work on every tick, and meeting a creature you have not recorded no longer creates temporary data each time it is shown (#357).
+
 ## [0.8.11] - 2026-11-14
 
 ### Fixed

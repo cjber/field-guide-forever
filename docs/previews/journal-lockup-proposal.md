@@ -30,7 +30,7 @@ The decorative AI corners are placeholders until replaced by verified native fra
 
 ## Implementation evidence still required
 
-Use Forever Core's `docs/ui-composition.md` evidence table before implementing this direction.
+Use ForeverCore's `docs/ui-composition.md` evidence table before implementing this direction.
 Resolve frame corners, tab art, selected states and icon crop bounds against pinned native sources.
 The AI image does not approve new chrome, arbitrary gold colours or generic crops.
 
