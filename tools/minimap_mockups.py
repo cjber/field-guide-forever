@@ -23,7 +23,7 @@ WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
 if not (WOWMOCK / "wowmock.py").is_file():
     raise SystemExit(f"wowmock.py not found in {WOWMOCK}; set FOREVER_CORE to the forever-core checkout")
 sys.path.insert(0, str(WOWMOCK))
-import wowmock as W  # noqa: E402  # ty: ignore[unresolved-import]
+import wowmock as W  # noqa: E402  # ty: ignore[import-not-found]
 from ui_art import BUILD as ART_BUILD  # noqa: E402
 
 # LibDBIcon's construction, the art every LibDBIcon addon button on the rim uses.

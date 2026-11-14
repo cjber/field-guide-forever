@@ -28,7 +28,7 @@ Pick a creature to see its level, zone and how far you are towards Mastered. The
 
 Creatures and Instances share the side rail. The list opens on Discovered. Silver, gold and shiny are filters, and each entry shows all four coats a spawn can wear.
 
-<p align="center"><img src="https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/shiny-record.png" width="640" alt="The Records tab for Alamar Grimm with when it was first and last seen and the best coat found"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/shiny-record.png" width="640" alt="The journal entry for a creature whose shiny coat was found, with when it was first and last seen and the best coat found"></p>
 
 Records keep when you first and last saw a creature, how many deaths you recorded and the best coat you have found. [docs/gallery.md](docs/gallery.md) has every rendered scene.
 

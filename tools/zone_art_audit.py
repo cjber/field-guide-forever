@@ -11,7 +11,7 @@ from ui_art import BUILD as ART_BUILD
 
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core"))
 sys.path.insert(0, str(FOREVER_CORE / "tools/wowmock"))
-import wowmock  # noqa: E402  # ty: ignore[unresolved-import]
+import wowmock  # noqa: E402  # ty: ignore[import-not-found]
 
 ROOT = Path(__file__).resolve().parents[1]
 ui = wowmock.Ui(build=ART_BUILD, scale=1)
