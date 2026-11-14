@@ -18,7 +18,7 @@ Every catalogued zone has its own page of creatures, with your kills and researc
 
 Creatures and Instances share the side rail. Silver, gold and shiny are filters, and each entry shows all four coats a spawn can wear.
 
-![The Records tab for Alamar Grimm with when it was first and last seen and the best coat found](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/shiny-record.png)
+![The journal entry for a creature whose shiny coat was found, with when it was first and last seen and the best coat found](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/shiny-record.png)
 
 Records keep when you first and last saw a creature, how many deaths you recorded and the best coat you have found.
 

@@ -660,6 +660,9 @@ local DATA_FIELDS = {
 	_parent = true,
 	_name = true,
 	_template = true,
+	-- ForeverCore 1.12.0's scrolling tracker host reads these before a section has a viewport.
+	scrollBar = true,
+	scrollFrame = true,
 }
 setmetatable(methods, {
 	__index = function(_, key)
