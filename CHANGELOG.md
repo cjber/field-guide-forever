@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+## [0.8.11] - 2026-11-14
+
 ### Fixed
 
 - **Rarity marks on nameplates no longer flood the game with errors.** The game could offer to disable Field Guide Forever after the errors piled up, and marks stayed where they were first placed; they now follow the client's buff row again. Thanks to QuincyO and tgkGate for the report (#388).
