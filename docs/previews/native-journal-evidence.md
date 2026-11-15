@@ -7,7 +7,7 @@ check; gallery scenes show the native portrait fallback.
 ## Sources
 
 - Runtime: `UI/Window.lua`, `UI/Detail.lua`, `UI/List.lua` and `UI/Art.lua`.
-- Renderer: `tools/mockups.py`, using Forever Core `af122262c16436baf0d9d3f0bd4cf9883b77a7a1`.
+- Renderer: `tools/mockups.py`, using ForeverCore `af122262c16436baf0d9d3f0bd4cf9883b77a7a1`.
 - FrameXML discovery: Gethe/wow-ui-source `70ef1b2fd78061a73f886c4a1e79dc5b5cff6d5e`, client `1.60.1.69913`.
 - Art cache: `1.60.1.70124`, selected by `tools/ui_art.py` and included in the screenshot freshness digest. Generated catalogue constants use the separate `1.60.1.70753` data pin in `tools/gen_zones.py`. Renders use Pillow `12.3.0` through `uv run --with Pillow==12.3.0`.
 

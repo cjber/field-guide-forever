@@ -306,7 +306,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field FireProgress fun()
 ---@field RecordKill fun(name: string?, npcId: integer?, guid: string?): table?
 ---@field RecordSighting fun(unit: string): boolean
----@field On fun(event: string, fn: function): boolean
+---@field On fun(event: string, fn: function, filter?: fun(...): boolean): boolean
 ---@field Readable fun(value: any): any the value, or nil when the client keeps it secret
 ---@field Usable fun(frame: Frame?): boolean false for nil or a forbidden frame
 ---@field RarityPreviewActive fun(): boolean true while /fg preview marks every creature

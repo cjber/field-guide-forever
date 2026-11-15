@@ -47,7 +47,7 @@ jobs:
       - if: steps.build.outputs.new == 'true'
         run: python3 tools/gen_zones.py
       - if: steps.build.outputs.new == 'true'
-        name: Read the Forever Core ref
+        name: Read the ForeverCore ref
         id: forever-core
         run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
       - if: steps.build.outputs.new == 'true'
@@ -68,6 +68,7 @@ jobs:
         with:
           branch: automation/refresh-client-data
           delete-branch: true
+          sign-commits: true
           title: "data: client constants for Forever ${{ steps.build.outputs.version }}"
           commit-message: "data: client constants for Forever ${{ steps.build.outputs.version }}"
           body: "Regenerated `Data/Client.lua` from the wago.tools DB2 exports of Forever build ${{ steps.build.outputs.version }}, with the build pin in `tools/gen_zones.py` moved to match."
