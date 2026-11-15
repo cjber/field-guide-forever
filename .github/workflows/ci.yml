@@ -214,4 +214,5 @@ jobs:
       - name: Check the package with the client's Lua 5.1 parser
         env:
           LUA51_LUAC: ${{ runner.tool_cache }}/lua-toolchain/bin/luac5.1
+          GH_TOKEN: ${{ github.token }}
         run: python3 tools/check_package.py
