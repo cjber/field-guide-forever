@@ -1,34 +1,23 @@
 {
-  "input_digest": "6fb1d43fef0ce5b1857e8680cf27c8ed31c65330d080b6dc96b5970441f0e988",
-  "runtime_sha256": "6fb1d43fef0ce5b1857e8680cf27c8ed31c65330d080b6dc96b5970441f0e988",
-  "candidate": "d03d5a84d939552e2b33d95996c6ba27030146b3b3b6693d3ea3baf960d4d821",
+  "input_digest": "12e58725eea43e6d14bb1c714dc9ac24bc79fe9508d21b3a324a40e93316ab69",
+  "runtime_sha256": "12e58725eea43e6d14bb1c714dc9ac24bc79fe9508d21b3a324a40e93316ab69",
+  "candidate": "6b9b5411abcfaaabda9ab558a22397cf6dab45ad4e4f913885816acf8edcc13f",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "64894dc47e332f6926d459c62a031d464422b79e",
+  "source_commit": "b21147b3cc7f11b613b775b19929a34a9935fbc0",
   "flows": [
     {
-      "name": "fieldguide",
+      "name": "journal",
       "steps": [
         "/fieldguide"
-      ],
-      "result": "pass"
-    },
-    {
-      "name": "nameplates",
-      "steps": [
-        "/home/cjber/.cache/agent-scratch/sweep/wow/proof-389/nameplates.lua"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/29697c376a3ccad3f24737b6cf7e4693/raw/b5418445dbf8769bd0e5d86ea5344dc54466a5d0/1-fieldguide.png",
-      "sha256": "22eeac5178b5cd24e102f0ead5661113e91074af9b24d5d46657c24dd4a03005"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/29697c376a3ccad3f24737b6cf7e4693/raw/b5418445dbf8769bd0e5d86ea5344dc54466a5d0/2-nameplates.png",
-      "sha256": "015f88f93aa41da7235922148d211f80fcfd36599abc6cd1c40ff82c5a815530"
+      "url": "https://gist.githubusercontent.com/cjber/ff51f13a7c518dc20a7d99f3080be5a7/raw/0010cf38d51fd5cc4da468d6b9533c605264a7bf/1-journal.png",
+      "sha256": "c5248036683d59fe6c74c4f87c48cc36cb0044500ee3bc61a83858d2a6c2ff7f"
     }
   ]
 }
