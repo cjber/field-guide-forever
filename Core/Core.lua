@@ -554,10 +554,24 @@ end
 
 ---@type table<string, fun(...)[]>
 local handlers = {}
+-- A handler may carry a filter that answers whether this event is worth calling it for. The filter runs outside
+-- SafeCall: the client fires UNIT_HEALTH for every unit, and wrapping each ignored event only so the handler can
+-- ignore it again allocated a label table in ForeverCore on every one of them. A filter must be trivial and total.
+-- The filter table is by handler slot; nil means that handler has no filter.
+---@type table<string, function[]>
+local filters = {}
 local events = CreateFrame("Frame")
 events:SetScript("OnEvent", function(_, event, ...)
-	for _, fn in ipairs(handlers[event] or {}) do
-		ns.core.SafeCall(event, fn, ...)
+	local list = handlers[event]
+	if not list then
+		return
+	end
+	local conditions = filters[event]
+	for index, fn in ipairs(list) do
+		local filter = conditions and conditions[index]
+		if not filter or filter(...) then
+			ns.core.SafeCall(event, fn, ...)
+		end
 	end
 end)
 
@@ -565,13 +579,18 @@ end)
 -- no handler behind instead of stopping the file that asked.
 ---@param event string
 ---@param fn function
+---@param filter? fun(...): boolean called before the handler; false skips it
 ---@return boolean registered
-function ns.On(event, fn)
+function ns.On(event, fn, filter)
 	if not pcall(events.RegisterEvent, events, event) then
 		return false
 	end
 	handlers[event] = handlers[event] or {}
+	filters[event] = filters[event] or {}
 	table.insert(handlers[event], fn)
+	-- Assign at the handler's slot: table.insert with a nil filter reserves no slot, so the next filter would land on
+	-- the wrong handler.
+	filters[event][#handlers[event]] = filter
 	return true
 end
 

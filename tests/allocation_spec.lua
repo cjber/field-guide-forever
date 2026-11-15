@@ -191,6 +191,39 @@ local health = PerEvent(200, function()
 end)
 assert(health < 0.25, string.format("a target health event allocates %.3f KB", health))
 
+-- Health changes arrive for every unit: party, raid, arena and boss frames included. Field Guide watches the target
+-- and nameplates only, so an event for any other unit must not reach SafeCall at all. Before the filter, every one of
+-- them allocated a label table in ForeverCore and was then discarded by the handler.
+for index = 1, 8 do
+	Mock.units["party" .. index] = "Ally " .. index
+	Mock.guids["party" .. index] = "Player-1-0000000" .. index
+end
+local unrelatedHealth = PerEvent(200, function(index)
+	Mock.Fire("UNIT_HEALTH", "party" .. (index % 8 + 1))
+end)
+assert(unrelatedHealth < 0.02, string.format("an unrelated health event allocates %.3f KB", unrelatedHealth))
+
+-- Filters belong to their own handler, including after an unfiltered one on the same event. A nil filter has to hold
+-- its handler's slot, or the next filter is read against the earlier handler and both run the wrong way round.
+local ran = {}
+assert(ns.On("ZONE_CHANGED", function()
+	ran[#ran + 1] = "plain"
+end))
+assert(ns.On("ZONE_CHANGED", function()
+	ran[#ran + 1] = "filtered"
+end, function()
+	return false
+end))
+Mock.Fire("ZONE_CHANGED")
+assert(#ran == 1 and ran[1] == "plain", string.format("a filter stayed with its handler: %s", table.concat(ran, ",")))
+
+-- A species nobody has recorded yet is the common state while walking a new zone. Its zero specimen is a read, so
+-- the shared empty table keeps a nameplate or a tooltip from building and dropping its own.
+local unrecorded = PerEvent(200, function()
+	assert(ns.Model.Specimen(ns.GetCharacterState(false), -1))
+end)
+assert(unrecorded < 0.02, string.format("an unrecorded specimen allocates %.3f KB", unrecorded))
+
 -- A rare's minimap marker: the marker list itself comes from the client as tables, so the two reads are stubbed to
 -- hand back one table each and the measurement is Field Guide's own work per update.
 local markerIds, markerInfos = {}, {}
@@ -225,13 +258,83 @@ assert(allMarkers < 0.3, string.format("a 12-marker update allocates %.3f KB", a
 -- Every marker used to be parsed again on every update; eleven more markers may not cost eleven more answers.
 assert(allMarkers - oneMarkerCost < 0.06, string.format("11 extra markers add %.3f KB", allMarkers - oneMarkerCost))
 
+-- Same input against changed input: walk the whole fixture once so every name, GUID and spawn cache exists, then
+-- repeat one event and cycle the same set. A steady path is allowed the dispatcher's floor, never a per-name cost
+-- that only shows up because the player keeps meeting different creatures.
+local fixtureNames, fixtureGuids = {}, {}
+for index = 1, NPC_COUNT do
+	fixtureNames[index] = "Zhevra " .. index
+	fixtureGuids[index] = Mock.CreatureGUID(FIRST_ID + index - 1)
+end
+for index = 1, NPC_COUNT do
+	Mock.units.target = fixtureNames[index]
+	Mock.guids.target = fixtureGuids[index]
+	Mock.Fire("PLAYER_TARGET_CHANGED")
+end
+Mock.units.target = fixtureNames[1]
+Mock.guids.target = fixtureGuids[1]
+Mock.Fire("PLAYER_TARGET_CHANGED")
+local sameTarget = PerEvent(200, function()
+	Mock.Fire("PLAYER_TARGET_CHANGED")
+end)
+local targetIndex = 0
+local changedTarget = PerEvent(200, function()
+	targetIndex = targetIndex % NPC_COUNT + 1
+	Mock.units.target = fixtureNames[targetIndex]
+	Mock.guids.target = fixtureGuids[targetIndex]
+	Mock.Fire("PLAYER_TARGET_CHANGED")
+end)
+assert(sameTarget < 0.3, string.format("a repeated target change allocates %.3f KB", sameTarget))
+assert(
+	changedTarget - sameTarget < 0.05,
+	string.format("changing creature adds %.3f KB to a target change", changedTarget - sameTarget)
+)
+
+for index = 1, NPC_COUNT do
+	local unit = "nameplate" .. (index % 8 + 1)
+	Mock.units[unit] = fixtureNames[index]
+	Mock.guids[unit] = fixtureGuids[index]
+	Mock.canAttack[unit] = true
+	Mock.Fire("NAME_PLATE_UNIT_ADDED", unit)
+	Mock.Fire("NAME_PLATE_UNIT_REMOVED", unit)
+end
+local plateUnit = "nameplate1"
+Mock.units[plateUnit] = fixtureNames[1]
+Mock.guids[plateUnit] = fixtureGuids[1]
+Mock.canAttack[plateUnit] = true
+local samePlate = PerEvent(200, function()
+	Mock.Fire("NAME_PLATE_UNIT_ADDED", plateUnit)
+	Mock.Fire("NAME_PLATE_UNIT_REMOVED", plateUnit)
+end)
+local plateIndex = 0
+local changedPlate = PerEvent(200, function()
+	plateIndex = plateIndex % NPC_COUNT + 1
+	local unit = "nameplate" .. (plateIndex % 8 + 1)
+	Mock.units[unit] = fixtureNames[plateIndex]
+	Mock.guids[unit] = fixtureGuids[plateIndex]
+	Mock.canAttack[unit] = true
+	Mock.Fire("NAME_PLATE_UNIT_ADDED", unit)
+	Mock.Fire("NAME_PLATE_UNIT_REMOVED", unit)
+end)
+assert(samePlate < 0.4, string.format("a repeated nameplate add and remove allocates %.3f KB", samePlate))
+assert(
+	changedPlate - samePlate < 0.05,
+	string.format("changing creature adds %.3f KB to a nameplate add", changedPlate - samePlate)
+)
+
 assert(buildGarbagePerNpc < 0.9, string.format("the build allocates %.3f KB per NPC", buildGarbagePerNpc))
 print(
 	string.format(
-		"allocation_spec: ok, build %.3f KB/NPC, lookup %.3f, nameplate %.3f, vignettes %.3f KB/event",
+		"allocation_spec: ok, build %.3f KB/NPC, lookup %.3f, nameplate %.3f, vignettes %.3f KB/event, "
+			.. "same/changed target %.3f/%.3f, plate %.3f/%.3f, unrelated health %.3f",
 		buildGarbagePerNpc,
 		lookup,
 		nameplateAdded,
-		allMarkers
+		allMarkers,
+		sameTarget,
+		changedTarget,
+		samePlate,
+		changedPlate,
+		unrelatedHealth
 	)
 )

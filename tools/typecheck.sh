@@ -27,6 +27,7 @@ fi
 python3 tools/forever_tools/sync.py check
 python3 tools/typecheck_coverage.py
 python3 tools/lint_secret.py
+python3 tools/lint_client_calls.py
 python3 tools/check_family.py
 python3 tools/check_store_page.py
 # A fresh output path prevents a crashed server from reusing an earlier clean report.

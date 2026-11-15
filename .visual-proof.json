@@ -1,23 +1,23 @@
 {
-  "input_digest": "12e58725eea43e6d14bb1c714dc9ac24bc79fe9508d21b3a324a40e93316ab69",
-  "runtime_sha256": "12e58725eea43e6d14bb1c714dc9ac24bc79fe9508d21b3a324a40e93316ab69",
-  "candidate": "6b9b5411abcfaaabda9ab558a22397cf6dab45ad4e4f913885816acf8edcc13f",
+  "input_digest": "333a05b1d8e05f3318a1a7b7df94c6f99675667eec0809d1dc7ca22bf043ad95",
+  "runtime_sha256": "333a05b1d8e05f3318a1a7b7df94c6f99675667eec0809d1dc7ca22bf043ad95",
+  "candidate": "765bfc3a61f41f9500732c0904d933c53d27e25020d812f9a6ae95c86026fbc5",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "b21147b3cc7f11b613b775b19929a34a9935fbc0",
+  "source_commit": "68c80a86b10f339875fc79af2f04db551d231a22",
   "flows": [
     {
-      "name": "journal",
+      "name": "settled catalogue and journal",
       "steps": [
-        "/fieldguide"
+        "field-ready.lua sha256:091a78a2eb15fb7b70fafeb44858c787ca60184959160880acd77fb54e75c8e5"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/ff51f13a7c518dc20a7d99f3080be5a7/raw/0010cf38d51fd5cc4da468d6b9533c605264a7bf/1-journal.png",
-      "sha256": "c5248036683d59fe6c74c4f87c48cc36cb0044500ee3bc61a83858d2a6c2ff7f"
+      "url": "https://gist.githubusercontent.com/cjber/7d5f8a3edd9cc026c0e51b555e65746b/raw/5dc9a275aa588d3d94d8d3f1dd22ac5f4d48b560/client.png",
+      "sha256": "43ff852608ed89e5d778d24b0eabc68d0893e46596dddb7b936f224ca752c9ad"
     }
   ]
 }
