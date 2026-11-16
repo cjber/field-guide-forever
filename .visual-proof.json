@@ -1,10 +1,10 @@
 {
-  "input_digest": "6f5bf1d489551ed304feace96ffd75ff500f3a913f9c88e060bc8bcc8fb2004e",
-  "runtime_sha256": "6f5bf1d489551ed304feace96ffd75ff500f3a913f9c88e060bc8bcc8fb2004e",
-  "candidate": "1de4841e4e790a8246a37b9823b10e530e472880995a3353115bb84ff5e2f00f",
+  "input_digest": "acb4563662b1aede3078a342eb8c8acda2ff5524f0049fc7398df9e35ae58b06",
+  "runtime_sha256": "acb4563662b1aede3078a342eb8c8acda2ff5524f0049fc7398df9e35ae58b06",
+  "candidate": "d01bc0ca3b2eebe5aa7bfa89a272a7d81b55609300578ce8633f2e9a48660159",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "7e0846fdbed619dcd923b8e10ae8a84849f93d8f",
+  "source_commit": "d2a0a0da6ff2f79e50cadb80fb1ef01f1091209e",
   "flows": [
     {
       "name": "settled catalogue and journal",
@@ -16,8 +16,8 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/b204f181f93377d822251664b7111b27/raw/e738cedafafcda45f199ab7479d1729b0213fb23/1-settled-catalogue-and-journal.png",
-      "sha256": "8ca4a4c8ae9c1fd1d0894753058e0f7f661bee3f493f9cf3de506c4e44b20d5c"
+      "url": "https://gist.githubusercontent.com/cjber/68c0a929daaa746e48312c5cbf9cf34c/raw/55e9707ae1cbe1d25db564c9988b2fa4bce9d354/1-settled-catalogue-and-journal.png",
+      "sha256": "cacf5d81ba6d1d88bf3135873f7d7214202454252685fae6861d5d0f308ed756"
     }
   ]
 }

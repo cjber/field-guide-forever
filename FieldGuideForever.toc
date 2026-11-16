@@ -11,10 +11,9 @@
 ## X-Donate: https://github.com/sponsors/cjber
 ## X-Curse-Project-ID: 1786835
 ## X-Wago-ID: QKyqLnK7
-## Dependencies: ForeverCore
-## X-Forever-Core: v1.13.0
+## X-Forever-Core: v1.14.0
 ## SavedVariables: FieldGuideForeverDB
-## OptionalDeps: QuestieDB, Questie
+## OptionalDeps: QuestieDB, Questie, ForeverCore
 
 Core\ForeverRequire.lua
 Core\Require.lua
