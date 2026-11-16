@@ -39,7 +39,7 @@ jobs:
           persist-credentials: false
       # Every tool version lives in this checkout's tools/toolchain.json, which the action reads (its manifest input
       # defaults to that file, resolved against the workspace) and installs and verifies each pin from.
-      - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
+      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
         with:
           tools: lua stylua
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
+      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
         with:
           tools: luals
       - name: Read the ForeverCore ref
@@ -124,7 +124,7 @@ jobs:
           path: tools/.cache
           key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py', 'tools/extract_*.lua') }}
       # gen_creature_icons.py builds its QuestieDB fixture with gen_mock_catalogue.py, which shells out to luajit.
-      - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
+      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
         with:
           tools: lua
       - name: Regenerate the shipped data in a scratch tree
@@ -164,7 +164,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
+      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
         with:
           tools: gitleaks
       - run: gitleaks git --redact --no-banner .
@@ -194,7 +194,10 @@ jobs:
           ref: ${{ steps.forever-core.outputs.ref }}
           path: forever-core
           persist-credentials: false
-      - uses: cjber/forever-core/.github/actions/lua-toolchain@f6b89cd4937b13333b8f75ea34d976175fe4dc9b # pinned Core toolchain
+      # The package gate parses and runs Lua, so it needs the pinned LuaJIT and luac5.1 from tools/toolchain.json.
+      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
+        with:
+          tools: lua
       # .pkgmeta's manual changelog, which the release fills with the version's entry.
       - run: printf 'Package check\n' > .release-notes.md
       # The packager skips a push build when HEAD carries a tag ("Found future tag, not packaging"), so a tag that
@@ -213,6 +216,5 @@ jobs:
       - run: python3 tools/forever_sim/fetch.py
       - name: Check the package with the client's Lua 5.1 parser
         env:
-          LUA51_LUAC: ${{ runner.tool_cache }}/lua-toolchain/bin/luac5.1
           GH_TOKEN: ${{ github.token }}
         run: python3 tools/check_package.py

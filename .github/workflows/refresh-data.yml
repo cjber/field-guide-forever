@@ -23,7 +23,7 @@ jobs:
           persist-credentials: false
       # Every tool version lives in this checkout's tools/toolchain.json, which the action reads and verifies, and its
       # python output pins setup-python.
-      - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
+      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
         id: toolchain
         with:
           tools: lua
