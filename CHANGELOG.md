@@ -10,6 +10,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 <!-- forever-core-sync -->
 
 - Ships with the same shared code as your other Forever addons, so they keep working together.
+- **This is the last update published on Wago.** Future updates come from CurseForge only. If you installed this addon through Wago or the WowUp Wago source, install it from CurseForge to keep getting updates; your settings stay.
 
 ## [0.8.12] - 2026-11-15
 
