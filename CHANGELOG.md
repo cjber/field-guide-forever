@@ -10,6 +10,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 <!-- forever-core-sync -->
 
 - Ships with the same shared code as your other Forever addons, so they keep working together.
+- **Field Guide Forever now loads when ForeverCore is missing and tells you what to do.** If ForeverCore is not installed, is turned off in the AddOns list, or is out of date, a line on screen names the fix instead of the addon silently not loading.
 
 ## [0.8.13] - 2026-11-16
 

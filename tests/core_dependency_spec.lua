@@ -20,7 +20,10 @@ local pinFile = assert(io.open(here .. "/../tools/forever-core.txt", "r"), "tool
 local pinned = assert(pinFile:read("*a"):match("^%s*(.-)%s*$"), "tools/forever-core.txt names a pin")
 pinFile:close()
 assert(pin == pinned, "the TOC records the ForeverCore this addon ships")
-local function Load(foreverCore)
+local function Load(foreverCore, coreAddon)
+	if coreAddon == nil then
+		coreAddon = { loaded = true, enabled = 2 }
+	end
 	local lines = {}
 	local scratch = {
 		ForeverCore = foreverCore,
@@ -34,6 +37,14 @@ local function Load(foreverCore)
 		end,
 		C_AddOns = {
 			GetAddOnMetadata = function(name, field)
+				if name == 1 and coreAddon then
+					if field == "X-Curse-Project-ID" then
+						return "1796337"
+					end
+					if field == "Title" then
+						return "ForeverCore"
+					end
+				end
 				if name == "FieldGuideForever" then
 					if field == "X-Forever-Core" then
 						return pin
@@ -44,11 +55,19 @@ local function Load(foreverCore)
 				end
 			end,
 			GetNumAddOns = function()
-				return 0
+				return coreAddon and 1 or 0
 			end,
-			GetAddOnInfo = function() end,
-			IsAddOnLoaded = function() end,
-			GetAddOnEnableState = function() end,
+			GetAddOnInfo = function(index)
+				if index == 1 and coreAddon then
+					return "ForeverCore"
+				end
+			end,
+			IsAddOnLoaded = function(index)
+				return index == 1 and coreAddon and coreAddon.loaded
+			end,
+			GetAddOnEnableState = function(index)
+				return index == 1 and coreAddon and coreAddon.enabled
+			end,
 			-- The client returns the dependencies as varargs, never as a table.
 			GetAddOnDependencies = function()
 				return unpack({})
@@ -70,6 +89,28 @@ assert(#missingLines == 1, "and says so in one error line")
 assert(
 	missingLines[1].text == "Field Guide Forever could not start. Reinstall Field Guide Forever to fix this.",
 	"the shared warning asks for a reinstall when no other addon can be blamed"
+)
+
+-- A missing ForeverCore folder asks for an install in one line.
+local absent, absentLines = Load(nil, false)
+assert(absent.broken == true, "a missing ForeverCore folder stops the addon")
+assert(#absentLines == 1, "a missing ForeverCore folder takes one error line")
+assert(
+	absentLines[1].text
+		== (
+			"Field Guide Forever needs ForeverCore. Install it from CurseForge, "
+			.. "or choose Reinstall on ForeverCore in the CurseForge app."
+		),
+	"a missing ForeverCore folder asks for an install"
+)
+
+-- An installed but disabled ForeverCore asks for it to be enabled in one line.
+local disabled, disabledLines = Load(nil, { loaded = false, enabled = 0 })
+assert(disabled.broken == true, "a disabled ForeverCore stops the addon")
+assert(#disabledLines == 1, "a disabled ForeverCore takes one error line")
+assert(
+	disabledLines[1].text == "Field Guide Forever: ForeverCore is turned off. Enable it in the AddOns list to fix this.",
+	"a disabled ForeverCore asks for it to be enabled"
 )
 
 -- ForeverCore with every member this addon calls runs the addon's own files and says nothing.
