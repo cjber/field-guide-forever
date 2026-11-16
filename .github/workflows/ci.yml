@@ -194,7 +194,10 @@ jobs:
           ref: ${{ steps.forever-core.outputs.ref }}
           path: forever-core
           persist-credentials: false
-      - uses: cjber/forever-core/.github/actions/lua-toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # pinned Core toolchain
+      # The package gate parses and runs Lua, so it needs the pinned LuaJIT and luac5.1 from tools/toolchain.json.
+      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
+        with:
+          tools: lua
       # .pkgmeta's manual changelog, which the release fills with the version's entry.
       - run: printf 'Package check\n' > .release-notes.md
       # The packager skips a push build when HEAD carries a tag ("Found future tag, not packaging"), so a tag that
