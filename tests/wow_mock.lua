@@ -745,6 +745,10 @@ local DATA_FIELDS = {
 	-- ForeverCore 1.12.0's scrolling tracker host reads these before a section has a viewport.
 	scrollBar = true,
 	scrollFrame = true,
+	-- ForeverCore 1.13.0's Kaliels tracker skin stores its collapse button and font state on the section, and reads
+	-- them as data before anything has written them.
+	kalielsCollapse = true,
+	kalielsFonts = true,
 }
 setmetatable(methods, {
 	__index = function(_, key)
