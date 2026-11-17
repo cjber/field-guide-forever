@@ -169,6 +169,10 @@ local system
 ---@field AddQueuedAlertFrameSubSystem function
 local anchor = CreateFrame("Frame", "FieldGuideForeverToastAnchor", UIParent, "AlertContainerTemplate")
 ---@cast anchor FGToastAnchor
+-- AlertContainerTemplate declares no size (Mainline/AlertFrames.xml:12), and the client resolves no rect for a sizeless
+-- single-point frame, which would leave the container and every toast anchored to it unrendered. Take the 10x10 box
+-- AlertFrame's own XML (lines 18-20) gives the game's container.
+anchor:SetSize(10, 10)
 anchor:Show()
 
 -- AlertFrameQueueMixin:AdjustAnchors anchors each queued alert's BOTTOM to the frame before it with this gap, so the

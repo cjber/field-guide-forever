@@ -35,6 +35,15 @@ for _, scale in ipairs({ 0.65, 1.0 }) do
 		G.ManageFramePositions()
 		sim:advance(0.2)
 		local anchor = assert(G.FieldGuideForeverToastAnchor, "addon-owned toast anchor exists")
+		-- AlertContainerTemplate declares no Size (Mainline/AlertFrames.xml:12) and the client resolves no rect for a
+		-- sizeless single-point frame, so without a size of its own the container and every toast on it go unrendered.
+		assert(
+			anchor:GetWidth() > 0 and anchor:GetHeight() > 0,
+			("the toast container has a size to anchor toasts by, got %s by %s"):format(
+				tostring(anchor:GetWidth()),
+				tostring(anchor:GetHeight())
+			)
+		)
 		-- The headless client has no renderer; deliver its first-render event explicitly.
 		sim.events.fire("FIRST_FRAME_RENDERED")
 		sim:advance(0.1)

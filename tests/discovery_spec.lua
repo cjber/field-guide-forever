@@ -118,6 +118,13 @@ end
 local function AnchorChecks()
 	local h = Start({ toastPoint = { "TOP", "TOP", 12, -48 } })
 	local anchor = assert(h.env.FieldGuideForeverToastAnchor, "addon-owned toast anchor exists")
+	-- AlertContainerTemplate sets no size and the client resolves no rect for a sizeless single-point frame, which
+	-- leaves the container and every toast anchored to it unrendered. It takes AlertFrame's own 10x10 box.
+	local width, height = anchor:GetWidth(), anchor:GetHeight()
+	equal(width ~= nil and width > 0, true, "the toast container has a non-zero width")
+	equal(height ~= nil and height > 0, true, "the toast container has a non-zero height")
+	equal(width, h.env.AlertFrame:GetWidth(), "the toast container is as wide as the game's alert container")
+	equal(height, h.env.AlertFrame:GetHeight(), "the toast container is as tall as the game's alert container")
 	local point, relative, relativePoint, x, y = anchor:GetPoint()
 	equal(point, "TOP", "saved point restored at login")
 	equal(relative, h.env.UIParent, "saved point is relative to UIParent")
