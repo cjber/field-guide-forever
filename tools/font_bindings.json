@@ -599,8 +599,8 @@
     },
     {
       "source": "Core/Settings.lua",
-      "sha256": "0e5ac7b5f578a441f9c738474349239996ff4bd66f0323478b8186753d7369f2",
-      "review": "Read BuildPanel, Register and login callbacks, plus ForeverCore v1.14.2 UI/SettingsPage.lua Register, AddCheck and AddButton. Only the addon-owned bindingNote is covered: CreateFontString explicitly inherits GameFontDisableSmall and no later font change occurs. Shared page title, checkbox labels, Move toasts button, category, minimap helper and tooltip wording are excluded because their widgets are owned by the external dependency, whose source digest cannot be pinned by this repository manifest.",
+      "sha256": "3920bd1a1a9305d90eee9eb1774692e563a82fb42e5018116ab622d6261b1a42",
+      "review": "Read BuildPanel, Register and login callbacks, plus ForeverCore v1.14.2 UI/SettingsPage.lua Register, AddHeader, AddCheck and AddButton. Only the addon-owned bindingNote is covered: CreateFontString explicitly inherits GameFontDisableSmall and no later font change occurs. Shared page title, section headings (Journal, Announcements, drawn by the shared template), checkbox labels, Move toasts button, category, minimap helper and tooltip wording are excluded because their widgets are owned by the external dependency, whose source digest cannot be pinned by this repository manifest.",
       "bindings": [
         {
           "font": "GameFontDisableSmall",
