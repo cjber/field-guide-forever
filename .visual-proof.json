@@ -1,23 +1,34 @@
 {
-  "input_digest": "fff04ee21e6e7d22770a3414969535ace4646737d6366348e221d5bf19d9f5a9",
-  "runtime_sha256": "fff04ee21e6e7d22770a3414969535ace4646737d6366348e221d5bf19d9f5a9",
-  "candidate": "f0ae249be167a29a86bf9154f073628ba050fc48e91e6e2fa9137650fc936bb6",
+  "input_digest": "24b1ddd83fb1994e8434929bd034cb2320b2e256541e3d2c6ece628f1c682527",
+  "runtime_sha256": "24b1ddd83fb1994e8434929bd034cb2320b2e256541e3d2c6ece628f1c682527",
+  "candidate": "8b23125fc892f909c8ffc5ce81d9efe4d48bc1f8638851bf55d90c499faef640",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "6d63eda0f594596b733321115297a5452e831c57",
+  "source_commit": "137c0a95f879a0f7a2a8832276c118ecafcf040a",
   "flows": [
     {
-      "name": "settled catalogue and journal",
+      "name": "section menu",
       "steps": [
-        "field-ready.lua sha256:091a78a2eb15fb7b70fafeb44858c787ca60184959160880acd77fb54e75c8e5"
+        "sha256:98ab78727fa38f43c1570cb640f34c0295b25b2fb58cea9ed7382b85ef355ae5 section-menu.lua"
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "block menu",
+      "steps": [
+        "sha256:68dcafe2aa76de3e8145b35136276f4de2a04f5e07ec26b3760ee6171d3dadc4 block-menu.lua"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/d9f1c8aaac02bfd49f6b5de70bac9117/raw/9ca7c710d96d27a60eb80ba37b2347cd3f89c185/1-settled-catalogue-and-journal.png",
-      "sha256": "9d4ffa01aff6a03a684925dbc854214fd8dd37ee841a1d6804921eb16e5ba0a8"
+      "url": "https://gist.githubusercontent.com/cjber/1347765a555c0421b212a4e408e1dc9e/raw/cc410263a47ca935658752c8bd11623753f5e08d/1-section-menu.png",
+      "sha256": "a5fff6fe942a93c79d08e27456ae00f4654b43f117bdb7d3434d4687703a2998"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/1347765a555c0421b212a4e408e1dc9e/raw/cc410263a47ca935658752c8bd11623753f5e08d/2-block-menu.png",
+      "sha256": "e18a73e46e50260ff7c794d88096abd0f92c5305fff97efc25dc81af94258109"
     }
   ]
 }

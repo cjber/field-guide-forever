@@ -107,6 +107,68 @@ assert(section:GetContentsHeight() == 0, "nothing tracked means nothing to draw"
 assert(not section.blocks[1003], "the untracked species' block is released")
 assert(not column:IsShown(), "the column hides when it has no section")
 
+-- Core's real Attach retains the declarative contract and wraps the template title handler.
+assert(section.show and section.trackerMenu and section.trackerClick and section.trackerClickHint)
+assert(section.trackerBlockMenuWrapped, "Core wraps the module's block title click")
+assert(not section.show.get())
+assert(type(section.show.where) == "string" and section.show.where ~= "")
+local function Menu(target, title)
+	local entries = {}
+	local menu = {}
+	for _, slot in ipairs({ "Title", "Open", "End" }) do
+		menu[slot] = function(_, text, fn)
+			entries[#entries + 1] = { slot = slot, text = text, fn = fn }
+		end
+	end
+	section.trackerMenu(target, menu)
+	assert(#entries == 3)
+	assert(entries[1].slot == "Title" and entries[1].text == title)
+	assert(entries[2].slot == "Open" and entries[2].text == "Open the Field Guide")
+	assert(entries[3].slot == "End" and entries[3].text == "Stop tracking")
+	return entries
+end
+local headerMenu = Menu({ kind = "section", module = section }, "Field Guide")
+Window.Hide()
+assert(headerMenu[2].fn(), "section Open opens the journal")
+assert(Window.frame:IsShown())
+ns.Tracker.SetTracked(1001)
+harness:RunTimers()
+assert(section.show.get())
+local target = { kind = "block", module = section, id = 1001, block = section.blocks[1001] }
+local blockMenu = Menu(target, "Plainstrider")
+Window.SetTab("records")
+Window.SetFilter("discovered")
+Window.search:SetText("no match")
+Window.Hide()
+assert(blockMenu[2].fn())
+assert(Window.frame:IsShown() and ns.List.selectedId == 1001, "Open selects the species")
+local visible = false
+for _, entry in ipairs(ns.List.entries) do
+	visible = visible or entry.species.id == 1001
+end
+assert(visible, "Open clears filters and selects the species' zone")
+Window.SelectSpecies(1003)
+section:OnBlockHeaderClick(target.block, "LeftButton")
+assert(ns.List.selectedId == 1001, "the wrapped block title opens its own species")
+assert(section.trackerClickHint(target) == "open its page")
+ns.catalogueStatus = "loading"
+local accepted, reason = blockMenu[2].fn()
+assert(accepted == false and reason == "The creature catalogue is not loaded yet.")
+ns.catalogueStatus = "ok"
+local species = ns.SpeciesById[1001]
+ns.SpeciesById[1001] = nil
+accepted, reason = blockMenu[2].fn()
+assert(accepted == false and reason == "This creature is no longer in the catalogue.")
+ns.SpeciesById[1001] = species
+assert(blockMenu[3].fn() and not ns.Tracker.TrackedSpecies(), "block End untracks")
+ns.Tracker.SetTracked(1001)
+assert(headerMenu[3].fn() and not ns.Tracker.TrackedSpecies(), "section End untracks")
+ns.Tracker.SetTracked(1001)
+section.show.set(true)
+assert(ns.Tracker.TrackedSpecies() == 1001)
+section.show.set(false)
+assert(not ns.Tracker.TrackedSpecies(), "Hide this section untracks")
+
 print("tracker: ok")
 
 -- Field Guide kept the column's scale, lock and position before ForeverCore did. The first section offers that old
