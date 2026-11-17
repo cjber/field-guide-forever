@@ -934,6 +934,7 @@
         "x": 0,
         "y": 0
       },
+      "frame_source": "canvas",
       "widgets": [
         {
           "h": 280,
@@ -1047,8 +1048,7 @@
           "x": 36,
           "y": 230
         }
-      ],
-      "frame_source": "canvas"
+      ]
     },
     "shiny-record.png": {
       "canvas": {

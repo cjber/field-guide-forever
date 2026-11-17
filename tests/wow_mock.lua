@@ -590,6 +590,20 @@ function methods:GetCenter()
 	return 0, 0
 end
 
+-- The edges follow the centre GetCenter reports (which a spec can replace), so drag placement reads the same
+-- geometry the client gives it.
+function methods:GetBottom()
+	Measure(self, "GetBottom")
+	local _, y = self:GetCenter()
+	return y - (self:GetHeight() or 0) / 2
+end
+
+function methods:GetTop()
+	Measure(self, "GetTop")
+	local _, y = self:GetCenter()
+	return y + (self:GetHeight() or 0) / 2
+end
+
 function methods:SetFrameStrata(strata)
 	self._strata = strata
 end

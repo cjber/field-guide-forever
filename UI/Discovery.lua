@@ -169,10 +169,21 @@ local system
 ---@field AddQueuedAlertFrameSubSystem function
 local anchor = CreateFrame("Frame", "FieldGuideForeverToastAnchor", UIParent, "AlertContainerTemplate")
 ---@cast anchor FGToastAnchor
-anchor:SetSize(300, 104)
-anchor:SetMovable(true)
-anchor:SetClampedToScreen(true)
 anchor:Show()
+
+-- AlertFrameQueueMixin:AdjustAnchors anchors each queued alert's BOTTOM to the frame before it with this gap, so the
+-- first real toast's bottom sits this far above the container's TOP.
+local ALERT_GAP = 10
+-- The first real toast's bottom sits this far above the bottom action bars' container's top.
+local TOAST_GAP = 8
+
+-- The sample takes exactly the rectangle AdjustAnchors gives the first real toast.
+---@type FGToastFrame?
+local mover
+local function AnchorSample(sample)
+	sample:ClearAllPoints()
+	sample:SetPoint("BOTTOM", anchor, "TOP", 0, ALERT_GAP)
+end
 
 local function Place()
 	anchor:ClearAllPoints()
@@ -180,15 +191,18 @@ local function Place()
 	if point then
 		anchor:SetPoint(point[1], UIParent, point[2], point[3], point[4])
 	elseif BottomManagedFrameContainer then
-		anchor:SetPoint("BOTTOM", BottomManagedFrameContainer, "TOP", 0, 8)
+		-- The anchor's top is the first toast's bottom less the queue gap: TOAST_GAP above the container's top.
+		anchor:SetPoint("TOP", BottomManagedFrameContainer, "TOP", 0, TOAST_GAP - ALERT_GAP)
 	else
-		anchor:SetPoint("BOTTOM", AlertFrame, "BOTTOM", 0, 0)
+		-- Take AlertFrame's place, so the first toast lands exactly where the game's own first toast does.
+		anchor:SetPoint("TOP", AlertFrame, "TOP", 0, 0)
+	end
+	if mover then
+		AnchorSample(mover)
 	end
 end
 
 -- The sample uses the same native art as a milestone, without its animation, sound or journal click.
----@type FGToastFrame?
-local mover
 local function CreateMover()
 	LoadAchievementUI()
 	local sample = CreateFrame("Button", "FieldGuideForeverToastMover", UIParent, TEMPLATE)
@@ -197,8 +211,9 @@ local function CreateMover()
 	-- A placement sample stays until dismissed, including after the pointer leaves it.
 	sample:SetScript("OnEnter", nil)
 	sample:SetScript("OnLeave", nil)
-	sample:ClearAllPoints()
-	sample:SetPoint("BOTTOM", anchor, "BOTTOM", 0, 0)
+	sample:SetMovable(true)
+	sample:SetClampedToScreen(true)
+	AnchorSample(sample)
 	sample.Unlocked:SetText(L["Move toasts"])
 	sample.Name:SetText(L["Drag to move. Right-click to reset."])
 	sample.Name:SetWidth(230)
@@ -213,15 +228,20 @@ local function CreateMover()
 			return
 		end
 		dragging = false
-		anchor:StopMovingOrSizing()
-		local x, y = anchor:GetCenter()
-		Options().toastPoint = { "CENTER", "BOTTOMLEFT", x, y }
+		sample:StopMovingOrSizing()
+		-- Where the sample's bottom ended up is where the first toast's bottom goes: the anchor's TOP is one gap
+		-- above it, saved relative to UIParent's bottom left with the sample's centre for the horizontal position.
+		local x = sample:GetCenter()
+		local bottom = sample:GetBottom()
+		if x and bottom then
+			Options().toastPoint = { "TOP", "BOTTOMLEFT", x, bottom - ALERT_GAP }
+		end
 		Place()
 	end
 	sample:SetScript("OnDragStart", function()
 		if not InCombatLockdown() then
 			dragging = true
-			anchor:StartMoving()
+			sample:StartMoving()
 		end
 	end)
 	sample:SetScript("OnDragStop", FinishDrag)
