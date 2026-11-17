@@ -730,6 +730,12 @@ end
 -- The fields named here are data a frame carries (ForeverCore's settings page keeps its row cursor in one), so they
 -- must read nil until something writes them, exactly as on the client, and never the no-op the fallback returns.
 local DATA_FIELDS = {
+	AddHeaderMenuEntries = true,
+	trackerBlockMenuWrapped = true,
+	trackerMenu = true,
+	trackerClick = true,
+	trackerClickHint = true,
+	show = true,
 	settingsRowY = true,
 	creatureID = true,
 	modelFileID = true,

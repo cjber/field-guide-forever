@@ -143,6 +143,58 @@ local function Create()
 	module = section
 end
 
+-- Reuse the discovery alert's journal navigation, with no list filter hiding the destination.
+local function Open(target)
+	if target.kind == "section" then
+		ns.Window.Show()
+		return true
+	end
+	if ns.catalogueStatus ~= "ok" then
+		return false, L["The creature catalogue is not loaded yet."]
+	end
+	if not ns.SpeciesById[target.id] or not ns.SpeciesZone[target.id] then
+		return false, L["This creature is no longer in the catalogue."]
+	end
+	ns.Window.Show()
+	ns.Window.search:SetText("")
+	ns.Window.SetFilter("all")
+	ns.Discovery.Open(target.id)
+	return true
+end
+
+local show = {
+	get = function()
+		return Tracked() ~= nil
+	end,
+	set = function(shown)
+		if not shown then
+			Tracker.SetTracked(nil)
+		end
+	end,
+	where = L["Track a creature again from its page in the Field Guide."],
+}
+
+local contract = {
+	menu = function(target, menu)
+		local species = target.id and ns.SpeciesById[target.id]
+		menu:Title(species and species.name or L["Field Guide"])
+		menu:Open(L["Open the Field Guide"], function()
+			return Open(target)
+		end)
+		menu:End(L["Stop tracking"], function()
+			return Tracker.SetTracked(nil)
+		end)
+	end,
+	click = function(target, button)
+		if button == "LeftButton" then
+			return Open(target)
+		end
+	end,
+	clickHint = function()
+		return L["open its page"]
+	end,
+}
+
 -- The column's scale, Lock and position were Field Guide's before ForeverCore kept them; the host copies this table
 -- once, so the player keeps the layout they chose. Saved variables load with the addon, so attach happens after them.
 local function Attach()
@@ -151,7 +203,7 @@ local function Attach()
 	end
 	module.legacySettings = ns.db and ns.db.trackerHost or nil
 	module.safeCall = ns.core.SafeCall
-	ForeverCore.TrackerHost.Attach(module)
+	ForeverCore.TrackerHost.Attach(module, show, contract)
 	if ns.db then
 		ns.db.trackerHost = nil
 	end
