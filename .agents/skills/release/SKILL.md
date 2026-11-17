@@ -18,7 +18,8 @@ Use the user's existing authorization. A preparation-only request ends before ta
 2. Inspect the latest `refresh-data.yml` run and open data PRs. `python3 tools/check_generated.py`
    reproduces the selected pins; it does not prove they are the newest build.
 3. Prepare the release on a branch from fresh main. Choose the version from the changes since the
-   last tag. Keep `## [Unreleased]` and move shipped notes into `## [X.Y.Z] - YYYY-MM-DD` (UTC date).
+   last tag. Run `python3 tools/changelog.py release X.Y.Z`: it writes `## [X.Y.Z] - YYYY-MM-DD`
+   (UTC date) from the `changes/*.md` fragments and deletes them.
    Keep the TOC version as `@project-version@`. Run `python3 tools/changelog.py --check X.Y.Z` and
    `python3 tools/changelog.py --check`, and read the extracted notes.
 

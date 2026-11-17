@@ -751,6 +751,11 @@ local DATA_FIELDS = {
 	trackerClickHint = true,
 	show = true,
 	settingsRowY = true,
+	-- ForeverCore 1.14.3's settings page keeps its placed rows to relayout them when the width changes.
+	settingsRows = true,
+	-- ForeverCore 1.14.3's minimap button hands its placement to LibDBIcon when that library owns the button.
+	libDBIcon = true,
+	libDBIconDB = true,
 	creatureID = true,
 	modelFileID = true,
 	id = true,
