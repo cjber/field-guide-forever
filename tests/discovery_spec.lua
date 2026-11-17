@@ -114,6 +114,60 @@ local function Start(options)
 	return harness
 end
 
+-- Anchor ownership and movement persist independently of the game's global alert system.
+local function AnchorChecks()
+	local h = Start({ toastPoint = { "TOP", "TOP", 12, -48 } })
+	local anchor = assert(h.env.FieldGuideForeverToastAnchor, "addon-owned toast anchor exists")
+	local point, relative, relativePoint, x, y = anchor:GetPoint()
+	equal(point, "TOP", "saved point restored at login")
+	equal(relative, h.env.UIParent, "saved point is relative to UIParent")
+	equal(relativePoint, "TOP", "saved relative point restored")
+	equal(x, 12, "saved horizontal offset restored")
+	equal(y, -48, "saved vertical offset restored")
+	local moveButton
+	for _, frame in ipairs(Mock.frames) do
+		if frame:GetText() == "Move toasts" then
+			moveButton = frame
+		end
+	end
+	assert(moveButton, "settings has Move toasts button")
+	moveButton:GetScript("OnClick")(moveButton)
+	local mover = h.env.FieldGuideForeverToastMover
+	equal(mover:IsShown(), true, "settings enables sample")
+	equal(mover:GetScript("OnLeave"), nil, "sample cannot resume the toast outro")
+	anchor.GetCenter = function()
+		return 420, 300
+	end
+	mover:GetScript("OnDragStart")(mover)
+	mover:GetScript("OnDragStop")(mover)
+	equal(h.ns.db.options.toastPoint[3], 420, "drag stop saves horizontal position")
+	equal(h.ns.db.options.toastPoint[4], 300, "drag stop saves vertical position")
+	mover:GetScript("OnClick")(mover, "RightButton")
+	equal(h.ns.db.options.toastPoint, nil, "right click clears saved point")
+	point, relative, relativePoint = anchor:GetPoint()
+	equal(point, "BOTTOM", "default anchors the bottom")
+	equal(relative, h.env.BottomManagedFrameContainer, "default follows managed frames")
+	equal(relativePoint, "TOP", "default sits above managed frames")
+	h.ns.Discovery.ToggleToastMover()
+	equal(mover:IsShown(), false, "second click hides sample")
+	h.ns.Discovery.ToggleToastMover()
+	h:Fire("PLAYER_REGEN_DISABLED")
+	equal(mover:IsShown(), false, "combat hides sample")
+	h.ns.Discovery.ToggleToastMover()
+	h.ns.Settings.panel:Show()
+	h.ns.Settings.panel:Hide()
+	h.ns.Settings.panel:GetScript("OnHide")(h.ns.Settings.panel)
+	equal(mover:IsShown(), false, "closing settings hides sample")
+	h.ns.Discovery.ToggleToastMover()
+	h.env.CloseAllWindows()
+	equal(mover:IsShown(), false, "Escape hides sample")
+	h.env.BottomManagedFrameContainer = nil
+	mover:GetScript("OnClick")(mover, "RightButton")
+	local _, fallback = anchor:GetPoint()
+	equal(fallback, h.env.AlertFrame, "clients without managed frames use the game alert anchor")
+end
+AnchorChecks()
+
 local function Count(list, value)
 	local count = 0
 	for _, item in ipairs(list) do
@@ -210,6 +264,12 @@ h:RunTimers()
 equal(#Mock.messages, 1, "a first kill told by a toast has no line")
 equal(#Mock.alerts, 2, "the silver and the zone each get a toast")
 local silver, zone = Mock.alerts[1], Mock.alerts[2]
+equal(
+	h.env.FieldGuideForeverToastAnchor.toastSystem.owner,
+	h.env.FieldGuideForeverToastAnchor,
+	"subsystem belongs to addon container"
+)
+equal(rawget(h.env.AlertFrame, "toastSystem"), nil, "global alert container has no addon subsystem")
 equal(h.calls[1], "load", "the achievement UI loads before the toast subsystem is registered")
 equal(h.calls[2], "system", "the toast subsystem is registered after it")
 equal(silver.template, "AchievementAlertFrameTemplate", "the toast is the client's achievement toast")

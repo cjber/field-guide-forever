@@ -1121,6 +1121,11 @@ function Mock.Harness(opts)
 				self.customOnMouseUpHandler = handler
 			end
 		end
+		if template == "AlertContainerTemplate" then
+			created.AddQueuedAlertFrameSubSystem = function(self, ...)
+				return env.AlertFrame.AddQueuedAlertFrameSubSystem(self, ...)
+			end
+		end
 		if template == "AchievementAlertFrameTemplate" then
 			-- Mainline/AlertFrameSystems.xml:173-327: the regions the toast's set-up reaches for.
 			created.Background = NewRegion("Texture", nil, created)
@@ -1397,9 +1402,11 @@ function Mock.Harness(opts)
 	-- own pool and filled by its setUp, and queues up to maxQueue more; a toast's hide frees its place for the next.
 	-- Mock.alerts holds every toast shown, in order. AlertFrame_OnClick dismisses on a right click.
 	Mock.alerts = {}
+	env.BottomManagedFrameContainer = env.CreateFrame("Frame", "BottomManagedFrameContainer", env.UIParent)
 	env.AlertFrame = env.CreateFrame("Frame", "AlertFrame", env.UIParent)
-	function env.AlertFrame.AddQueuedAlertFrameSubSystem(_, template, setUp, maxAlerts, maxQueue)
-		local system, free, shown, queued = {}, {}, 0, {}
+	function env.AlertFrame.AddQueuedAlertFrameSubSystem(owner, template, setUp, maxAlerts, maxQueue)
+		local system, free, shown, queued = { owner = owner }, {}, 0, {}
+		owner.toastSystem = system
 		local function Show(...)
 			local frame = table.remove(free)
 			if not frame then

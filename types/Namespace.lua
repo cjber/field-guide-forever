@@ -91,6 +91,7 @@
 ---@field minimapButtonAngle? number the angle around the Minimap, in degrees
 ---@field minimapButtonHidden? boolean hide the minimap button, shown by default
 ---@field discoveryText? boolean announce a first kill in the explored-area line
+---@field toastPoint? {[1]: string, [2]: string, [3]: number, [4]: number}
 ---@field milestoneToasts? boolean show the achievement toast for silver, gold, shiny, mastery and zone milestones
 
 -- FieldGuideForeverDB after Migrate.

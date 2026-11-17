@@ -1021,7 +1021,7 @@
           "role": "content",
           "w": 26,
           "x": 16,
-          "y": 160
+          "y": 196
         },
         {
           "h": 16,
@@ -1029,7 +1029,15 @@
           "role": "content",
           "w": 91.5,
           "x": 46,
-          "y": 166
+          "y": 202
+        },
+        {
+          "h": 24,
+          "name": "Move toasts",
+          "role": "button",
+          "w": 180,
+          "x": 16,
+          "y": 160
         },
         {
           "h": 16,
@@ -1037,9 +1045,10 @@
           "role": "content",
           "w": 560,
           "x": 36,
-          "y": 194
+          "y": 230
         }
-      ]
+      ],
+      "frame_source": "canvas"
     },
     "shiny-record.png": {
       "canvas": {

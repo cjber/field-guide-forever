@@ -9,5 +9,7 @@ local ready = ForeverCore ~= nil
 	and type(ForeverCore.APIKit) == "table"
 	and type(ForeverCore.APIKit.Hub) == "function"
 	and type(ForeverCore.APIKit.NotReady) == "function"
+	and type(ForeverCore.SettingsPage) == "table"
+	and type(ForeverCore.SettingsPage.AddButton) == "function"
 
 ns.ForeverRequire(ready)

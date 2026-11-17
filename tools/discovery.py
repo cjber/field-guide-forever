@@ -108,7 +108,7 @@ def list_panel(ui, rows):
     return canvas
 
 
-def toast(ui, heading, name, icon, variant="achievement"):
+def toast(ui, heading, name, icon, variant="achievement", name_width=155):
     """AchievementAlertFrameTemplate as AchievementAlertFrame_SetUp leaves an already-earned achievement: shield
     hidden, heading at TOP 27,-23, the name below it. `variant="guild"` is the same function's guild branch art."""
     guild = variant == "guild"
@@ -124,8 +124,8 @@ def toast(ui, heading, name, icon, variant="achievement"):
     heading_y = 38 if guild else 23
     heading_x = width / 2 + (0 if guild else 27) - 100
     text(canvas, heading_x, heading_y, heading, "GameFontBlackTiny", justify="CENTER", width=200)
-    name_x = width / 2 + (0 if guild else 27) - 155 / 2
-    text(canvas, name_x, heading_y + 12, name, "GameFontHighlight", box_height=36, justify="CENTER", width=155)
+    name_x = width / 2 + (0 if guild else 27) - name_width / 2
+    text(canvas, name_x, heading_y + 12, name, "GameFontHighlight", box_height=36, justify="CENTER", width=name_width)
     return canvas
 
 
@@ -150,7 +150,9 @@ def main(argv):
     ]
     for filename, heading, name, icon, variant in toasts:
         wowmock.scene(ui, [(toast(ui, heading, name, icon, variant), 0, 0)]).save(out / filename)
-    print(f"wrote {2 + len(toasts)} discovery scenes to {out}")
+    mover = toast(ui, "Move toasts", "Drag to move. Right-click to reset.", BOOK_ICON, name_width=230)
+    wowmock.scene(ui, [(mover, 0, 0)]).save(out / "toast-mover.png")
+    print(f"wrote {3 + len(toasts)} discovery scenes to {out}")
 
 
 if __name__ == "__main__":
