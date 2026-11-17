@@ -547,7 +547,7 @@
     },
     {
       "source": "UI/Discovery.lua",
-      "sha256": "7db79d64ad9dd52ca76ec726a6aaf5064e0a0b83695f065742084ad528086fa1",
+      "sha256": "9112b760c7fe8a1b345a81753a1a815a9a68782780a45c640222328c9db6978e",
       "review": "Read SetArt, SetUp, SpeciesToast, CreateMover, Flush and the queue setup and mover callbacks. Read pinned Mainline/AlertFrameSystems.xml AchievementAlertFrameTemplate: inherits AlertFrameTemplate; Unlocked inherits GameFontBlackTiny and Name inherits GameFontHighlight. SetArt changes art, anchors and visibility, not fonts; SetUp and CreateMover assign the listed text without later font replacement. Bind toast headings, format wording and mover instructions. Dynamic species and zone names and UIErrorsFrame discovery announcements are excluded. Read AlertFrames.xml AlertFrameTemplate and AlertFrame_OnClick/AchievementAlertFrame_OnClick: inherited scripts handle animation and clicks, with no font replacement.",
       "bindings": [
         {
@@ -599,15 +599,9 @@
     },
     {
       "source": "Core/Settings.lua",
-      "sha256": "0e5ac7b5f578a441f9c738474349239996ff4bd66f0323478b8186753d7369f2",
-      "review": "Read BuildPanel, Register and login callbacks, plus ForeverCore v1.14.2 UI/SettingsPage.lua Register, AddCheck and AddButton. Only the addon-owned bindingNote is covered: CreateFontString explicitly inherits GameFontDisableSmall and no later font change occurs. Shared page title, checkbox labels, Move toasts button, category, minimap helper and tooltip wording are excluded because their widgets are owned by the external dependency, whose source digest cannot be pinned by this repository manifest.",
-      "bindings": [
-        {
-          "font": "GameFontDisableSmall",
-          "widget": "BuildPanel bindingNote",
-          "phrase": "The Field Guide button can also be bound in Key Bindings > AddOns."
-        }
-      ]
+      "sha256": "2a1b4b4e1a262fc64cd1992c00fea82d003e91a96e4bc0aff55f48fb4184c3ee",
+      "review": "Read BuildPanel, Register and login callbacks, plus ForeverCore v1.14.2 UI/SettingsPage.lua Register, AddCheck and AddButton. The addon creates no font strings of its own. Shared page title, checkbox labels, Move toasts button, category and tooltip wording are excluded because their widgets are owned by the external dependency, whose source digest cannot be pinned by this repository manifest.",
+      "bindings": []
     }
   ]
 }

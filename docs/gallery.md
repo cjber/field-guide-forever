@@ -40,10 +40,6 @@ Every scene `tools/mockups.py` renders. Written by that script; do not edit by h
 
 ![Movable milestone toast sample](screenshots/toast-mover.png)
 
-![Field Guide minimap button](screenshots/minimap-field-guide.png)
-
-![Minimap button setting](screenshots/minimap-options.png)
-
 ![Sighting records](screenshots/sighting-log.png)
 
 ![Target frame rarity](screenshots/rarity-target.png)

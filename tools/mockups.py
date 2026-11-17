@@ -20,10 +20,8 @@ import dataclasses
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from typing import Any, NotRequired, TypedDict
 
@@ -75,14 +73,6 @@ class MockZone(TypedDict):
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "screenshots"
-MINIMAP_MOCKUPS = ROOT / "tools" / "minimap_mockups.py"
-
-
-def render_minimap_scenes():
-    with tempfile.TemporaryDirectory(prefix="field-guide-minimap-") as directory:
-        subprocess.run([sys.executable, str(MINIMAP_MOCKUPS)], cwd=directory, check=True)
-        for scene in ("minimap-field-guide.png", "minimap-options.png"):
-            shutil.copy2(Path(directory) / scene, OUT / scene)
 
 
 # UI/Art.lua's palette, as wowmock colour tuples.
@@ -1285,10 +1275,9 @@ def main():
         "Show the records list",
         "Announce newly recorded creatures",
         "Show milestone toasts",
-        "Minimap button",
     ]
     for index, label in enumerate(labels):
-        y = 48 + index * 28 + (36 if index == 4 else 0)
+        y = 48 + index * 28
         note(f"Settings checkbox {index + 1}", "content", 16, y, 26, 26)
         note(
             f"Settings label {index + 1}", "content", 46, y + 6, settings.text_width(label, FONTS["GameFontNormal"]), 16
@@ -1296,25 +1285,13 @@ def main():
         settings.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), 16, y, 26, 26)
         settings.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), 16, y, 26, 26)
         text(settings, 46, y + 6, label, "GameFontNormal", GOLD)
-    # Page.AddButton takes a 36-unit row between the toast and minimap checkboxes.
+    # Page.AddButton takes its own row under the last checkbox.
     ui_panel_button(settings, 16, 160, 180, 24, "Move toasts")
     note("Move toasts", "button", 16, 160, 180, 24)
-    # Settings.lua anchors its note 8 units under the last checkbox, exactly as this draws it.
-    note_y = 48 + (len(labels) - 1) * 28 + 36 + 26 + 8
-    text(
-        settings,
-        36,
-        note_y,
-        "The Field Guide button can also be bound in Key Bindings > AddOns.",
-        "GameFontDisableSmall",
-        MUTED,
-    )
-    note("Settings binding note", "content", 36, note_y, 560, 16)
     save(settings, "settings.png", frame_source="canvas")
     save(render(barrens, search_species, "CREATURES"), "sighting-log.png")
     save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")
     save(render(barrens, prowler, "INSTANCES"), "instances-boss.png")
-    render_minimap_scenes()
     subprocess.run([sys.executable, str(ROOT / "tools" / "rarity.py")], check=True)
     subprocess.run([sys.executable, str(ROOT / "tools" / "discovery.py")], check=True)
 
@@ -1337,8 +1314,6 @@ def main():
             ("discovery-toast-zone.png", "Zone milestone toast"),
             ("settings.png", "Settings canvas content"),
             ("toast-mover.png", "Movable milestone toast sample"),
-            ("minimap-field-guide.png", "Field Guide minimap button"),
-            ("minimap-options.png", "Minimap button setting"),
             ("sighting-log.png", "Sighting records"),
             ("rarity-target.png", "Target frame rarity"),
             ("rarity-nameplates.gif", "Nameplate rarity"),

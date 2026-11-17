@@ -62,7 +62,7 @@ Field Guide needs [Questie](https://www.curseforge.com/wow/addons/questie) or th
 
 ## Usage
 
-Type `/fg`, press Shift-F, or click the Field Guide button on the minimap rim; drag the button around the rim to move it. Options are under Options > AddOns > Field Guide Forever, where the button can be hidden, and Shift-F can be rebound in Key Bindings > AddOns.
+Type `/fg` or press Shift-F, which can be rebound in Key Bindings > AddOns. Options are under Options > AddOns > Field Guide Forever.
 
 | Command | What it does |
 |---|---|
