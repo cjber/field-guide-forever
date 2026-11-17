@@ -3,8 +3,6 @@
 All notable changes to Field Guide Forever are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
-## [Unreleased]
-
 ## [0.8.15] - 2026-11-17
 
 <!-- forever-core-sync -->

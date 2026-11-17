@@ -34,6 +34,10 @@ python3 tools/check_menu_scroll.py # menus built from a list scroll (WFA-36); CI
 python3 tools/repo_rules.py # rules no linter covers; CI runs it in project-rules
 ```
 
+A change's player-facing notes go in `changes/<issue>.md` as bold-lead bullets, with an optional `### For addon
+authors` section after them. The release commit gathers them with `python3 tools/changelog.py release X.Y.Z`; no
+other pull request edits `CHANGELOG.md`, and CI's `--check --base` fails one that does.
+
 Specs are Lua 5.1 scripts run with LuaJIT through `tests/wow_mock.lua`. `FOREVER_CORE=/path/to/forever-core python3 tools/mockups.py` renders the README scenes from WoW client assets and a disposable fixture extracted from the pinned QuestieDB Forever release. The fixture lives only in an ignored cache directory under `tools/`.
 
 `FOREVER_CORE` names the cjber/forever-core checkout the specs load, defaulting to the sibling `../forever-core`.

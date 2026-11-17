@@ -136,7 +136,7 @@ FOREVER_CORE=../forever-core python3 tools/mockups.py          # re-render docs/
 disposable fixture extracted from the pinned QuestieDB Forever release into the ignored `tools/.cache/`; the addon
 never ships that fixture.
 
-**Releasing:** move the `[Unreleased]` notes in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD`, then
+**Releasing:** run `python3 tools/changelog.py release X.Y.Z` to gather the `changes/*.md` notes into `## [X.Y.Z] - YYYY-MM-DD`, then
 `git tag -s vX.Y.Z && git push --tags`, or run the Release workflow on main with `version` set. The
 [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases,
 CurseForge and Wago, with that version's entry (`tools/changelog.py`) as the release notes.
