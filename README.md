@@ -58,7 +58,7 @@ Your first silver, gold or shiny of a species, a species reaching Mastered and a
 
 ## Install
 
-Install it from [CurseForge](https://www.curseforge.com/wow/addons/field-guide-forever) or [Wago Addons](https://addons.wago.io/addons/field-guide-forever), or download the zip from [Releases](https://github.com/cjber/field-guide-forever/releases). To install the zip by hand, extract it into the WoW: Forever client's `Interface/AddOns/` folder (`_forever_` on the live client) so you end up with `AddOns/FieldGuideForever/FieldGuideForever.toc`.
+Install it from [CurseForge](https://www.curseforge.com/wow/addons/field-guide-forever), or download the zip from [Releases](https://github.com/cjber/field-guide-forever/releases). To install the zip by hand, extract it into the WoW: Forever client's `Interface/AddOns/` folder (`_forever_` on the live client) so you end up with `AddOns/FieldGuideForever/FieldGuideForever.toc`.
 
 Field Guide needs [Questie](https://www.curseforge.com/wow/addons/questie) or the standalone [QuestieDB](https://github.com/Questie/QuestieDB/releases) addon for its creature list. Without one, the window says what to install.
 
@@ -147,7 +147,7 @@ never ships that fixture.
 **Releasing:** run `python3 tools/changelog.py release X.Y.Z` to gather the `changes/*.md` notes into `## [X.Y.Z] - YYYY-MM-DD`, then
 `git tag -s vX.Y.Z && git push --tags`, or run the Release workflow on main with `version` set. The
 [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases,
-CurseForge and Wago, with that version's entry (`tools/changelog.py`) as the release notes.
+CurseForge, with that version's entry (`tools/changelog.py`) as the release notes.
 
 **Contributing:** read [CONTRIBUTING.md](https://github.com/cjber/.github/blob/main/CONTRIBUTING.md) and this
 repository's [AGENTS.md](AGENTS.md). Report security problems privately, as
