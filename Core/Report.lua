@@ -36,7 +36,5 @@ function ns.ReportLines()
 	end
 	lines[#lines + 1] = tracker
 
-	local options = ns.db and ns.db.options or {}
-	lines[#lines + 1] = "minimap button: " .. (options.minimapButtonHidden and "hidden" or "shown")
 	return lines
 end

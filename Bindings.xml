@@ -1,3 +1,3 @@
 <Bindings>
-	<Binding name="CLICK FieldGuideForeverMinimapButton:LeftButton" header="BINDING_HEADER_FIELDGUIDEFOREVER" default="SHIFT-F" category="ADDONS"/>
+	<Binding name="FIELDGUIDEFOREVER_OPEN" header="BINDING_HEADER_FIELDGUIDEFOREVER" default="SHIFT-F" category="ADDONS">SlashCmdList.FIELDGUIDEFOREVER("")</Binding>
 </Bindings>

@@ -7,7 +7,7 @@ if ns.broken then
 end
 
 ns.ReportTitle = L["Field Guide Forever report"]
--- The one client icon every in-game identity surface draws: the minimap button and the journal's portrait. The TOC
+-- The one client icon every in-game identity surface draws: the journal's portrait and side tab. The TOC
 -- declares it once and the drawn media/Icon stays the addon's store and TOC identity.
 ns.icon = C_AddOns.GetAddOnMetadata(addonName, "X-Forever-Icon") or ""
 -- The addon's own ForeverCore services: the error journal, the debug log, the report window and the map canvas. The
@@ -348,14 +348,10 @@ function ns.Initialize()
 	if db.options.showSightingLog == nil then
 		db.options.showSightingLog = true
 	end
-	-- The micro menu button is gone; a player who had hidden it keeps its minimap replacement hidden.
-	if db.options.microButton == false then
-		db.options.minimapButtonHidden = true
-	end
+	-- The micro menu and minimap buttons are gone; their saved settings mean nothing now.
 	db.options.microButton = nil
-	if db.options.minimapButtonHidden == nil then
-		db.options.minimapButtonHidden = false
-	end
+	db.options.minimapButtonHidden = nil
+	db.options.minimapButtonAngle = nil
 	if db.options.milestoneToasts == nil then
 		db.options.milestoneToasts = true
 	end

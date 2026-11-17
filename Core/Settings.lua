@@ -58,23 +58,6 @@ local function BuildPanel(panel, page)
 
 	page.AddButton(panel, L["Move toasts"], ns.Discovery.ToggleToastMover)
 	panel:HookScript("OnHide", ns.Discovery.HideToastMover)
-
-	local minimapButtonRow = page.AddCheck(panel, L["Minimap button"], function()
-		return ns.db and ns.db.options.minimapButtonHidden ~= true
-	end, function(checked)
-		if ns.db then
-			ns.db.options.minimapButtonHidden = not checked
-		end
-		ForeverCore.MinimapButton.Refresh()
-		if ns.FireProgress then
-			ns.FireProgress()
-		end
-	end, L["Adds a Field Guide button to the minimap."])
-
-	-- The one line the shared page has no row kind for, so the addon draws it itself, under the last row.
-	local bindingNote = panel:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-	bindingNote:SetPoint("TOPLEFT", minimapButtonRow, "BOTTOMLEFT", 20, -8)
-	bindingNote:SetText(L["The Field Guide button can also be bound in Key Bindings > AddOns."])
 end
 
 function SettingsPanel.Register()
@@ -94,27 +77,4 @@ end
 
 ns.On("PLAYER_LOGIN", function()
 	ns.core.SafeCall("settings", SettingsPanel.Register)
-	ns.core.SafeCall("minimap button", function()
-		local spec = {
-			name = "FieldGuideForeverMinimapButton",
-			-- The addon's own client icon, the same one its journal wears.
-			icon = ns.icon,
-			title = L["Field Guide"],
-			binding = "Shift-F",
-			subtext = L["Click to browse the field compendium"],
-			settings = ns.db.options,
-			host = ns,
-			safeCall = ns.core.SafeCall,
-			onClick = ns.OpenGuide,
-		}
-		local button = ForeverCore.MinimapButton.Create(spec)
-		if button and ns.Tooltip then
-			-- The shared button draws its own title-only tooltip; Field Guide then redraws it with the journal's minimum
-			-- width. Hooks keep the shared handler's own work rather than replacing it.
-			button:HookScript("OnEnter", function(self)
-				ns.Tooltip.ShowButton(self, spec)
-			end)
-			button:HookScript("OnLeave", ns.Tooltip.Hide)
-		end
-	end)
 end)

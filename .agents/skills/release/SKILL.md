@@ -62,7 +62,7 @@ Use the user's existing authorization. A preparation-only request ends before ta
 ## Addon checks
 
 - User checks after `/reload`: `/fg` opens the journal, a kill on a targeted creature adds to its
-  count, the minimap button and Shift-F open it, and without QuestieDB the install prompt shows.
+  count, Shift-F opens it, and without QuestieDB the install prompt shows.
 
 ## Command discovery
 

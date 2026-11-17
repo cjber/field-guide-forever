@@ -46,7 +46,7 @@ A creature that dies with no nameplate showing and not targeted is not counted. 
 
 ## Usage
 
-Type `/fg` or `/fieldguide`, press Shift-F, or click the Field Guide button on the minimap rim; drag it around the rim to move it, or hide it in the options. `/fg preview` shows every creature as silver, gold or shiny for this session and `/fgf help` lists the commands. Options are under Options > AddOns > Field Guide Forever.
+Type `/fg` or `/fieldguide`, or press Shift-F. `/fg preview` shows every creature as silver, gold or shiny for this session and `/fgf help` lists the commands. Options are under Options > AddOns > Field Guide Forever.
 
 For a bug report, paste `/fgf report`.
 

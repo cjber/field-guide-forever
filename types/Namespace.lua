@@ -87,9 +87,9 @@
 ---@class FGOptions
 ---@field showUndiscovered? boolean
 ---@field showSightingLog? boolean
----@field microButton? boolean the old micro menu setting, migrated to minimapButtonHidden and removed
----@field minimapButtonAngle? number the angle around the Minimap, in degrees
----@field minimapButtonHidden? boolean hide the minimap button, shown by default
+---@field microButton? nil removed setting, cleared at load
+---@field minimapButtonAngle? nil removed setting, cleared at load
+---@field minimapButtonHidden? nil removed setting, cleared at load
 ---@field discoveryText? boolean announce a first kill in the explored-area line
 ---@field toastPoint? {[1]: string, [2]: string, [3]: number, [4]: number}
 ---@field milestoneToasts? boolean show the achievement toast for silver, gold, shiny, mastery and zone milestones
@@ -271,7 +271,6 @@ function FGCreatureInfo.Get(npcID) end
 ---@field SpeciesById table<integer, FGSpecies>
 ---@field SpeciesByZoneName table<FGZone, table<string, FGSpecies>> lower-case name -> species, built with the catalogue
 ---@field SpeciesZone table<integer, FGZone> NPC ID -> the zone the species is listed under
----@field minimapButton? ForeverMinimapButton the shared minimap button, set by Core/Settings.lua
 ---@field Model FGModel
 ---@field API FGPublicAPI
 ---@field Stats FGStatsModule

@@ -69,20 +69,6 @@ function Tooltip.Show(owner, entry)
 	tooltip:Show()
 end
 
--- The minimap button's tooltip: its title first, the way the shared button drew it, then the binding and what the
--- button opens.
----@param owner Frame
----@param spec ForeverMinimapButtonSpec
-function Tooltip.ShowButton(owner, spec)
-	local tooltip = Open(owner, "ANCHOR_TOP", spec.title)
-	if not tooltip then
-		return
-	end
-	tooltip:AddLine("(" .. spec.binding .. ")", NORMAL_FONT_COLOR:GetRGB())
-	tooltip:AddLine(spec.subtext, GRAY_FONT_COLOR:GetRGB())
-	tooltip:Show()
-end
-
 function Tooltip.Hide()
 	if GameTooltip and GameTooltip.Hide then
 		-- GameTooltip is shared: the next one to use it gets its own width back.
