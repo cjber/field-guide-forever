@@ -1,6 +1,6 @@
 ---
 name: release
-description: "Prepare, publish and verify a complete Field Guide Forever release. Use for /release or cutting a release, including README and store copy, screenshots, both stores and client installation."
+description: "Prepare, publish and verify a complete Field Guide Forever release. Use for /release or cutting a release, including README and store copy, screenshots, CurseForge and client installation."
 ---
 
 # Release Field Guide Forever
@@ -47,14 +47,14 @@ Use the user's existing authorization. A preparation-only request ends before ta
    missing, send the `wow in-game` agent `INGAME field-guide-forever <full sha> from <your kiln id>` with `kind: smoke`
    (`wow-forever-addon/in-game.md#requesting-a-check`) and wait for its reply; never run the client yourself. `INGAME
    FAIL` is a release blocker: fix the errors it names. `INGAME BLOCKED` goes to the user as the release's blocker.
-10. Confirm `FieldGuideForever.toc` carries the real `X-Curse-Project-ID` and `X-Wago-ID` (`0` means
-    the project does not exist yet and the packager skips that store). Check `gh secret list` shows
-    `CF_API_KEY` and `WAGO_API_TOKEN`; never print their values. Tag `vX.Y.Z` signed at the verified
+10. Confirm `FieldGuideForever.toc` carries the real `X-Curse-Project-ID` (`0` means
+    the project does not exist yet and the packager skips the upload). Check `gh secret list` shows
+    `CF_API_KEY`; never print their values. Tag `vX.Y.Z` signed at the verified
     commit and push it, or dispatch the Release workflow on main with `version`.
-11. Watch the release run. Its log must show both store IDs with `[token set]` and a `Success!` after
+11. Watch the release run. Its log must show the CurseForge ID with `[token set]` and a `Success!` after
     each upload; a missing token skips that store while the run stays green. Download the GitHub zip
     and check the substituted version, `media/Icon.tga` and every TOC-loaded file.
-12. Apply the store plan on both stores (the user uploads the CurseForge logo and deletes images).
+12. Apply the store plan on CurseForge (the user uploads the CurseForge logo and deletes images).
     Verify each page after a reload, and report moderation as pending with its URL.
 13. If installation was requested, run `wowaddon --flavor forever sync gh:cjber/field-guide-forever`,
     remove any dev symlink first, and tell the user to `/reload`.

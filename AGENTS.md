@@ -2,7 +2,7 @@
 
 Field Guide Forever targets the WoW: Forever client (Interface 16001). It keeps a cosmetic journal of creatures a character has encountered, with local progress and shared catalogue facts. It never grants player power, changes combat, or calls protected functions.
 
-It requires ForeverCore (`## Dependencies: ForeverCore`), the standalone addon that owns the shared tracker column, report window, error journal and debug log, the quest log side tabs, the settings-page chrome, the family page and the map canvas. CurseForge and Wago install ForeverCore with it through `.pkgmeta`'s `required-dependencies`; nothing shared is vendored here.
+It requires ForeverCore (`## Dependencies: ForeverCore`), the standalone addon that owns the shared tracker column, report window, error journal and debug log, the quest log side tabs, the settings-page chrome, the family page and the map canvas. CurseForge installs ForeverCore with it through `.pkgmeta`'s `required-dependencies`; nothing shared is vendored here.
 
 The shared suite standards follow forever-core `main`. For UI work, read the [wow-retail-ui-style skill](https://github.com/cjber/forever-core/blob/main/.agents/skills/wow-retail-ui-style/SKILL.md), [asset registry](https://github.com/cjber/forever-core/blob/main/docs/asset-registry.md), and [asset audit](https://github.com/cjber/forever-core/blob/main/docs/asset-audit.md) before changing layouts or assets. Use native Blizzard templates and approved atlas textures, and check the blacklist even when an asset matches a broad native prefix.
 
@@ -125,4 +125,4 @@ geometry checks do not validate these relationships. AI concepts are proposals, 
 
 ## Release flow
 
-Follow `.agents/skills/release/SKILL.md`. Keep changes under an appropriate `CHANGELOG.md` version heading, run the full gate, and check the packaged TOC contents before releasing. `X-Curse-Project-ID` and `X-Wago-ID` stay `0` (the packager's "no project") until the store projects exist; then set the real IDs and confirm the `CF_API_KEY` and `WAGO_API_TOKEN` secrets. The BigWigs packager reads `.pkgmeta`, substitutes the release version in the TOC, and publishes the changelog entry as release notes.
+Follow `.agents/skills/release/SKILL.md`. Keep changes under an appropriate `CHANGELOG.md` version heading, run the full gate, and check the packaged TOC contents before releasing. `X-Curse-Project-ID` stays `0` (the packager's "no project") until the store project exists; then set the real ID and confirm the `CF_API_KEY` secret. The BigWigs packager reads `.pkgmeta`, substitutes the release version in the TOC, and publishes the changelog entry as release notes.
