@@ -1203,7 +1203,7 @@ def main():
             ui, [(window(ui, zone, species, tab, icons, sigil, filter_key, tracked, unavailable, zones), 0, 0)]
         )
 
-    def save(scene, name):
+    def save(scene, name, frame_source=None):
         scene.save(OUT / name)
         scenes: list[str] = LAYOUT.setdefault("scenes", [])
         scenes.append(name)
@@ -1211,6 +1211,7 @@ def main():
             "frame": dict(LAYOUT["frame"]),
             "canvas": dict(LAYOUT["canvas"]),
             "widgets": [dict(widget) for widget in LAYOUT["widgets"]],
+            **({"frame_source": frame_source} if frame_source else {}),
         }
 
     if os.environ.get("FIELD_GUIDE_DESIGN_PREVIEW"):
@@ -1287,7 +1288,7 @@ def main():
         "Minimap button",
     ]
     for index, label in enumerate(labels):
-        y = 48 + index * 28
+        y = 48 + index * 28 + (36 if index == 4 else 0)
         note(f"Settings checkbox {index + 1}", "content", 16, y, 26, 26)
         note(
             f"Settings label {index + 1}", "content", 46, y + 6, settings.text_width(label, FONTS["GameFontNormal"]), 16
@@ -1295,8 +1296,11 @@ def main():
         settings.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), 16, y, 26, 26)
         settings.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), 16, y, 26, 26)
         text(settings, 46, y + 6, label, "GameFontNormal", GOLD)
+    # Page.AddButton takes a 36-unit row between the toast and minimap checkboxes.
+    ui_panel_button(settings, 16, 160, 180, 24, "Move toasts")
+    note("Move toasts", "button", 16, 160, 180, 24)
     # Settings.lua anchors its note 8 units under the last checkbox, exactly as this draws it.
-    note_y = 48 + (len(labels) - 1) * 28 + 26 + 8
+    note_y = 48 + (len(labels) - 1) * 28 + 36 + 26 + 8
     text(
         settings,
         36,
@@ -1306,7 +1310,7 @@ def main():
         MUTED,
     )
     note("Settings binding note", "content", 36, note_y, 560, 16)
-    save(settings, "settings.png")
+    save(settings, "settings.png", frame_source="canvas")
     save(render(barrens, search_species, "CREATURES"), "sighting-log.png")
     save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")
     save(render(barrens, prowler, "INSTANCES"), "instances-boss.png")
@@ -1332,6 +1336,7 @@ def main():
             ("discovery-toast-mastered.png", "Mastery milestone toast"),
             ("discovery-toast-zone.png", "Zone milestone toast"),
             ("settings.png", "Settings canvas content"),
+            ("toast-mover.png", "Movable milestone toast sample"),
             ("minimap-field-guide.png", "Field Guide minimap button"),
             ("minimap-options.png", "Minimap button setting"),
             ("sighting-log.png", "Sighting records"),

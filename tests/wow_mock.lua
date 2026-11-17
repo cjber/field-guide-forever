@@ -590,6 +590,20 @@ function methods:GetCenter()
 	return 0, 0
 end
 
+-- The edges follow the centre GetCenter reports (which a spec can replace), so drag placement reads the same
+-- geometry the client gives it.
+function methods:GetBottom()
+	Measure(self, "GetBottom")
+	local _, y = self:GetCenter()
+	return y - (self:GetHeight() or 0) / 2
+end
+
+function methods:GetTop()
+	Measure(self, "GetTop")
+	local _, y = self:GetCenter()
+	return y + (self:GetHeight() or 0) / 2
+end
+
 function methods:SetFrameStrata(strata)
 	self._strata = strata
 end
@@ -1126,6 +1140,13 @@ function Mock.Harness(opts)
 				self.customOnMouseUpHandler = handler
 			end
 		end
+		if template == "AlertContainerTemplate" then
+			-- Mainline/AlertFrames.xml:12: the template declares no Size, so a frame made from it starts at 0x0.
+			created._width, created._height = 0, 0
+			created.AddQueuedAlertFrameSubSystem = function(self, ...)
+				return env.AlertFrame.AddQueuedAlertFrameSubSystem(self, ...)
+			end
+		end
 		if template == "AchievementAlertFrameTemplate" then
 			-- Mainline/AlertFrameSystems.xml:173-327: the regions the toast's set-up reaches for.
 			created.Background = NewRegion("Texture", nil, created)
@@ -1402,9 +1423,13 @@ function Mock.Harness(opts)
 	-- own pool and filled by its setUp, and queues up to maxQueue more; a toast's hide frees its place for the next.
 	-- Mock.alerts holds every toast shown, in order. AlertFrame_OnClick dismisses on a right click.
 	Mock.alerts = {}
+	env.BottomManagedFrameContainer = env.CreateFrame("Frame", "BottomManagedFrameContainer", env.UIParent)
 	env.AlertFrame = env.CreateFrame("Frame", "AlertFrame", env.UIParent)
-	function env.AlertFrame.AddQueuedAlertFrameSubSystem(_, template, setUp, maxAlerts, maxQueue)
-		local system, free, shown, queued = {}, {}, 0, {}
+	-- Mainline/AlertFrames.xml:18-20: the game's container declares its own 10x10 size over the sizeless template.
+	env.AlertFrame:SetSize(10, 10)
+	function env.AlertFrame.AddQueuedAlertFrameSubSystem(owner, template, setUp, maxAlerts, maxQueue)
+		local system, free, shown, queued = { owner = owner }, {}, 0, {}
+		owner.toastSystem = system
 		local function Show(...)
 			local frame = table.remove(free)
 			if not frame then

@@ -10,8 +10,8 @@ local L = ns.L
 -- What a kill shows. A first kill is announced the way the client announces an explored area: one yellow line in
 -- UIErrorsFrame, with the page-turn sound, a New tag in the journal and the minimap button pulsing until the journal
 -- opens. The big moments (a rare's first kill, a shiny, a mastered species, a zone with every creature recorded) take
--- the client's own achievement toast (Mainline/AlertFrameSystems.xml:173), queued through AlertFrame as achievements
--- are: two on screen, six waiting.
+-- the client's own achievement toast (Mainline/AlertFrameSystems.xml:173), queued through an addon-owned container:
+-- two on screen, six waiting.
 --
 -- Core calls in from the kill handler, which can run in combat, so a record is only noted here and everything shown
 -- waits for the next frame. Nothing here touches a secure frame: the toasts come from this addon's own AlertFrame
@@ -163,12 +163,126 @@ end
 
 ---@type table?
 local system
--- Registered at the first milestone, so a session without one adds nothing to AlertFrame. The achievement system's
--- own global stands for its template being loaded.
+
+-- Create before the three startup events: AlertContainerMixin's readiness callback only observes future events.
+---@class FGToastAnchor : Frame
+---@field AddQueuedAlertFrameSubSystem function
+local anchor = CreateFrame("Frame", "FieldGuideForeverToastAnchor", UIParent, "AlertContainerTemplate")
+---@cast anchor FGToastAnchor
+-- AlertContainerTemplate declares no size (Mainline/AlertFrames.xml:12), and the client resolves no rect for a sizeless
+-- single-point frame, which would leave the container and every toast anchored to it unrendered. Take the 10x10 box
+-- AlertFrame's own XML (lines 18-20) gives the game's container.
+anchor:SetSize(10, 10)
+anchor:Show()
+
+-- AlertFrameQueueMixin:AdjustAnchors anchors each queued alert's BOTTOM to the frame before it with this gap, so the
+-- first real toast's bottom sits this far above the container's TOP.
+local ALERT_GAP = 10
+-- The first real toast's bottom sits this far above the bottom action bars' container's top.
+local TOAST_GAP = 8
+
+-- The sample takes exactly the rectangle AdjustAnchors gives the first real toast.
+---@type FGToastFrame?
+local mover
+local function AnchorSample(sample)
+	sample:ClearAllPoints()
+	sample:SetPoint("BOTTOM", anchor, "TOP", 0, ALERT_GAP)
+end
+
+local function Place()
+	anchor:ClearAllPoints()
+	local point = Options().toastPoint
+	if point then
+		anchor:SetPoint(point[1], UIParent, point[2], point[3], point[4])
+	elseif BottomManagedFrameContainer then
+		-- The anchor's top is the first toast's bottom less the queue gap: TOAST_GAP above the container's top.
+		anchor:SetPoint("TOP", BottomManagedFrameContainer, "TOP", 0, TOAST_GAP - ALERT_GAP)
+	else
+		-- Take AlertFrame's place, so the first toast lands exactly where the game's own first toast does.
+		anchor:SetPoint("TOP", AlertFrame, "TOP", 0, 0)
+	end
+	if mover then
+		AnchorSample(mover)
+	end
+end
+
+-- The sample uses the same native art as a milestone, without its animation, sound or journal click.
+local function CreateMover()
+	LoadAchievementUI()
+	local sample = CreateFrame("Button", "FieldGuideForeverToastMover", UIParent, TEMPLATE)
+	---@cast sample FGToastFrame
+	SetArt(sample, false)
+	-- A placement sample stays until dismissed, including after the pointer leaves it.
+	sample:SetScript("OnEnter", nil)
+	sample:SetScript("OnLeave", nil)
+	sample:SetMovable(true)
+	sample:SetClampedToScreen(true)
+	AnchorSample(sample)
+	sample.Unlocked:SetText(L["Move toasts"])
+	sample.Name:SetText(L["Drag to move. Right-click to reset."])
+	sample.Name:SetWidth(230)
+	sample.Icon.Texture:SetTexture(ns.icon)
+	sample:RegisterForDrag("LeftButton")
+	sample:Hide()
+	table.insert(UISpecialFrames, "FieldGuideForeverToastMover")
+
+	local dragging = false
+	local function FinishDrag()
+		if not dragging then
+			return
+		end
+		dragging = false
+		sample:StopMovingOrSizing()
+		-- Where the sample's bottom ended up is where the first toast's bottom goes: the anchor's TOP is one gap
+		-- above it, saved relative to UIParent's bottom left with the sample's centre for the horizontal position.
+		local x = sample:GetCenter()
+		local bottom = sample:GetBottom()
+		if x and bottom then
+			Options().toastPoint = { "TOP", "BOTTOMLEFT", x, bottom - ALERT_GAP }
+		end
+		Place()
+	end
+	sample:SetScript("OnDragStart", function()
+		if not InCombatLockdown() then
+			dragging = true
+			sample:StartMoving()
+		end
+	end)
+	sample:SetScript("OnDragStop", FinishDrag)
+	sample:SetScript("OnHide", FinishDrag)
+	sample:SetScript("OnClick", function(_, button)
+		if button == "RightButton" then
+			FinishDrag()
+			Options().toastPoint = nil
+			Place()
+		end
+	end)
+	sample:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	return sample
+end
+
+function Discovery.HideToastMover()
+	if mover then
+		mover:Hide()
+	end
+end
+
+function Discovery.ToggleToastMover()
+	if mover and mover:IsShown() then
+		mover:Hide()
+	elseif not InCombatLockdown() then
+		mover = mover or CreateMover()
+		mover:Show()
+	end
+end
+
+ns.On("PLAYER_LOGIN", Place)
+ns.On("PLAYER_REGEN_DISABLED", Discovery.HideToastMover)
+-- Register the queue at the first milestone. The achievement system's global stands for its template being loaded.
 local function System()
 	if not system and AlertFrame and AchievementAlertSystem then
 		LoadAchievementUI()
-		system = AlertFrame:AddQueuedAlertFrameSubSystem(TEMPLATE, SetUp, 2, 6)
+		system = anchor:AddQueuedAlertFrameSubSystem(TEMPLATE, SetUp, 2, 6)
 	end
 	return system
 end

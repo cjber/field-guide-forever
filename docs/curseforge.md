@@ -24,7 +24,7 @@ Records keep when you first and last saw a creature, how many deaths you recorde
 
 ![The game's achievement toast announcing a Shiny Nightsaber](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/discovery-toast-shiny.png)
 
-Your first silver, gold or shiny of a species, a species reaching Mastered and a zone with every creature recorded each get the game's achievement toast. Click one to open the journal there.
+Your first silver, gold or shiny of a species, a species reaching Mastered and a zone with every creature recorded each get the game's achievement toast. Click one to open the journal there. Toasts appear above the action bars. Choose Move toasts in the options to drag them elsewhere, or right-click the sample to reset their position.
 
 These images are generated previews of the Field Guide UI.
 

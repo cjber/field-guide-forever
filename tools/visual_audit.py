@@ -252,8 +252,15 @@ def check_image(path: Path, layout: dict[str, Any]) -> list[str]:
     buttons = [w for w in layout["widgets"] if w["role"] == "button"]
     if not buttons:
         return findings
-    frame_left, frame_top, frame_right, _ = frame_box(image)
-    scale = (frame_right - frame_left) / layout["frame"]["w"]
+    if layout.get("frame_source") == "canvas":
+        # Settings canvas captures have no outer chrome to detect from pixels.
+        scale = image.width / layout["canvas"]["width"]
+        frame_left = round(layout["frame"]["x"] * scale)
+        frame_top = round(layout["frame"]["y"] * scale)
+        frame_right = round((layout["frame"]["x"] + layout["frame"]["w"]) * scale)
+    else:
+        frame_left, frame_top, frame_right, _ = frame_box(image)
+        scale = (frame_right - frame_left) / layout["frame"]["w"]
     offset_y = frame_top - layout["frame"]["y"] * scale
     # Navigation and footer buttons occupy separate rows; projecting them together hides overlaps.
     rows: dict[float, list[dict[str, Any]]] = {}

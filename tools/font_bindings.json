@@ -1,0 +1,613 @@
+{
+  "policy": "Only explicit reviewed phrase-to-widget FontObject contracts are checked. Review producer source, callers, template inheritance and later font changes before refreshing sha256. Buttons bind every declared font state. Font objects resolve through the pinned client font mappings; translated text never selects a font. Dynamic game data, tooltips, menus, chat and unlisted or uncertain consumers have no coverage claim. Empty bindings pin reviewed dependencies or exclusions, not glyph coverage.",
+  "producers": [
+    {
+      "source": "UI/Art.lua",
+      "sha256": "29dcc5bf1ab0520d926cc35f8d54d49223e7f1bc6ea44eb3531ff1c095e645e7",
+      "review": "Read Text, Header, StatusBar and ObjectiveBar and their List, Detail, Instances and Window callers. Text creates the requested FontString and changes only colour; Header passes GameFontNormalLarge. No later SetFont or SetFontObject replaces these labels in the reviewed callers. Empty bindings pin these shared helpers, not dynamic game data or template-owned progress text.",
+      "bindings": []
+    },
+    {
+      "source": "UI/List.lua",
+      "sha256": "d1b491906bf072676dae016204dfe90f2f099afcd7769396796f3b316f218b3b",
+      "review": "Read CreateRow, UpdateRow, SetNew, Create, SetEmptyText, Refresh and Update, plus Window.Refresh calling SetEmptyText. New explicitly inherits GameFontHighlight; Sub and empty use Art.Text with GameFontHighlight. Later updates change text, colour, width and visibility only. Bind the format phrase, not inserted client creature families or levels; species names and tooltip output are excluded.",
+      "bindings": [
+        {
+          "font": "GameFontHighlight",
+          "widget": "CreateRow New",
+          "phrase": "NEW"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateRow Sub",
+          "phrase": "%s · Level %s"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Create empty",
+          "phrase": "No creatures match your search."
+        }
+      ]
+    },
+    {
+      "source": "UI/Detail.lua",
+      "sha256": "95283c47208d2bf4378e842afad031581811e5f220fe1f5ec44c7f4cf73f3adc",
+      "review": "Read CreateSlot, Create, Show, UpdateResearch, UpdateVariants, SlotStatus, TierName and UpdateRecords, and Window.UpdateDetail. Art.Text establishes each listed font; Art.Header uses GameFontNormalLarge. Subsequent calls change text, colours, geometry or visibility, never font. Read pinned ThreeSliceButtonTemplate.xml: SharedButtonSmallTemplate inherits BigRedThreeSliceButtonTemplate and ThreeSliceButtonTemplate and declares all three bound button states. Read ThreeSliceButtonMixin UpdateButton and UpdateScale; they change art and geometry. Bind addon wording only, excluding inserted creature and zone names, client families, dates and numeric values. Also read UIButtonMixin InitButton, OnEnter, OnLeave and RunCustomTextFormatter: no custom formatter is configured by these callers and no inherited font replacement occurs.",
+      "bindings": [
+        {
+          "font": "GameFontHighlightHuge",
+          "widget": "Show empty name",
+          "phrase": "Select a creature to read its entry."
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Show sub",
+          "phrase": "%s · %s · Level %s"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Create hint",
+          "phrase": "Defeat one to add it, then watch for its rarer variants."
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "UpdateResearch rank",
+          "phrase": "Discovered"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "UpdateResearch rank",
+          "phrase": "Observed"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "UpdateResearch rank",
+          "phrase": "Studied"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "UpdateResearch rank",
+          "phrase": "Mastered"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "UpdateResearch rank",
+          "phrase": "Not yet in your journal"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Create pips",
+          "phrase": "Discovered"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Create pips",
+          "phrase": "Observed"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Create pips",
+          "phrase": "Studied"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Create pips",
+          "phrase": "Mastered"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateResearch specimenCount",
+          "phrase": "%d / %d sightings"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Art.Header titles",
+          "phrase": "Variants"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Art.Header titles",
+          "phrase": "Records"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Art.Header titles",
+          "phrase": "Habitat"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "UpdateVariants slot.Title",
+          "phrase": "Bronze"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "UpdateVariants slot.Title",
+          "phrase": "Silver"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "UpdateVariants slot.Title",
+          "phrase": "Gold"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "UpdateVariants slot.Title",
+          "phrase": "Shiny"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateVariants slot.Status via SlotStatus",
+          "phrase": "Found"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateVariants slot.Status via SlotStatus",
+          "phrase": "Found %d"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateVariants slot.Status via SlotStatus",
+          "phrase": "Every spawn"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateVariants slot.Status via SlotStatus",
+          "phrase": "1 in %d spawns"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateRecords keys and tier value",
+          "phrase": "Nothing recorded yet."
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateRecords keys and tier value",
+          "phrase": "Sightings"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateRecords keys and tier value",
+          "phrase": "Deaths recorded"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateRecords keys and tier value",
+          "phrase": "First seen"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateRecords keys and tier value",
+          "phrase": "Last seen"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateRecords keys and tier value",
+          "phrase": "Best variant"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateRecords keys and tier value",
+          "phrase": "Bronze"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateRecords keys and tier value",
+          "phrase": "Silver"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateRecords keys and tier value",
+          "phrase": "Gold"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateRecords keys and tier value",
+          "phrase": "Shiny"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Create mapButton (normal)",
+          "phrase": "Open map"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Create mapButton (highlight)",
+          "phrase": "Open map"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "Create mapButton (disabled)",
+          "phrase": "Open map"
+        }
+      ]
+    },
+    {
+      "source": "UI/Instances.lua",
+      "sha256": "7805d88365e5aefa766128ea59e6fd7b0c3adedbb24100ab8f0cc30e74240ee9",
+      "review": "Read CreateInstanceRow, CreateBossRow, Create, Group, Subtitle, Draw, Refresh and Breadcrumb and its Window callers. Explicit Art.Text fonts survive later text, colour and visibility updates; Header uses GameFontNormalLarge. Unknown instance can reach both row.Name and Instances.name. Bind static phrases and format wording only, excluding inserted instance and boss names, client levels, dates, encounter records and tooltips. Breadcrumb font is owned by Window and is excluded here.",
+      "bindings": [
+        {
+          "font": "GameFontHighlight",
+          "widget": "Create empty messages",
+          "phrase": "No instances match your search."
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Create empty messages",
+          "phrase": "No completed boss encounters recorded yet."
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Create heading and footer",
+          "phrase": "Bosses"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Create heading and footer",
+          "phrase": "Dungeons cleared"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Draw progress and Refresh cleared",
+          "phrase": "%d of %d bosses recorded"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Draw progress and Refresh cleared",
+          "phrase": "%d of %d"
+        },
+        {
+          "font": "GameFontHighlightLarge",
+          "widget": "Refresh kills",
+          "phrase": "%d boss kills recorded"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Draw row.Sub",
+          "phrase": "%d of %d bosses"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Draw row.Sub",
+          "phrase": "Not visited"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Draw Instances.sub via Subtitle",
+          "phrase": "Raid"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Draw Instances.sub via Subtitle",
+          "phrase": "Dungeon"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Draw Instances.sub via Subtitle",
+          "phrase": "%s · Level %s"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Draw boss row.Detail",
+          "phrase": "Not defeated yet"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Draw boss row.Detail",
+          "phrase": "%d kill"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Draw boss row.Detail",
+          "phrase": "%d kills"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Draw boss row.Detail",
+          "phrase": "%s · first %s"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Draw row.Name via Group fallback",
+          "phrase": "Unknown instance"
+        },
+        {
+          "font": "GameFontHighlightHuge",
+          "widget": "Draw Instances.name via Group fallback",
+          "phrase": "Unknown instance"
+        }
+      ]
+    },
+    {
+      "source": "UI/Window.lua",
+      "sha256": "9de28e8da2ee21eb2ffd275dc0965e7ca2299793b6b383be2d89d5e1e5283273",
+      "review": "Read MakeButton, BuildSearch, BuildBreadcrumb, BuildBottom, Create, Refresh, UpdateProgress, UpdateFilterButton, UpdateBreadcrumb and SetTab, and List.SetEmptyText. Art.Text fonts are explicit and are not replaced later; search SetFontObject affects user input only. Read pinned ThreeSliceButtonTemplate.xml inheritance and ThreeSliceButtonMixin UpdateButton/UpdateScale: SharedButtonSmallTemplate declares GameFontNormal, GameFontHighlight and GameFontDisable, with art-only state updates. MakeButton changes label colour only. Bind every filter and tracking label state. Native portrait title, side-tab tooltips, menus, user search text and inserted zone/instance names are excluded. List.lua pins the recipient font of SetEmptyText. Also read UIButtonMixin InitButton, OnEnter, OnLeave and RunCustomTextFormatter: no custom formatter is configured by these callers and no inherited font replacement occurs.",
+      "bindings": [
+        {
+          "font": "GameFontDisable",
+          "widget": "Refresh searchPlaceholder",
+          "phrase": "Search creatures"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "Refresh searchPlaceholder",
+          "phrase": "Search instances"
+        },
+        {
+          "font": "GameFontHighlightMedium",
+          "widget": "UpdateBreadcrumb text",
+          "phrase": "%s > %s"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "BuildBottom label and UpdateProgress progressText",
+          "phrase": "Zone completion"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "BuildBottom label and UpdateProgress progressText",
+          "phrase": "%d%%"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "UpdateProgress progressCount",
+          "phrase": "%d of %d"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Refresh catalogueNotice",
+          "phrase": "Loading QuestieDB catalogue…"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Refresh catalogueNotice",
+          "phrase": "The installed QuestieDB is not supported. Update QuestieDB and Field Guide Forever."
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Refresh catalogueNotice",
+          "phrase": "Install QuestieDB or Questie to load the creature catalogue.\nhttps://www.curseforge.com/wow/addons/questie"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Refresh via List.SetEmptyText",
+          "phrase": "No creatures match your search."
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Refresh via List.SetEmptyText",
+          "phrase": "Nothing discovered here yet. Defeat a creature or hover its nameplate to add it to your journal."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "MakeButton labels and later filter/tracking updates (normal)",
+          "phrase": "All"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "MakeButton labels and later filter/tracking updates (normal)",
+          "phrase": "Discovered"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "MakeButton labels and later filter/tracking updates (normal)",
+          "phrase": "Undiscovered"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "MakeButton labels and later filter/tracking updates (normal)",
+          "phrase": "Mastered"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "MakeButton labels and later filter/tracking updates (normal)",
+          "phrase": "Silver found"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "MakeButton labels and later filter/tracking updates (normal)",
+          "phrase": "Gold found"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "MakeButton labels and later filter/tracking updates (normal)",
+          "phrase": "Shiny found"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "MakeButton labels and later filter/tracking updates (normal)",
+          "phrase": "Missing shiny"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "MakeButton labels and later filter/tracking updates (normal)",
+          "phrase": "Open Journal"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "MakeButton labels and later filter/tracking updates (normal)",
+          "phrase": "Track Species"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "MakeButton labels and later filter/tracking updates (normal)",
+          "phrase": "Tracking"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "MakeButton labels and later filter/tracking updates (highlight)",
+          "phrase": "All"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "MakeButton labels and later filter/tracking updates (highlight)",
+          "phrase": "Discovered"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "MakeButton labels and later filter/tracking updates (highlight)",
+          "phrase": "Undiscovered"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "MakeButton labels and later filter/tracking updates (highlight)",
+          "phrase": "Mastered"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "MakeButton labels and later filter/tracking updates (highlight)",
+          "phrase": "Silver found"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "MakeButton labels and later filter/tracking updates (highlight)",
+          "phrase": "Gold found"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "MakeButton labels and later filter/tracking updates (highlight)",
+          "phrase": "Shiny found"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "MakeButton labels and later filter/tracking updates (highlight)",
+          "phrase": "Missing shiny"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "MakeButton labels and later filter/tracking updates (highlight)",
+          "phrase": "Open Journal"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "MakeButton labels and later filter/tracking updates (highlight)",
+          "phrase": "Track Species"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "MakeButton labels and later filter/tracking updates (highlight)",
+          "phrase": "Tracking"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "MakeButton labels and later filter/tracking updates (disabled)",
+          "phrase": "All"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "MakeButton labels and later filter/tracking updates (disabled)",
+          "phrase": "Discovered"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "MakeButton labels and later filter/tracking updates (disabled)",
+          "phrase": "Undiscovered"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "MakeButton labels and later filter/tracking updates (disabled)",
+          "phrase": "Mastered"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "MakeButton labels and later filter/tracking updates (disabled)",
+          "phrase": "Silver found"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "MakeButton labels and later filter/tracking updates (disabled)",
+          "phrase": "Gold found"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "MakeButton labels and later filter/tracking updates (disabled)",
+          "phrase": "Shiny found"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "MakeButton labels and later filter/tracking updates (disabled)",
+          "phrase": "Missing shiny"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "MakeButton labels and later filter/tracking updates (disabled)",
+          "phrase": "Open Journal"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "MakeButton labels and later filter/tracking updates (disabled)",
+          "phrase": "Track Species"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "MakeButton labels and later filter/tracking updates (disabled)",
+          "phrase": "Tracking"
+        }
+      ]
+    },
+    {
+      "source": "UI/Discovery.lua",
+      "sha256": "7db79d64ad9dd52ca76ec726a6aaf5064e0a0b83695f065742084ad528086fa1",
+      "review": "Read SetArt, SetUp, SpeciesToast, CreateMover, Flush and the queue setup and mover callbacks. Read pinned Mainline/AlertFrameSystems.xml AchievementAlertFrameTemplate: inherits AlertFrameTemplate; Unlocked inherits GameFontBlackTiny and Name inherits GameFontHighlight. SetArt changes art, anchors and visibility, not fonts; SetUp and CreateMover assign the listed text without later font replacement. Bind toast headings, format wording and mover instructions. Dynamic species and zone names and UIErrorsFrame discovery announcements are excluded. Read AlertFrames.xml AlertFrameTemplate and AlertFrame_OnClick/AchievementAlertFrame_OnClick: inherited scripts handle animation and clicks, with no font replacement.",
+      "bindings": [
+        {
+          "font": "GameFontBlackTiny",
+          "widget": "SetUp Unlocked and CreateMover sample.Unlocked",
+          "phrase": "Shiny found"
+        },
+        {
+          "font": "GameFontBlackTiny",
+          "widget": "SetUp Unlocked and CreateMover sample.Unlocked",
+          "phrase": "Gold found"
+        },
+        {
+          "font": "GameFontBlackTiny",
+          "widget": "SetUp Unlocked and CreateMover sample.Unlocked",
+          "phrase": "Silver found"
+        },
+        {
+          "font": "GameFontBlackTiny",
+          "widget": "SetUp Unlocked and CreateMover sample.Unlocked",
+          "phrase": "Mastered"
+        },
+        {
+          "font": "GameFontBlackTiny",
+          "widget": "SetUp Unlocked and CreateMover sample.Unlocked",
+          "phrase": "Zone complete"
+        },
+        {
+          "font": "GameFontBlackTiny",
+          "widget": "SetUp Unlocked and CreateMover sample.Unlocked",
+          "phrase": "Move toasts"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "SetUp Name via SpeciesToast and Flush",
+          "phrase": "Shiny %s!"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "SetUp Name via SpeciesToast and Flush",
+          "phrase": "%s: every creature recorded"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "CreateMover sample.Name",
+          "phrase": "Drag to move. Right-click to reset."
+        }
+      ]
+    },
+    {
+      "source": "Core/Settings.lua",
+      "sha256": "0e5ac7b5f578a441f9c738474349239996ff4bd66f0323478b8186753d7369f2",
+      "review": "Read BuildPanel, Register and login callbacks, plus ForeverCore v1.14.2 UI/SettingsPage.lua Register, AddCheck and AddButton. Only the addon-owned bindingNote is covered: CreateFontString explicitly inherits GameFontDisableSmall and no later font change occurs. Shared page title, checkbox labels, Move toasts button, category, minimap helper and tooltip wording are excluded because their widgets are owned by the external dependency, whose source digest cannot be pinned by this repository manifest.",
+      "bindings": [
+        {
+          "font": "GameFontDisableSmall",
+          "widget": "BuildPanel bindingNote",
+          "phrase": "The Field Guide button can also be bound in Key Bindings > AddOns."
+        }
+      ]
+    }
+  ]
+}

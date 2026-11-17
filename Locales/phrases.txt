@@ -1,0 +1,153 @@
+%d / %d sightings
+%d attempts recorded
+%d boss kills recorded
+%d kill
+%d kills
+%d of %d
+%d of %d bosses
+%d of %d bosses recorded
+%d recorded boss kills
+%d%%
+%s > %s
+%s and %d more
+%s could not start. Reinstall %s to fix this.
+%s needs ForeverCore. Install it from CurseForge, or choose Reinstall on ForeverCore in the CurseForge app.
+%s · %s
+%s · %s · %s
+%s · %s · Level %s
+%s · Level %s
+%s · Lv %s
+%s · first %s
+%s · first seen %s
+%s: %s
+%s: %s are out of date. Update them to fix this.
+%s: %s is out of date. Update it to fix this.
+%s: ForeverCore is turned off. Enable it in the AddOns list to fix this.
+%s: every creature recorded
+%s: the installed ForeverCore is another addon (%s). Remove it and install ForeverCore from CurseForge.
+, 
+1 in %d spawns
+?
+A first kill shows one line at the top of the screen, where an explored area is announced.
+Aberration
+Adds a Field Guide button to the minimap.
+All
+Announce newly recorded creatures
+BINDING_NAME_CLICK FieldGuideForeverMinimapButton:LeftButton
+Beast
+Best variant
+Boss encounters recorded on this character
+Bosses
+Bronze
+Choose a zone
+Click to browse the field compendium
+Creatures
+Critter
+Deaths recorded
+Defeat one to add it, then watch for its rarer variants.
+Demon
+Difficulty %s: %d
+Discovered
+Drag to move. Right-click to reset.
+Dragonkin
+Dungeon
+Dungeons
+Dungeons cleared
+Durotar
+Eastern Kingdoms
+Elemental
+Elwynn Forest
+Every creature of a zone, its sightings and variants
+Every spawn
+Field Guide
+Field Guide Forever
+Field Guide Forever options
+Field Guide Forever report
+Filter species
+First boss kill
+First seen
+First sighting
+Found
+Found %d
+Giant
+Gold
+Gold found
+Habitat
+Humanoid
+Install QuestieDB or Questie to load the creature catalogue.\nhttps://www.curseforge.com/wow/addons/questie
+Instances
+Kalimdor
+Kill
+Known
+Last seen
+Loading QuestieDB catalogue…
+Local records
+Local records · kills observed by this addon
+Loch Modan
+Locked
+Mastered
+Mechanical
+Minimap button
+Missing shiny
+Move toasts
+Mulgore
+NEW
+New creature recorded: %s
+New creatures recorded: %s
+No completed boss encounters recorded yet.
+No creatures match your search.
+No instances match your search.
+Not defeated yet
+Not visited
+Not yet in your journal
+Nothing discovered here yet. Defeat a creature or hover its nameplate to add it to your journal.
+Nothing recorded yet.
+Observed
+Open Journal
+Open map
+Open the Field Guide
+Open your field guide with /fieldguide or /fg, or use /fg preview to show every creature as silver, gold or shiny for this session.
+Raid
+Raids
+Rarity preview is off.
+Rarity preview is on. Every creature shows silver, gold or shiny for this session; use /fg preview again to turn it off.
+Recorded kill
+Records
+Redridge Mountains
+Research
+Research: %s
+Search creatures
+Search instances
+Select a creature to read its entry.
+Shiny
+Shiny %s!
+Shiny found
+Shiny variant
+Show milestone toasts
+Show the records list
+Show undiscovered species
+Sightings
+Silver
+Silver found
+Silver, gold, shiny, mastery and zone milestones show an achievement toast. Click it to open the journal.
+Silverpine Forest
+Stop tracking
+Studied
+Teldrassil
+The Barrens
+The Field Guide button can also be bound in Key Bindings > AddOns.
+The creature catalogue is not loaded yet.
+The installed QuestieDB is not supported. Update QuestieDB and Field Guide Forever.
+This creature is no longer in the catalogue.
+Tirisfal Glades
+Track Species
+Track a creature again from its page in the Field Guide.
+Tracking
+Undead
+Undiscovered
+Unknown instance
+Variants
+Westfall
+Zone complete
+Zone completion
+open its page

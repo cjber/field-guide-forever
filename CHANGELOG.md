@@ -7,6 +7,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 <!-- forever-core-sync -->
 
+- Milestone toasts now appear above the action bars, and Move toasts in the settings lets you drag them anywhere; thanks to a player on CurseForge for the report.
 - Tracker header and creature menus open the Field Guide, stop tracking, and offer the shared tracker settings. Click a tracked creature to open its page.
 - Ships with the same shared code as your other Forever addons, so they keep working together.
 
