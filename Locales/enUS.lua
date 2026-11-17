@@ -39,11 +39,7 @@ local L = {
 	["Best variant"] = "Best variant",
 	["%d / %d sightings"] = "%d / %d sightings",
 	["Open map"] = "Open map",
-	["Minimap button"] = "Minimap button",
-	["Adds a Field Guide button to the minimap."] = "Adds a Field Guide button to the minimap.",
-	["The Field Guide button can also be bound in Key Bindings > AddOns."] = "The Field Guide button can also be bound in Key Bindings > AddOns.",
 	["Field Guide"] = "Field Guide",
-	["Click to browse the field compendium"] = "Click to browse the field compendium",
 	["Field Guide Forever"] = "Field Guide Forever",
 	["Field Guide Forever options"] = "Field Guide Forever options",
 	["Search creatures"] = "Search creatures",
@@ -161,7 +157,7 @@ local L = {
 }
 
 _G.BINDING_HEADER_FIELDGUIDEFOREVER = "Field Guide Forever"
-_G["BINDING_NAME_CLICK FieldGuideForeverMinimapButton:LeftButton"] = "Open Field Guide"
+_G.BINDING_NAME_FIELDGUIDEFOREVER_OPEN = "Open Field Guide"
 
 ns.L = setmetatable(L, {
 	__index = function(_, key)

@@ -30,17 +30,15 @@
 ?
 A first kill shows one line at the top of the screen, where an explored area is announced.
 Aberration
-Adds a Field Guide button to the minimap.
 All
 Announce newly recorded creatures
-BINDING_NAME_CLICK FieldGuideForeverMinimapButton:LeftButton
+BINDING_NAME_FIELDGUIDEFOREVER_OPEN
 Beast
 Best variant
 Boss encounters recorded on this character
 Bosses
 Bronze
 Choose a zone
-Click to browse the field compendium
 Creatures
 Critter
 Deaths recorded
@@ -87,7 +85,6 @@ Loch Modan
 Locked
 Mastered
 Mechanical
-Minimap button
 Missing shiny
 Move toasts
 Mulgore
@@ -135,7 +132,6 @@ Stop tracking
 Studied
 Teldrassil
 The Barrens
-The Field Guide button can also be bound in Key Bindings > AddOns.
 The creature catalogue is not loaded yet.
 The installed QuestieDB is not supported. Update QuestieDB and Field Guide Forever.
 This creature is no longer in the catalogue.

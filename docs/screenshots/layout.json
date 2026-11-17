@@ -1017,36 +1017,12 @@
           "y": 138
         },
         {
-          "h": 26,
-          "name": "Settings checkbox 5",
-          "role": "content",
-          "w": 26,
-          "x": 16,
-          "y": 196
-        },
-        {
-          "h": 16,
-          "name": "Settings label 5",
-          "role": "content",
-          "w": 91.5,
-          "x": 46,
-          "y": 202
-        },
-        {
           "h": 24,
           "name": "Move toasts",
           "role": "button",
           "w": 180,
           "x": 16,
           "y": 160
-        },
-        {
-          "h": 16,
-          "name": "Settings binding note",
-          "role": "content",
-          "w": 560,
-          "x": 36,
-          "y": 230
         }
       ]
     },

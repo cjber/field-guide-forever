@@ -8,11 +8,9 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 
 **Known limitations**
 
-- A creature that dies while you are not targeting it and its nameplate is not showing is not counted, so turn on enemy nameplates (`V`) to catch every kill.
-- The game no longer lets addons read the combat log, so kills are worked out from what you can see, and a creature whose name the game hides before it dies cannot be counted.
-- Spawns whose identity the game hides from addons, in some fights and instances, always show the bronze coat.
-- The creature list, levels and spawn places come from Questie or QuestieDB, so without one of them the journal stays empty.
-- Instance bosses count only when the game reports an encounter ending, and the record is personal, not a verified world-first board.
+- Most creatures that die while you are not targeting them and their nameplate is not showing are not counted, so turn on enemy nameplates (default `V`) to catch every kill. Rares shown on the minimap are still counted.
+- The game no longer lets addons read the combat log, so kills are worked out from what you can see. A creature whose name the game hides from addons while you can see it cannot be counted.
+- When the game hides a creature from addons (in some fights and instances), its rarity cannot be read, so it always shows as bronze.
 
 ![Silver, gold and shiny laurels on the target frame, a sheen sweeping the shiny one, and the matching nameplate mark under each](https://raw.githubusercontent.com/cjber/field-guide-forever/main/docs/screenshots/rarity-nameplates.gif)
 
@@ -44,7 +42,7 @@ These images are generated previews of the Field Guide UI.
 - **Research ranks and zone completion.** Kills move a species through Discovered (1), Observed (3), Studied (6) and Mastered (10), and the count keeps going after that. Each zone shows the share of its species you have recorded.
 - **Records and tracking.** Each creature keeps its first sighting, first kill and best coat per character, with a sighting log for the current session. Track Species puts the one you are working on in the Forever tracker column every Forever addon shares, with its zone, sightings toward Mastered and kills.
 - **Discoveries.** A first kill is announced at the top of the screen and tagged New in the journal, and silver, gold, shiny, mastery and zone milestones get the game's achievement toast. Both can be turned off in the options.
-- **Instances.** Bosses the game reports when an encounter ends, with first clears, attempts and kills by difficulty. It is a personal record, not a verified world-first board.
+- **Instances.** Bosses the game reports when an encounter ends, with first clears, attempts and kills by difficulty. It is a personal record.
 
 ## How kills are counted
 
@@ -54,7 +52,7 @@ A creature that dies with no nameplate showing and not targeted is not counted. 
 
 ## Usage
 
-Type `/fg` or `/fieldguide`, press Shift-F, or click the Field Guide button on the minimap rim; drag it around the rim to move it, or hide it in the options. `/fg preview` shows every creature as silver, gold or shiny for this session and `/fgf help` lists the commands. Options are under Options > AddOns > Field Guide Forever.
+Type `/fg` or `/fieldguide`, or press Shift-F. `/fg preview` shows every creature as silver, gold or shiny for this session and `/fgf help` lists the commands. Options are under Options > AddOns > Field Guide Forever.
 
 For a bug report, paste `/fgf report`.
 

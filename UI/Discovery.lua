@@ -8,16 +8,15 @@ end
 local L = ns.L
 
 -- What a kill shows. A first kill is announced the way the client announces an explored area: one yellow line in
--- UIErrorsFrame, with the page-turn sound, a New tag in the journal and the minimap button pulsing until the journal
--- opens. The big moments (a rare's first kill, a shiny, a mastered species, a zone with every creature recorded) take
--- the client's own achievement toast (Mainline/AlertFrameSystems.xml:173), queued through an addon-owned container:
+-- UIErrorsFrame, with the page-turn sound and a New tag in the journal. The big moments (a rare's first kill, a shiny,
+-- a mastered species, a zone with every creature recorded) take the client's own achievement toast
+-- (Mainline/AlertFrameSystems.xml:173), queued through an addon-owned container:
 -- two on screen, six waiting.
 --
 -- Core calls in from the kill handler, which can run in combat, so a record is only noted here and everything shown
 -- waits for the next frame. Nothing here touches a secure frame: the toasts come from this addon's own AlertFrame
--- pool and the pulse animates the minimap button this addon owns.
+-- pool.
 ---@class FGDiscovery
----@field pulseGlow? Texture the minimap button's glow while it pulses
 local Discovery = {}
 ns.Discovery = Discovery
 
@@ -337,59 +336,6 @@ local function DiscoveryLine(names)
 	return line
 end
 
--- The minimap button's own round glow, pulsed with the timing MicroButtonPulse gave UIFrameFlash (one second in, one
--- out). The animation keeps the pulse on the button this addon owns rather than writing it into Blizzard's table of
--- flashing buttons.
----@return Texture?
-local function PulseGlow()
-	local button = ns.minimapButton
-	if not button then
-		return nil
-	end
-	if not Discovery.pulseGlow then
-		local glow = button:CreateTexture(nil, "OVERLAY")
-		glow:SetAtlas("bags-roundhighlight") -- art-ok: the client's own round hover glow
-		glow:SetAllPoints(button)
-		glow:SetBlendMode("ADD")
-		glow:Hide()
-		Discovery.pulseGlow = glow
-	end
-	return Discovery.pulseGlow
-end
-
-function Discovery.StartPulse()
-	local border = PulseGlow()
-	if not border or not border.CreateAnimationGroup then
-		return
-	end
-	if not Discovery.pulse then
-		local pulse = border:CreateAnimationGroup()
-		pulse:SetLooping("REPEAT")
-		local fadeIn = pulse:CreateAnimation("Alpha")
-		fadeIn:SetFromAlpha(0)
-		fadeIn:SetToAlpha(1)
-		fadeIn:SetDuration(1)
-		fadeIn:SetOrder(1)
-		local fadeOut = pulse:CreateAnimation("Alpha")
-		fadeOut:SetFromAlpha(1)
-		fadeOut:SetToAlpha(0)
-		fadeOut:SetDuration(1)
-		fadeOut:SetOrder(2)
-		Discovery.pulse = pulse
-	end
-	border:Show()
-	Discovery.pulse:Play()
-end
-
-function Discovery.StopPulse()
-	if Discovery.pulse then
-		Discovery.pulse:Stop()
-	end
-	if Discovery.pulseGlow then
-		Discovery.pulseGlow:Hide()
-	end
-end
-
 local function Flush()
 	flushScheduled = false
 	local records = pending
@@ -399,7 +345,6 @@ local function Flush()
 	---@type FGToast[]
 	local toasts = {}
 	local names = {}
-	local discovered = false
 	---@type table<FGZone, true>
 	local zonesDone = {}
 	for _, record in ipairs(records) do
@@ -409,7 +354,6 @@ local function Flush()
 			toasts[#toasts + 1] = SpeciesToast(species, kind)
 		end
 		if result.newlyDiscovered then
-			discovered = true
 			-- A first kill that earns a toast is told by the toast; the line is for the rest.
 			if not (kind and toastsOn) then
 				names[#names + 1] = species.name
@@ -424,9 +368,6 @@ local function Flush()
 				}
 			end
 		end
-	end
-	if discovered then
-		Discovery.StartPulse()
 	end
 	if #names > 0 and options.discoveryText ~= false and UIErrorsFrame then
 		UIErrorsFrame:AddMessage(DiscoveryLine(names), 1, 1, 0, 1)
@@ -456,8 +397,7 @@ ns.OnRecord(function(species, zone, result)
 	end
 end)
 
--- The journal showing a species is the player having seen it: its New tag goes, and opening the journal stops the
--- micro button's pulse, as opening the collections journal does.
+-- The journal showing a species is the player having seen it: its New tag goes.
 hooksecurefunc(ns.Detail, "Show", function(species)
 	local state = species and ns.GetCharacterState(false)
 	if state and state.unseen and state.unseen[species.id] then
@@ -465,4 +405,3 @@ hooksecurefunc(ns.Detail, "Show", function(species)
 		ns.List.ClearNew(species.id)
 	end
 end)
-hooksecurefunc(ns.Window, "Show", Discovery.StopPulse)

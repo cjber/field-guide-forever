@@ -49,7 +49,6 @@ SOURCES = (
     "media/Rarity/Laurel-Gold.tga",
     "media/Rarity/Laurel-Shiny.tga",
     "tools/discovery.py",
-    "tools/minimap_mockups.py",
 )
 RARITY_GEOMETRY = {
     "HEALTH_WINDOW": (3, 23.5, 129, 43.5),

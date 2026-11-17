@@ -1,4 +1,4 @@
--- What a kill shows (UI/Discovery.lua): a first kill's explored-area line, New tag and minimap button pulse, the
+-- What a kill shows (UI/Discovery.lua): a first kill's explored-area line, New tag, the
 -- achievement toast for silver, gold, shiny, mastery and zone milestones, the burst cap, the toast's click and both
 -- settings.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
@@ -227,7 +227,7 @@ local function OnlyJournalSounds(label)
 	end
 end
 
--- A first kill: one yellow line where an explored area is announced, the page-turn sound, a New tag and the pulse.
+-- A first kill: one yellow line where an explored area is announced, the page-turn sound and a New tag.
 local h = Start()
 local ns = h.ns
 local bronzeGuid = GuidFor(ns, "bronze", "first")
@@ -241,16 +241,12 @@ equal(Count(Mock.sounds, PAGE_TURN), 1, "the page turns once")
 equal(#Mock.alerts, 0, "a common first kill has no toast")
 equal(#h.calls, 0, "a session without a milestone registers no toast subsystem")
 equal(ns.GetCharacterState(false).unseen[1001], true, "the species is tagged New")
-local glow = ns.Discovery.pulseGlow
-equal(glow ~= nil and glow:IsShown(), true, "the minimap button's glow shows")
-equal(ns.Discovery.pulse:IsPlaying(), true, "the minimap button pulses")
-equal(ns.Discovery.pulse.looping, "REPEAT", "the pulse repeats until the journal opens")
 
 h:Kill("Plainstrider", 1001, bronzeGuid)
 h:RunTimers()
 equal(#Mock.messages, 1, "a second kill of a known creature shows nothing")
 
--- The New tag survives a reload, and the journal showing the species clears it; opening the journal stops the pulse.
+-- The New tag survives a reload, and the journal showing the species clears it.
 local migrated = ns.Migrate({
 	version = ns.SCHEMA,
 	chars = { x = { species = { [1001] = { count = 1 } }, unseen = { [1001] = true, [9] = true } } },
@@ -258,8 +254,6 @@ local migrated = ns.Migrate({
 equal(migrated.chars.x.unseen[1001], true, "the New tag is saved")
 equal(migrated.chars.x.unseen[9], nil, "a tag for a species with no record is dropped")
 ns.Window.Show()
-equal(glow:IsShown(), false, "opening the journal hides the glow")
-equal(ns.Discovery.pulse:IsPlaying(), false, "opening the journal stops the pulse")
 ns.Window.SelectSpecies(1001)
 equal(ns.GetCharacterState(false).unseen[1001], nil, "showing the species clears its New tag")
 for _, row in ipairs(ns.List.rows) do
