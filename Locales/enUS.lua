@@ -5,6 +5,8 @@ local _, ns = ...
 -- untranslated phrase readable instead of blank.
 ---@type table<string, string>
 local L = {
+	["Move toasts"] = "Move toasts",
+	["Drag to move. Right-click to reset."] = "Drag to move. Right-click to reset.",
 	["The creature catalogue is not loaded yet."] = "The creature catalogue is not loaded yet.",
 	["This creature is no longer in the catalogue."] = "This creature is no longer in the catalogue.",
 	["Track a creature again from its page in the Field Guide."] = "Track a creature again from its page in the Field Guide.",

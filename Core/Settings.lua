@@ -56,6 +56,9 @@ local function BuildPanel(panel, page)
 		end
 	end, L["Silver, gold, shiny, mastery and zone milestones show an achievement toast. Click it to open the journal."])
 
+	page.AddButton(panel, L["Move toasts"], ns.Discovery.ToggleToastMover)
+	panel:HookScript("OnHide", ns.Discovery.HideToastMover)
+
 	local minimapButtonRow = page.AddCheck(panel, L["Minimap button"], function()
 		return ns.db and ns.db.options.minimapButtonHidden ~= true
 	end, function(checked)

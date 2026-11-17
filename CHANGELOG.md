@@ -5,6 +5,8 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
+- Milestone toasts now appear above the action bars, and Move toasts in the settings lets you drag them anywhere; thanks to a player on CurseForge for the report.
+
 ## [0.8.15] - 2026-11-17
 
 <!-- forever-core-sync -->

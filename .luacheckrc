@@ -23,6 +23,7 @@ globals = {
 	"UIPanelWindows",
 }
 read_globals = {
+	"BottomManagedFrameContainer",
 	"ForeverCore",
 	-- The game's own objective tracker, which UI/Tracker.lua hangs its section on.
 	"Mixin",

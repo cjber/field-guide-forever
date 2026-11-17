@@ -78,3 +78,7 @@ function SidePanelTabButtonMixin:SetFillToInterior(fillToInterior, extent) end
 -- calls it before its own toasts so the alert template's AchievementShield_OnLoad exists.
 ---@return boolean?
 function AchievementFrame_LoadUI() end
+
+-- ManagedFrameSystem.xml: bottom container follows Edit Mode action bar bounds.
+---@type Frame?
+BottomManagedFrameContainer = nil

@@ -114,6 +114,92 @@ local function Start(options)
 	return harness
 end
 
+-- Anchor ownership and movement persist independently of the game's global alert system.
+local function AnchorChecks()
+	local h = Start({ toastPoint = { "TOP", "TOP", 12, -48 } })
+	local anchor = assert(h.env.FieldGuideForeverToastAnchor, "addon-owned toast anchor exists")
+	-- AlertContainerTemplate sets no size and the client resolves no rect for a sizeless single-point frame, which
+	-- leaves the container and every toast anchored to it unrendered. It takes AlertFrame's own 10x10 box.
+	local width, height = anchor:GetWidth(), anchor:GetHeight()
+	equal(width ~= nil and width > 0, true, "the toast container has a non-zero width")
+	equal(height ~= nil and height > 0, true, "the toast container has a non-zero height")
+	equal(width, h.env.AlertFrame:GetWidth(), "the toast container is as wide as the game's alert container")
+	equal(height, h.env.AlertFrame:GetHeight(), "the toast container is as tall as the game's alert container")
+	local point, relative, relativePoint, x, y = anchor:GetPoint()
+	equal(point, "TOP", "saved point restored at login")
+	equal(relative, h.env.UIParent, "saved point is relative to UIParent")
+	equal(relativePoint, "TOP", "saved relative point restored")
+	equal(x, 12, "saved horizontal offset restored")
+	equal(y, -48, "saved vertical offset restored")
+	local moveButton
+	for _, frame in ipairs(Mock.frames) do
+		if frame:GetText() == "Move toasts" then
+			moveButton = frame
+		end
+	end
+	assert(moveButton, "settings has Move toasts button")
+	moveButton:GetScript("OnClick")(moveButton)
+	local mover = h.env.FieldGuideForeverToastMover
+	equal(mover:IsShown(), true, "settings enables sample")
+	equal(mover:GetScript("OnLeave"), nil, "sample cannot resume the toast outro")
+	local samplePoint, sampleRelative, sampleRelativePoint, _, sampleGap = mover:GetPoint()
+	equal(samplePoint, "BOTTOM", "sample's bottom anchors to the container")
+	equal(sampleRelative, anchor, "sample anchors to the addon container")
+	equal(sampleRelativePoint, "TOP", "sample sits on the container's top")
+	equal(sampleGap, 10, "sample keeps the queue's gap above the container")
+	-- Drag the sample: where it lands is where the first real toast lands, so the saved point is the anchor's top
+	-- one gap above the sample's bottom, with the sample's centre across.
+	mover.GetCenter = function()
+		return 420, 300
+	end
+	mover:GetScript("OnDragStart")(mover)
+	mover:GetScript("OnDragStop")(mover)
+	equal(h.ns.db.options.toastPoint[1], "TOP", "drag stop saves the anchor's top")
+	equal(h.ns.db.options.toastPoint[2], "BOTTOMLEFT", "drag stop saves relative to UIParent's bottom left")
+	equal(h.ns.db.options.toastPoint[3], 420, "drag stop saves the sample's centre across")
+	equal(h.ns.db.options.toastPoint[4], 239.5, "drag stop saves one gap below the sample's bottom")
+	point, relative, relativePoint, x, y = anchor:GetPoint()
+	equal(point, "TOP", "saved drag places the anchor's top")
+	equal(relative, h.env.UIParent, "saved drag is relative to UIParent")
+	equal(relativePoint, "BOTTOMLEFT", "saved drag uses UIParent's bottom left")
+	equal(x, 420, "saved drag restores the horizontal position")
+	equal(y, 239.5, "saved drag restores the vertical position")
+	local mpoint, mrelative, mrelativePoint, _, my = mover:GetPoint()
+	equal(mpoint, "BOTTOM", "after a drag the sample re-anchors to the container")
+	equal(mrelative, anchor, "after a drag the sample follows the addon container")
+	equal(mrelativePoint, "TOP", "after a drag the sample sits on the container's top")
+	equal(my, 10, "after a drag the sample keeps the queue's gap")
+	mover:GetScript("OnClick")(mover, "RightButton")
+	equal(h.ns.db.options.toastPoint, nil, "right click clears saved point")
+	point, relative, relativePoint, x, y = anchor:GetPoint()
+	equal(point, "TOP", "default places the anchor's top")
+	equal(relative, h.env.BottomManagedFrameContainer, "default follows managed frames")
+	equal(relativePoint, "TOP", "default measures from the managed frames' top")
+	equal(x, 0, "default is centred")
+	equal(y, -2, "default puts the first toast 8 above the managed frames")
+	h.ns.Discovery.ToggleToastMover()
+	equal(mover:IsShown(), false, "second click hides sample")
+	h.ns.Discovery.ToggleToastMover()
+	h:Fire("PLAYER_REGEN_DISABLED")
+	equal(mover:IsShown(), false, "combat hides sample")
+	h.ns.Discovery.ToggleToastMover()
+	h.ns.Settings.panel:Show()
+	h.ns.Settings.panel:Hide()
+	h.ns.Settings.panel:GetScript("OnHide")(h.ns.Settings.panel)
+	equal(mover:IsShown(), false, "closing settings hides sample")
+	h.ns.Discovery.ToggleToastMover()
+	h.env.CloseAllWindows()
+	equal(mover:IsShown(), false, "Escape hides sample")
+	h.env.BottomManagedFrameContainer = nil
+	mover:GetScript("OnClick")(mover, "RightButton")
+	local fallbackPoint, fallbackRelative, fallbackRelativePoint, _, fallbackY = anchor:GetPoint()
+	equal(fallbackPoint, "TOP", "without managed frames the anchor keeps its top")
+	equal(fallbackRelative, h.env.AlertFrame, "clients without managed frames use the game alert anchor")
+	equal(fallbackRelativePoint, "TOP", "the anchor takes the game alert anchor's top")
+	equal(fallbackY, 0, "toasts then land exactly where the game's own would")
+end
+AnchorChecks()
+
 local function Count(list, value)
 	local count = 0
 	for _, item in ipairs(list) do
@@ -210,6 +296,12 @@ h:RunTimers()
 equal(#Mock.messages, 1, "a first kill told by a toast has no line")
 equal(#Mock.alerts, 2, "the silver and the zone each get a toast")
 local silver, zone = Mock.alerts[1], Mock.alerts[2]
+equal(
+	h.env.FieldGuideForeverToastAnchor.toastSystem.owner,
+	h.env.FieldGuideForeverToastAnchor,
+	"subsystem belongs to addon container"
+)
+equal(rawget(h.env.AlertFrame, "toastSystem"), nil, "global alert container has no addon subsystem")
 equal(h.calls[1], "load", "the achievement UI loads before the toast subsystem is registered")
 equal(h.calls[2], "system", "the toast subsystem is registered after it")
 equal(silver.template, "AchievementAlertFrameTemplate", "the toast is the client's achievement toast")
