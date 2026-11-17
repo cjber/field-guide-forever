@@ -18,6 +18,7 @@ ns.Settings = SettingsPanel
 ---@param panel Frame
 ---@param page table
 local function BuildPanel(panel, page)
+	page.AddHeader(panel, L["Journal"])
 	page.AddCheck(panel, L["Show undiscovered species"], function()
 		return ns.db and ns.db.options.showUndiscovered ~= false
 	end, function(checked)
@@ -40,6 +41,7 @@ local function BuildPanel(panel, page)
 		end
 	end)
 
+	page.AddHeader(panel, L["Announcements"])
 	page.AddCheck(panel, L["Announce newly recorded creatures"], function()
 		return ns.db and ns.db.options.discoveryText ~= false
 	end, function(checked)

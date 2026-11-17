@@ -649,6 +649,9 @@ function methods.SetJustifyH() end
 function methods.SetJustifyV() end
 
 function methods.SetWordWrap() end
+function methods.GetStringHeight()
+	return 14
+end
 
 function methods.SetSpacing() end
 
@@ -1016,6 +1019,9 @@ function Mock.Harness(opts)
 		UIPanelWindows = {},
 		SlashCmdList = {},
 		InterfaceOptions_AddCategory = function() end,
+		CreateSettingsListSectionHeaderInitializer = function(name, tooltip)
+			return { name = name, tooltip = tooltip }
+		end,
 		-- The modern settings API, as Interface 16001 offers it: one canvas category registered by name.
 		Settings = {
 			RegisterCanvasLayoutCategory = function(panel, name)
@@ -1073,6 +1079,13 @@ function Mock.Harness(opts)
 	env.CreateFrame = function(kind, name, parent, template)
 		local created = Mock.CreateFrame(kind, name, parent, template)
 		created.template = template
+		if template == "SettingsListSectionHeaderTemplate" then
+			-- The client's heading row: a title string and an Init that takes the initializer.
+			created.Title = created:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
+			function created:Init(initializer)
+				self.initializer = initializer
+			end
+		end
 		if template == "ObjectiveTrackerModuleTemplate" then
 			NewTrackerSection(created)
 			-- BeginLayout, LayoutContents and EndLayout, as the client runs them on a dirty module update.

@@ -1272,35 +1272,47 @@ def main():
     filtered.composite(filter_menu.image, filtered.px(312), filtered.px(110))
     save(filtered, "search-filter.png")
     # Core/Settings.lua registers this content in the client's Settings canvas, not a journal popup.
-    settings = ui.canvas(620, 304)
+    settings = ui.canvas(620, 352)
     LAYOUT["widgets"] = []
     LAYOUT["canvas"] = {"width": settings.width, "height": settings.height, "scale": ui.scale}
-    LAYOUT["frame"] = {"x": 0, "y": 0, "w": 620, "h": 304}
-    note("Settings content", "pane", 12, 12, 596, 280)
+    LAYOUT["frame"] = {"x": 0, "y": 0, "w": 620, "h": 352}
+    note("Settings content", "pane", 12, 12, 596, 328)
     note("Settings title", "content", 16, 16, 380, 24)
-    settings.fill(0, 0, 620, 304, wowmock.rgb("0d0f12"))
+    settings.fill(0, 0, 620, 352, wowmock.rgb("0d0f12"))
     text(settings, 16, 16, "Field Guide Forever options", "GameFontHighlightHuge", FONTS["GameFontHighlightHuge"].color)
-    labels = [
-        "Show undiscovered species",
-        "Show the records list",
-        "Announce newly recorded creatures",
-        "Show milestone toasts",
-        "Minimap button",
+    # Page.AddHeader takes a 45-unit row; checkboxes take 28.
+    rows = [
+        ("header", "Journal"),
+        ("check", "Show undiscovered species"),
+        ("check", "Show the records list"),
+        ("header", "Announcements"),
+        ("check", "Announce newly recorded creatures"),
+        ("check", "Show milestone toasts"),
+        ("button", "Move toasts"),
+        ("check", "Minimap button"),
     ]
-    for index, label in enumerate(labels):
-        y = 48 + index * 28 + (36 if index == 4 else 0)
-        note(f"Settings checkbox {index + 1}", "content", 16, y, 26, 26)
-        note(
-            f"Settings label {index + 1}", "content", 46, y + 6, settings.text_width(label, FONTS["GameFontNormal"]), 16
-        )
-        settings.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), 16, y, 26, 26)
-        settings.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), 16, y, 26, 26)
-        text(settings, 46, y + 6, label, "GameFontNormal", GOLD)
-    # Page.AddButton takes a 36-unit row between the toast and minimap checkboxes.
-    ui_panel_button(settings, 16, 160, 180, 24, "Move toasts")
-    note("Move toasts", "button", 16, 160, 180, 24)
+    y = 48
+    count = 0
+    for kind, label in rows:
+        if kind == "header":
+            text(settings, 16, y + 16, label, "GameFontNormalLarge", GOLD)
+            y += 45
+        elif kind == "button":
+            ui_panel_button(settings, 16, y, 180, 24, label)
+            note(label, "button", 16, y, 180, 24)
+            y += 36
+        else:
+            count += 1
+            note(f"Settings checkbox {count}", "content", 16, y, 26, 26)
+            note(
+                f"Settings label {count}", "content", 46, y + 6, settings.text_width(label, FONTS["GameFontNormal"]), 16
+            )
+            settings.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), 16, y, 26, 26)
+            settings.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), 16, y, 26, 26)
+            text(settings, 46, y + 6, label, "GameFontNormal", GOLD)
+            y += 28
     # Settings.lua anchors its note 8 units under the last checkbox, exactly as this draws it.
-    note_y = 48 + (len(labels) - 1) * 28 + 36 + 26 + 8
+    note_y = y - 28 + 26 + 8
     text(
         settings,
         36,
