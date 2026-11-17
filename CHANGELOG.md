@@ -5,7 +5,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ## [Unreleased]
 
-## [0.8.15] - 2026-11-16
+## [0.8.15] - 2026-11-17
 
 <!-- forever-core-sync -->
 
