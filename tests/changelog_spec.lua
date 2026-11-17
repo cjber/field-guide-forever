@@ -1,5 +1,6 @@
 -- tools/changelog.py --check accepts the maintenance entry forever-core writes when it re-releases every addon: a
--- dated patch with the sync marker and a plain bullet, no bold lead, kept above the last normal release entry. This addon has no in-game "What's new" line, so the entry is release notes only.
+-- dated patch with the sync marker and a plain bullet, no bold lead, kept above the last normal release entry. This
+-- addon has no in-game "What's new" line, so the entry is release notes only.
 local script = [==[
 import sys
 
