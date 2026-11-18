@@ -97,7 +97,7 @@ def main() -> int:
                 ROOT,
                 RELEASE,
                 package.Policy(
-                    addons=(ADDON, "ForeverCore"),
+                    addons=(ADDON,),
                     specs=("tests/sim/exercise_scenario.lua", "tests/embedded_scenario.lua"),
                     support=("tests", "tools/forever_sim"),
                 ),
