@@ -138,7 +138,7 @@ function ns.CharacterKey()
 	-- caching it, so the next read tries again (UNKNOWNOBJECT is the client's own placeholder name).
 	local known = type(name) == "string"
 		and name ~= ""
-		and name ~= UNKNOWNOBJECT
+		and name ~= rawget(_G, "UNKNOWNOBJECT")
 		and type(realm) == "string"
 		and realm ~= ""
 	local key = (known and name or "Unknown") .. "-" .. (type(realm) == "string" and realm ~= "" and realm or "Unknown")
