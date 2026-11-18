@@ -132,11 +132,17 @@ function ns.CharacterKey()
 	if characterKey then
 		return characterKey
 	end
-	local name = UnitName and UnitName("player") or "Unknown"
-	local realm = GetRealmName and GetRealmName() or "Unknown"
-	local key = tostring(name) .. "-" .. tostring(realm)
-	-- Only cache a real identity: a read before the client can name the character keeps the fallback and retries.
-	if UnitName and GetRealmName and type(name) == "string" and type(realm) == "string" then
+	local name = UnitName and UnitName("player")
+	local realm = GetRealmName and GetRealmName()
+	-- Only cache a real identity: a read before the client can name the character answers the fallback key without
+	-- caching it, so the next read tries again (UNKNOWNOBJECT is the client's own placeholder name).
+	local known = type(name) == "string"
+		and name ~= ""
+		and name ~= UNKNOWNOBJECT
+		and type(realm) == "string"
+		and realm ~= ""
+	local key = (known and name or "Unknown") .. "-" .. (type(realm) == "string" and realm ~= "" and realm or "Unknown")
+	if known then
 		characterKey = key
 	end
 	return key

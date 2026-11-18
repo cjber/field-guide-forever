@@ -67,6 +67,7 @@ read_globals = {
 	"GetInstanceInfo",
 	"GetDifficultyInfo",
 	"GetRealmName",
+	"UNKNOWNOBJECT",
 	"GetServerTime",
 	"GetTime",
 	"GetRealZoneText",
