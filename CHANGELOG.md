@@ -3,7 +3,7 @@
 All notable changes to Field Guide Forever are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
-## [0.8.15] - 2026-11-17
+## [0.8.15] - 2026-11-18
 
 <!-- forever-core-sync -->
 
@@ -11,6 +11,14 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 - Milestone toasts now appear above the action bars, and Move toasts in the settings lets you drag them anywhere; thanks to a player on CurseForge for the report.
 - Tracker header and creature menus open the Field Guide, stop tracking, and offer the shared tracker settings. Click a tracked creature to open its page.
 - Ships with the same shared code as your other Forever addons, so they keep working together.
+
+### Changed
+
+- **Updates are published on CurseForge and GitHub.** Wago publishing has ended, so install and update from CurseForge. (cjber/forever-core#649)
+
+### Fixed
+
+- **A turned-off ForeverCore is named as the problem.** With ForeverCore turned off, Field Guide Forever now says so at login, instead of naming every other Forever addon as out of date. (cjber/forever-core#816)
 
 ## [0.8.14] - 2026-11-16
 
