@@ -95,7 +95,7 @@
 ---@field milestoneToasts? boolean show the achievement toast for silver, gold, shiny, mastery and zone milestones
 
 -- FieldGuideForeverDB after Migrate.
----@class FGDB : ForeverFamilyDB
+---@class FGDB
 ---@field version integer
 ---@field chars table<string, FGState> keyed by "Name-Realm"
 ---@field options FGOptions
