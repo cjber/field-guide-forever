@@ -408,6 +408,9 @@ function Model.Variants(state, speciesId)
 	return variants
 end
 
+-- The standout tiers the header counts, shared so a totals walk builds no list of its own per species.
+local STANDOUT_TIERS = { "silver", "gold", "shiny" }
+
 -- How many species in a list have each coat found. Bronze is every species and needs no total; the header counts the
 -- three that stand out.
 ---@param state FGState?
@@ -416,10 +419,13 @@ end
 function Model.TierTotals(state, speciesList)
 	local totals = { silver = 0, gold = 0, shiny = 0 }
 	for _, species in ipairs(speciesList or {}) do
-		local entry = Model.Specimen(state, species.id)
-		for _, tier in ipairs({ "silver", "gold", "shiny" }) do
-			if (tonumber(entry[tier]) or 0) > 0 then
-				totals[tier] = totals[tier] + 1
+		-- A raw read, not Specimen: counting must not fill defaults into a saved entry it only looked at.
+		local entry = state and state.species and state.species[species.id]
+		if entry then
+			for _, tier in ipairs(STANDOUT_TIERS) do
+				if (tonumber(entry[tier]) or 0) > 0 then
+					totals[tier] = totals[tier] + 1
+				end
 			end
 		end
 	end
@@ -435,8 +441,9 @@ function Model.ZoneProgress(state, speciesList)
 	local total = speciesList and #speciesList or 0
 	local catalogued = 0
 	for _, species in ipairs(speciesList or {}) do
-		local entry = Model.Specimen(state, species.id)
-		if entry.count > 0 then
+		-- A raw read, not Specimen: counting must not fill defaults into a saved entry it only looked at.
+		local entry = state and state.species and state.species[species.id]
+		if entry and (tonumber(entry.count) or 0) > 0 then
 			catalogued = catalogued + 1
 		end
 	end

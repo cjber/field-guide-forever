@@ -122,11 +122,24 @@ function ns.FindSpecies(name, zone)
 	end
 end
 
+-- The character's name and realm cannot change during a session, so the key is built once: every state read
+-- (per creature in a list refresh, per row, per API walk) would otherwise pay two client calls and a concat.
+---@type string?
+local characterKey
+
 ---@return string
 function ns.CharacterKey()
+	if characterKey then
+		return characterKey
+	end
 	local name = UnitName and UnitName("player") or "Unknown"
 	local realm = GetRealmName and GetRealmName() or "Unknown"
-	return tostring(name) .. "-" .. tostring(realm)
+	local key = tostring(name) .. "-" .. tostring(realm)
+	-- Only cache a real identity: a read before the client can name the character keeps the fallback and retries.
+	if UnitName and GetRealmName and type(name) == "string" and type(realm) == "string" then
+		characterKey = key
+	end
+	return key
 end
 
 -- The spawn's tier comes from its readable GUID, so every player who meets that spawn sees the same coat. A player,
@@ -139,16 +152,6 @@ function ns.UnitTier(unit)
 		return nil
 	end
 	return ns.Model.SpawnTier(ns.Readable(UnitGUID(unit)))
-end
-
--- A zone is complete when every species listed in it has at least one specimen. Model.ZoneProgress already counts
--- exactly that, so the completion is known here in Core the moment a record changes it.
----@param state FGState
----@param zone FGZone
----@return boolean
-local function ZoneComplete(state, zone)
-	local progress = ns.Model.ZoneProgress(state, zone.species)
-	return progress.total > 0 and progress.catalogued == progress.total
 end
 
 local SPECIMEN_NUMBERS = {
@@ -426,7 +429,9 @@ function ns.RecordKill(name, npcId, guid)
 	local timestamp = GetServerTime()
 	local entry = state.species and state.species[species.id]
 	local firstSighting = not (entry and entry.firstSighting)
-	local zoneWasComplete = ZoneComplete(state, zone)
+	-- One progress walk before the record: the record itself can only move this species from unseen to seen, so
+	-- its newlyDiscovered flag settles whether the zone completed, without walking the zone a second time.
+	local zoneProgress = ns.Model.ZoneProgress(state, zone.species)
 	local result = ns.Model.Record(state, species.id, { guid = guid, time = timestamp, zone = zone.name })
 	if result.newlyDiscovered then
 		state.unseen = state.unseen or {}
@@ -448,7 +453,11 @@ function ns.RecordKill(name, npcId, guid)
 		ns.NotifyAPIChange("tier")
 	end
 	ns.NotifyAPIChange("specimen")
-	if not zoneWasComplete and ZoneComplete(state, zone) then
+	if
+		zoneProgress.total > 0
+		and zoneProgress.catalogued < zoneProgress.total
+		and zoneProgress.catalogued + (result.newlyDiscovered and 1 or 0) == zoneProgress.total
+	then
 		ns.NotifyAPIChange("zone")
 	end
 	ns.FireProgress()
