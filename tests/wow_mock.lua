@@ -600,6 +600,16 @@ end
 
 function methods:GetTop()
 	Measure(self, "GetTop")
+	-- A frame pinned to another frame's top edge (the Forever column pinned to the game's tracker) has that edge's
+	-- height, as the client resolves the anchor.
+	local point = self._points[1]
+	local relative = point and point[2]
+	if point and point[1]:find("^TOP") and point[3] and point[3]:find("^TOP") and type(relative) == "table" then
+		local relativeTop = relative:GetTop()
+		if relativeTop then
+			return relativeTop + point[5]
+		end
+	end
 	local _, y = self:GetCenter()
 	return y + (self:GetHeight() or 0) / 2
 end
