@@ -136,12 +136,10 @@ function ns.CharacterKey()
 	local realm = GetRealmName and GetRealmName()
 	-- Only cache a real identity: a read before the client can name the character answers the fallback key without
 	-- caching it, so the next read tries again (UNKNOWNOBJECT is the client's own placeholder name).
-	local known = type(name) == "string"
-		and name ~= ""
-		and name ~= rawget(_G, "UNKNOWNOBJECT")
-		and type(realm) == "string"
-		and realm ~= ""
-	local key = (known and name or "Unknown") .. "-" .. (type(realm) == "string" and realm ~= "" and realm or "Unknown")
+	local nameKnown = type(name) == "string" and name ~= "" and name ~= rawget(_G, "UNKNOWNOBJECT")
+	local realmKnown = type(realm) == "string" and realm ~= ""
+	local known = nameKnown and realmKnown
+	local key = (nameKnown and name or "Unknown") .. "-" .. (realmKnown and realm or "Unknown")
 	if known then
 		characterKey = key
 	end
