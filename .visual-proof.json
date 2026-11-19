@@ -1,23 +1,23 @@
 {
-  "input_digest": "4b59ecca1f277589f67cfc7e3a2bffb16c2b7c7af0f5a4391aa43a4c190b692c",
-  "runtime_sha256": "4b59ecca1f277589f67cfc7e3a2bffb16c2b7c7af0f5a4391aa43a4c190b692c",
-  "candidate": "a1d7c21e05fec6cf5aec35a61023c9d72f0714a6677bbb25dc9bf61b4fc6c5dd",
+  "input_digest": "dcd1c145e37d3bcd2c206c479f7a43600c85d6e906b12eebeccb48a1a733aa44",
+  "runtime_sha256": "dcd1c145e37d3bcd2c206c479f7a43600c85d6e906b12eebeccb48a1a733aa44",
+  "candidate": "4337c585dad8c9b65cb6045f8f8706ade138c029abfb8e9c427954618c4b5780",
   "client_build": "1.60.1.70959 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "55211bf80c26381f5c0da3fa19af6d4c18f9627e",
+  "source_commit": "91cd0009dc7d552cef8d5cc62c9875bffa0edab6",
   "flows": [
     {
-      "name": "core-off",
+      "name": "window",
       "steps": [
-        "sha256:7a97d2d7d8e316db43364800d15033bda3103efd7331b897032fcc5ec8f4c46b noop.lua"
+        "/fieldguide"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/7ce531d4cc4a4d52f945a42b7eea86be/raw/de0277a3734b5a7eac2fa70c33793c66159010f2/1-core-off.png",
-      "sha256": "d9a20da13685a0ba99a2f20eef252e962b8dae96e2fc8f36388244aeec345352"
+      "url": "https://gist.githubusercontent.com/cjber/95534c8d60f7556f90a999b86eccb680/raw/b3ee6b874f263f93f6d1a05fb1cd12d373310dea/1-window.png",
+      "sha256": "c553ef7721dc8861b69a650a85e0497f44abdd76ae7c581783a6c3c9910a3a5e"
     }
   ]
 }

@@ -163,6 +163,7 @@ local function NewRegion(kind, name, parent, template)
 		_template = template,
 		_scripts = {},
 		_events = {},
+		_units = {},
 		_text = "",
 		_shown = true,
 		_enabled = true,
@@ -354,8 +355,23 @@ function methods:RegisterEvent(event)
 	table.insert(Mock.eventFrames[event], self)
 end
 
+-- Only the named units' events reach this frame, as the client delivers them.
+function methods:RegisterUnitEvent(event, ...)
+	self:RegisterEvent(event)
+	-- Reuse the frame's unit set, so re-registering the same frame (a nameplate shown again) allocates nothing here.
+	local units = self._units[event] or {}
+	for unit in pairs(units) do
+		units[unit] = nil
+	end
+	for index = 1, select("#", ...) do
+		units[select(index, ...)] = true
+	end
+	self._units[event] = units
+end
+
 function methods:UnregisterEvent(event)
 	self._events[event] = nil
+	-- The unit set stays for a later RegisterUnitEvent to refill; delivery checks _events.
 end
 
 function methods:CreateFontString(name, _layer, font)
@@ -815,7 +831,8 @@ end
 function Mock.Fire(event, ...)
 	for _, frame in ipairs(Mock.eventFrames[event] or {}) do
 		local script = frame._scripts.OnEvent
-		if script then
+		local units = rawget(frame, "_units") and frame._units[event]
+		if script and rawget(frame, "_events")[event] and (not units or units[(...)]) then
 			script(frame, event, ...)
 		end
 	end

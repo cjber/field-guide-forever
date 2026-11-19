@@ -89,6 +89,10 @@ end
 ---@param guid string
 local function Dies(harness, unit, name, guid)
 	Mock.units[unit], Mock.guids[unit], Mock.dead[unit] = name, guid, true
+	-- A nameplate token exists once its nameplate is shown, as in the client.
+	if unit:find("^nameplate") then
+		harness:Fire("NAME_PLATE_UNIT_ADDED", unit)
+	end
 	harness:Fire("UNIT_HEALTH", unit)
 end
 
@@ -241,7 +245,9 @@ assert(Kills(harness, 1001) == 2, "a target seen alive counts its death while bo
 harness.env.UnitCreatureID = function()
 	return 1001
 end
+harness:Fire("NAME_PLATE_UNIT_REMOVED", "nameplate2")
 Mock.units.nameplate2, Mock.guids.nameplate2, Mock.dead.nameplate2 = Secret(), Secret(), true
+harness:Fire("NAME_PLATE_UNIT_ADDED", "nameplate2")
 harness:Fire("UNIT_HEALTH", "nameplate2")
 assert(Kills(harness, 1001) == 3, "a readable UnitCreatureID names a creature with secret name and GUID")
 
@@ -250,7 +256,9 @@ assert(Kills(harness, 1001) == 3, "a readable UnitCreatureID names a creature wi
 harness.env.UnitCreatureID = function()
 	return 1003
 end
+harness:Fire("NAME_PLATE_UNIT_REMOVED", "nameplate3")
 Mock.units.nameplate3, Mock.guids.nameplate3, Mock.dead.nameplate3 = "Savannah Prowler", Mock.CreatureGUID(1001), true
+harness:Fire("NAME_PLATE_UNIT_ADDED", "nameplate3")
 harness:Fire("UNIT_HEALTH", "nameplate3")
 assert(
 	Kills(harness, 1001) == 4 and Kills(harness, 1003) == 0,
@@ -282,5 +290,25 @@ end
 Mock.zone = "Nowhere"
 Dies(harness, "target", "Plainstrider", Secret())
 assert(Kills(harness, 999) == 0 and Kills(harness, 1001) == 0, "an unknown zone credits no same-name species")
+
+-- A nameplate already shown at /reload has no NAME_PLATE_UNIT_ADDED: world entry watches the plates the client lists,
+-- so that creature's death still counts.
+do
+	harness = Start()
+	Mock.zone = "The Barrens"
+	local before = Kills(harness, 1001)
+	Mock.units.nameplate9, Mock.guids.nameplate9, Mock.dead.nameplate9 = "Plainstrider", Mock.CreatureGUID(1001), false
+	Mock.canAttack.nameplate9 = true
+	harness.env.C_NamePlate = {
+		GetNamePlates = function()
+			return { { namePlateUnitToken = "nameplate9" } }
+		end,
+	}
+	harness:Fire("PLAYER_ENTERING_WORLD")
+	Mock.dead.nameplate9 = true
+	harness:Fire("UNIT_HEALTH", "nameplate9")
+	assert(Kills(harness, 1001) == before + 1, "a nameplate shown before load is watched from world entry")
+	harness.env.C_NamePlate = nil
+end
 
 print("kills_spec: ok")
