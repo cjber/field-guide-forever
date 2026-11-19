@@ -225,8 +225,40 @@ local function OnUnitHealth(unit)
 	OnUnitDeath(unit)
 end
 
+-- The client delivers UNIT_HEALTH for every unit (raid members, pets, party) to a frame registered with RegisterEvent.
+-- A frame per watched unit token, registered with RegisterUnitEvent, receives only that unit's: the target always,
+-- and a nameplate token while its nameplate is shown. A client without RegisterUnitEvent keeps the filtered
+-- registration below.
+---@type table<string, Frame>
+local healthFrames = {}
+local perUnit = CreateFrame("Frame").RegisterUnitEvent ~= nil
+
+---@param unit string
+local function WatchHealth(unit)
+	local frame = healthFrames[unit]
+	if not frame then
+		frame = CreateFrame("Frame")
+		frame:SetScript("OnEvent", function(_, event, eventUnit)
+			ns.core.SafeCall(event, OnUnitHealth, eventUnit)
+		end)
+		healthFrames[unit] = frame
+	end
+	pcall(frame.RegisterUnitEvent, frame, "UNIT_HEALTH", unit)
+end
+
+---@param unit string
+local function UnwatchHealth(unit)
+	local frame = healthFrames[unit]
+	if frame then
+		frame:UnregisterEvent("UNIT_HEALTH")
+	end
+end
+
 ---@param unit string
 local function OnUnitAdded(unit)
+	if perUnit then
+		WatchHealth(unit)
+	end
 	if ns.ready then
 		Identity(unit, true)
 	end
@@ -234,6 +266,9 @@ end
 
 ---@param unit string
 local function OnUnitRemoved(unit)
+	if perUnit then
+		UnwatchHealth(unit)
+	end
 	OnUnitDeath(unit)
 	ForgetIdentity(identities[unit])
 	identities[unit] = nil
@@ -296,7 +331,11 @@ local function OnCombatLog()
 	end
 end
 
-ns.On("UNIT_HEALTH", OnUnitHealth, WatchesHealth)
+if perUnit then
+	WatchHealth("target")
+else
+	ns.On("UNIT_HEALTH", OnUnitHealth, WatchesHealth)
+end
 ns.On("PLAYER_TARGET_CHANGED", OnTargetChanged)
 ns.On("NAME_PLATE_UNIT_ADDED", OnUnitAdded)
 ns.On("NAME_PLATE_UNIT_REMOVED", OnUnitRemoved)

@@ -89,6 +89,10 @@ end
 ---@param guid string
 local function Dies(harness, unit, name, guid)
 	Mock.units[unit], Mock.guids[unit], Mock.dead[unit] = name, guid, true
+	-- A nameplate token exists once its nameplate is shown, as in the client.
+	if unit:find("^nameplate") then
+		harness:Fire("NAME_PLATE_UNIT_ADDED", unit)
+	end
 	harness:Fire("UNIT_HEALTH", unit)
 end
 
@@ -241,7 +245,9 @@ assert(Kills(harness, 1001) == 2, "a target seen alive counts its death while bo
 harness.env.UnitCreatureID = function()
 	return 1001
 end
+harness:Fire("NAME_PLATE_UNIT_REMOVED", "nameplate2")
 Mock.units.nameplate2, Mock.guids.nameplate2, Mock.dead.nameplate2 = Secret(), Secret(), true
+harness:Fire("NAME_PLATE_UNIT_ADDED", "nameplate2")
 harness:Fire("UNIT_HEALTH", "nameplate2")
 assert(Kills(harness, 1001) == 3, "a readable UnitCreatureID names a creature with secret name and GUID")
 
@@ -250,7 +256,9 @@ assert(Kills(harness, 1001) == 3, "a readable UnitCreatureID names a creature wi
 harness.env.UnitCreatureID = function()
 	return 1003
 end
+harness:Fire("NAME_PLATE_UNIT_REMOVED", "nameplate3")
 Mock.units.nameplate3, Mock.guids.nameplate3, Mock.dead.nameplate3 = "Savannah Prowler", Mock.CreatureGUID(1001), true
+harness:Fire("NAME_PLATE_UNIT_ADDED", "nameplate3")
 harness:Fire("UNIT_HEALTH", "nameplate3")
 assert(
 	Kills(harness, 1001) == 4 and Kills(harness, 1003) == 0,
