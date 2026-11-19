@@ -318,7 +318,6 @@ local function OnCombatLog()
 	end
 end
 
-WatchHealth("target")
 -- Nameplates already shown when this file loads (a /reload) get no NAME_PLATE_UNIT_ADDED, so world entry watches every
 -- nameplate the client lists.
 ns.On("PLAYER_ENTERING_WORLD", function()
@@ -342,3 +341,5 @@ ns.On("VIGNETTE_MINIMAP_UPDATED", OnVignettes)
 if CombatLogGetCurrentEventInfo then
 	ns.On("COMBAT_LOG_EVENT_UNFILTERED", OnCombatLog)
 end
+-- Last, so the event registrations above stand even if the client ever refused this one.
+WatchHealth("target")
