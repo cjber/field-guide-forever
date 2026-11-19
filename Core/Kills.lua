@@ -319,6 +319,19 @@ local function OnCombatLog()
 end
 
 WatchHealth("target")
+-- Nameplates already shown when this file loads (a /reload) get no NAME_PLATE_UNIT_ADDED, so world entry watches every
+-- nameplate the client lists.
+ns.On("PLAYER_ENTERING_WORLD", function()
+	if not (C_NamePlate and C_NamePlate.GetNamePlates) then
+		return
+	end
+	for _, plate in ipairs(C_NamePlate.GetNamePlates() or {}) do
+		local unit = plate.namePlateUnitToken
+		if type(unit) == "string" then
+			OnUnitAdded(unit)
+		end
+	end
+end)
 ns.On("PLAYER_TARGET_CHANGED", OnTargetChanged)
 ns.On("NAME_PLATE_UNIT_ADDED", OnUnitAdded)
 ns.On("NAME_PLATE_UNIT_REMOVED", OnUnitRemoved)

@@ -291,4 +291,24 @@ Mock.zone = "Nowhere"
 Dies(harness, "target", "Plainstrider", Secret())
 assert(Kills(harness, 999) == 0 and Kills(harness, 1001) == 0, "an unknown zone credits no same-name species")
 
+-- A nameplate already shown at /reload has no NAME_PLATE_UNIT_ADDED: world entry watches the plates the client lists,
+-- so that creature's death still counts.
+do
+	harness = Start()
+	Mock.zone = "The Barrens"
+	local before = Kills(harness, 1001)
+	Mock.units.nameplate9, Mock.guids.nameplate9, Mock.dead.nameplate9 = "Plainstrider", Mock.CreatureGUID(1001), false
+	Mock.canAttack.nameplate9 = true
+	harness.env.C_NamePlate = {
+		GetNamePlates = function()
+			return { { namePlateUnitToken = "nameplate9" } }
+		end,
+	}
+	harness:Fire("PLAYER_ENTERING_WORLD")
+	Mock.dead.nameplate9 = true
+	harness:Fire("UNIT_HEALTH", "nameplate9")
+	assert(Kills(harness, 1001) == before + 1, "a nameplate shown before load is watched from world entry")
+	harness.env.C_NamePlate = nil
+end
+
 print("kills_spec: ok")
