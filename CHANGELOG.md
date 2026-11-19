@@ -3,10 +3,13 @@
 All notable changes to Field Guide Forever are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
-## [0.8.16] - 2026-11-18
+## [0.8.16] - 2026-11-19
 
 <!-- forever-core-sync -->
 
+### Fixed
+
+- **Kill tracking listens only to the units it watches.** Field Guide used to hear every health change in a group or raid and set most of them aside. It now asks the game only for your target and the creatures on visible nameplates, so a busy raid costs it nothing for everyone else's health. (#460)
 - Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ## [0.8.15] - 2026-11-18
