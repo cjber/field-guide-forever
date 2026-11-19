@@ -212,21 +212,42 @@ local function OnUnitDeath(unit)
 	)
 end
 
--- Health changes arrive for every unit, but this file only acts on the target and nameplates. The filter runs before
--- SafeCall, so the rest of the client's health events cost nothing instead of a label table apiece.
----@param unit string
----@return boolean
-local function WatchesHealth(unit)
-	return unit == "target" or (type(unit) == "string" and unit:find("^nameplate") ~= nil)
-end
-
 ---@param unit string
 local function OnUnitHealth(unit)
 	OnUnitDeath(unit)
 end
 
+-- The client delivers UNIT_HEALTH for every unit (raid members, pets, party) to a frame registered with RegisterEvent.
+-- A frame per watched unit token, registered with RegisterUnitEvent, receives only that unit's: the target always,
+-- and a nameplate token while its nameplate is shown. RegisterUnitEvent takes at most two units, so each token has
+-- its own frame. Forever's client has it: Tweaks and Shortest Path register unit events with it unguarded.
+---@type table<string, Frame>
+local healthFrames = {}
+
+---@param unit string
+local function WatchHealth(unit)
+	local frame = healthFrames[unit]
+	if not frame then
+		frame = CreateFrame("Frame")
+		frame:SetScript("OnEvent", function(_, event, eventUnit)
+			ns.core.SafeCall(event, OnUnitHealth, eventUnit)
+		end)
+		healthFrames[unit] = frame
+	end
+	frame:RegisterUnitEvent("UNIT_HEALTH", unit)
+end
+
+---@param unit string
+local function UnwatchHealth(unit)
+	local frame = healthFrames[unit]
+	if frame then
+		frame:UnregisterEvent("UNIT_HEALTH")
+	end
+end
+
 ---@param unit string
 local function OnUnitAdded(unit)
+	WatchHealth(unit)
 	if ns.ready then
 		Identity(unit, true)
 	end
@@ -234,6 +255,7 @@ end
 
 ---@param unit string
 local function OnUnitRemoved(unit)
+	UnwatchHealth(unit)
 	OnUnitDeath(unit)
 	ForgetIdentity(identities[unit])
 	identities[unit] = nil
@@ -296,7 +318,19 @@ local function OnCombatLog()
 	end
 end
 
-ns.On("UNIT_HEALTH", OnUnitHealth, WatchesHealth)
+-- Nameplates already shown when this file loads (a /reload) get no NAME_PLATE_UNIT_ADDED, so world entry watches every
+-- nameplate the client lists.
+ns.On("PLAYER_ENTERING_WORLD", function()
+	if not (C_NamePlate and C_NamePlate.GetNamePlates) then
+		return
+	end
+	for _, plate in ipairs(C_NamePlate.GetNamePlates() or {}) do
+		local unit = plate.namePlateUnitToken
+		if type(unit) == "string" then
+			OnUnitAdded(unit)
+		end
+	end
+end)
 ns.On("PLAYER_TARGET_CHANGED", OnTargetChanged)
 ns.On("NAME_PLATE_UNIT_ADDED", OnUnitAdded)
 ns.On("NAME_PLATE_UNIT_REMOVED", OnUnitRemoved)
@@ -307,3 +341,5 @@ ns.On("VIGNETTE_MINIMAP_UPDATED", OnVignettes)
 if CombatLogGetCurrentEventInfo then
 	ns.On("COMBAT_LOG_EVENT_UNFILTERED", OnCombatLog)
 end
+-- Last, so the event registrations above stand even if the client ever refused this one.
+WatchHealth("target")
