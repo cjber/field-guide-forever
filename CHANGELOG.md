@@ -3,6 +3,15 @@
 All notable changes to Field Guide Forever are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
+## [0.8.16] - 2026-11-19
+
+<!-- forever-core-sync -->
+
+### Fixed
+
+- **Kill tracking only hears from your target and nameplates.** It now receives health updates only for your target and creatures with visible nameplates, including nameplates already on screen when you enter the world or reload the interface, instead of every unit in your group or raid. (#460)
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
 ## [0.8.15] - 2026-11-18
 
 <!-- forever-core-sync -->
