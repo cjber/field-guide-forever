@@ -212,14 +212,6 @@ local function OnUnitDeath(unit)
 	)
 end
 
--- Health changes arrive for every unit, but this file only acts on the target and nameplates. The filter runs before
--- SafeCall, so the rest of the client's health events cost nothing instead of a label table apiece.
----@param unit string
----@return boolean
-local function WatchesHealth(unit)
-	return unit == "target" or (type(unit) == "string" and unit:find("^nameplate") ~= nil)
-end
-
 ---@param unit string
 local function OnUnitHealth(unit)
 	OnUnitDeath(unit)
@@ -227,11 +219,10 @@ end
 
 -- The client delivers UNIT_HEALTH for every unit (raid members, pets, party) to a frame registered with RegisterEvent.
 -- A frame per watched unit token, registered with RegisterUnitEvent, receives only that unit's: the target always,
--- and a nameplate token while its nameplate is shown. A client without RegisterUnitEvent keeps the filtered
--- registration below.
+-- and a nameplate token while its nameplate is shown. RegisterUnitEvent takes at most two units, so each token has
+-- its own frame. Forever's client has it: Tweaks and Shortest Path register unit events with it unguarded.
 ---@type table<string, Frame>
 local healthFrames = {}
-local perUnit = CreateFrame("Frame").RegisterUnitEvent ~= nil
 
 ---@param unit string
 local function WatchHealth(unit)
@@ -243,7 +234,7 @@ local function WatchHealth(unit)
 		end)
 		healthFrames[unit] = frame
 	end
-	pcall(frame.RegisterUnitEvent, frame, "UNIT_HEALTH", unit)
+	frame:RegisterUnitEvent("UNIT_HEALTH", unit)
 end
 
 ---@param unit string
@@ -256,9 +247,7 @@ end
 
 ---@param unit string
 local function OnUnitAdded(unit)
-	if perUnit then
-		WatchHealth(unit)
-	end
+	WatchHealth(unit)
 	if ns.ready then
 		Identity(unit, true)
 	end
@@ -266,9 +255,7 @@ end
 
 ---@param unit string
 local function OnUnitRemoved(unit)
-	if perUnit then
-		UnwatchHealth(unit)
-	end
+	UnwatchHealth(unit)
 	OnUnitDeath(unit)
 	ForgetIdentity(identities[unit])
 	identities[unit] = nil
@@ -331,11 +318,7 @@ local function OnCombatLog()
 	end
 end
 
-if perUnit then
-	WatchHealth("target")
-else
-	ns.On("UNIT_HEALTH", OnUnitHealth, WatchesHealth)
-end
+WatchHealth("target")
 ns.On("PLAYER_TARGET_CHANGED", OnTargetChanged)
 ns.On("NAME_PLATE_UNIT_ADDED", OnUnitAdded)
 ns.On("NAME_PLATE_UNIT_REMOVED", OnUnitRemoved)
