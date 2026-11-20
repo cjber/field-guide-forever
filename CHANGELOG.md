@@ -3,6 +3,13 @@
 All notable changes to Field Guide Forever are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
+## [0.8.17] - 2026-11-20
+
+### Fixed
+
+- **The game's quest tracker shows again.** Field Guide no longer brings an older copy of the shared Forever code that hid the quest tracker. (#467)
+- **Kill tracking only hears from your target and nameplates.** It now receives health updates only for your target and creatures with visible nameplates, instead of every unit in your group or raid. (#460)
+
 ## [0.8.16] - 2026-11-19
 
 <!-- forever-core-sync -->
