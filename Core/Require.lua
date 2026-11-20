@@ -12,4 +12,4 @@ local ready = ForeverCore ~= nil
 	and type(ForeverCore.SettingsPage) == "table"
 	and type(ForeverCore.SettingsPage.AddButton) == "function"
 
-ns.ForeverRequire(ready)
+ns.ForeverRequire(ready, { key = "FIELDGUIDEFOREVER", "/fieldguide", "/fg", "/fgf" })
