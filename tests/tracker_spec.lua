@@ -178,9 +178,17 @@ migrated.env.FieldGuideForeverDB = { trackerHost = { attached = false, locked = 
 migrated:Fire("ADDON_LOADED", "FieldGuideForever")
 migrated:Fire("PLAYER_LOGIN")
 local settings = migrated.env.ForeverCore.TrackerHost.GetSettings()
-assert(
-	settings.scale == 1.5 and settings.locked == true and settings.attached == false,
-	"the old tracker settings carry over"
-)
+-- Scale and Lock carry over. A detached table with no dragged spot (no x and y) holds no position to keep, so
+-- ForeverCore places the column under the quest tracker, as it does for every module (ForeverCore 1.15.2, #792).
+assert(settings.scale == 1.5 and settings.locked == true, "the old tracker scale and lock carry over")
+assert(settings.attached == true, "an old table with no dragged spot follows the quest tracker")
 assert(migrated.env.FieldGuideForeverDB.trackerHost == nil, "the old tracker table is offered once")
+
+-- A spot the player dragged the old column to is kept.
+local dragged = Mock.Harness()
+dragged.env.FieldGuideForeverDB = { trackerHost = { attached = false, locked = false, scale = 1, x = 400, y = 300 } }
+dragged:Fire("ADDON_LOADED", "FieldGuideForever")
+dragged:Fire("PLAYER_LOGIN")
+local kept = dragged.env.ForeverCore.TrackerHost.GetSettings()
+assert(kept.x == 400 and kept.y == 300 and kept.attached == false, "an old dragged spot carries over")
 print("tracker settings: ok")
