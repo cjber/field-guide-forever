@@ -3,6 +3,19 @@
 All notable changes to Field Guide Forever are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
+## [0.8.18] - 2026-11-20
+
+### Changed
+
+- **Field Guide Forever carries ForeverCore inside itself.** It now works with ForeverCore turned off or uninstalled, and your ForeverCore settings carry over. You no longer need to install ForeverCore separately. If you have it installed, you can keep it or remove it. (cjber/forever-core#801)
+- **The options page groups its settings under Journal and Announcements.** Showing undiscovered species and the records list sit together, and the first-kill line and milestone toasts (with Move toasts) sit together, so each option is easier to find. Every option still applies straight away and nothing you had set changes.
+
+### Fixed
+
+- **The game's quest tracker shows again.** Field Guide no longer brings an older copy of the shared Forever code that hid the quest tracker. (#467)
+- **/fieldguide says why Field Guide Forever stopped.** While Field Guide Forever cannot start, typing /fieldguide repeats the line naming the fix instead of reading "Unknown command".
+- **The field guide makes less garbage while you browse.** Opening the journal, typing a search or recording a creature walked every creature record in the zone again, building and dropping tables as it went. Those walks now read the records directly, so journal refreshes and searches allocate far less. A character's key is now kept for the session once the game names the character.
+
 ## [0.8.17] - 2026-11-20
 
 ### Fixed
