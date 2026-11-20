@@ -547,7 +547,7 @@
     },
     {
       "source": "UI/Discovery.lua",
-      "sha256": "9112b760c7fe8a1b345a81753a1a815a9a68782780a45c640222328c9db6978e",
+      "sha256": "9ec5b54a3c7c7cddc04038bab9c58f7e79849c996de4e876856526116fa399f7",
       "review": "Read SetArt, SetUp, SpeciesToast, CreateMover, Flush and the queue setup and mover callbacks. Read pinned Mainline/AlertFrameSystems.xml AchievementAlertFrameTemplate: inherits AlertFrameTemplate; Unlocked inherits GameFontBlackTiny and Name inherits GameFontHighlight. SetArt changes art, anchors and visibility, not fonts; SetUp and CreateMover assign the listed text without later font replacement. Bind toast headings, format wording and mover instructions. Dynamic species and zone names and UIErrorsFrame discovery announcements are excluded. Read AlertFrames.xml AlertFrameTemplate and AlertFrame_OnClick/AchievementAlertFrame_OnClick: inherited scripts handle animation and clicks, with no font replacement.",
       "bindings": [
         {
