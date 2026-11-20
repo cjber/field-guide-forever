@@ -116,9 +116,15 @@ assert(
 -- ForeverCore with every member this addon calls runs the addon's own files and says nothing.
 local noButton = Load({ APIKit = { Hub = function() end, NotReady = function() end }, SettingsPage = {} })
 assert(noButton.broken == true, "a core without the Move toasts settings button stops before building settings")
-local ready, readyLines = Load({
+-- ForeverCore 1.14.2 has the button but no section headings, which the options page draws.
+local noHeader = Load({
 	APIKit = { Hub = function() end, NotReady = function() end },
 	SettingsPage = { AddButton = function() end },
+})
+assert(noHeader.broken == true, "a core without settings headings stops before building settings")
+local ready, readyLines = Load({
+	APIKit = { Hub = function() end, NotReady = function() end },
+	SettingsPage = { AddButton = function() end, AddHeader = function() end },
 })
 assert(ready.broken == nil, "a ForeverCore with every member this addon calls runs the addon")
 assert(#readyLines == 0, "and says nothing")

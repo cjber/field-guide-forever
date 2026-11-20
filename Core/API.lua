@@ -74,10 +74,11 @@ API.Subscribe = hub.Subscribe
 ---@param area table<integer, integer>
 ---@param override table<integer, integer>
 ---@param wantedArea integer? only the rows of this AreaTable ID
+---@param state FGState? read once by the caller, so a zone walk does not re-read it per species
 ---@return FGSpawn[]
-local function SpawnRows(species, speciesId, area, override, wantedArea)
+local function SpawnRows(species, speciesId, area, override, wantedArea, state)
 	local rows = {}
-	local progress = ns.Model.Specimen(ns.GetCharacterState(false), speciesId)
+	local progress = ns.Model.Specimen(state, speciesId)
 	for areaId, points in pairs(ns.QuestieDB.Spawns(species) or {}) do
 		local numericAreaId = tonumber(areaId)
 		if numericAreaId and (wantedArea == nil or numericAreaId == wantedArea) and type(points) == "table" then
@@ -137,7 +138,7 @@ function API.Spawns(speciesId)
 	if not species then
 		return NotReady("none")
 	end
-	return SpawnRows(species, speciesId, area, override)
+	return SpawnRows(species, speciesId, area, override, nil, ns.GetCharacterState(false))
 end
 
 ---@param zoneName? string
@@ -158,8 +159,9 @@ function API.ZoneSpawns(zoneName)
 		return NotReady("none")
 	end
 	local rows = {}
+	local state = ns.GetCharacterState(false)
 	for _, species in ipairs(zone.species) do
-		local speciesRows = SpawnRows(species, species.id, area, override, zone.id)
+		local speciesRows = SpawnRows(species, species.id, area, override, zone.id, state)
 		for _, row in ipairs(speciesRows) do
 			rows[#rows + 1] = row
 		end
@@ -407,9 +409,10 @@ function API.Specimens()
 		return NotReady("loading")
 	end
 	local specimens = {}
+	local state = ns.GetCharacterState(false)
 	for _, zone in ipairs(ns.Zones) do
 		for _, species in ipairs(zone.species) do
-			local entry = ns.Model.Specimen(ns.GetCharacterState(false), species.id)
+			local entry = ns.Model.Specimen(state, species.id)
 			specimens[#specimens + 1] = {
 				id = species.id,
 				name = species.name,

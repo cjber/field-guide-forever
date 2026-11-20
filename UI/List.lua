@@ -39,14 +39,14 @@ end
 ---@param row FGListRow
 ---@param entry FGListEntry
 ---@param selectedId integer?
-local function UpdateRow(row, entry, selectedId)
+---@param character FGState? read once for the whole pool, not per row
+local function UpdateRow(row, entry, selectedId, character)
 	local species = entry.species
 	if row.iconSpecies ~= species.id then
 		Art.CreatureIcon(row.Icon, species.name, species.id, BORDER_SIZE - 8)
 		row.iconSpecies = species.id
 	end
 	row.Name:SetText(species.name)
-	local character = ns.GetCharacterState(false)
 	local record = character and character.species and character.species[species.id]
 	local known = record ~= nil and (record.count or 0) > 0
 	local bestTier = ns.Model.BestTier(record)
@@ -187,6 +187,7 @@ function List.Update()
 	local offset = List.scroll and List.scroll:GetVerticalScroll() or 0
 	local first = math.floor(offset / ROW_HEIGHT) + 1
 	local last = math.min(total, first + List.viewRows - 1)
+	local character = ns.GetCharacterState(false)
 	local poolIndex = 1
 	for index = first, last do
 		local row = List.rows[poolIndex]
@@ -198,7 +199,7 @@ function List.Update()
 		row:SetPoint("TOPLEFT", 0, -(index - 1) * ROW_HEIGHT)
 		row.index = index
 		row:Show()
-		UpdateRow(row, List.entries[index], List.selectedId)
+		UpdateRow(row, List.entries[index], List.selectedId, character)
 		poolIndex = poolIndex + 1
 	end
 	for index = poolIndex, #List.rows do
