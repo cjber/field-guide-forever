@@ -880,7 +880,16 @@ function Mock.Kill(name, npcId, guid)
 end
 
 -- `combatLog` gives the client an addon reader for the combat log; `refuse` names events whose registration raises.
----@param opts? { ns?: table, files?: string[], combatLog?: boolean, refuse?: table<string, boolean> }
+-- `coreWithout` names ForeverCore facade fields ("SettingsPage.AddTrackerAttach") an older standalone ForeverCore
+-- lacks: the loader adopts an installed standalone as it is, even when it is older than the pinned release.
+---@class MockHarnessOptions
+---@field ns? table
+---@field files? string[]
+---@field combatLog? boolean
+---@field refuse? table<string, boolean>
+---@field coreWithout? string[]
+
+---@param opts? MockHarnessOptions
 ---@return table
 function Mock.Harness(opts)
 	opts = opts or {}
@@ -1533,6 +1542,19 @@ function Mock.Harness(opts)
 		env.ObjectiveTrackerFrame = native
 	end
 	Mock.Fire("ADDON_LOADED", "ForeverCore")
+	-- Both the facade and core's own namespace drop the field: SettingsPage.Register hands its builder core's own
+	-- module, not the facade's copy.
+	for _, path in ipairs(opts.coreWithout or {}) do
+		for _, base in ipairs({ env.ForeverCore, coreNs }) do
+			local parent, key = base, path
+			for head, rest in path:gmatch("([^.]+)%.(.+)") do
+				parent, key = parent and parent[head], rest
+			end
+			if type(parent) == "table" then
+				parent[key] = nil
+			end
+		end
+	end
 
 	local function Load(file)
 		local chunk = assert(loadfile(root .. file))
