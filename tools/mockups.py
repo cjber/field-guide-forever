@@ -1270,24 +1270,36 @@ def main():
     note("Settings title", "content", 16, 16, 380, 24)
     settings.fill(0, 0, 620, 304, wowmock.rgb("0d0f12"))
     text(settings, 16, 16, "Field Guide Forever options", "GameFontHighlightHuge", FONTS["GameFontHighlightHuge"].color)
-    labels = [
-        "Show undiscovered species",
-        "Show the records list",
-        "Announce newly recorded creatures",
-        "Show milestone toasts",
+    # Page.AddHeader takes a 45-unit row; checkboxes take 28.
+    rows = [
+        ("header", "Journal"),
+        ("check", "Show undiscovered species"),
+        ("check", "Show the records list"),
+        ("header", "Announcements"),
+        ("check", "Announce newly recorded creatures"),
+        ("check", "Show milestone toasts"),
+        ("button", "Move toasts"),
     ]
-    for index, label in enumerate(labels):
-        y = 48 + index * 28
-        note(f"Settings checkbox {index + 1}", "content", 16, y, 26, 26)
-        note(
-            f"Settings label {index + 1}", "content", 46, y + 6, settings.text_width(label, FONTS["GameFontNormal"]), 16
-        )
-        settings.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), 16, y, 26, 26)
-        settings.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), 16, y, 26, 26)
-        text(settings, 46, y + 6, label, "GameFontNormal", GOLD)
-    # Page.AddButton takes its own row under the last checkbox.
-    ui_panel_button(settings, 16, 160, 180, 24, "Move toasts")
-    note("Move toasts", "button", 16, 160, 180, 24)
+    y = 48
+    count = 0
+    for kind, label in rows:
+        if kind == "header":
+            text(settings, 16, y + 16, label, "GameFontNormalLarge", GOLD)
+            y += 45
+        elif kind == "button":
+            ui_panel_button(settings, 16, y, 180, 24, label)
+            note(label, "button", 16, y, 180, 24)
+            y += 36
+        else:
+            count += 1
+            note(f"Settings checkbox {count}", "content", 16, y, 26, 26)
+            note(
+                f"Settings label {count}", "content", 46, y + 6, settings.text_width(label, FONTS["GameFontNormal"]), 16
+            )
+            settings.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), 16, y, 26, 26)
+            settings.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), 16, y, 26, 26)
+            text(settings, 46, y + 6, label, "GameFontNormal", GOLD)
+            y += 28
     save(settings, "settings.png", frame_source="canvas")
     save(render(barrens, search_species, "CREATURES"), "sighting-log.png")
     save(render(barrens, prowler, unavailable=True), "missing-questiedb.png")
