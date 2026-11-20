@@ -9,7 +9,7 @@
     },
     {
       "source": "UI/List.lua",
-      "sha256": "d1b491906bf072676dae016204dfe90f2f099afcd7769396796f3b316f218b3b",
+      "sha256": "bb2b04ef0b24efcf4d0709071bc40df6c3fed2ab3523daebcaf20e1cb335711a",
       "review": "Read CreateRow, UpdateRow, SetNew, Create, SetEmptyText, Refresh and Update, plus Window.Refresh calling SetEmptyText. New explicitly inherits GameFontHighlight; Sub and empty use Art.Text with GameFontHighlight. Later updates change text, colour, width and visibility only. Bind the format phrase, not inserted client creature families or levels; species names and tooltip output are excluded.",
       "bindings": [
         {
@@ -320,7 +320,7 @@
     },
     {
       "source": "UI/Window.lua",
-      "sha256": "9de28e8da2ee21eb2ffd275dc0965e7ca2299793b6b383be2d89d5e1e5283273",
+      "sha256": "e76bef975be08ca7b7dbc1a9b69f5011baf1d8b7e2641b5e125a206b3e45df8e",
       "review": "Read MakeButton, BuildSearch, BuildBreadcrumb, BuildBottom, Create, Refresh, UpdateProgress, UpdateFilterButton, UpdateBreadcrumb and SetTab, and List.SetEmptyText. Art.Text fonts are explicit and are not replaced later; search SetFontObject affects user input only. Read pinned ThreeSliceButtonTemplate.xml inheritance and ThreeSliceButtonMixin UpdateButton/UpdateScale: SharedButtonSmallTemplate declares GameFontNormal, GameFontHighlight and GameFontDisable, with art-only state updates. MakeButton changes label colour only. Bind every filter and tracking label state. Native portrait title, side-tab tooltips, menus, user search text and inserted zone/instance names are excluded. List.lua pins the recipient font of SetEmptyText. Also read UIButtonMixin InitButton, OnEnter, OnLeave and RunCustomTextFormatter: no custom formatter is configured by these callers and no inherited font replacement occurs.",
       "bindings": [
         {
