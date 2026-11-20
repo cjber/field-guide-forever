@@ -163,11 +163,32 @@ end
 ---@type table?
 local system
 
--- Create before the three startup events: AlertContainerMixin's readiness callback only observes future events.
+-- The toast container. AlertContainerTemplate's OnLoad (Mainline/AlertFrames.lua:266) readies the container with
+-- EventUtil.ContinueAfterAllEvents, which never calls back for an event that fired before it was asked; a package that
+-- carries ForeverCore runs this file at login, after VARIABLES_LOADED, so the container would queue every toast for
+-- good. It is built from the mixin with the state that OnLoad sets, and readied the way OnLoad's callback does once
+-- the events still to come have fired.
 ---@class FGToastAnchor : Frame
 ---@field AddQueuedAlertFrameSubSystem function
-local anchor = CreateFrame("Frame", "FieldGuideForeverToastAnchor", UIParent, "AlertContainerTemplate")
+---@field SetEnabledFlag fun(self: FGToastAnchor, flag: string, enabled: boolean)
+local anchor = CreateFrame("Frame", "FieldGuideForeverToastAnchor", UIParent)
 ---@cast anchor FGToastAnchor
+Mixin(anchor, AlertContainerMixin)
+anchor.alertFrameSubSystems = {}
+anchor.reasonsToBlockLeftClickingAlerts = {}
+anchor.fullscreenFrame = UIParent
+anchor.fullscreenStrata = DEFAULT_FULLSCREEN_STRATA
+anchor.baseAnchorFrame = anchor
+anchor.shouldQueueAlertsFlags = { playerEnteredWorld = false, variablesLoaded = false, firstFrameRendered = false }
+-- OnLoad's callback also waits for FIRST_FRAME_RENDERED, which no loader records, so a file run after it could not
+-- tell it had passed. It sets that flag on the frame after the rest instead; so does this, after the world entry.
+ns.AfterEvents(function()
+	anchor:SetEnabledFlag("playerEnteredWorld", true)
+	anchor:SetEnabledFlag("variablesLoaded", true)
+	C_Timer.After(0, function()
+		anchor:SetEnabledFlag("firstFrameRendered", true)
+	end)
+end, "VARIABLES_LOADED", "PLAYER_ENTERING_WORLD")
 -- AlertContainerTemplate declares no size (Mainline/AlertFrames.xml:12), and the client resolves no rect for a sizeless
 -- single-point frame, which would leave the container and every toast anchored to it unrendered. Take the 10x10 box
 -- AlertFrame's own XML (lines 18-20) gives the game's container.

@@ -42,6 +42,8 @@ read_globals = {
 	"AchievementAlertSystem",
 	"AchievementFrame_LoadUI",
 	"AlertFrame",
+	"AlertContainerMixin",
+	"DEFAULT_FULLSCREEN_STRATA",
 	"hooksecurefunc",
 	"NEW_FEATURE_SHADOW_COLOR",
 	"SetPortraitTextureFromCreatureDisplayID",

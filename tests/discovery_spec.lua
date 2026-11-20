@@ -200,6 +200,25 @@ local function AnchorChecks()
 end
 AnchorChecks()
 
+-- A package that carries ForeverCore runs the files at login, after VARIABLES_LOADED (#483). The container still turns
+-- its alerts on once the world entry and the frame after it have passed, as it does when the files run before login.
+local function LateLoadChecks()
+	local ns = {}
+	ns.Window = FakeWindow(ns)
+	local h = Mock.Harness({ ns = ns, files = files, late = true })
+	local anchor = assert(h.env.FieldGuideForeverToastAnchor, "addon-owned toast anchor exists")
+	equal(anchor:AreAlertsEnabled(), false, "the container queues alerts before the world entry")
+	h:Fire("PLAYER_ENTERING_WORLD", true, false)
+	h:Fire("FIRST_FRAME_RENDERED")
+	h:RunTimers()
+	equal(anchor:AreAlertsEnabled(), true, "files run after VARIABLES_LOADED still turn the container's alerts on")
+	h:Fire("PLAYER_ENTERING_WORLD", false, true)
+	h:RunTimers()
+	equal(anchor:AreAlertsEnabled(), true, "a later world entry keeps the container's alerts on")
+end
+
+LateLoadChecks()
+
 local function Count(list, value)
 	local count = 0
 	for _, item in ipairs(list) do

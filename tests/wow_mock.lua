@@ -1190,11 +1190,11 @@ function Mock.Harness(opts)
 			end
 		end
 		if template == "AlertContainerTemplate" then
-			-- Mainline/AlertFrames.xml:12: the template declares no Size, so a frame made from it starts at 0x0.
+			-- Mainline/AlertFrames.xml:12: the template declares no Size, so a frame made from it starts at 0x0, and
+			-- runs the mixin's OnLoad.
 			created._width, created._height = 0, 0
-			created.AddQueuedAlertFrameSubSystem = function(self, ...)
-				return env.AlertFrame.AddQueuedAlertFrameSubSystem(self, ...)
-			end
+			env.Mixin(created, env.AlertContainerMixin)
+			created:OnLoad()
 		end
 		if template == "AchievementAlertFrameTemplate" then
 			-- Mainline/AlertFrameSystems.xml:173-327: the regions the toast's set-up reaches for.
@@ -1322,17 +1322,12 @@ function Mock.Harness(opts)
 		end,
 	}
 	env.EventUtil = {
-		-- Runs the callback on the last of its events to arrive, or at once when they all have.
+		-- Blizzard_SharedXML/EventUtil.lua:6-41: the callback runs once each named event has fired after the call. An
+		-- event that fired before it is waited for again, so a wait asked after a once-only event never calls back.
 		ContinueAfterAllEvents = function(fn, ...)
 			local waiting = {}
 			for _, event in ipairs({ ... }) do
-				if not Mock.fired[event] then
-					waiting[event] = true
-				end
-			end
-			if next(waiting) == nil then
-				fn()
-				return
+				waiting[event] = true
 			end
 			Mock.waiters[#Mock.waiters + 1] = { fn = fn, waiting = waiting }
 		end,
@@ -1343,6 +1338,40 @@ function Mock.Harness(opts)
 		end
 		return target
 	end
+	-- Mainline/AlertFrames.lua:263-319: a container queues its alerts until every readiness flag is set; OnLoad clears
+	-- them and sets them back once VARIABLES_LOADED, PLAYER_ENTERING_WORLD and FIRST_FRAME_RENDERED have fired after it.
+	-- The mock's subsystems show their toasts at once, so a flag change has no queue to flush.
+	env.AlertContainerMixin = {
+		OnLoad = function(self)
+			self.alertFrameSubSystems = {}
+			self.shouldQueueAlertsFlags = {
+				playerEnteredWorld = false,
+				variablesLoaded = false,
+				firstFrameRendered = false,
+			}
+			env.EventUtil.ContinueAfterAllEvents(function()
+				self:SetEnabledFlag("playerEnteredWorld", true)
+				self:SetEnabledFlag("variablesLoaded", true)
+				env.C_Timer.After(0, function()
+					self:SetEnabledFlag("firstFrameRendered", true)
+				end)
+			end, "VARIABLES_LOADED", "PLAYER_ENTERING_WORLD", "FIRST_FRAME_RENDERED")
+		end,
+		SetEnabledFlag = function(self, flag, enabled)
+			self.shouldQueueAlertsFlags[flag] = enabled
+		end,
+		AreAlertsEnabled = function(self)
+			for _, enabled in pairs(self.shouldQueueAlertsFlags) do
+				if not enabled then
+					return false
+				end
+			end
+			return true
+		end,
+		AddQueuedAlertFrameSubSystem = function(self, ...)
+			return env.AlertFrame.AddQueuedAlertFrameSubSystem(self, ...)
+		end,
+	}
 	env.C_XMLUtil = {
 		GetTemplateInfo = function()
 			return { type = "Frame" }
@@ -1562,6 +1591,18 @@ function Mock.Harness(opts)
 		return chunk("FieldGuideForever", ns)
 	end
 
+	-- A package that carries ForeverCore runs the addon's files at login, after VARIABLES_LOADED and PLAYER_LOGIN have
+	-- fired, and marks them as run then (Core/ForeverRequire.lua).
+	if opts.late then
+		-- The package's loading frame, made when the client loads the addon, records the world events for Loader.Seen
+		-- (Core/Loader.lua); the standalone copy loaded here has none, so the events this client fired stand in.
+		env.ForeverCoreLoader.Seen = function(event)
+			return Mock.fired[event] == true
+		end
+		Mock.Fire("VARIABLES_LOADED")
+		Mock.Fire("PLAYER_LOGIN")
+		ns.ForeverCoreHostDeferred = true
+	end
 	for _, file in ipairs(files) do
 		Load(file)
 	end
