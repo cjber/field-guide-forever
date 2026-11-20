@@ -3,6 +3,12 @@
 All notable changes to Field Guide Forever are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
+## [0.8.21] - 2026-11-20
+
+### Fixed
+
+- **Discovery toasts show again without a separate ForeverCore.** With only the ForeverCore that Field Guide Forever carries, the silver, gold, shiny and zone toasts were held back for the whole session and never appeared. (#483)
+
 ## [0.8.20] - 2026-11-20
 
 <!-- forever-core-sync -->
