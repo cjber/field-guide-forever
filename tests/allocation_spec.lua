@@ -322,11 +322,20 @@ assert(
 	string.format("changing creature adds %.3f KB to a nameplate add", changedPlate - samePlate)
 )
 
+-- A journal refresh walks the zone's whole list: it once re-read the character state and rebuilt a specimen and a
+-- tier list for every creature in it, about 13 KB of garbage for this 120-creature zone on every search keystroke
+-- and progress event. The walk now reads the saved entries directly and reuses what it built once.
+ns.Window.Show()
+local refresh = PerEvent(100, function()
+	ns.Window.Refresh()
+end)
+assert(refresh < 3, string.format("a journal refresh allocates %.3f KB", refresh))
+
 assert(buildGarbagePerNpc < 0.9, string.format("the build allocates %.3f KB per NPC", buildGarbagePerNpc))
 print(
 	string.format(
 		"allocation_spec: ok, build %.3f KB/NPC, lookup %.3f, nameplate %.3f, vignettes %.3f KB/event, "
-			.. "same/changed target %.3f/%.3f, plate %.3f/%.3f, unrelated health %.3f",
+			.. "same/changed target %.3f/%.3f, plate %.3f/%.3f, unrelated health %.3f, refresh %.3f",
 		buildGarbagePerNpc,
 		lookup,
 		nameplateAdded,
@@ -335,6 +344,7 @@ print(
 		changedTarget,
 		samePlate,
 		changedPlate,
-		unrelatedHealth
+		unrelatedHealth,
+		refresh
 	)
 )

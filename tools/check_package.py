@@ -89,16 +89,16 @@ def main() -> int:
         print(f"{RELEASE.name}/ not found: run the packager first", file=sys.stderr)
         return 1
     problems = check(RELEASE)
-    for name in (ADDON, "ForeverCore"):
-        problems.extend(lua51.check(RELEASE / name))
+    # ForeverCore ships inside the addon at Libs/ForeverCore, so the addon's own load graph covers its files.
+    problems.extend(lua51.check(RELEASE / ADDON))
     if not problems:
         problems.extend(
             package.run_specs(
                 ROOT,
                 RELEASE,
                 package.Policy(
-                    addons=(ADDON, "ForeverCore"),
-                    specs=("tests/sim/exercise_scenario.lua",),
+                    addons=(ADDON,),
+                    specs=("tests/sim/exercise_scenario.lua", "tests/embedded_scenario.lua"),
                     support=("tests", "tools/forever_sim"),
                 ),
             )

@@ -258,9 +258,10 @@ local function UpdateFilterButton()
 end
 
 ---@param species FGSpecies
+---@param state FGState?
+---@param needle string? the search text, lowered once for the whole list
 ---@return boolean
-local function MatchesFilter(species)
-	local state = ns.GetCharacterState(false)
+local function MatchesFilter(species, state, needle)
 	local entry = state and state.species[species.id]
 	local count = entry and entry.count or 0
 	local options = ns.db and ns.db.options or {}
@@ -282,8 +283,7 @@ local function MatchesFilter(species)
 	elseif filter == "missingShiny" and entry and entry.shiny > 0 then
 		return false
 	end
-	if query ~= "" then
-		local needle = query:lower()
+	if needle then
 		if not species.name:lower():find(needle, 1, true) and not species.family:lower():find(needle, 1, true) then
 			return false
 		end
@@ -294,9 +294,10 @@ end
 ---@return FGListEntry[]
 local function BuildEntries()
 	local state = ns.GetCharacterState(false)
+	local needle = query ~= "" and query:lower() or nil
 	local entries = {}
 	local function Add(species)
-		if MatchesFilter(species) then
+		if MatchesFilter(species, state, needle) then
 			entries[#entries + 1] = {
 				species = species,
 				state = state and state.species[species.id] or nil,
