@@ -298,7 +298,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field FindSpecies fun(name: string?, zone: FGZone?): FGSpecies?
 ---@field UnitTier fun(unit: string): string? the spawn tier of a unit token, nil when it has none
 ---@field NotifyAPIChange fun(name: "sighting"|"tier"|"zone"|"specimen"|"tracked")
----@field CharacterKey fun(): string
+---@field CharacterKey fun(): string?
 ---@field Migrate fun(db: any): FGDB, boolean?
 ---@field GetCharacterState fun(create?: boolean): FGState?
 ---@field Initialize fun()

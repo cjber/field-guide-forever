@@ -122,28 +122,56 @@ function ns.FindSpecies(name, zone)
 	end
 end
 
--- The character's name and realm cannot change during a session, so the key is built once: every state read
--- (per creature in a list refresh, per row, per API walk) would otherwise pay two client calls and a concat.
+-- The character cannot change during a session, so the key is kept once known: every state read (per creature in a
+-- list refresh, per row, per API walk) would otherwise ask the client again. ForeverCore's key is
+-- "Name Surname-<server>" on a Forever realm, which has no realm name, and "Name-Realm" on a named realm; nil until the
+-- client names the character, so nothing is read or saved under a placeholder.
 ---@type string?
 local characterKey
 
----@return string
+---@return string?
 function ns.CharacterKey()
-	if characterKey then
-		return characterKey
+	characterKey = characterKey or ForeverCore.CharacterKey()
+	return characterKey
+end
+
+---@param value any
+---@return any
+local function DeepCopy(value)
+	if type(value) ~= "table" then
+		return value
 	end
-	local name = UnitName and UnitName("player")
-	local realm = GetRealmName and GetRealmName()
-	-- Only cache a real identity: a read before the client can name the character answers the fallback key without
-	-- caching it, so the next read tries again (UNKNOWNOBJECT is the client's own placeholder name).
-	local nameKnown = type(name) == "string" and name ~= "" and name ~= rawget(_G, "UNKNOWNOBJECT")
-	local realmKnown = type(realm) == "string" and realm ~= ""
-	local known = nameKnown and realmKnown
-	local key = (nameKnown and name or "Unknown") .. "-" .. (realmKnown and realm or "Unknown")
-	if known then
-		characterKey = key
+	local copy = {}
+	for k, v in pairs(value) do
+		copy[k] = DeepCopy(v)
 	end
-	return key
+	return copy
+end
+
+-- Saves from before ForeverCore's key used "Name-<GetRealmName()>", which on a Forever realm was "Name-Unknown" for
+-- every character with that first name. A named realm's record is this character's alone and moves to the new key.
+-- A Forever record mixes everyone who shares the first name, and no field says whose progress is whose, so each of
+-- them starts from a copy rather than the first to log in taking it from the others.
+---@param key string
+---@return FGState?
+local function AdoptOldState(key)
+	local name, realm = UnitName("player"), GetRealmName()
+	if type(name) ~= "string" or type(realm) ~= "string" then
+		return nil
+	end
+	local forever = realm == ""
+	local old = name .. "-" .. (forever and "Unknown" or realm)
+	local state = old ~= key and ns.db.chars[old] or nil
+	if not state then
+		return nil
+	end
+	if forever then
+		state = DeepCopy(state)
+	else
+		ns.db.chars[old] = nil
+	end
+	ns.db.chars[key] = state
+	return state
 end
 
 -- The spawn's tier comes from its readable GUID, so every player who meets that spawn sees the same coat. A player,
@@ -324,7 +352,10 @@ function ns.GetCharacterState(create)
 		return nil
 	end
 	local key = ns.CharacterKey()
-	local state = ns.db.chars[key]
+	if not key then
+		return nil
+	end
+	local state = ns.db.chars[key] or AdoptOldState(key)
 	if not state and create then
 		state = ns.Model.NewState()
 		ns.db.chars[key] = state
