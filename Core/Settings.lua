@@ -58,6 +58,11 @@ local function BuildPanel(panel, page)
 		end
 	end, L["Silver, gold, shiny, mastery and zone milestones show an achievement toast. Click it to open the journal."])
 
+	-- The shared column's attach choice, the same row and words in every Forever addon (forever-core#910).
+	if page.AddTrackerAttach then
+		page.AddTrackerAttach(panel)
+	end
+
 	page.AddButton(panel, L["Move toasts"], ns.Discovery.ToggleToastMover)
 	panel:HookScript("OnHide", ns.Discovery.HideToastMover)
 end

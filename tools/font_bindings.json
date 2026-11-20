@@ -599,8 +599,8 @@
     },
     {
       "source": "Core/Settings.lua",
-      "sha256": "6db1c888b5bab3df54c8dfcc7d738f88411349fcc249f32c0881ac52d9e72a0e",
-      "review": "Read BuildPanel, Register and login callbacks, plus ForeverCore v1.14.2 UI/SettingsPage.lua Register, AddHeader, AddCheck and AddButton. The addon creates no font strings of its own. Shared page title, section headings (Journal, Announcements, drawn by the shared template), checkbox labels, Move toasts button, category and tooltip wording are excluded because their widgets are owned by the external dependency, whose source digest cannot be pinned by this repository manifest.",
+      "sha256": "b6fc6bb2e9c74138e358262d89df92a962c8ab1f78048779fce634e13a693273",
+      "review": "Read BuildPanel, Register and login callbacks, plus ForeverCore v1.14.2 UI/SettingsPage.lua Register, AddHeader, AddCheck and AddButton. The addon creates no font strings of its own. Shared page title, section headings (Journal, Announcements, drawn by the shared template), checkbox labels, Move toasts button, category and tooltip wording are excluded because their widgets are owned by the external dependency, whose source digest cannot be pinned by this repository manifest. Reviewed #466: the Attach to quest tracker tick box is ForeverCore.SettingsPage.AddTrackerAttach, a core-built row in core's own font, added only when the running core has it (an older adopted standalone does not); excluded as core-owned.",
       "bindings": []
     }
   ]
