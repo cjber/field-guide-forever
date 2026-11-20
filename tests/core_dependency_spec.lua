@@ -122,9 +122,16 @@ local noHeader = Load({
 	SettingsPage = { AddButton = function() end },
 })
 assert(noHeader.broken == true, "a core without settings headings stops before building settings")
+-- ForeverCore 1.15.7 has the headings but no CharacterKey, which keys each character's journal.
+local noKey = Load({
+	APIKit = { Hub = function() end, NotReady = function() end },
+	SettingsPage = { AddButton = function() end, AddHeader = function() end },
+})
+assert(noKey.broken == true, "a core without CharacterKey stops the addon")
 local ready, readyLines = Load({
 	APIKit = { Hub = function() end, NotReady = function() end },
 	SettingsPage = { AddButton = function() end, AddHeader = function() end },
+	CharacterKey = function() end,
 })
 assert(ready.broken == nil, "a ForeverCore with every member this addon calls runs the addon")
 assert(#readyLines == 0, "and says nothing")
