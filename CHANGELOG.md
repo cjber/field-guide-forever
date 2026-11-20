@@ -12,7 +12,7 @@ All notable changes to Field Guide Forever are documented here. The format is ba
 
 ### Fixed
 
-- **The game's quest tracker shows again.** Field Guide no longer brings an older copy of the shared Forever code that hid the quest tracker. (#467)
+- **The game's quest tracker shows again.** Field Guide now brings ForeverCore 1.15.4 instead of an older copy of the shared Forever code that hid the quest tracker. (#467)
 - **/fieldguide says why Field Guide Forever stopped.** While Field Guide Forever cannot start, typing /fieldguide repeats the line naming the fix instead of reading "Unknown command".
 - **The field guide makes less garbage while you browse.** Opening the journal, typing a search or recording a creature walked every creature record in the zone again, building and dropping tables as it went. Those walks now read the records directly, so journal refreshes and searches allocate far less. A character's key is now kept for the session once the game names the character.
 
