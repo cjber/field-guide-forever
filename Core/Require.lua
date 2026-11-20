@@ -12,4 +12,8 @@ local ready = ForeverCore ~= nil
 	and type(ForeverCore.SettingsPage) == "table"
 	and type(ForeverCore.SettingsPage.AddButton) == "function"
 
-ns.ForeverRequire(ready, { key = "FIELDGUIDEFOREVER", "/fieldguide", "/fg", "/fgf" })
+-- Core/Core.lua's slash words; the pin gate (forever_tools.require_slash) keeps the two lists equal. A
+-- stopped addon still answers them with the line that names the fix, as its addon compartment entry does.
+ns.Slash = { key = "FIELDGUIDEFOREVER", "/fieldguide", "/fg", "/fgf" }
+
+ns.ForeverRequire(ready, ns.Slash)
