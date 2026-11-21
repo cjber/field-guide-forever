@@ -1,4 +1,4 @@
--- A simulated client good enough for the specs: frames are inert tables and events are delivered by hand. Units are what
+-- A simulated client for the specs: frames are inert tables and events are delivered by hand. Units are what
 -- the spec placed in Mock.units (names), Mock.guids, Mock.dead and Mock.tapDenied; map markers are Mock.vignettes. Like
 -- Forever, the client has no addon reader for the combat log unless a harness asks for one ({ combatLog = true }), and
 -- then it returns Mock.combatLog. Nothing here is loaded by the addon.
