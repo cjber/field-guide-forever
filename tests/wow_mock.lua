@@ -1,4 +1,4 @@
--- A headless client good enough for the specs: frames are inert tables and events are delivered by hand. Units are what
+-- A simulated client good enough for the specs: frames are inert tables and events are delivered by hand. Units are what
 -- the spec placed in Mock.units (names), Mock.guids, Mock.dead and Mock.tapDenied; map markers are Mock.vignettes. Like
 -- Forever, the client has no addon reader for the combat log unless a harness asks for one ({ combatLog = true }), and
 -- then it returns Mock.combatLog. Nothing here is loaded by the addon.
@@ -276,7 +276,7 @@ function methods:GetModelFileID()
 	return rawget(self, "modelFileID")
 end
 
--- Native atlas sizes for the set-1 art the addon inherits, so useAtlasSize sets a real size in the headless client
+-- Native atlas sizes for the set-1 art the addon inherits, so useAtlasSize sets a real size in the simulated client
 -- exactly as the template does in game.
 local ATLAS_SIZES = {
 	["UI-Character-Info-Title"] = { 201, 32 },
