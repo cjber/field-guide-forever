@@ -3,6 +3,16 @@
 All notable changes to Field Guide Forever are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
+## [0.8.22] - 2026-11-21
+
+### Changed
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+### Fixed
+
+- **Each character keeps its own journal on Forever realms.** The client reports no realm name there, so every character sharing a first name wrote to one journal. Characters are now told apart by name, surname and server. Each of them starts from that shared journal once, and characters on named realms keep theirs.
+
 ## [0.8.21] - 2026-11-20
 
 ### Fixed
