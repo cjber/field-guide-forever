@@ -3,8 +3,9 @@ local _, ns = ...
 -- The game refuses to load this addon when ForeverCore is absent (## Dependencies), but an older ForeverCore still
 -- loads. ForeverCore's interface version stays at 1 while it adds members, so a core is out of date when a member this
 -- addon calls is missing, never because of a version comparison. This addon builds its own API on the API kit's Hub
--- and NotReady, which arrived after API 1, so a core without them stops the addon's own files here. The shared warning
--- in Core/ForeverRequire.lua shows one line on screen, never a chat message, and names the addon to update.
+-- and NotReady, which arrived after API 1, so a core without them stops the addon's own files here. Saved progress is
+-- keyed by CharacterKey (ForeverCore 1.15.8). The shared warning in Core/ForeverRequire.lua shows one line on screen,
+-- never a chat message, and names the addon to update.
 local ready = ForeverCore ~= nil
 	and type(ForeverCore.APIKit) == "table"
 	and type(ForeverCore.APIKit.Hub) == "function"
@@ -12,6 +13,7 @@ local ready = ForeverCore ~= nil
 	and type(ForeverCore.SettingsPage) == "table"
 	and type(ForeverCore.SettingsPage.AddButton) == "function"
 	and type(ForeverCore.SettingsPage.AddHeader) == "function"
+	and type(ForeverCore.CharacterKey) == "function"
 
 -- Core/Core.lua's slash words; the pin gate (forever_tools.require_slash) keeps the two lists equal. A
 -- stopped addon still answers them with the line that names the fix, as its addon compartment entry does.

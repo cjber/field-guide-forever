@@ -14,6 +14,8 @@ Mock.timers = {}
 Mock.combatLog = nil
 Mock.units = {}
 Mock.guids = {}
+-- The realm's name: "" is a Forever realm, as live.
+Mock.realm = ""
 Mock.dead = {}
 Mock.players = {}
 Mock.canAttack = {}
@@ -128,6 +130,7 @@ function Mock.Reset()
 	Mock.combatLog = nil
 	Mock.units = {}
 	Mock.guids = {}
+	Mock.realm = ""
 	Mock.dead = {}
 	Mock.players = {}
 	Mock.canAttack = {}
@@ -914,7 +917,11 @@ function Mock.Harness(opts)
 			return Mock.zone
 		end,
 		UnitName = function(unit)
-			return Mock.units[unit] or "Tester", "TestRealm"
+			-- A Forever realm has no name; the player's second name is their surname.
+			if unit == "player" and Mock.realm == "" then
+				return Mock.units[unit] or "Tester", "Ironhide"
+			end
+			return Mock.units[unit] or "Tester", Mock.realm ~= "" and Mock.realm or nil
 		end,
 		UnitIsEnemy = function()
 			return true
@@ -987,7 +994,13 @@ function Mock.Harness(opts)
 			end,
 		},
 		GetRealmName = function()
-			return "TestRealm"
+			return Mock.realm
+		end,
+		GetNormalizedRealmName = function()
+			return (Mock.realm:gsub("[%s%-]", ""))
+		end,
+		GetRealmID = function()
+			return Mock.realm == "" and 0 or 1
 		end,
 		UnitClass = function()
 			return "Warrior", "WARRIOR", 1
@@ -996,7 +1009,7 @@ function Mock.Harness(opts)
 			return 60
 		end,
 		UnitGUID = function(unit)
-			return Mock.guids[unit] or "Player-1"
+			return Mock.guids[unit] or "Player-6941-00000001"
 		end,
 		InCombatLockdown = function()
 			return false
