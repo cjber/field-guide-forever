@@ -35,18 +35,15 @@ Use the user's existing authorization. A preparation-only request ends before ta
 
 ## Verify and publish
 
-7. Run the full gate from `AGENTS.md`. Agents test in game only through `INGAME` requests to the
-   `wow in-game` agent (`wow-forever-addon/in-game.md#requesting-a-check`); record the user's own
-   `/reload` checks and their results separately.
+7. Run the full gate from `AGENTS.md`. Record manual in-game
+   checks and their results separately.
 8. Ship the release PR signed and green. Merge only within the user's authorization, then wait for
    the full `ci.yml` push run on main at the exact commit to be tagged: `tools/release_check.py`
    accepts nothing else.
-9. Get that commit smoked. Every release needs a green `headless-smoke` commit status on the exact commit it ships, and
-   `tools/release_check.py` refuses without one. The `forever-smoke` timer posts it for every commit a release would
-   ship; read it with `gh api repos/cjber/field-guide-forever/commits/<full sha>/statuses </dev/null`. When it is
-   missing, send the `wow in-game` agent `INGAME field-guide-forever <full sha> from <your kiln id>` with `kind: smoke`
-   (`wow-forever-addon/in-game.md#requesting-a-check`) and wait for its reply; never run the client yourself. `INGAME
-   FAIL` is a release blocker: fix the errors it names. `INGAME BLOCKED` goes to the user as the release's blocker.
+9. Confirm the smoke status. Every release needs a green `headless-smoke` commit status on the exact commit it ships,
+   and `tools/release_check.py` refuses without one. Read it with
+   `gh api repos/cjber/field-guide-forever/commits/<full sha>/statuses </dev/null`. A missing or pending status
+   means the release is waiting; a failing one blocks it until fixed.
 10. Confirm `FieldGuideForever.toc` carries the real `X-Curse-Project-ID` (`0` means
     the project does not exist yet and the packager skips the upload). Check `gh secret list` shows
     `CF_API_KEY`; never print their values. Tag `vX.Y.Z` signed at the verified

@@ -44,7 +44,7 @@ for _, scale in ipairs({ 0.65, 1.0 }) do
 				tostring(anchor:GetHeight())
 			)
 		)
-		-- The headless client has no renderer; deliver its first-render event explicitly.
+		-- The simulated client has no renderer; deliver its first-render event explicitly.
 		sim.events.fire("FIRST_FRAME_RENDERED")
 		sim:advance(0.1)
 		assert(anchor:AreAlertsEnabled(), "the addon container observes all startup readiness events")

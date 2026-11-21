@@ -2,7 +2,7 @@ version: 1
 
 # Speedpatrol profile for Field Guide Forever, written by hand because `speedpatrol init` reads a repo without
 # package.json as an HTTP API. The game client cannot run here, so every benchmark is a command over
-# the headless Lua harness the specs use.
+# the offline Lua spec harness the specs use.
 project:
   name: field-guide-forever
   source: .

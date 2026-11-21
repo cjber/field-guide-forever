@@ -6,7 +6,7 @@ local ns = harness.ns
 
 local saved = {
 	version = ns.SCHEMA + 1,
-	chars = { ["Barry-Realm"] = { species = { [124] = { count = 5, kills = 5 } }, future = true } },
+	chars = { ["Alex-Realm"] = { species = { [124] = { count = 5, kills = 5 } }, future = true } },
 	options = { showUndiscovered = false },
 }
 harness.env.FieldGuideForeverDB = saved
@@ -15,8 +15,8 @@ harness:RunTimers()
 assert(ns.ready, "the addon still runs over a newer save")
 assert(harness.env.FieldGuideForeverDB == saved, "the newer save stays the saved variable")
 assert(saved.version == ns.SCHEMA + 1, "the newer save keeps its version")
-assert(saved.chars["Barry-Realm"].species[124].count == 5, "the newer save keeps its journal")
-assert(saved.chars["Barry-Realm"].future == true, "fields this version does not know are kept")
+assert(saved.chars["Alex-Realm"].species[124].count == 5, "the newer save keeps its journal")
+assert(saved.chars["Alex-Realm"].future == true, "fields this version does not know are kept")
 assert(saved.options.showUndiscovered == false, "the newer save keeps its options")
 assert(ns.db ~= saved and ns.db.version == ns.SCHEMA, "this session records into a table that is not saved")
 
