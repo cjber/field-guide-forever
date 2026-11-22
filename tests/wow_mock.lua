@@ -604,8 +604,32 @@ function methods:GetEffectiveScale()
 	return self._scale
 end
 
+local function VerticalOffset(point, height)
+	if point:find("^TOP") then
+		return height / 2
+	elseif point:find("^BOTTOM") then
+		return -height / 2
+	end
+	return 0
+end
+
 function methods:GetCenter()
 	Measure(self, "GetCenter")
+	local point = self._points[1]
+	local relative = point and point[2]
+	if type(relative) == "table" and point[3] then
+		local y
+		if point[3]:find("^TOP") then
+			y = relative:GetTop()
+		elseif point[3]:find("^BOTTOM") then
+			y = relative:GetBottom()
+		else
+			local _
+			_, y = relative:GetCenter()
+		end
+		local scale = relative:GetEffectiveScale() / self:GetEffectiveScale()
+		return 0, y * scale + point[5] - VerticalOffset(point[1], self:GetHeight())
+	end
 	return 0, 0
 end
 
@@ -619,16 +643,6 @@ end
 
 function methods:GetTop()
 	Measure(self, "GetTop")
-	-- A frame pinned to another frame's top edge (the Forever column pinned to the game's tracker) has that edge's
-	-- height, as the client resolves the anchor.
-	local point = self._points[1]
-	local relative = point and point[2]
-	if point and point[1]:find("^TOP") and point[3] and point[3]:find("^TOP") and type(relative) == "table" then
-		local relativeTop = relative:GetTop()
-		if relativeTop then
-			return relativeTop + point[5]
-		end
-	end
 	local _, y = self:GetCenter()
 	return y + (self:GetHeight() or 0) / 2
 end
@@ -1278,6 +1292,9 @@ function Mock.Harness(opts)
 	}
 	env.UIParent = env.CreateFrame("Frame", "UIParent")
 	env.UIParent:SetSize(1200, 675)
+	function env.UIParent:GetCenter()
+		return self:GetWidth() / 2, self:GetHeight() / 2
+	end
 	-- The game's own objective tracker, which ForeverCore's shared column reads and never writes.
 	-- Questie and EQOT are not installed here, so the column takes its place below the native quests.
 	local objective = env.CreateFrame("Frame", "ObjectiveTrackerFrame", env.UIParent)
