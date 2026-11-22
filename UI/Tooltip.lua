@@ -77,30 +77,13 @@ function Tooltip.Hide()
 	end
 end
 
--- The unit's GUID: the tooltip data's own, else the GUID of the unit the tooltip shows. Either may be secret.
----@param tooltip GameTooltip
----@param data? TooltipData
----@return string?
-local function UnitGuid(tooltip, data)
-	local guid = type(data) == "table" and ns.Readable(data.guid) or nil
-	if guid then
-		return guid
-	end
-	if tooltip.GetUnit then
-		local unit = ns.Readable((select(2, tooltip:GetUnit())))
-		if unit and UnitGUID then
-			return ns.Readable(UnitGUID(unit))
-		end
-	end
-	return nil
-end
-
 -- World unit tooltip lines: a catalogued creature shows Field Guide's research rank and kill count, or notes that it
--- is not yet in the journal. Runs out of combat with one saved-state lookup and touches no secure frames.
+-- is not yet in the journal. The post-call only adds lines to the supplied tooltip. It also runs in combat when
+-- the GUID is readable.
 ---@param tooltip GameTooltip
 ---@param data? TooltipData
 local function OnUnitTooltip(tooltip, data)
-	if not ns.ready or (InCombatLockdown and InCombatLockdown()) then
+	if not ns.ready then
 		return
 	end
 	if ns.db and ns.db.options and ns.db.options.creatureTooltips == false then
@@ -110,7 +93,7 @@ local function OnUnitTooltip(tooltip, data)
 	if not state then
 		return
 	end
-	local npcId = ns.NpcId(UnitGuid(tooltip, data))
+	local npcId = ns.NpcId(ns.Readable(data and data.guid))
 	if not npcId or not (ns.SpeciesById and ns.SpeciesById[npcId]) then
 		return
 	end
@@ -127,7 +110,7 @@ local function OnUnitTooltip(tooltip, data)
 	end
 end
 
--- A forbidden tooltip is never read or drawn on, and a unit or GUID the client keeps secret reads as no unit: the hover
+-- A forbidden tooltip is never read or drawn on, and a secret GUID reads as no unit: the hover
 -- shows nothing of ours rather than raising an error.
 if
 	TooltipDataProcessor

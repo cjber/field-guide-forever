@@ -1,6 +1,6 @@
 -- UI/Tooltip.lua: creature unit tooltips show the player's Field Guide progress (rank, kills, or not yet recorded)
--- through TooltipDataProcessor.AddTooltipPostCall, staying silent in combat, on forbidden tooltips, on secret GUIDs,
--- before state is ready, on players/pets/unknown NPCs, and when turned off in settings.
+-- through TooltipDataProcessor.AddTooltipPostCall, including in combat. Forbidden tooltips, secret GUIDs, missing
+-- state, players, pets, unknown NPCs and the disabled setting suppress the journal lines.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)[/\\]") or "."
 local Mock = dofile(here .. "/wow_mock.lua")
 
@@ -36,13 +36,8 @@ local function MakeTooltip(opts)
 	local added = {}
 	local tooltip = {
 		lines = added,
-		unitLookups = 0,
 		IsForbidden = function()
 			return opts.forbidden == true
-		end,
-		GetUnit = function(self)
-			self.unitLookups = self.unitLookups + 1
-			return opts.unitName, opts.unitToken
 		end,
 	}
 	return tooltip
@@ -157,14 +152,16 @@ local vehicleTip = MakeTooltip()
 hook(vehicleTip, { guid = vehicleGuid })
 assert(#vehicleTip.lines == 2 and vehicleTip.lines[2].text == "Research: Mastered · 12 kills", "vehicle GUID")
 
--- 6. Fallback to tooltip:GetUnit() + UnitGUID when data lacks guid.
-Mock.guids["mouseover"] = wolfGuid
-local unitFallbackTip = MakeTooltip({ unitName = wolf.name, unitToken = "mouseover" })
-hook(unitFallbackTip, {})
-assert(
-	#unitFallbackTip.lines == 2 and unitFallbackTip.lines[2].text == "Research: Mastered · 12 kills",
-	"GetUnit fallback"
-)
+-- 6. Missing tooltip GUID adds nothing and does not read unit identity from the frame.
+local noGuidTip = setmetatable(MakeTooltip(), {
+	__index = function(_, key)
+		assert(key ~= "GetUnit", "unit identity must come from tooltip data")
+	end,
+})
+local errorsBefore = #(ns.db.errors or {})
+hook(noGuidTip, {})
+assert(#noGuidTip.lines == 0, "missing GUID adds no lines")
+assert(#(ns.db.errors or {}) == errorsBefore, "missing GUID logs no error")
 
 -- 7. Players, pets and unknown NPCs get no lines.
 for label, guid in pairs({ player = playerGuid, pet = petGuid, unknown = unknownNpcGuid }) do
@@ -173,7 +170,7 @@ for label, guid in pairs({ player = playerGuid, pet = petGuid, unknown = unknown
 	assert(#tip.lines == 0, label .. " should add no lines, got " .. #tip.lines)
 end
 
--- 8. Secret / unreadable GUID and unit token: no lines and no errors.
+-- 8. Secret / unreadable GUID: no lines and no errors.
 local secretGuid = setmetatable({}, {
 	__tostring = function()
 		error("touched secret guid")
@@ -182,34 +179,29 @@ local secretGuid = setmetatable({}, {
 		error("indexed secret guid")
 	end,
 })
-local secretToken = setmetatable({}, {
-	__tostring = function()
-		error("touched secret unit token")
-	end,
-})
 env.canaccessvalue = function(value)
-	return value ~= secretGuid and value ~= secretToken
+	return value ~= secretGuid
 end
-local errorsBefore = #(ns.db.errors or {})
-local secretDataTip = MakeTooltip({ unitName = "Secret", unitToken = secretToken })
+local secretDataTip = MakeTooltip()
 hook(secretDataTip, { guid = secretGuid })
 assert(#secretDataTip.lines == 0, "secret guid adds no lines")
 assert(#(ns.db.errors or {}) == errorsBefore, "secret guid logs no error")
 env.canaccessvalue = nil
 
 -- 9. Forbidden tooltip is never read or drawn on.
-local forbiddenTip = MakeTooltip({ forbidden = true, unitToken = "mouseover" })
+local forbiddenTip = MakeTooltip({ forbidden = true })
 hook(forbiddenTip, { guid = wolfGuid })
-assert(#forbiddenTip.lines == 0 and forbiddenTip.unitLookups == 0, "forbidden tooltip untouched")
+assert(#forbiddenTip.lines == 0, "forbidden tooltip untouched")
 
--- 10. In combat: adds no lines.
+-- 10. In combat: a readable GUID still shows journal progress.
 local prevCombat = env.InCombatLockdown
 env.InCombatLockdown = function()
 	return true
 end
 local combatTip = MakeTooltip()
 hook(combatTip, { guid = wolfGuid })
-assert(#combatTip.lines == 0, "in combat adds no lines")
+assert(#combatTip.lines == 2 and combatTip.lines[1].text == "Field Guide", "combat tooltip header")
+assert(combatTip.lines[2].text == "Research: Mastered · 12 kills", "combat tooltip progress")
 env.InCombatLockdown = prevCombat
 
 -- 11. Settings toggle: defaults on, explains itself via tooltipText, and turning it off hides unit tooltip lines.
