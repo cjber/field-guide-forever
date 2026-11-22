@@ -35,6 +35,7 @@ SOURCES = (
     "Core/Settings.lua",
     "UI/Rarity.lua",
     "UI/Discovery.lua",
+    "UI/Tooltip.lua",
     "Locales/enUS.lua",
     "UI/Art.lua",
     "UI/Detail.lua",

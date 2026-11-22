@@ -251,6 +251,21 @@
         }
       ]
     },
+    "creature-tooltip.png": {
+      "canvas": {
+        "height": 124.0,
+        "scale": 2,
+        "width": 371.0
+      },
+      "frame": {
+        "h": 124.0,
+        "w": 371.0,
+        "x": 0,
+        "y": 0
+      },
+      "frame_source": "canvas",
+      "widgets": []
+    },
     "field-guide.png": {
       "canvas": {
         "height": 752,
@@ -5355,7 +5370,8 @@
     "settings.png",
     "sighting-log.png",
     "missing-questiedb.png",
-    "instances-boss.png"
+    "instances-boss.png",
+    "creature-tooltip.png"
   ],
   "widgets": [
     {

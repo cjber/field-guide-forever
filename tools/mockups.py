@@ -608,6 +608,17 @@ def tab_tooltip(ui, index):
     return wowmock.tooltip(ui, [wowmock.TooltipLine(title), wowmock.TooltipLine(detail)])
 
 
+def creature_tooltip_scene(ui, species):
+    unit_lines = [
+        wowmock.TooltipLine(species["name"]),
+        wowmock.TooltipLine(f"Level {species['min']} ({species['family']})"),
+        wowmock.TooltipLine("Field Guide", wowmock.NORMAL),
+    ]
+    studied = wowmock.tooltip(ui, [*unit_lines, wowmock.TooltipLine("Research: Studied · 6 kills", wowmock.WHITE)])
+    unrecorded = wowmock.tooltip(ui, [*unit_lines, wowmock.TooltipLine("Not yet in your journal", wowmock.DISABLED)])
+    return wowmock.scene(ui, [(studied, 0, 0), (unrecorded, studied.width + 16, 0)])
+
+
 def window(ui, zone, species, tab, icons, sigil, filter_key=None, tracked=False, unavailable=False, catalogue=None):
     """The journal as UI/Window.lua builds it: a real PortraitFrameTemplate (metal NineSlice, circular portrait,
     centred title, close button) around the addon's own list and detail panes at their own anchors."""
@@ -1307,10 +1318,18 @@ def main():
     subprocess.run([sys.executable, str(ROOT / "tools" / "rarity.py")], check=True)
     subprocess.run([sys.executable, str(ROOT / "tools" / "discovery.py")], check=True)
 
+    snow_leopard = next(species for _, species in all_species if species["id"] == 1201)
+    tooltips = creature_tooltip_scene(ui, snow_leopard)
+    LAYOUT["widgets"] = []
+    LAYOUT["canvas"] = {"width": tooltips.width, "height": tooltips.height, "scale": ui.scale}
+    LAYOUT["frame"] = {"x": 0, "y": 0, "w": tooltips.width, "h": tooltips.height}
+    save(tooltips, "creature-tooltip.png", frame_source="canvas")
+
     def write_gallery():
         features = [
             ("field-guide.png", "Creatures journal"),
             ("creature-icons.png", "Creature list icons in Darnassus"),
+            ("creature-tooltip.png", "Creature tooltips with and without journal progress"),
             ("variants.png", "Silver and gold coat filters"),
             ("silver-record.png", "Personal silver record"),
             ("shiny.png", "Shiny filter"),
