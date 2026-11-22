@@ -1314,6 +1314,9 @@ function Mock.Harness(opts)
 	objective.Header = env.CreateFrame("Frame", nil, objective)
 	objective.Header.MinimizeButton = env.CreateFrame("Button", nil, objective.Header)
 	objective.isCollapsed = false
+	function objective:IsCollapsed()
+		return self.isCollapsed
+	end
 	function objective.GetTop()
 		return 640
 	end

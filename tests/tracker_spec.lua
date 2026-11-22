@@ -26,6 +26,7 @@ local npcFixture = {
 }
 
 local harness = Mock.Harness()
+assert(harness.env.ObjectiveTrackerFrame:IsCollapsed() == false, "the native tracker starts expanded")
 local ns = harness.ns
 harness.env.LibQuestieDB = {
 	RequireContract = function()
