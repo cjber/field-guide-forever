@@ -306,6 +306,7 @@ function FGCreatureInfo.Get(npcID) end
 ---@field OnProgress fun(fn: fun())
 ---@field OnRecord fun(fn: fun(species: FGSpecies, zone: FGZone, result: FGRecordResult))
 ---@field FireProgress fun()
+---@field NpcId fun(guid: string?): integer?
 ---@field RecordKill fun(name: string?, npcId: integer?, guid: string?): table?
 ---@field RecordSighting fun(unit: string): boolean
 ---@field On fun(event: string, fn: function, filter?: fun(...): boolean): boolean

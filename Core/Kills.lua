@@ -82,6 +82,8 @@ local function NpcId(guid)
 	return npcId
 end
 
+ns.NpcId = NpcId
+
 -- Unit identity tables are reused rather than built per event: a nameplate token is added and removed all session,
 -- and a fresh table for each add is garbage for the collector to sweep. A token's table is recycled when it is
 -- retargeted, its nameplate leaves, or the target changes.

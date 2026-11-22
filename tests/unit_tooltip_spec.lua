@@ -44,9 +44,6 @@ local function MakeTooltip(opts)
 			self.unitLookups = self.unitLookups + 1
 			return opts.unitName, opts.unitToken
 		end,
-		AddLine = function(_, text, r, g, b)
-			added[#added + 1] = { text = text, kind = "AddLine", r = r, g = g, b = b }
-		end,
 	}
 	return tooltip
 end
@@ -95,8 +92,17 @@ harness:Fire("ADDON_LOADED", "FieldGuideForever")
 harness:Fire("PLAYER_LOGIN")
 
 -- 2. Known creature not yet recorded in journal.
+local parseNpcId = ns.NpcId
+assert(type(parseNpcId) == "function", "Kills must expose its cached GUID parser")
+local parsedGuid
+ns.NpcId = function(guid)
+	parsedGuid = guid
+	return parseNpcId(guid)
+end
 local unrecordedTip = MakeTooltip()
 hook(unrecordedTip, { guid = wolfGuid })
+ns.NpcId = parseNpcId
+assert(parsedGuid == wolfGuid, "unit tooltip must pass its GUID to the shared parser")
 assert(#unrecordedTip.lines == 2, "expected 2 lines for unrecorded creature, got " .. #unrecordedTip.lines)
 assert(unrecordedTip.lines[1].text == "Field Guide" and unrecordedTip.lines[1].kind == "normal", "header line")
 assert(

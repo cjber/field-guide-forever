@@ -77,21 +77,6 @@ function Tooltip.Hide()
 	end
 end
 
--- The NPC id inside a creature or vehicle GUID ("Creature-0-<server>-<instance>-<zone>-<npc id>-<spawn>").
--- Players, pets and other GUID kinds return nil.
----@param guid string?
----@return integer?
-local function CreatureNpcId(guid)
-	if type(guid) ~= "string" then
-		return nil
-	end
-	local kind, id = guid:match("^(%a+)%-%d+%-%d+%-%d+%-%d+%-(%d+)%-")
-	if kind == "Creature" or kind == "Vehicle" then
-		return tonumber(id)
-	end
-	return nil
-end
-
 -- The unit's GUID: the tooltip data's own, else the GUID of the unit the tooltip shows. Either may be secret.
 ---@param tooltip GameTooltip
 ---@param data? TooltipData
@@ -110,31 +95,6 @@ local function UnitGuid(tooltip, data)
 	return nil
 end
 
----@param tooltip GameTooltip
----@param text string
-local function AddHeaderLine(tooltip, text)
-	if GameTooltip_AddNormalLine then
-		GameTooltip_AddNormalLine(tooltip, text)
-	elseif tooltip.AddLine then
-		local r, g, b = Art.RGBA("gold", 1)
-		tooltip:AddLine(text, r, g, b, true)
-	end
-end
-
----@param tooltip GameTooltip
----@param text string
----@param muted? boolean
-local function AddProgressLine(tooltip, text, muted)
-	if muted and GameTooltip_AddDisabledLine then
-		GameTooltip_AddDisabledLine(tooltip, text)
-	elseif not muted and GameTooltip_AddHighlightLine then
-		GameTooltip_AddHighlightLine(tooltip, text)
-	elseif tooltip.AddLine then
-		local r, g, b = Art.RGBA(muted and "muted" or "text", 1)
-		tooltip:AddLine(text, r, g, b, true)
-	end
-end
-
 -- World unit tooltip lines: a catalogued creature shows Field Guide's research rank and kill count, or notes that it
 -- is not yet in the journal. Runs out of combat with one saved-state lookup and touches no secure frames.
 ---@param tooltip GameTooltip
@@ -150,20 +110,20 @@ local function OnUnitTooltip(tooltip, data)
 	if not state then
 		return
 	end
-	local npcId = CreatureNpcId(UnitGuid(tooltip, data))
+	local npcId = ns.NpcId(UnitGuid(tooltip, data))
 	if not npcId or not (ns.SpeciesById and ns.SpeciesById[npcId]) then
 		return
 	end
 	local entry = state.species and state.species[npcId]
 	local count = entry and entry.count or 0
-	AddHeaderLine(tooltip, L["Field Guide"])
+	GameTooltip_AddNormalLine(tooltip, L["Field Guide"])
 	if count > 0 then
 		local kills = (entry and entry.kills) or count
 		local rankText = string.format(L["Research: %s"], L[ns.Model.RankName(count)])
 		local killText = string.format(kills == 1 and L["%d kill"] or L["%d kills"], kills)
-		AddProgressLine(tooltip, string.format(L["%s · %s"], rankText, killText), false)
+		GameTooltip_AddHighlightLine(tooltip, string.format(L["%s · %s"], rankText, killText))
 	else
-		AddProgressLine(tooltip, L["Not yet in your journal"], true)
+		GameTooltip_AddDisabledLine(tooltip, L["Not yet in your journal"])
 	end
 end
 
