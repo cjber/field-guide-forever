@@ -57,7 +57,10 @@ assert(section.headerText == "Field Guide", "the section names the addon, as Leg
 assert(harness.env.ForeverCore.TrackerHost.IsAttached(section), "the shared column owns the section")
 assert(section:GetContentsHeight() == 0, "a journal that tracks nothing has no section to draw")
 local column = assert(Mock.named.ForeverTrackerCompanion, "the shared column was built")
-assert(column:GetTop() == harness.env.ObjectiveTrackerFrame:GetTop(), "the column's pin resolves at the tracker top")
+assert(
+	column:GetTop() == harness.env.ObjectiveTrackerFrame.NineSlice:GetBottom(),
+	"the column starts on the quest tracker's last visible line, where ForeverCore places it"
+)
 
 local Window = ns.Window
 local function Click()
