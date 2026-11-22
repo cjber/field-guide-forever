@@ -76,3 +76,55 @@ function Tooltip.Hide()
 		GameTooltip:Hide()
 	end
 end
+
+-- World unit tooltip lines: a catalogued creature shows Field Guide's research rank and kill count, or notes that it
+-- is not yet in the journal. The post-call only adds lines to the supplied tooltip. It also runs in combat when
+-- the GUID is readable.
+---@param tooltip GameTooltip
+---@param data? TooltipData
+local function OnUnitTooltip(tooltip, data)
+	if not ns.ready then
+		return
+	end
+	if ns.db and ns.db.options and ns.db.options.creatureTooltips == false then
+		return
+	end
+	local state = ns.GetCharacterState(false)
+	if not state then
+		return
+	end
+	local npcId = ns.NpcId(ns.Readable(data and data.guid))
+	if not npcId or not (ns.SpeciesById and ns.SpeciesById[npcId]) then
+		return
+	end
+	local entry = state.species and state.species[npcId]
+	local count = entry and entry.count or 0
+	GameTooltip_AddNormalLine(tooltip, L["Field Guide"])
+	if count > 0 then
+		local kills = (entry and entry.kills) or count
+		local rankText = string.format(L["Research: %s"], L[ns.Model.RankName(count)])
+		local killText = string.format(kills == 1 and L["%d kill"] or L["%d kills"], kills)
+		GameTooltip_AddHighlightLine(tooltip, string.format(L["%s · %s"], rankText, killText))
+	else
+		GameTooltip_AddDisabledLine(tooltip, L["Not yet in your journal"])
+	end
+end
+
+-- A forbidden tooltip is never read or drawn on, and a secret GUID reads as no unit: the hover
+-- shows nothing of ours rather than raising an error.
+if
+	TooltipDataProcessor
+	and TooltipDataProcessor.AddTooltipPostCall
+	and Enum
+	and Enum.TooltipDataType
+	and Enum.TooltipDataType.Unit
+then
+	---@param tooltip GameTooltip
+	---@param data? TooltipData
+	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tooltip, data)
+		if not ns.Usable(tooltip) then
+			return
+		end
+		ns.core.SafeCall("unit tooltip", OnUnitTooltip, tooltip, data)
+	end)
+end

@@ -10,6 +10,8 @@ Every scene `tools/mockups.py` renders. Written by that script; do not edit by h
 
 ![Creature list icons in Darnassus](screenshots/creature-icons.png)
 
+![Creature tooltips with and without journal progress](screenshots/creature-tooltip.png)
+
 ![Silver and gold coat filters](screenshots/variants.png)
 
 ![Personal silver record](screenshots/silver-record.png)

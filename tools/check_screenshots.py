@@ -35,6 +35,7 @@ SOURCES = (
     "Core/Settings.lua",
     "UI/Rarity.lua",
     "UI/Discovery.lua",
+    "UI/Tooltip.lua",
     "Locales/enUS.lua",
     "UI/Art.lua",
     "UI/Detail.lua",
@@ -67,6 +68,22 @@ RARITY_GEOMETRY = {
 }
 
 
+# tools/mockups.py load_catalogue reads only these Data/Client.lua tables. The build header, portraits and map
+# overlays never reach a screenshot, so a client data refresh that changes only them leaves the digest alone.
+RENDERED_CLIENT_TABLES = tuple(f"ns.ClientData.{name}[" for name in ("continents", "zones", "maps", "families"))
+
+
+def source_bytes(path: Path) -> bytes:
+    """A source's bytes as the renderer sees them."""
+    if not path.is_file():
+        return b"<missing>"
+    data = path.read_bytes()
+    if path == ROOT / "Data" / "Client.lua":
+        lines = data.decode("utf-8").splitlines(keepends=True)
+        data = "".join(line for line in lines if line.startswith(RENDERED_CLIENT_TABLES)).encode("utf-8")
+    return data
+
+
 def digest() -> str:
     """One digest over every source, path-labelled so a rename changes it too."""
     sha = hashlib.sha256()
@@ -74,7 +91,7 @@ def digest() -> str:
         path = ROOT / name
         sha.update(name.encode("utf-8"))
         sha.update(b"\0")
-        sha.update(path.read_bytes() if path.is_file() else b"<missing>")
+        sha.update(source_bytes(path))
         sha.update(b"\0")
     return sha.hexdigest()
 

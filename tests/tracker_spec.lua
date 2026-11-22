@@ -56,6 +56,8 @@ local section = assert(Mock.trackerSections[1], "the journal adds a section to t
 assert(section.headerText == "Field Guide", "the section names the addon, as Legacy's names its challenges")
 assert(harness.env.ForeverCore.TrackerHost.IsAttached(section), "the shared column owns the section")
 assert(section:GetContentsHeight() == 0, "a journal that tracks nothing has no section to draw")
+local column = assert(Mock.named.ForeverTrackerCompanion, "the shared column was built")
+assert(column:GetTop() == harness.env.ObjectiveTrackerFrame:GetTop(), "the column's pin resolves at the tracker top")
 
 local Window = ns.Window
 local function Click()
@@ -82,7 +84,6 @@ assert(block.headerText == "Plainstrider", "the species name is the block header
 assert(Text(block, 1) == "The Barrens", "the species' zone is the first line")
 assert(Text(block, 2) == "0 / 10 sightings", "its progress toward mastery follows")
 assert(section:GetContentsHeight() > 0, "the section has a height to draw")
-local column = assert(Mock.named.ForeverTrackerCompanion, "the shared column was built")
 assert(column:IsShown(), "the column shows while a species is tracked")
 
 -- A kill reaches the section: the column refreshes on progress, without the journal being reopened.

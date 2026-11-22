@@ -3,6 +3,16 @@
 All notable changes to Field Guide Forever are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
+## [0.8.24] - 2026-11-22
+
+### Added
+
+- **Creature tooltips show your journal progress.** Hovering a catalogued creature in the world adds its research rank and kill count, or notes when it is not yet in your journal. You can turn this off under Journal on the options page. (#449)
+
+### Changed
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
 ## [0.8.23] - 2026-11-21
 
 <!-- forever-core-sync -->

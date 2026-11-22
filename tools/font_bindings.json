@@ -599,8 +599,8 @@
     },
     {
       "source": "Core/Settings.lua",
-      "sha256": "b6fc6bb2e9c74138e358262d89df92a962c8ab1f78048779fce634e13a693273",
-      "review": "Read BuildPanel, Register and login callbacks, plus ForeverCore v1.14.2 UI/SettingsPage.lua Register, AddHeader, AddCheck and AddButton. The addon creates no font strings of its own. Shared page title, section headings (Journal, Announcements, drawn by the shared template), checkbox labels, Move toasts button, category and tooltip wording are excluded because their widgets are owned by the external dependency, whose source digest cannot be pinned by this repository manifest. Reviewed #466: the Attach to quest tracker tick box is ForeverCore.SettingsPage.AddTrackerAttach, a core-built row in core's own font, added only when the running core has it (an older adopted standalone does not); excluded as core-owned.",
+      "sha256": "065b29cea72612d63f9a96d6c777b6a20c3c8b4cf919b82f8b56634bb1e62468",
+      "review": "Read BuildPanel, Register and login callbacks, plus ForeverCore v1.14.2 UI/SettingsPage.lua Register, AddHeader, AddCheck and AddButton. The addon creates no font strings of its own. Shared page title, section headings (Journal, Announcements, drawn by the shared template), checkbox labels, Move toasts button, category and tooltip wording are excluded because their widgets are owned by the external dependency, whose source digest cannot be pinned by this repository manifest. Reviewed #466: the Attach to quest tracker tick box is ForeverCore.SettingsPage.AddTrackerAttach, a core-built row in core's own font, added only when the running core has it (an older adopted standalone does not); excluded as core-owned. Reviewed #449: the Show journal progress on creature tooltips tick box is one more shared AddCheck row; excluded as core-owned.",
       "bindings": []
     }
   ]
