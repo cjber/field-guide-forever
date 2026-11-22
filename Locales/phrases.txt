@@ -72,6 +72,7 @@ Giant
 Gold
 Gold found
 Habitat
+Hovering a catalogued creature adds its journal rank, kill count and whether it is recorded yet to its tooltip.
 Humanoid
 Install QuestieDB or Questie to load the creature catalogue.\nhttps://www.curseforge.com/wow/addons/questie
 Instances
@@ -122,6 +123,7 @@ Shiny
 Shiny %s!
 Shiny found
 Shiny variant
+Show journal progress on creature tooltips
 Show milestone toasts
 Show the records list
 Show undiscovered species

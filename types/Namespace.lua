@@ -87,6 +87,7 @@
 ---@class FGOptions
 ---@field showUndiscovered? boolean
 ---@field showSightingLog? boolean
+---@field creatureTooltips? boolean show journal progress on creature unit tooltips
 ---@field microButton? nil removed setting, cleared at load
 ---@field minimapButtonAngle? nil removed setting, cleared at load
 ---@field minimapButtonHidden? nil removed setting, cleared at load

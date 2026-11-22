@@ -41,6 +41,20 @@ local function BuildPanel(panel, page)
 		end
 	end)
 
+	page.AddCheck(
+		panel,
+		L["Show journal progress on creature tooltips"],
+		function()
+			return ns.db and ns.db.options.creatureTooltips ~= false
+		end,
+		function(checked)
+			if ns.db then
+				ns.db.options.creatureTooltips = checked
+			end
+		end,
+		L["Hovering a catalogued creature adds its journal rank, kill count and whether it is recorded yet to its tooltip."]
+	)
+
 	page.AddHeader(panel, L["Announcements"])
 	page.AddCheck(panel, L["Announce newly recorded creatures"], function()
 		return ns.db and ns.db.options.discoveryText ~= false

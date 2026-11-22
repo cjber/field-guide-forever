@@ -82,3 +82,20 @@ function AchievementFrame_LoadUI() end
 -- ManagedFrameSystem.xml: bottom container follows Edit Mode action bar bounds.
 ---@type Frame?
 BottomManagedFrameContainer = nil
+
+-- Blizzard_SharedXMLGame/Tooltip/TooltipDataHandler.lua:199 (Forever 1.60.1): a callback after a tooltip of this
+-- Enum.TooltipDataType has drawn its lines, before it shows; an insecure one runs insecure.
+---@type {AddTooltipPostCall: fun(tooltipType: Enum.TooltipDataType, func: fun(tooltip: GameTooltip, tooltipData: TooltipData?))}?
+TooltipDataProcessor = nil
+
+---@param tooltip GameTooltip
+---@param text string
+function GameTooltip_AddNormalLine(tooltip, text) end
+
+---@param tooltip GameTooltip
+---@param text string
+function GameTooltip_AddHighlightLine(tooltip, text) end
+
+---@param tooltip GameTooltip
+---@param text string
+function GameTooltip_AddDisabledLine(tooltip, text) end
