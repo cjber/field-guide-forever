@@ -112,9 +112,8 @@ assert(section:GetContentsHeight() == 0, "nothing tracked means nothing to draw"
 assert(not section.blocks[1003], "the untracked species' block is released")
 assert(not column:IsShown(), "the column hides when it has no section")
 
--- Core's real Attach retains the declarative contract and wraps the template title handler.
+-- Core's real Attach retains the declarative contract; block title clicks reach it through HandleBlockHeaderClick.
 assert(section.show and section.trackerMenu and section.trackerClick and section.trackerClickHint)
-assert(section.trackerBlockMenuWrapped, "Core wraps the module's block title click")
 assert(not section.show.get())
 assert(type(section.show.where) == "string" and section.show.where ~= "")
 local function Menu(target, title)
@@ -153,8 +152,11 @@ for _, entry in ipairs(ns.List.entries) do
 end
 assert(visible, "Open clears filters and selects the species' zone")
 Window.SelectSpecies(1003)
-section:OnBlockHeaderClick(target.block, "LeftButton")
-assert(ns.List.selectedId == 1001, "the wrapped block title opens its own species")
+assert(
+	harness.env.ForeverCore.TrackerHost.HandleBlockHeaderClick(section, target.block, "LeftButton"),
+	"Core takes the block title click"
+)
+assert(ns.List.selectedId == 1001, "the block title opens its own species")
 assert(section.trackerClickHint(target) == "open its page")
 ns.catalogueStatus = "loading"
 local accepted, reason = blockMenu[2].fn()
