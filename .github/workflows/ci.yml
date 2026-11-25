@@ -42,7 +42,7 @@ jobs:
           persist-credentials: false
       # Every tool version lives in this checkout's tools/toolchain.json, which the action reads (its manifest input
       # defaults to that file, resolved against the workspace) and installs and verifies each pin from.
-      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
+      - uses: cjber/forever-core/.github/actions/toolchain@556213120532c53500c424655223b2720d30f4d1 # main
         with:
           tools: lua stylua
       - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
@@ -98,7 +98,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
+      - uses: cjber/forever-core/.github/actions/toolchain@556213120532c53500c424655223b2720d30f4d1 # main
         with:
           tools: luals
       - name: Read the ForeverCore ref
@@ -130,7 +130,7 @@ jobs:
           path: tools/.cache
           key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py', 'tools/extract_*.lua') }}
       # gen_creature_icons.py builds its QuestieDB fixture with gen_mock_catalogue.py, which shells out to luajit.
-      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
+      - uses: cjber/forever-core/.github/actions/toolchain@556213120532c53500c424655223b2720d30f4d1 # main
         with:
           tools: lua
       - name: Regenerate the shipped data in a scratch tree
@@ -189,7 +189,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
+      - uses: cjber/forever-core/.github/actions/toolchain@556213120532c53500c424655223b2720d30f4d1 # main
         with:
           tools: gitleaks
       - run: gitleaks git --redact --no-banner .
@@ -221,7 +221,7 @@ jobs:
           path: forever-core
           persist-credentials: false
       # The package gate parses and runs Lua, so it needs the pinned LuaJIT and luac5.1 from tools/toolchain.json.
-      - uses: cjber/forever-core/.github/actions/toolchain@f7f559a49c4fb7b0062e73cbbcb04a2ab7daca54 # main
+      - uses: cjber/forever-core/.github/actions/toolchain@556213120532c53500c424655223b2720d30f4d1 # main
         with:
           tools: lua
       # .pkgmeta's manual changelog, which the release fills with the version's entry.
